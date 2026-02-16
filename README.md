@@ -3,8 +3,8 @@
 Participants : 
 - Hugo Martins
 - Raphael Paes
-- Modestin Honga
-- Baptiste Bonnichon-Jacques
+- Modestin Hounga
+- Baptiste Bonnichon-Jaques
 - Charles Grossin
 
 ## Technologies :
@@ -12,3 +12,6 @@ Participants :
 - Front en Three.js
 - Communnication par le moyen de Websocket (communication avec TCP ouverture continu)
 - ESP32 avec serveur Moquitto
+
+
+Organisation sur la base d'un Gitflow
