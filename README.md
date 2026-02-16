@@ -2,7 +2,7 @@
 
 Participants : 
 - Hugo Martins
-- Rafael Paes
+- Raphael Paes
 - Modestin Honga
 - Baptiste Bonnichon-Jacques
 - Charles Grossin
