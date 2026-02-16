@@ -9,13 +9,16 @@ classDiagram
       id
       value
     }
+  }
+
+  namespace MQTT {
     class MQTTClient {
       publish(topic, payload)
       subscribe(topic)
     }
   }
 
-  namespace BackendGO {
+  namespace GO {
     class Game {
       id
       state
@@ -32,13 +35,22 @@ classDiagram
       updateState()
       broadcastWebSocket()
     }
+  }
+
+  namespace IA_Python {
     class AIClient {
       analyzeGame()
       move()
     }
   }
 
-  namespace FrontendThreeJS {
+  namespace WebSocket {
+    class WebSocketClient {
+      onMessage()
+    }
+  }
+
+  namespace ThreeJS {
     class PlayfieldScene {
       ball
       flippers
@@ -52,9 +64,6 @@ classDiagram
     class DMDDisplay {
       showMessage()
       playAnimation()
-    }
-    class WebSocketClient {
-      onMessage()
     }
   }
 ```
