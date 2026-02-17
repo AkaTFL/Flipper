@@ -1,1 +1,16 @@
-,kjkk
+Workflow Git
+Chaque nouvelle feature doit s'accompagner de la création d'une nouvelle branche.
+
+1. Le "Conventional Commits"
+
+C'est la norme la plus répandue. Elle structure le message de commit pour qu'il soit compréhensible par les humains et les machines (pour générer des changelogs automatiques).
+
+Structure : <type>(<scope>): <description>
+feat : Ajout d'une nouvelle fonctionnalité
+fix : Correction d'un bug.
+docs : Modification de la documentation.
+style : Changements cosmétiques (espace, formatage) sans modification de logique.
+refactor : Modification du code qui n'ajoute rien et ne corrige rien.
+test : Ajout ou correction de tests.
+chore : Tâches de maintenance (mise à jour de dépendances, config build).
+Exemple : feat(auth): ajouter la connexion via Google  
