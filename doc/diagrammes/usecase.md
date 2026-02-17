@@ -1,33 +1,33 @@
 ```mermaid
 flowchart LR
-  Joueur([Joueur])
+  Player([Player])
   ESP32([ESP32])
-  MQTT([Broker MQTT])
-  Backend([Backend Go])
-  IA([IA Python])
+  MQTT([MQTT Broker])
+  Backend([Go Backend])
+  AI([Python AI])
   Frontend([Frontend Three.js])
 
-  UC1((Appuie boutons))
-  UC2((Lance bille))
-  UC3((Joue partie))
-  UC4((Lit boutons / capteurs))
-  UC5((Detecte collisions / score))
-  UC6((Publie via MQTT))
-  UC7((Relais messages))
-  UC8((Gere logique serveur))
-  UC9((Centralise etat partie))
-  UC10((Push WebSocket vers front))
-  UC11((Communique avec IA))
-  UC12((Analyse score / pattern))
-  UC13((Joue contre humain))
-  UC14((Propose evenements))
-  UC15((Playfield 3D))
+  UC1((Press buttons))
+  UC2((Launch ball))
+  UC3((Play game))
+  UC4((Read buttons / sensors))
+  UC5((Detect collisions / score))
+  UC6((Publish via MQTT))
+  UC7((Relay messages))
+  UC8((Manage server logic))
+  UC9((Centralize game state))
+  UC10((Push WebSocket to frontend))
+  UC11((Communicate with AI))
+  UC12((Analyze score / pattern))
+  UC13((Play vs human))
+  UC14((Suggest events))
+  UC15((3D Playfield))
   UC16((Backglass))
   UC17((DMD animations))
 
-  Joueur --- UC1
-  Joueur --- UC2
-  Joueur --- UC3
+  Player --- UC1
+  Player --- UC2
+  Player --- UC3
 
   ESP32 --- UC4
   ESP32 --- UC5
@@ -40,9 +40,9 @@ flowchart LR
   Backend --- UC10
   Backend --- UC11
 
-  IA --- UC12
-  IA --- UC13
-  IA --- UC14
+  AI --- UC12
+  AI --- UC13
+  AI --- UC14
 
   Frontend --- UC15
   Frontend --- UC16
