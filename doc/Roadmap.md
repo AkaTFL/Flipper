@@ -1,355 +1,334 @@
 ## 9. Roadmap
 
-========================================================
-SEMAINE 1 (23 fév – 1 mars)
-Initialisation technique
-========================================================
+> Début : 23 février  
+> Fin prévue : 12 juin  
+> Durée : 16 semaines
 
-Modestin (Backend Go)
+---
+
+### SEMAINE 1 (23 fév – 1 mars) — Initialisation technique
+
+**Modestin (Backend Go)**
 - Setup serveur Go
 - WebSocket minimal
 
-Charles (ESP32 + MQTT)
+**Charles (ESP32 + MQTT)**
 - Installation Mosquitto
 - Test publication MQTT simple
 
-Hugo (Frontend 3D)
+**Hugo (Frontend 3D)**
 - Setup Three.js
 - Scène vide + caméra
 
-Baptiste (Art 3D)
+**Baptiste (Art 3D)**
 - Début modélisation table
 
-Raphael (Tests & CI/CD)
+**Raphael (Tests & CI/CD)**
 - Setup Gitflow
 - Pipeline CI (build Go)
 
---------------------------------------------------------
+---
 
-SEMAINE 2 (2 mars – 8 mars)
-Validation flux complet
---------------------------------------------------------
+### SEMAINE 2 (2 mars – 8 mars) — Validation flux complet
 
-Modestin
+**Modestin**
 - Intégration client MQTT côté backend
 - Relay MQTT → WebSocket
 
-Charles
+**Charles**
 - Connexion ESP32 au broker
 
-Hugo
+**Hugo**
 - Réception WebSocket frontend
 
-Baptiste
+**Baptiste**
 - Modélisation flippers
 
-Raphael
+**Raphael**
 - Tests unitaires backend
 - Vérification build automatique
 
-Livrable : flux complet capteur → navigateur
+**Livrable :** flux complet capteur → navigateur
 
-========================================================
-SEMAINE 3 (9 mars – 15 mars)
-Structuration backend & physique
-========================================================
+---
 
-Modestin
+### SEMAINE 3 (9 mars – 15 mars) — Structuration backend & physique
+
+**Modestin**
 - Struct Game / Player
 - Event dispatcher
 
-Charles
+**Charles**
 - Standardisation topics MQTT
 
-Hugo
+**Hugo**
 - Intégration Rapier
 - Bille dynamique
 
-Baptiste
+**Baptiste**
 - Obstacles 3D
 
-Raphael
+**Raphael**
 - Activation race detector
 - Tests concurrence backend
 
---------------------------------------------------------
+---
 
-SEMAINE 4 (16 mars – 22 mars)
-Gameplay clavier
---------------------------------------------------------
+### SEMAINE 4 (16 mars – 22 mars) — Gameplay clavier
 
-Modestin
+**Modestin**
 - Gestion score backend
 
-Charles
+**Charles**
 - Validation stabilité MQTT
 
-Hugo
+**Hugo**
 - Flippers clavier
 - Détection collisions
 
-Baptiste
+**Baptiste**
 - Ajustement modèles 3D
 
-Raphael
+**Raphael**
 - Tests unitaires score
 
-Livrable : prototype jouable clavier
+**Livrable :** prototype jouable clavier
 
-========================================================
-SEMAINE 5 (23 mars – 29 mars)
-États du jeu
-========================================================
+---
 
-Modestin
+### SEMAINE 5 (23 mars – 29 mars) — États du jeu
+
+**Modestin**
 - États : IDLE / PLAYING / GAME_OVER
 
-Charles
+**Charles**
 - Tests QoS MQTT
 
-Hugo
+**Hugo**
 - Affichage score Playfield
 
-Baptiste
+**Baptiste**
 - Début design DMD
 
-Raphael
+**Raphael**
 - Tests transitions d’état
 
---------------------------------------------------------
+---
 
-SEMAINE 6 (30 mars – 5 avril)
-Stabilisation MVP
---------------------------------------------------------
+### SEMAINE 6 (30 mars – 5 avril) — Stabilisation MVP
 
-Modestin
+**Modestin**
 - Sécurisation concurrence backend
 
-Charles
+**Charles**
 - Optimisation publication MQTT
 
-Hugo
+**Hugo**
 - Ajustement collisions
 
-Baptiste
+**Baptiste**
 - Optimisation assets 3D
 
-Raphael
+**Raphael**
 - Pipeline CI étendu
 - Lint JS + Go
 
-Livrable : MVP stable
+**Livrable :** MVP stable
 
-========================================================
-SEMAINE 7 (6 avril – 12 avril)
-Synchronisation Playfield / Backglass
-========================================================
+---
 
-Modestin
+### SEMAINE 7 (6 avril – 12 avril) — Synchronisation Playfield / Backglass
+
+**Modestin**
 - Broadcast structuré WebSocket
 
-Charles
+**Charles**
 - Monitoring broker MQTT
 
-Hugo
+**Hugo**
 - Synchronisation Playfield / Backglass
 
-Baptiste
+**Baptiste**
 - Animations Backglass
 
-Raphael
+**Raphael**
 - Tests multi-clients WebSocket
 
---------------------------------------------------------
+---
 
-SEMAINE 8 (13 avril – 19 avril)
-Synchronisation DMD
---------------------------------------------------------
+### SEMAINE 8 (13 avril – 19 avril) — Synchronisation DMD
 
-Modestin
+**Modestin**
 - Validation ordre des événements
 
-Charles
+**Charles**
 - Tests stabilité MQTT
 
-Hugo
+**Hugo**
 - Intégration DMD
 
-Baptiste
+**Baptiste**
 - Finalisation UI rétro
 
-Raphael
+**Raphael**
 - Tests robustesse WebSocket
 
-Livrable : 3 applications synchronisées
+**Livrable :** 3 applications synchronisées
 
-========================================================
-SEMAINE 9 (20 avril – 26 avril)
-Intégration IoT boutons
-========================================================
+---
 
-Modestin
+### SEMAINE 9 (20 avril – 26 avril) — Intégration IoT boutons
+
+**Modestin**
 - Traitement événements physiques backend
 
-Charles
+**Charles**
 - Mapping GPIO X, C, D, F
 
-Hugo
+**Hugo**
 - Réaction visuelle aux événements physiques
 
-Baptiste
+**Baptiste**
 - Ajustement visuel éléments physiques
 
-Raphael
+**Raphael**
 - Tests end-to-end simulés
 
---------------------------------------------------------
+---
 
-SEMAINE 10 (27 avril – 3 mai)
-Intégration solénoïdes
---------------------------------------------------------
+### SEMAINE 10 (27 avril – 3 mai) — Intégration solénoïdes
 
-Modestin
+**Modestin**
 - Sécurité anti-doublons événements
 
-Charles
+**Charles**
 - Pilotage solénoïdes ESP32
 
-Hugo
+**Hugo**
 - Animation visuelle synchronisée
 
-Baptiste
+**Baptiste**
 - Ajustement visuel animations
 
-Raphael
+**Raphael**
 - Tests latence IoT → Frontend
 
-Livrable : flipper physique fonctionnel
+**Livrable :** flipper physique fonctionnel
 
-========================================================
-SEMAINE 11 (4 mai – 10 mai)
-Stabilisation IoT
-========================================================
+---
 
-Modestin
+### SEMAINE 11 (4 mai – 10 mai) — Stabilisation IoT
+
+**Modestin**
 - Optimisation backend
 
-Charles
+**Charles**
 - Tests matériel réels
 
-Hugo
+**Hugo**
 - Optimisation performance rendu
 
-Baptiste
+**Baptiste**
 - Optimisation modèles
 
-Raphael
+**Raphael**
 - Tests robustesse + monitoring CI
 
---------------------------------------------------------
+---
 
-SEMAINE 12 (11 mai – 17 mai)
-Intégration IA — Analyse
---------------------------------------------------------
+### SEMAINE 12 (11 mai – 17 mai) — Intégration IA — Analyse
 
-Modestin
+**Modestin**
 - API backend pour module IA
 
-Charles
+**Charles**
 - Transmission données capteurs au backend
 
-Hugo
+**Hugo**
 - Affichage résultats IA sur DMD
 
-Baptiste
+**Baptiste**
 - UI visuelle pour feedback IA
 
-Raphael
+**Raphael**
 - Tests performance backend
 
---------------------------------------------------------
+---
 
-SEMAINE 13 (18 mai – 24 mai)
-IA avancée
---------------------------------------------------------
+### SEMAINE 13 (18 mai – 24 mai) — IA avancée
 
-Modestin
+**Modestin**
 - Intégration logique IA côté backend
 
-Charles
+**Charles**
 - Vérification stabilité MQTT
 
-Hugo
+**Hugo**
 - Ajustement interface IA
 
-Baptiste
+**Baptiste**
 - Ajustement visuel IA
 
-Raphael
+**Raphael**
 - Tests charge backend
 
---------------------------------------------------------
+---
 
-SEMAINE 14 (25 mai – 31 mai)
-Optimisation globale
---------------------------------------------------------
+### SEMAINE 14 (25 mai – 31 mai) — Optimisation globale
 
-Modestin
+**Modestin**
 - Optimisation concurrence
 
-Charles
+**Charles**
 - Stabilisation MQTT
 
-Hugo
+**Hugo**
 - Optimisation FPS
 
-Baptiste
+**Baptiste**
 - Finalisation assets
 
-Raphael
+**Raphael**
 - Augmentation couverture tests
 
-Livrable : Release Candidate
+**Livrable :** Release Candidate
 
-========================================================
-SEMAINE 15 (1 juin – 7 juin)
-Documentation
-========================================================
+---
 
-Modestin
+### SEMAINE 15 (1 juin – 7 juin) — Documentation
+
+**Modestin**
 - Documentation backend
 
-Charles
+**Charles**
 - Documentation IoT
 
-Hugo
+**Hugo**
 - Documentation frontend
 
-Baptiste
+**Baptiste**
 - Documentation assets
 
-Raphael
+**Raphael**
 - Vérification pipeline complet
 
---------------------------------------------------------
+---
 
-SEMAINE 16 (8 juin – 12 juin)
-Soutenance
---------------------------------------------------------
+### SEMAINE 16 (8 juin – 12 juin) — Soutenance
 
-Modestin
+**Modestin**
 - Validation backend final
 
-Charles
+**Charles**
 - Validation IoT final
 
-Hugo
+**Hugo**
 - Validation frontend final
 
-Baptiste
+**Baptiste**
 - Validation assets final
 
-Raphael
+**Raphael**
 - Tag v1.0.0
 - Gel du code
 - Vérification CI stable
