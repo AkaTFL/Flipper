@@ -2,7 +2,6 @@ Workflow Git
 Chaque nouvelle feature doit s'accompagner de la création d'une nouvelle branche.
 
 1. Le "Conventional Commits"
-
 C'est la norme la plus répandue. Elle structure le message de commit pour qu'il soit compréhensible par les humains et les machines (pour générer des changelogs automatiques).
 
 Structure : <type>(<scope>): <description>
