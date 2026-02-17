@@ -1,26 +1,27 @@
 ```mermaid
 sequenceDiagram
-  participant Joueur
+  participant Player
   participant ESP32
-  participant MQTT as Broker MQTT
-  participant Backend as Backend Go
-  participant IA as IA Python
+  participant MQTT as MQTT Broker
+  participant Backend as Go Backend
+  participant AI as Python AI
   participant Frontend
 
-  Joueur->>ESP32: Action / collision
-  ESP32->>MQTT: Envoie hit
-  MQTT->>Backend: Relaye event
-  Backend->>IA: HTTP event
-  IA->>IA: Calcule nouvel objectif
-  IA-->>Backend: JSON objective/position/value
-  Backend->>Backend: Met a jour score + etat
+  Player->>ESP32: Physical action / collision
+  ESP32->>MQTT: Publish hit event
+  MQTT->>Backend: Relay event
+  Backend->>AI: HTTP event
+  AI->>AI: Compute new objective
+  AI-->>Backend: JSON (objective/position/value)
+  Backend->>Backend: Update score + state
   Backend->>Frontend: WebSocket update
-  Frontend->>Frontend: MAJ score, DMD, effets
+  Frontend->>Frontend: Update score, DMD, effects
 
-  alt Deuxieme joueur IA
-    Backend->>IA: HTTP event
-    IA->>IA: Calcule coup
-    IA-->>Backend: infos joueurs (JSON/autres)
-    Backend->>Backend: Met a jour etat partie
+  opt Second player is AI
+    Backend->>AI: HTTP event (AI turn)
+    AI->>AI: Compute move
+    AI-->>Backend: Player info (JSON)
+    Backend->>Backend: Update game state
+    Backend->>Frontend: WebSocket update
   end
 ```
