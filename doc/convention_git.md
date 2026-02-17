@@ -27,6 +27,6 @@ hotfix/nom-du-bug : Pour les corrections urgentes en production.
 release/v1.2.0 : Pour la préparation d'une mise en production.
 
 
-**Document rédigé par** :[Bonnichon-Jaques Baptiste](https://github.com/lm-hg), [Hugo Martins](https://github.com/AkaTFL)
+**Document rédigé par** :[Bonnichon-Jaques Baptiste](https://github.com/lm-hg), 
 **Dernière mise à jour** : 17 février 2026  
 **Version** : 0.1.0 
