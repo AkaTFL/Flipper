@@ -1,3 +1,7 @@
+Nommage des fichier toujours en anglais.
+On commence par des majuscules et chaques espace est représenté par un underscore.
+
+
 1. Le "Conventional Commits"
 C'est la norme la plus répandue. Elle structure le message de commit pour qu'il soit compréhensible par les humains et les machines (pour générer des changelogs automatiques).
 
@@ -25,6 +29,7 @@ develop : Le code en cours d'intégration (optionnel selon le flux).
 feature/nom-de-la-feature : Pour les nouveaux développements.
 hotfix/nom-du-bug : Pour les corrections urgentes en production.
 release/v1.2.0 : Pour la préparation d'une mise en production.
+
 
 
 **Document rédigé par** :[Bonnichon-Jaques Baptiste](https://github.com/lm-hg), 
