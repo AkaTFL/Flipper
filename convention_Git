@@ -14,3 +14,9 @@ refactor : Modification du code qui n'ajoute rien et ne corrige rien.
 test : Ajout ou correction de tests.
 chore : Tâches de maintenance (mise à jour de dépendances, config build).
 Exemple : feat(auth): ajouter la connexion via Google  
+
+2. La règle des "50/72" pour les messages
+Pour qu'un historique soit propre dans un terminal ou une interface web :
+
+Sujet (1ère ligne) : Maximum 50 caractères. Il commence par une majuscule et n'a pas de point final. Utilisez l'impératif (ex: "Add" plutôt que "Added").
+Corps (Optionnel) : Si le changement est complexe, sautez une ligne et expliquez le "pourquoi" (et non le "comment"). Limitez chaque ligne à 72 caractères.
