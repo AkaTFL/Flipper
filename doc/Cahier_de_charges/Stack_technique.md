@@ -71,19 +71,15 @@ Contrairement à Python ou Node.js (interprétés), **Go est compilé en code ma
 Go produit un **binaire unique et statiquement lié** (sans dépendances externes). C'est idéal pour un projet IoT car vous pouvez le déployer facilement sur n'importe quel serveur (même un Raspberry Pi) sans gérer Node.js, pip, ou JVM.
 
 
-### 2. Frontend : Three.js + Cannon.js
+### 2. Frontend : Three.js + Rapier
 
 #### 2.1 Three.js (Rendu 3D)
-**Three.js** est la bibliothèque WebGL de référence pour le rendu 3D dans le navigateur :
-- **Performance** : Utilise WebGL 2.0 pour l'accélération GPU native
-- **Écosystème** : Modèles 3D (GLTF), lumières, ombres, post-processing
-- **Compatibilité** : Fonctionne sur Chrome, Firefox, Safari (98% des navigateurs modernes)
+Concernant le choix du moteur graphique et du framework, notre décision s'est portée sur Three.js et Rapier.
 
-#### 2.2 Cannon.js (Moteur physique)
-Pour simuler les rebonds de la bille, collisions avec les bumpers, et gravité :
-- **Moteur physique 3D complet** (corps rigides, contraintes, collision)
-- **Intégration Three.js** : Synchronisation automatique entre rendu visuel et simulation physique
-- **Léger** : ~150 Ko minifié (vs 1+ Mo pour des alternatives comme Ammo.js)
+Three.js a été priorisé par rapport à Babylon.js et d'autres moteurs, car il est largement adopté et bénéficie d'un support communautaire très important, ce qui permet d'accéder plus facilement à des ressources, des exemples et des tutoriels. Par ailleurs, Three.js est relativement léger et offre une grande liberté, que ce soit pour la conception de shaders, l'optimisation ou l'utilisation d'outils en surcouche tels que React Three Fiber, qui permet de gérer des objets Three.js comme des composants React. Enfin, son fonctionnement en tant que librairie JavaScript le rend compatible avec la majorité des navigateurs actuels.
+
+#### 2.2 Rapier (Moteur physique)
+Concernant le moteur physique, notre choix s'est porté sur Rapier, un moteur physique écrit en Rust et compilé en WebAssembly. L'avantage de Rapier réside dans son implémentation moderne, qui permet des calculs performants et peu lourds, ce qui est utile si le jeu se complexifie (gestion de multiples collisions, vitesse de la balle élevée, etc.). Rapier s'intègre facilement avec des surcouches comme R3F. Bien que son système soit un peu plus complexe que celui de certains concurrents, il offre une simulation de collisions fiable. De plus, sa capacité à utiliser le multi-threading, même si elle est surdimensionnée pour ce projet, permet de concevoir un flipper plus complexe tout en conservant une fluidité maximale.
 
 ---
 
@@ -192,6 +188,6 @@ require (
 ```
 
 
-**Document rédigé par** :Modestin
+**Document rédigé par** :[Modestin Hounga](https://github.com/lm-hg), [Hugo Martins](https://github.com/AkaTFL)
 **Dernière mise à jour** : 17 février 2026  
 **Version** : 0.1.0
