@@ -1,11 +1,11 @@
 # Flipper
 
 Participants : 
-- Hugo Martins
-- Raphael Paes
-- Modestin Hounga
-- Baptiste Bonnichon-Jaques
-- Charles Grossin
+- [Hugo Martins](https://github.com/AkaTFL)
+- [Raphael Paes](https://github.com/Pharosi)
+- [Modestin Hounga](https://github.com/lm-hg)
+- [Baptiste Bonnichon-Jaques](https://github.com/bnjjs1998)
+- [Charles Grossin](https://github.com/chary85)
 
 ## Technologies :
 - Back en Go
