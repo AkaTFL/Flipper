@@ -1,7 +1,6 @@
 Nommage des fichier toujours en anglais.
 On commence par des majuscules et chaques espace est représenté par un underscore.
 
-
 1. Le "Conventional Commits"
 C'est la norme la plus répandue. Elle structure le message de commit pour qu'il soit compréhensible par les humains et les machines (pour générer des changelogs automatiques).
 
@@ -30,6 +29,15 @@ feature/nom-de-la-feature : Pour les nouveaux développements.
 hotfix/nom-du-bug : Pour les corrections urgentes en production.
 release/v1.2.0 : Pour la préparation d'une mise en production.
 
+
+4. Règles sur les Pull Requests (PR)
+Puisque tu parles de branches, tu pourrais ajouter une règle sur la fusion :
+
+Squash and Merge : Est-ce qu'on fusionne chaque commit ou est-ce qu'on compresse tout en un seul commit propre avant d'intégrer à main ?
+Revue de code : Exiger au moins une approbation avant le merge.
+
+5. Le fichier .gitignore
+Ajouter une ligne rappelant qu'aucun fichier de configuration locale (.env, .vscode/, node_modules/, vendor/) ne doit être indexé par Git.
 
 
 **Document rédigé par** :[Bonnichon-Jaques Baptiste](https://github.com/lm-hg), 
