@@ -6,10 +6,11 @@ var HEIGHT = window.innerHeight;
 
 var renderer, scene, camera;
 
-// Start scene setup
-init();
-
-function init() {
+/**
+ * Initialise la scène 3D avec le renderer, la caméra et le plan de base
+ * @returns {Object} {renderer, scene, camera}
+ */
+function initScene() {
     // Renderer with anti-aliasing for smoother edges
     renderer = new THREE.WebGLRenderer({antialias :true});
     renderer.setPixelRatio( window.devicePixelRatio );
@@ -49,10 +50,15 @@ function init() {
     var container = document.getElementById( 'three' );
     container.appendChild( renderer.domElement );
 
-    // Call render loop
-    requestAnimationFrame(render);
+    return { renderer, scene, camera };
 }
 
+/**
+ * Lance la boucle de rendu
+ */
+function startRender() {
+    requestAnimationFrame(render);
+}
 
 function render() 
 {
@@ -60,3 +66,5 @@ function render()
     renderer.render( scene, camera );
     requestAnimationFrame(render);
 }
+
+export { initScene, startRender };
