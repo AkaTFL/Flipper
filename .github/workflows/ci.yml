@@ -9,6 +9,7 @@ jobs:
   backend:
     name: Backend (Go) - build + tests
     runs-on: ubuntu-latest
+    if: ${{ hashFiles('backend/go.mod') != '' }}
 
     defaults:
       run:
@@ -23,7 +24,6 @@ jobs:
         with:
           go-version: "1.24.x"
           cache: true
-          cache-dependency-path: backend/go.sum
 
       - name: Build
         run: go build ./...
@@ -34,6 +34,7 @@ jobs:
   frontend:
     name: Frontend - install + lint + build
     runs-on: ubuntu-latest
+    if: ${{ hashFiles('frontend/package.json') != '' }}
 
     defaults:
       run:
@@ -48,7 +49,6 @@ jobs:
         with:
           node-version: "20"
 
-      # Se vocês usam NPM:
       - name: Install
         run: npm ci
 
