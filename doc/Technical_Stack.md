@@ -9,7 +9,7 @@ Le projet Flipper est une simulation de flipper virtuel multijoueur combinant un
 | Composant | Technologie | Version | Justification |
 |-----------|-------------|---------|---------------|
 | **Backend** | Go (Golang) | 1.26+ | Concurrence native, latence minimale, binaire unique |
-| **Frontend** | Three.js | r160+ | Rendu 3D performant, physique avec Cannon.js |
+| **Frontend** | Three.js | r160+ | Rendu 3D performant, physique avec Rapier |
 | **Communication Web** | WebSockets | RFC 6455 | Full-duplex, faible latence, push temps réel |
 | **IoT - Microcontrôleur** | ESP32 | - | Wi-Fi intégré, GPIO, faible coût |
 | **IoT - Protocole** | MQTT (Mosquitto) | 3.1.1 | Pub/Sub, QoS, tolérance aux déconnexions |
@@ -23,7 +23,7 @@ Le projet Flipper est une simulation de flipper virtuel multijoueur combinant un
 ┌─────────────────────────────────────────────────────────┐
 │                    FRONTEND (Navigateur)                │
 │  ┌──────────────────────────────────────────────────┐   │
-│  │  Three.js + Cannon.js (Rendu 3D + Physique)     │   │
+│  │  Three.js + Rapier (Rendu 3D + Physique)     │   │
 │  └────────────────────┬─────────────────────────────┘   │
 └───────────────────────┼─────────────────────────────────┘
                         │ WebSocket (Bi-directionnel)
