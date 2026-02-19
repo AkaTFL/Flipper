@@ -6,10 +6,37 @@ on:
     branches: ["main"]
 
 jobs:
+  prepare:
+    name: Prepare (détection des dossiers)
+    runs-on: ubuntu-latest
+    outputs:
+      has_backend: ${{ steps.check.outputs.has_backend }}
+      has_frontend: ${{ steps.check.outputs.has_frontend }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Vérifier la présence de backend/go.mod et frontend/package.json
+        id: check
+        shell: bash
+        run: |
+          if [ -f "backend/go.mod" ]; then
+            echo "has_backend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_backend=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ -f "frontend/package.json" ]; then
+            echo "has_frontend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_frontend=false" >> "$GITHUB_OUTPUT"
+          fi
+
   backend:
     name: Backend (Go) - build + tests
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('backend/go.mod') != '' }}
+    needs: prepare
+    if: ${{ needs.prepare.outputs.has_backend == 'true' }}
 
     defaults:
       run:
@@ -34,7 +61,8 @@ jobs:
   frontend:
     name: Frontend - install + lint + build
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('frontend/package.json') != '' }}
+    needs: prepare
+    if: ${{ needs.prepare.outputs.has_frontend == 'true' }}
 
     defaults:
       run:
