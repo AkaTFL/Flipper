@@ -7,7 +7,7 @@ export default class GamePhysics {
     }
 
     async init() {
-        await RAPIER.init()
+        await RAPIER.init({})
 
         this.world = new RAPIER.World(this.config.gravity)
     }
