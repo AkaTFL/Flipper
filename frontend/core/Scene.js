@@ -7,7 +7,6 @@ var HEIGHT = window.innerHeight;
 var renderer, scene, camera;
 
 /**
- * Initialise la scène 3D avec le renderer, la caméra et le plan de base
  * @returns {Object} {renderer, scene, camera}
  */
 function initScene() {
@@ -56,15 +55,16 @@ function initScene() {
 /**
  * Lance la boucle de rendu
  */
-function startRender() {
-    requestAnimationFrame(render);
+function startRender(physics, ball) {
+    requestAnimationFrame(() => render(physics, ball));
 }
 
-function render() 
+function render(physics, ball) 
 {
-    // Animation loop
-    renderer.render( scene, camera );
-    requestAnimationFrame(render);
+    physics.step();
+    ball.syncFromPhysics();
+    renderer.render(scene, camera);
+    requestAnimationFrame(() => render(physics, ball));
 }
 
 export { initScene, startRender };
