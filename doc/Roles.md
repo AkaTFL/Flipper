@@ -1,4 +1,4 @@
-Rafael : Développeur de tests et CI/CD (tests et CI/CD)
+Raphael : Développeur de tests et CI/CD (tests et CI/CD)
 Baptiste : Artiste (Conception des objets 3D)
 Charles : Développeur Backend (ESP32 + MQTT)
 Modestin : Développeur Backend (Go avec WebSocket)
