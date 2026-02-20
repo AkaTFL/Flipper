@@ -4,10 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Flipper</title>
-
+    <script type="importmap">
+      {
+        "imports": {
+          "@dimforge/rapier3d-compat": "https://cdn.skypack.dev/@dimforge/rapier3d-compat@0.19.3",
+          "three": "https://cdn.skypack.dev/three@0.132.2"
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="three"></div>
-    <script type="module" src="./core/Scene.js"></script>
+    <script type="module" src="./core/Flipper.js"></script>
   </body>
 </html>

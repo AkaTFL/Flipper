@@ -22,7 +22,7 @@ export class Ball {
         this.mesh.position.copy(position);
 
         // Physics properties
-        const rigidBodyDesc = RAPIER.RigidBodyDesc.ball(radius).setTranslation(position.x, position.y, position.z);
+        const rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(position.x, position.y, position.z);
         this.rigidBody = this.world.createRigidBody(rigidBodyDesc);
         
         const colliderDesc = RAPIER.ColliderDesc.ball(radius);
