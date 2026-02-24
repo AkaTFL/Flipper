@@ -1,20 +1,18 @@
-import { initScene, startRender } from './Scene.js';
+import { Scene } from './Scene.js';
 import { Ball } from '../objects/Ball.js';
 import Config from '../physics/Config.js';
-import GamePhysics from '../physics/GamePhysics.js';
+import { GamePhysics } from '../physics/GamePhysics.js';
 
 
 async function initFlipper() {
-    const { scene } = initScene();
+    const physics = new GamePhysics(Config);
+    await physics.init();
 
+    const sceneManager = new Scene(physics.world, 500, 500, { x: 0, y: 500, z: 0 });
+    const ball = new Ball(physics.world, { x: 0, y: 500, z: 0 });
 
-    const physics = new GamePhysics(Config)
-    await physics.init()
-
-    const ball = new Ball(physics.world, Config.ball.radius);
-    scene.add(ball.mesh);
-
-    startRender(physics, ball);
+    sceneManager.scene.add(ball.mesh);
+    sceneManager.startRender(physics, () => ball.syncFromPhysics());
 }
 
 // Start the game

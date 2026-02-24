@@ -1,70 +1,112 @@
-import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
+import * as THREE from 'three';
+import * as RAPIER from '@dimforge/rapier3d-compat';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import Config from '../physics/Config.js';
 
-// Cache viewport size at init
-var WIDTH = window.innerWidth;
-var HEIGHT = window.innerHeight;
+export class Scene {
+    /**
+     * @param {number} height
+     * @param {number} width
+     * @param {Object} position
+     */
 
-var renderer, scene, camera;
+    constructor(world, height = 500, width = 500, position = {x: 0, y: 500, z: 0}) {
+        this.world = world;
 
-/**
- * @returns {Object} {renderer, scene, camera}
- */
-function initScene() {
-    // Renderer with anti-aliasing for smoother edges
-    renderer = new THREE.WebGLRenderer({antialias :true});
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( WIDTH, HEIGHT );
-    renderer.outputEncoding = THREE.sRGBEncoding;
+        this.WIDTH = window.innerWidth;
+        this.HEIGHT = window.innerHeight;
 
-    // Main scene container
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color( 0x0 ); 
+        this.renderer = null;
+        this.scene = null;
+        this.camera = null;
+        this.controls = null;
 
-    // Camera with a wide view and far clipping plane
-    camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 1550 );
+        this.init(height, width, position);
+    }
 
-    camera.position.z = -100;
-    camera.position.y = 10;
-    camera.position.x = 50;;
+    /**
+     * Initialise la scène, le renderer et la caméra
+     * @returns {Object} {renderer, scene, camera}
+     */
+    init(height, width, position) {
+        // Renderer with anti-aliasing for smoother edges
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setSize(this.WIDTH, this.HEIGHT);
+        this.renderer.outputEncoding = THREE.sRGBEncoding;
 
-    // Simple ground plane
-    let plane = new THREE.PlaneGeometry(500,500);
-    
-    let planeMesh = new THREE.Mesh(plane, new THREE.MeshStandardMaterial({
-        color: 0xaaaaaa,
-        side: THREE.DoubleSide,
-        metalness: 0.0,
-        roughness: 1.0
-    }));
+        // Main scene container
+        this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color(0x0);
 
-    // Lay the plane flat
-    planeMesh.rotation.x = - Math.PI / 2;
-    scene.add(planeMesh);
+        // Camera with a wide view and far clipping plane
+        this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1550);
+        this.camera.position.z = position.z;
+        this.camera.position.y = position.y;
+        this.camera.position.x = position.x;
+        this.camera.lookAt(0, 0, 0);
 
-    // Soft ambient light
-    const light = new THREE.AmbientLight(0x0ffffff, 0.5);
-    scene.add(light);
+        // Orbit controls - commentez cette section pour désactiver facilement
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);        
 
-    // Attach renderer to the page
-    var container = document.getElementById( 'three' );
-    container.appendChild( renderer.domElement );
+        // Simple ground plane
+        let plane = new THREE.PlaneGeometry(width, height);
 
-    return { renderer, scene, camera };
+        let planeMesh = new THREE.Mesh(plane, new THREE.MeshStandardMaterial({
+            color: 0xaaaaaa,
+            side: THREE.DoubleSide,
+            metalness: 0.0,
+            roughness: 1.0
+        }));
+
+        // Lay the plane flat
+        planeMesh.rotation.x = -Math.PI / 2;
+        this.scene.add(planeMesh);
+
+        // Soft ambient light
+        const light = new THREE.AmbientLight(0xffffff, 0.5);
+        this.scene.add(light);
+
+
+        // Adding the physics ground plane
+        const groundColliderDesc = RAPIER.RigidBodyDesc.fixed();
+        const groundCollider = this.world.createRigidBody(groundColliderDesc);
+
+        
+        // Rotation du plane de 45 degrés
+        const rotation = new RAPIER.Quaternion(0, 0, -Math.sin(Math.PI / 2), Math.cos(Math.PI / 2));
+        groundCollider.setRotation(rotation);
+
+        const colliderDesc = RAPIER.ColliderDesc.cuboid(width + 5, 1, height + 5)
+             .setRestitution(Config.scene.restitution)
+             .setFriction(Config.scene.friction);
+        this.world.createCollider(colliderDesc, groundCollider);
+
+        // Attach renderer to the page
+        var container = document.getElementById('three');
+        container.appendChild(this.renderer.domElement);
+
+        return { renderer: this.renderer, scene: this.scene, camera: this.camera };
+    }
+
+    /**
+     * Lance la boucle de rendu
+     */
+    startRender(physics, onUpdate) {
+        requestAnimationFrame(() => this.render(physics, onUpdate));
+    }
+
+    render(physics, onUpdate) {
+        physics.step();
+
+        if (this.controls) {
+            this.controls.update();
+        }
+        if (onUpdate) {
+            onUpdate();
+        }
+        
+        this.renderer.render(this.scene, this.camera);
+        requestAnimationFrame(() => this.render(physics, onUpdate));
+    }
 }
-
-/**
- * Lance la boucle de rendu
- */
-function startRender(physics, ball) {
-    requestAnimationFrame(() => render(physics, ball));
-}
-
-function render(physics, ball) 
-{
-    physics.step();
-    ball.syncFromPhysics();
-    renderer.render(scene, camera);
-    requestAnimationFrame(() => render(physics, ball));
-}
-
-export { initScene, startRender };
