@@ -39,7 +39,7 @@ export class Ball {
         this.world.createCollider(colliderDesc, this.rigidBody);
     }
 
-    syncFromPhysics() {
+    syncBall() {
         const position = this.rigidBody.translation();
         this.mesh.position.set(position.x, position.y, position.z);
         

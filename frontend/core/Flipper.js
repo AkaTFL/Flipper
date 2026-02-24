@@ -9,10 +9,14 @@ async function initFlipper() {
     await physics.init();
 
     const sceneManager = new Scene(physics.world, 500, 500, { x: 0, y: 500, z: 0 });
+
+    const container = document.getElementById('three');
+    container.appendChild(sceneManager.renderer.domElement);
+
     const ball = new Ball(physics.world, { x: 0, y: 500, z: 0 });
 
     sceneManager.scene.add(ball.mesh);
-    sceneManager.startRender(physics, () => ball.syncFromPhysics());
+    sceneManager.startRender(physics, () => ball.syncBall());
 }
 
 // Start the game
