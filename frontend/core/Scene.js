@@ -40,7 +40,7 @@ export class Scene {
         this.scene.background = new THREE.Color(0x0);
 
         // Camera with a wide view and far clipping plane
-        this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1550);
+        this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1700);
         this.camera.position.z = position.z;
         this.camera.position.y = position.y;
         this.camera.position.x = position.x;
@@ -48,6 +48,10 @@ export class Scene {
 
         // Orbit controls - commentez cette section pour désactiver facilement
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);        
+
+        // ==========================================
+        // PARTIE VISUELLE (THREE.JS)
+        // ==========================================
 
         // Simple ground plane
         let plane = new THREE.PlaneGeometry(width, height);
@@ -60,7 +64,9 @@ export class Scene {
         }));
 
         // Lay the plane flat
-        planeMesh.rotation.x = -Math.PI / 2;
+        const rotation = -Math.PI / 3;
+
+        planeMesh.rotation.x = rotation;
         this.scene.add(planeMesh);
 
         // Soft ambient light
@@ -68,19 +74,20 @@ export class Scene {
         this.scene.add(light);
 
 
-        // Adding the physics ground plane
-        const groundColliderDesc = RAPIER.RigidBodyDesc.fixed();
-        const groundCollider = this.world.createRigidBody(groundColliderDesc);
+        // ==========================================
+        // PARTIE PHYSIQUE (RAPIER)
+        // ==========================================
+        // Création du sol physique (Invisible).
+    
+        let groundBodyDesc = RAPIER.RigidBodyDesc.fixed()
+            .setRotation({ x: Math.sin(rotation / 2), y: 0, z: 0, w: Math.cos(rotation / 2) });
+        let groundBody = this.world.createRigidBody(groundBodyDesc);
 
-        
-        // Rotation du plane de 45 degrés
-        const rotation = new RAPIER.Quaternion(0, 0, -Math.sin(Math.PI / 2), Math.cos(Math.PI / 2));
-        groundCollider.setRotation(rotation);
-
-        const colliderDesc = RAPIER.ColliderDesc.cuboid(width + 5, 1, height + 5)
-             .setRestitution(Config.scene.restitution)
-             .setFriction(Config.scene.friction);
-        this.world.createCollider(colliderDesc, groundCollider);
+        let groundColliderDesc = RAPIER.ColliderDesc.cuboid(width / 2, height / 2, 0.1)
+            .setRestitution(Config.scene.restitution)
+            .setFriction(Config.scene.friction);
+            
+        this.world.createCollider(groundColliderDesc, groundBody);
 
         // Attach renderer to the page
         var container = document.getElementById('three');
