@@ -25,7 +25,7 @@ export class Ball {
         // Physics properties - Dynamic rigid body with mass
         const rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic()
             .setTranslation(position.x, position.y, position.z)
-            .setCanSleep(false) // Empêcher la balle de s'endormir
+            .setCanSleep(false)   // Empêcher la balle de s'endormir
             .setCcdEnabled(true); // Continuous Collision Detection (essentiel pour balles rapides)
 
         this.rigidBody = this.world.createRigidBody(rigidBodyDesc);
@@ -33,8 +33,8 @@ export class Ball {
         // Physique précise : friction, restitution, densité
         const colliderDesc = RAPIER.ColliderDesc.ball(this.radius)
             .setDensity(Config.ball.density)               // Densité élevée (acier)
-            .setRestitution(Config.ball.restitution)           // Rebond
-            .setFriction(Config.ball.friction);             // Glissement
+            .setRestitution(Config.ball.restitution)       // Rebond
+            .setFriction(Config.ball.friction);            // Glissement
 
         this.world.createCollider(colliderDesc, this.rigidBody);
     }
