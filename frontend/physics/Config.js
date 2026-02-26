@@ -1,5 +1,5 @@
 export default {
-    gravity: { x: 0, y: -9.81, z: 0 },
+    gravity: { x: 0, y: -9.75, z: -1.11 },
     
     ball: {
         density: 2.0,       // Densité
@@ -10,8 +10,8 @@ export default {
     },
 
     wall: {
-        restitution: 0,
-        friction: 0.1
+        restitution: 0.3,
+        friction: 0.5
     },
 
     scene: {
@@ -19,6 +19,6 @@ export default {
         friction: 0
     },
 
-    scale: 100,
+    scale: 100, // Échelle pour convertir les unités physiques en unités de rendu (ex: 1 unité physique = 100 unités de rendu)
     forceMultiplier: 100.0  // Multiplicateur de force pour ajuster l'intensité de la physique en fonction de l'échelle
 }
