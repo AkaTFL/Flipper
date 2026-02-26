@@ -8,9 +8,10 @@ export class Scene {
      * @param {number} height
      * @param {number} width
      * @param {Object} position
+     * @param {number} rotation
      */
 
-    constructor(world, height = 500, width = 500, position = {x: 0, y: 500, z: 0}) {
+    constructor(world, height = 500, width = 500, position = {x: 0, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}) {
         this.world = world;
 
         this.WIDTH = window.innerWidth;
@@ -21,14 +22,14 @@ export class Scene {
         this.camera = null;
         this.controls = null;
 
-        this.init(height, width, position);
+        this.init(height, width, position, rotation);
     }
 
     /**
      * Initialise la scène, le renderer et la caméra
      * @returns {Object} {renderer, scene, camera}
      */
-    init(height, width, position) {
+    init(height, width, position, rotation) {
         // Renderer with anti-aliasing for smoother edges
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -63,10 +64,9 @@ export class Scene {
             roughness: 1.0
         }));
 
-        // Lay the plane flat
-        const rotation = -Math.PI / 3;
-
-        planeMesh.rotation.x = rotation;
+        planeMesh.rotation.x = rotation.x;
+        planeMesh.rotation.y = rotation.y;
+        planeMesh.rotation.z = rotation.z;
         this.scene.add(planeMesh);
 
         // Soft ambient light
@@ -80,7 +80,7 @@ export class Scene {
         // Création du sol physique (Invisible).
     
         let groundBodyDesc = RAPIER.RigidBodyDesc.fixed()
-            .setRotation({ x: Math.sin(rotation / 2), y: 0, z: 0, w: Math.cos(rotation / 2) });
+            .setRotation({ x: Math.sin(rotation.x / 2), y: Math.sin(rotation.y / 2), z: Math.sin(rotation.z / 2), w: Math.cos(rotation.x / 2) * Math.cos(rotation.y / 2) * Math.cos(rotation.z / 2) });
         let groundBody = this.world.createRigidBody(groundBodyDesc);
 
         let groundColliderDesc = RAPIER.ColliderDesc.cuboid(width / 2, height / 2, 0.1)
