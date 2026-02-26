@@ -3,7 +3,7 @@ export default {
     
     ball: {
         density: 2.0,       // Densité
-        radius: 5,          // Rayon de la balle
+        radius: 14,          // Rayon de la balle. Une balle de flipper typique a un rayon d'environ 14 mm)
         mass: 80,           // Masse
         restitution: 0.7,   // Bounciness (0 = pas de rebond, 1 = rebond total)
         friction: 0.1,      // Glissement 
