@@ -1,1 +1,0 @@
-Actuellement, la taille de l'écran est de 942mm pour 530mm. Actuellement, la taille des plan est augmentée avec un rapport de 100, afin de travailler sur des modèles plus grands
