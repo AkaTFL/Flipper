@@ -5,7 +5,7 @@
 Le frontend utilise **3 technologies**:
 - **Three.js** → Affiche les objets 3D à l'écran
 - **Rapier** → Simule la physique (gravité, collisions)
-- **JavaScript ES6** → Crée les objets du jeu
+- **JavaScript** → Crée les objets du jeu
 
 ## Comment ça marche?
 
