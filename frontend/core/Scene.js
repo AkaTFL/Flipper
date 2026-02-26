@@ -79,8 +79,16 @@ export class Scene {
         // ==========================================
         // Création du sol physique (Invisible).
     
+        const cx = Math.cos(rotation.x / 2), sx = Math.sin(rotation.x / 2);
+        const cy = Math.cos(rotation.y / 2), sy = Math.sin(rotation.y / 2);
+        const cz = Math.cos(rotation.z / 2), sz = Math.sin(rotation.z / 2);
         let groundBodyDesc = RAPIER.RigidBodyDesc.fixed()
-            .setRotation({ x: Math.sin(rotation.x / 2), y: Math.sin(rotation.y / 2), z: Math.sin(rotation.z / 2), w: Math.cos(rotation.x / 2) * Math.cos(rotation.y / 2) * Math.cos(rotation.z / 2) });
+            .setRotation({
+                x: sx * cy * cz + cx * sy * sz,
+                y: cx * sy * cz - sx * cy * sz,
+                z: cx * cy * sz + sx * sy * cz,
+                w: cx * cy * cz - sx * sy * sz
+            });
         let groundBody = this.world.createRigidBody(groundBodyDesc);
 
         let groundColliderDesc = RAPIER.ColliderDesc.cuboid(width / 2, height / 2, 0.1)
