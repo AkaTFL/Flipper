@@ -9,16 +9,16 @@ async function initFlipper() {
     const physics = new GamePhysics(Config);
     await physics.init();
 
-    const sceneManager = new Scene(physics.world, 500, 500, { x: 0, y: 500, z: 0 });
+    const sceneManager = new Scene(physics.world, 950, 540, { x: 0, y: 500, z: 0 }, { x: (-Math.PI / 2), y: 0, z: 0 });
 
     const container = document.getElementById('three');
     container.appendChild(sceneManager.renderer.domElement);
 
 
-    const wallR = new Wall(physics.world, 500, 500, { x: 0, y: 0, z: 200 });
-    const wallL = new Wall(physics.world, 500, 500, { x: 0, y: 0, z: -200 });
-    const wallT = new Wall(physics.world, 500, 500, { x: 500, y: 0, z: 0 });
-    const wallB = new Wall(physics.world, 500, 500, { x: -500, y: 0, z: 0 });
+    const wallR = new Wall(physics.world, 950, 100, { x: 255, y: 0, z: 0 }, { x: 0, y: (Math.PI / 2), z: 0 });
+    const wallL = new Wall(physics.world, 950, 100, { x: -255, y: 0, z: 0 }, { x: 0, y: (-Math.PI / 2), z: 0 });
+    const wallT = new Wall(physics.world, 540, 100, { x: 0, y: 0, z: -471 }, { x: 0, y: 0, z: 0 });
+    const wallB = new Wall(physics.world, 540, 100, { x: 0, y: 0, z: 471 }, { x: 0, y: 0, z: 0 });
 
 
     const ball = new Ball(physics.world, { x: 0, y: 500, z: 0 });
