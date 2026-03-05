@@ -1,8 +1,12 @@
 import { Scene } from './Scene.js';
+
 import { Ball } from '../objects/Ball.js';
+import { Wall } from '../objects/Wall.js';
+import { LaunchingRamp } from '../objects/LaunchingRamp.js';
+
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
-import { Wall } from '../objects/Wall.js';
+
 
 
 async function initFlipper() {
@@ -20,15 +24,17 @@ async function initFlipper() {
     const wallT = new Wall(physics.world, 540, 100, { x: 0, y: 0, z: -471 }, { x: 0, y: 0, z: 0 });
     const wallB = new Wall(physics.world, 540, 100, { x: 0, y: 0, z: 471 }, { x: 0, y: 0, z: 0 });
 
+    const launchingRamp = new LaunchingRamp(physics.world, 20, 10, 850, { x: -230, y: 10, z: -50 }, { x: (Math.PI / 2), y: 0, z: 0 });
 
-    const ball = new Ball(physics.world, { x: 0, y: 500, z: 0 });
+
+    const ball = new Ball(physics.world, { x: -230, y: 12, z: -460 });
 
     sceneManager.scene.add(ball.mesh);
     sceneManager.scene.add(wallR.mesh);
     sceneManager.scene.add(wallL.mesh);
     sceneManager.scene.add(wallT.mesh);
     sceneManager.scene.add(wallB.mesh);
-
+    sceneManager.scene.add(...launchingRamp.meshes);
 
     sceneManager.startRender(physics, () => ball.syncBall());
 }
