@@ -44,6 +44,6 @@ export class Wall {
             .setRestitution(Config.wall.restitution)
             .setFriction(Config.wall.friction);
 
-        this.world.createCollider(colliderDesc, this.rigidBody);
+        this.collider = this.world.createCollider(colliderDesc, this.rigidBody);
     }
 }

@@ -44,6 +44,6 @@ export class Rail {
             .setRestitution(Config.rail.restitution)
             .setFriction(Config.rail.friction);
 
-        this.world.createCollider(colliderDesc, this.rigidBody);
+        this.collider = this.world.createCollider(colliderDesc, this.rigidBody);
     }
 }
