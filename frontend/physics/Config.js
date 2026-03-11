@@ -30,5 +30,11 @@ export default {
         friction: 0
     },
 
+    bumper: {
+        restitution: 0.9,
+        friction: 0.5,
+        power: 1000
+    },
+
     forceMultiplier: 100.0  // Multiplicateur de force pour ajuster l'intensité de la physique en fonction de l'échelle
 }
