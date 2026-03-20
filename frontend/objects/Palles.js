@@ -18,6 +18,10 @@ export class Palles {
         this.position = position;
         this.rotation = rotation;
         this.side = side;
+        this.isLeft = side === 'left';
+
+        this.angle = side === 'left' ? Config.palles.rotationAngle : -Config.palles.rotationAngle;
+        this.rotationSpeed = Config.palles.rotationSpeed;
 
         this.mesh = new THREE.Mesh(
             new THREE.BoxGeometry(this.length, this.width, this.height),
@@ -58,13 +62,29 @@ export class Palles {
             { x: 0, y: 1, z: 0 }
         );
 
-        this.world.createImpulseJoint(pivot, pivotBody, this.rigidBody, true);
+        this.joint = this.world.createImpulseJoint(pivot, pivotBody, this.rigidBody, true);
 
         const colliderDesc = RAPIER.ColliderDesc.cuboid(this.length / 2, this.width / 2, this.height / 2)
             .setRestitution(Config.palles.restitution)
             .setFriction(Config.palles.friction);
 
         this.collider = this.world.createCollider(colliderDesc, this.rigidBody);
+
+        //Movements of the palles
+        if (this.isLeft) {
+            this.joint.setLimits(-this.angle, 0);
+        } else {
+            this.joint.setLimits(0, this.angle);
+        }
+    }
+
+    setActive(active) {
+        const LorR = this.isLeft ? -1 : 1;
+        const upSpeed = LorR * this.rotationSpeed;
+        const downSpeed = -LorR * this.rotationSpeed;
+
+        // 2e paramètre = factor (réactivité du moteur)
+        this.joint.configureMotorVelocity(active ? upSpeed : downSpeed, 1.0);
     }
 
     syncPalle() {

@@ -9,6 +9,25 @@ import { Palles } from '../objects/Palles.js';
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
 
+
+const input = { left: false, right: false };
+
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'e') {
+    input.left = true;
+    console.log('Key pressed: e');
+  }
+  if (e.code === 'a') {
+    input.right = true;
+    console.log('Key pressed: a');
+    }
+});
+
+window.addEventListener('keyup', (e) => {
+  if (e.code === 'e') input.left = false;
+  if (e.code === 'a') input.right = false;
+});
+
 async function initFlipper() {
     const physics = new GamePhysics(Config);
     await physics.init();
@@ -29,8 +48,8 @@ async function initFlipper() {
     const bumper2 = new Bumper(physics.world, 50, { x: 100, y: 0, z: 0 }, {x: 0, y: 0, z: 0});
     const bumper3 = new Bumper(physics.world, 50, { x: -100, y: 0, z: 0 }, {x: 0, y: 0, z: 0});
 
-    const palles1 = new Palles(physics.world, 200, 10, 10, { x: 0, y: 0, z: -200 }, { x: 0, y: 0, z: 0 }, 'left');
-    const palles2 = new Palles(physics.world, 200, 10, 10, { x: 0, y: 0, z: 200 }, { x: 0, y: 0, z: 0 }, 'right');
+    const palles1 = new Palles(physics.world, 70, 10, 10, { x: 100, y: 0, z: -450 }, { x: 0, y: 0, z: 0 }, 'left');
+    const palles2 = new Palles(physics.world, 70, 10, 10, { x: -100, y: 0, z: -450 }, { x: 0, y: 0, z: 0 }, 'right');
 
     // Enregistrer les bumpers dans le système physique
     physics.registerBumper(bumper1);
@@ -55,6 +74,9 @@ async function initFlipper() {
         palles1.syncPalle();
         palles2.syncPalle();
         ball.syncBall();
+
+        palles1.setActive(input.left);
+        palles2.setActive(input.right);
     });
 }
 

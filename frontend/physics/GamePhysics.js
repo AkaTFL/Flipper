@@ -27,6 +27,8 @@ export class GamePhysics {
         this.handleBumperCollisions()
     }
 
+
+    // GESTION DES BUMPERS
     registerBumper(bumper) {
         this.bumpers.push(bumper)
     }
