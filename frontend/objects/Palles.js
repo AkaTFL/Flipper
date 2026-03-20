@@ -10,13 +10,14 @@ export class Palles {
      * @param {Object} position - The position object with x, y, z properties
      * @param {Object} rotation - The rotation object with x, y, z properties
      */
-    constructor(world, length = 500, width = 10, height = 10, position = {x: 250, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}) {
+    constructor(world, length = 500, width = 10, height = 10, position = {x: 250, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}, side) {
         this.world = world;
         this.length = length;
         this.width = width;
         this.height = height;
         this.position = position;
         this.rotation = rotation;
+        this.side = side;
 
         this.mesh = new THREE.Mesh(
             new THREE.BoxGeometry(this.length, this.width, this.height),
@@ -33,7 +34,12 @@ export class Palles {
         this.mesh.rotation.y = rotation.y;
         this.mesh.rotation.z = rotation.z;
 
-        // Physics properties - Fixed (Static)
+        // Physics properties - hinge anchors differ for left/right flippers
+        const isLeft = side === 'left';
+        const anchorBody = isLeft ? { x: (length / 2), y: 0, z: 0 } : { x: (-length / 2), y: 0, z: 0 };
+        const pivotWorldX = isLeft ? position.x + (length / 2) : position.x - (length / 2);
+
+
         const pallesDesc = RAPIER.RigidBodyDesc.dynamic()
             .setTranslation(position.x, position.y, position.z)
             .setCanSleep(false)   // Empêcher la balle de s'endormir
@@ -42,11 +48,15 @@ export class Palles {
         this.rigidBody = this.world.createRigidBody(pallesDesc);
 
         const pivotDesc = RAPIER.RigidBodyDesc.fixed()
-        .setTranslation(position.x - length / 2, position.y, position.z);
+        .setTranslation(pivotWorldX, position.y, position.z);
         const pivotBody = this.world.createRigidBody(pivotDesc);
 
         // Ajout d'un point pivot pour permettre la rotation autour d'un point spécifique
-        const pivot = RAPIER.JointData.revolute( { x: 0, y: 0, z: 0 }, { x: (-length / 2), y: 0, z: 0 }, { x: 0, y: 1, z: 0 });
+        const pivot = RAPIER.JointData.revolute(
+            { x: 0, y: 0, z: 0 },
+            anchorBody,
+            { x: 0, y: 1, z: 0 }
+        );
 
         this.world.createImpulseJoint(pivot, pivotBody, this.rigidBody, true);
 

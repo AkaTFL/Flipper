@@ -29,8 +29,8 @@ async function initFlipper() {
     const bumper2 = new Bumper(physics.world, 50, { x: 100, y: 0, z: 0 }, {x: 0, y: 0, z: 0});
     const bumper3 = new Bumper(physics.world, 50, { x: -100, y: 0, z: 0 }, {x: 0, y: 0, z: 0});
 
-    const palles1 = new Palles(physics.world, 200, 10, 10, { x: 0, y: 0, z: -200 }, { x: (Math.PI / 4), y: 0, z: 0 });
-    const palles2 = new Palles(physics.world, 200, 10, 10, { x: 0, y: 0, z: 200 }, { x: (-Math.PI / 4), y: 0, z: 0 });
+    const palles1 = new Palles(physics.world, 200, 10, 10, { x: 0, y: 0, z: -200 }, { x: 0, y: 0, z: 0 }, 'left');
+    const palles2 = new Palles(physics.world, 200, 10, 10, { x: 0, y: 0, z: 200 }, { x: 0, y: 0, z: 0 }, 'right');
 
     // Enregistrer les bumpers dans le système physique
     physics.registerBumper(bumper1);
