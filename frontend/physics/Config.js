@@ -36,5 +36,10 @@ export default {
         power: 1000
     },
 
+    palles: {
+        restitution: 0.5,
+        friction: 0.5
+    },
+
     forceMultiplier: 100.0  // Multiplicateur de force pour ajuster l'intensité de la physique en fonction de l'échelle
 }
