@@ -9,6 +9,25 @@ import { Palles } from '../objects/Palles.js';
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
 
+
+const input = { left: false, right: false };
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'e') {
+    input.left = true;
+    console.log('Key pressed: e');
+  }
+  if (e.key === 'a') {
+    input.right = true;
+    console.log('Key pressed: a');
+    }
+});
+
+window.addEventListener('keyup', (e) => {
+  if (e.key === 'e') input.left = false;
+  if (e.key === 'a') input.right = false;
+});
+
 async function initFlipper() {
     const physics = new GamePhysics(Config);
     await physics.init();
@@ -25,14 +44,12 @@ async function initFlipper() {
 
     const launchingRamp = new LaunchingRamp(physics.world, 20, 10, 850, { x: -230, y: 10, z: -50 }, { x: (Math.PI / 2), y: 0, z: 0 });
 
-    // Créer les bumpers
     const bumper1 = new Bumper(physics.world, 50, { x: 0, y: 0, z: 100 }, {x: 0, y: 0, z: 0});
     const bumper2 = new Bumper(physics.world, 50, { x: 100, y: 0, z: 0 }, {x: 0, y: 0, z: 0});
     const bumper3 = new Bumper(physics.world, 50, { x: -100, y: 0, z: 0 }, {x: 0, y: 0, z: 0});
 
-    const palle1 = new Palles(physics.world, 80, 10, 10, { x: 70, y: 0, z: -420 }, { x: 0, y: 0, z: 0 });
-    const palle2 = new Palles(physics.world, 80, 10, 10, { x: -70, y: 0, z: -420 }, { x: 0, y: 0, z: 0 });
-
+    const palles1 = new Palles(physics.world, 70, 10, 10, { x: 100, y: 10, z: -450 }, { x: 0, y: 0, z: 0 }, 'left');
+    const palles2 = new Palles(physics.world, 70, 10, 10, { x: -100, y: 10, z: -450 }, { x: 0, y: 0, z: 0 }, 'right');
 
     // Enregistrer les bumpers dans le système physique
     physics.registerBumper(bumper1);
@@ -50,10 +67,17 @@ async function initFlipper() {
     sceneManager.scene.add(bumper1.mesh);
     sceneManager.scene.add(bumper2.mesh);
     sceneManager.scene.add(bumper3.mesh);
-    sceneManager.scene.add(palle1.mesh);
-    sceneManager.scene.add(palle2.mesh);
+    sceneManager.scene.add(palles1.mesh);
+    sceneManager.scene.add(palles2.mesh);
 
-    sceneManager.startRender(physics, () => ball.syncBall());
+    sceneManager.startRender(physics, () => {
+        palles1.syncPalle();
+        palles2.syncPalle();
+        ball.syncBall();
+
+        palles1.setActive(input.left);
+        palles2.setActive(input.right);
+    });
 }
 
 initFlipper();
