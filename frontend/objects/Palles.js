@@ -20,7 +20,7 @@ export class Palles {
         this.side = side;
         this.isLeft = side === 'left';
 
-        this.angle = side === 'left' ? Config.palles.rotationAngle : -Config.palles.rotationAngle;
+        this.angle = Math.abs(Config.palles.rotationAngle);
         this.rotationSpeed = Config.palles.rotationSpeed;
 
         this.mesh = new THREE.Mesh(
@@ -46,7 +46,7 @@ export class Palles {
 
         const pallesDesc = RAPIER.RigidBodyDesc.dynamic()
             .setTranslation(position.x, position.y, position.z)
-            .setCanSleep(false)   // Empêcher la balle de s'endormir
+            .setCanSleep(false)
             .setRotation({ x: Math.sin(rotation.x / 2), y: Math.sin(rotation.y / 2), z: Math.sin(rotation.z / 2), w: Math.cos(rotation.x / 2) * Math.cos(rotation.y / 2) * Math.cos(rotation.z / 2) });
 
         this.rigidBody = this.world.createRigidBody(pallesDesc);
@@ -56,11 +56,7 @@ export class Palles {
         const pivotBody = this.world.createRigidBody(pivotDesc);
 
         // Ajout d'un point pivot pour permettre la rotation autour d'un point spécifique
-        const pivot = RAPIER.JointData.revolute(
-            { x: 0, y: 0, z: 0 },
-            anchorBody,
-            { x: 0, y: 1, z: 0 }
-        );
+        const pivot = RAPIER.JointData.revolute({ x: 0, y: 0, z: 0 }, anchorBody, { x: 0, y: 1, z: 0 });
 
         this.joint = this.world.createImpulseJoint(pivot, pivotBody, this.rigidBody, true);
 
@@ -79,12 +75,11 @@ export class Palles {
     }
 
     setActive(active) {
-        const LorR = this.isLeft ? -1 : 1;
-        const upSpeed = LorR * this.rotationSpeed;
-        const downSpeed = -LorR * this.rotationSpeed;
-
-        // 2e paramètre = factor (réactivité du moteur)
-        this.joint.configureMotorVelocity(active ? upSpeed : downSpeed, 1.0);
+        const targetAngle = active
+            ? (this.isLeft ? this.angle : -this.angle)
+            : 0;
+    
+        this.joint.configureMotorPosition(targetAngle, 60.0, 8.0);
     }
 
     syncPalle() {
