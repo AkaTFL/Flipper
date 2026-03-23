@@ -42,8 +42,10 @@ export class Rail {
 
         const colliderDesc = RAPIER.ColliderDesc.cylinder(this.length / 2, this.height / 2)
             .setRestitution(Config.rail.restitution)
-            .setFriction(Config.rail.friction);
+            .setFriction(Config.rail.friction)
+            .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
 
         this.collider = this.world.createCollider(colliderDesc, this.rigidBody);
     }
+
 }

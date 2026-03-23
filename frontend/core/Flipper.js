@@ -55,6 +55,7 @@ async function initFlipper() {
     physics.registerBumper(bumper1);
     physics.registerBumper(bumper2);
     physics.registerBumper(bumper3);
+    physics.registerLaunchingRamp(launchingRamp);
 
     const ball = new Ball(physics.world, { x: -230, y: 12, z: -460 });
 

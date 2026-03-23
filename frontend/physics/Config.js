@@ -17,7 +17,8 @@ export default {
     launchingRamp: {
         width: 100,
         length: 200,
-        height: 20
+        height: 20,
+        power: 100
     },
 
     wall: {

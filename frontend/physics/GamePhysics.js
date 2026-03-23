@@ -5,6 +5,7 @@ export class GamePhysics {
         this.config = config
         this.world = null
         this.bumpers = []
+        this.launchingRamp
     }
 
     async init() {
@@ -22,8 +23,8 @@ export class GamePhysics {
     }
 
     step() {
-        this.world.step()
-        this.handleBumperCollisions()
+        this.world.step(this.eventQueue)
+        this.handleCollisionEvents()
     }
 
 
@@ -32,7 +33,11 @@ export class GamePhysics {
         this.bumpers.push(bumper)
     }
 
-    handleBumperCollisions() {
+    registerLaunchingRamp(launchingRamp) {
+        this.launchingRamp = launchingRamp;
+    }
+
+    handleCollisionEvents() {
         this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
             if (!started) return
 
@@ -40,6 +45,10 @@ export class GamePhysics {
                 if (bumper.collider.handle === handle1 || bumper.collider.handle === handle2) {
                     bumper.applyBumperForce(handle1, handle2)
                 }
+            }
+
+            if (this.launchingRamp && (this.launchingRamp.hasCollider(handle1) || this.launchingRamp.hasCollider(handle2))) {
+                this.launchingRamp.applyLaunchingRampForce(handle1, handle2)
             }
         })
     }
