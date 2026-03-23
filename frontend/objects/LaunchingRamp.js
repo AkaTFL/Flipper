@@ -1,6 +1,5 @@
 import { Rail } from './Rail.js';
 import Config from '../physics/Config.js';
-import * as THREE from 'three';
 
 export class LaunchingRamp {
     /**
