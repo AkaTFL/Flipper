@@ -2,7 +2,7 @@
   "type": "module",
   "scripts": {
     "lint": "node ./scripts/lint.mjs",
-    "test": "node --test ./tests/frontend/**/*.test.js && npm run test:backend",
+    "test": "npm run test:frontend",
     "test:backend": "cd backend && go test ./...",
     "test:frontend": "node --test ./tests/frontend/**/*.test.js"
   },
