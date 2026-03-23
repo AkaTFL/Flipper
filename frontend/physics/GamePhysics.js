@@ -5,7 +5,7 @@ export class GamePhysics {
         this.config = config
         this.world = null
         this.bumpers = []
-        this.launchingRamp
+        this.launchingRamp = null
     }
 
     async init() {
