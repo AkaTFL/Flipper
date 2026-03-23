@@ -1,4 +1,11 @@
 {
+  "type": "module",
+  "scripts": {
+    "lint": "node ./scripts/lint.mjs",
+    "test": "npm run test:frontend",
+    "test:backend": "cd backend && go test ./...",
+    "test:frontend": "node --test $(find ./tests/frontend -name '*.test.js' -print)"
+  },
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.19.3",
     "three": "^0.183.0"
