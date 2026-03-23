@@ -1,4 +1,11 @@
 {
+  "type": "module",
+  "scripts": {
+    "lint": "node ./scripts/lint.mjs",
+    "test": "node --test ./tests/frontend/**/*.test.js && npm run test:backend",
+    "test:backend": "cd backend && go test ./...",
+    "test:frontend": "node --test ./tests/frontend/**/*.test.js"
+  },
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.19.3",
     "three": "^0.183.0"
