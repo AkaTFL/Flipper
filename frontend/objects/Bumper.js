@@ -48,7 +48,6 @@ export class Bumper {
     applyBumperForce(handle1, handle2) {
         const otherHandle = this.collider.handle === handle1 ? handle2 : handle1
         const otherCollider = this.world.colliders.get(otherHandle)
-        if (!otherCollider) return
 
         const otherBody = otherCollider.parent()
         if (!otherBody) return
