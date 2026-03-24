@@ -14,9 +14,13 @@ const input = { left: false, right: false, launch: false, launchPower: 0 };
 let launchChargeStart = 0;
 let launchChargeCount = 0;
 let launchingRampRef = null;
+let ballRef = null;
 
 function getInputKey(event) {
-    if (event.code === 'Space' || event.key === ' ') return 'space';
+    if (event.code === 'Space' || event.key === ' ') {
+      event.preventDefault();
+      return 'space';
+    }
 
     const key = (event.key || '').toLowerCase();
     if (key === 'arrowleft') return 'left';
@@ -44,7 +48,6 @@ window.addEventListener('keydown', (e) => {
     input.launch = true;
     launchChargeStart = Date.now();
     launchChargeCount += 1;
-    if (launchingRampRef) launchingRampRef.resetLaunchImpulse();
     console.log('Launch button pressed');
   }
 });
@@ -63,6 +66,7 @@ window.addEventListener('keyup', (e) => {
     return;
   }
   if (key === 'space') {
+    if (launchingRampRef) launchingRampRef.resetLaunchImpulse();
     input.launch = false;
 
     const chargeDuration = launchChargeStart > 0 ? Date.now() - launchChargeStart : 0;
@@ -70,16 +74,14 @@ window.addEventListener('keyup', (e) => {
     launchChargeStart = 0;
     console.log(`Launch button released after charging for ${chargeDuration}ms, power: ${input.launchPower}`);
 
-    if (launchingRampRef) {
-        const launchRatio = Math.max(0.1, input.launchPower / 1000);
-        launchingRampRef.rampDirection = {
-            x: launchingRampRef.rampDirection.x,
-            y: launchingRampRef.rampDirection.y,
-            z: launchingRampRef.rampDirection.z * launchRatio
-        };
+      const launchRatio = Math.max(0.1, input.launchPower / 1000);
+      const chargedPower = Config.launchingRamp.power * launchRatio * Config.forceMultiplier;
+      if (ballRef) {
+        ballRef.rigidBody.applyImpulse({ x: 0, y: 0, z: chargedPower }, true);
+      }
     }
   }
-});
+);
 
 async function initFlipper() {
     const physics = new GamePhysics(Config);
@@ -95,7 +97,7 @@ async function initFlipper() {
     const wallT = new Wall(physics.world, 540, 100, { x: 0, y: 0, z: -471 }, { x: 0, y: 0, z: 0 });
     const wallB = new Wall(physics.world, 540, 100, { x: 0, y: 0, z: 471 }, { x: 0, y: 0, z: 0 });
 
-    const launchingRamp = new LaunchingRamp(physics.world, 20, 10, 850, { x: -230, y: 10, z: -50 }, { x: (Math.PI / 2), y: 0, z: 0 });
+    const launchingRamp = new LaunchingRamp(physics.world, 30, 10, 850, { x: -230, y: 10, z: -50 }, { x: (Math.PI / 2), y: 0, z: 0 });
     launchingRampRef = launchingRamp;
 
     const bumper1 = new Bumper(physics.world, 50, { x: 0, y: 0, z: 100 }, {x: 0, y: 0, z: 0});
@@ -111,7 +113,8 @@ async function initFlipper() {
     physics.registerBumper(bumper3);
     physics.registerLaunchingRamp(launchingRamp);
 
-    const ball = new Ball(physics.world, { x: -230, y: 12, z: -460 });
+    const ball = new Ball(physics.world, { x: -230, y: 25, z: -400 });
+    ballRef = ball;
 
     sceneManager.scene.add(ball.mesh);
     sceneManager.scene.add(wallR.mesh);
@@ -135,6 +138,7 @@ async function initFlipper() {
 
         palles1.setActive(input.left);
         palles2.setActive(input.right);
+        
     });
 }
 

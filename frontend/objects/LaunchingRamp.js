@@ -1,5 +1,6 @@
 import { Rail } from './Rail.js';
 import Config from '../physics/Config.js';
+import * as THREE from 'three';
 
 export class LaunchingRamp {
     /**
@@ -32,25 +33,13 @@ export class LaunchingRamp {
         const ry = this.rotation.y || 0;
         const rz = this.rotation.z || 0;
 
-        const cosX = Math.cos(rx);
-        const sinX = Math.sin(rx);
-        const cosY = Math.cos(ry);
-        const sinY = Math.sin(ry);
-        const cosZ = Math.cos(rz);
-        const sinZ = Math.sin(rz);
+        // Rails are cylinders aligned on local Y; rotate that axis to get launch direction.
+        const direction = new THREE.Vector3(0, 1, 0).applyEuler(new THREE.Euler(rx, ry, rz, 'XYZ')).normalize();
+        if (!Number.isFinite(direction.x) || !Number.isFinite(direction.y) || !Number.isFinite(direction.z)) {
+            return { x: 0, y: 0, z: 1 };
+        }
 
-        const x3 = (cosX * sinY * cosZ) + (sinX * sinZ);
-        const y3 = (cosX * sinY * sinZ) - (sinX * cosZ);
-        const z3 = cosX * cosY;
-
-        const len = Math.sqrt((x3 * x3) + (y3 * y3) + (z3 * z3));
-        if (len === 0) return { x: 0, y: 0, z: 1 };
-
-        return {
-            x: x3 / len,
-            y: y3 / len,
-            z: z3 / len
-        };
+        return { x: direction.x, y: direction.y, z: direction.z };
     }
 
     hasCollider(handle) {
@@ -61,7 +50,7 @@ export class LaunchingRamp {
         this.pushedBodyHandles.clear();
     }
 
-    applyLaunchingRampForce(handle1, handle2) {
+    applyLaunchingRampForce(handle1, handle2, powerOverride = null) {
         for (const rail of this.rails) {
             if (rail.collider.handle !== handle1 && rail.collider.handle !== handle2) continue;
 
@@ -74,7 +63,7 @@ export class LaunchingRamp {
 
             if (this.pushedBodyHandles.has(otherBody.handle)) return;
 
-            const power = Config.launchingRamp.power * Config.forceMultiplier;
+            const power = (powerOverride ?? Config.launchingRamp.power) * Config.forceMultiplier;
             otherBody.applyImpulse(
                 {
                     x: this.rampDirection.x * power,
