@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches: ["main"]
@@ -81,6 +82,9 @@ jobs:
         with:
           name: backend-coverage
           path: backend/coverage.out
+
+      - name: Vet
+        run: go vet ./...
 
   frontend:
     name: Frontend — install + lint + test + build
