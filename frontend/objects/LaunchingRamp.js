@@ -22,7 +22,35 @@ export class LaunchingRamp {
         this.meshes = [this.leftRail.mesh, this.rightRail.mesh, this.bottomRail.mesh];
 
         this.colliders = this.rails.map((rail) => rail.collider);
+        this.rampDirection = this.computeRampDirection();
+        
         this.pushedBodyHandles = new Set();
+    }
+
+    computeRampDirection() {
+        const rx = this.rotation.x || 0;
+        const ry = this.rotation.y || 0;
+        const rz = this.rotation.z || 0;
+
+        const cosX = Math.cos(rx);
+        const sinX = Math.sin(rx);
+        const cosY = Math.cos(ry);
+        const sinY = Math.sin(ry);
+        const cosZ = Math.cos(rz);
+        const sinZ = Math.sin(rz);
+
+        const x3 = (cosX * sinY * cosZ) + (sinX * sinZ);
+        const y3 = (cosX * sinY * sinZ) - (sinX * cosZ);
+        const z3 = cosX * cosY;
+
+        const len = Math.sqrt((x3 * x3) + (y3 * y3) + (z3 * z3));
+        if (len === 0) return { x: 0, y: 0, z: 1 };
+
+        return {
+            x: x3 / len,
+            y: y3 / len,
+            z: z3 / len
+        };
     }
 
     hasCollider(handle) {

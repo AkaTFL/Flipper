@@ -10,22 +10,69 @@ import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
 
 
-const input = { left: false, right: false };
+const input = { left: false, right: false, launch: false, launchPower: 0 };
+let launchChargeStart = 0;
+let launchChargeCount = 0;
+let launchingRampRef = null;
+
+function getInputKey(event) {
+    if (event.code === 'Space' || event.key === ' ') return 'space';
+
+    const key = (event.key || '').toLowerCase();
+    if (key === 'arrowleft') return 'left';
+    if (key === 'arrowright') return 'right';
+
+    return key;
+}
 
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'e') {
+  const key = getInputKey(e);
+
+  if (key === 'e' || key === 'q' || key === 'left') {
     input.left = true;
-    console.log('Key pressed: e');
-  }
-  if (e.key === 'a') {
-    input.right = true;
-    console.log('Key pressed: a');
+    return;
     }
+  if (key === 'a' || key === 'd' || key === 'right') {
+    input.right = true;
+    return;
+  }
+  if (key === 'space') {
+    if (e.repeat) return;
+
+    input.launch = true;
+    launchChargeStart = Date.now();
+    launchChargeCount += 1;
+    if (launchingRampRef) launchingRampRef.resetLaunchImpulse();
+  }
 });
 
 window.addEventListener('keyup', (e) => {
-  if (e.key === 'e') input.left = false;
-  if (e.key === 'a') input.right = false;
+  const key = getInputKey(e);
+
+  if (key === 'e' || key === 'q' || key === 'left') {
+    input.left = false;
+    return;
+  }
+  if (key === 'a' || key === 'd' || key === 'right') {
+    input.right = false;
+    return;
+  }
+  if (key === 'space') {
+    input.launch = false;
+
+    const chargeDuration = launchChargeStart > 0 ? Date.now() - launchChargeStart : 0;
+    input.launchPower = Math.min(chargeDuration * 1.1, 1000);
+    launchChargeStart = 0;
+
+    if (launchingRampRef) {
+        const launchRatio = Math.max(0.1, input.launchPower / 1000);
+        launchingRampRef.rampDirection = {
+            x: launchingRampRef.rampDirection.x,
+            y: launchingRampRef.rampDirection.y,
+            z: launchingRampRef.rampDirection.z * launchRatio
+        };
+    }
+  }
 });
 
 async function initFlipper() {
@@ -43,6 +90,7 @@ async function initFlipper() {
     const wallB = new Wall(physics.world, 540, 100, { x: 0, y: 0, z: 471 }, { x: 0, y: 0, z: 0 });
 
     const launchingRamp = new LaunchingRamp(physics.world, 20, 10, 850, { x: -230, y: 10, z: -50 }, { x: (Math.PI / 2), y: 0, z: 0 });
+    launchingRampRef = launchingRamp;
 
     const bumper1 = new Bumper(physics.world, 50, { x: 0, y: 0, z: 100 }, {x: 0, y: 0, z: 0});
     const bumper2 = new Bumper(physics.world, 50, { x: 100, y: 0, z: 0 }, {x: 0, y: 0, z: 0});
@@ -72,6 +120,9 @@ async function initFlipper() {
     sceneManager.scene.add(palles2.mesh);
 
     sceneManager.startRender(physics, () => {
+      // Keep variable "used" for future tuning/UI feedback.
+      if (launchChargeCount < 0) launchChargeCount = 0;
+
         palles1.syncPalle();
         palles2.syncPalle();
         ball.syncBall();
