@@ -18,7 +18,8 @@ export default {
         width: 100,
         length: 200,
         height: 20,
-        power: 100
+        power: 100,
+        powerBuild: 0.5  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
     },
 
     wall: {

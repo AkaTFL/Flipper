@@ -30,10 +30,12 @@ window.addEventListener('keydown', (e) => {
 
   if (key === 'e' || key === 'q' || key === 'left') {
     input.left = true;
+    console.log('Left flipper pressed');
     return;
     }
   if (key === 'a' || key === 'd' || key === 'right') {
     input.right = true;
+    console.log('Right flipper pressed');
     return;
   }
   if (key === 'space') {
@@ -43,6 +45,7 @@ window.addEventListener('keydown', (e) => {
     launchChargeStart = Date.now();
     launchChargeCount += 1;
     if (launchingRampRef) launchingRampRef.resetLaunchImpulse();
+    console.log('Launch button pressed');
   }
 });
 
@@ -51,18 +54,21 @@ window.addEventListener('keyup', (e) => {
 
   if (key === 'e' || key === 'q' || key === 'left') {
     input.left = false;
+    console.log('Left flipper released');
     return;
   }
   if (key === 'a' || key === 'd' || key === 'right') {
     input.right = false;
+    console.log('Right flipper released');
     return;
   }
   if (key === 'space') {
     input.launch = false;
 
     const chargeDuration = launchChargeStart > 0 ? Date.now() - launchChargeStart : 0;
-    input.launchPower = Math.min(chargeDuration * 1.1, 1000);
+    input.launchPower = Math.min(chargeDuration * Config.launchingRamp.powerBuild, 1000);
     launchChargeStart = 0;
+    console.log(`Launch button released after charging for ${chargeDuration}ms, power: ${input.launchPower}`);
 
     if (launchingRampRef) {
         const launchRatio = Math.max(0.1, input.launchPower / 1000);
