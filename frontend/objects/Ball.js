@@ -36,7 +36,7 @@ export class Ball {
             .setRestitution(Config.ball.restitution)       // Rebond
             .setFriction(Config.ball.friction);            // Glissement
 
-        this.world.createCollider(colliderDesc, this.rigidBody);
+        this.collider = this.world.createCollider(colliderDesc, this.rigidBody);
     }
 
     syncBall() {
