@@ -20,7 +20,7 @@ export default {
         height: 20,
         minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
         maximalPower: 50,
-        powerBuild: 0.1  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
+        powerBuild: 0.25  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
     },
 
     wall: {
