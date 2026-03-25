@@ -46,10 +46,6 @@ export class GamePhysics {
                     bumper.applyBumperForce(handle1, handle2)
                 }
             }
-
-            if (this.launchingRamp && (this.launchingRamp.hasCollider(handle1) || this.launchingRamp.hasCollider(handle2))) {
-                this.launchingRamp.applyLaunchingRampForce(handle1, handle2)
-            }
         })
     }
 }

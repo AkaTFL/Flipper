@@ -33,10 +33,11 @@ export class Ball {
         // Physique précise : friction, restitution, densité
         const colliderDesc = RAPIER.ColliderDesc.ball(this.radius)
             .setDensity(Config.ball.density)               // Densité élevée (acier)
+            .setMass(Config.ball.mass)                     // Masse explicite pour un launch cohérent
             .setRestitution(Config.ball.restitution)       // Rebond
             .setFriction(Config.ball.friction);            // Glissement
 
-        this.world.createCollider(colliderDesc, this.rigidBody);
+        this.collider = this.world.createCollider(colliderDesc, this.rigidBody);
     }
 
     syncBall() {

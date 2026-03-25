@@ -18,8 +18,9 @@ export default {
         width: 100,
         length: 200,
         height: 20,
-        power: 100,
-        powerBuild: 0.5  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
+        minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
+        maximalPower: 50,
+        powerBuild: 0.25  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
     },
 
     wall: {
@@ -35,7 +36,7 @@ export default {
     bumper: {
         restitution: 0.9,
         friction: 0.5,
-        power: 1000
+        power: 100
     },
 
     palles: {
