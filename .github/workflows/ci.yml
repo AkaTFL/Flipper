@@ -18,6 +18,8 @@ jobs:
       has_backend: ${{ steps.check.outputs.has_backend }}
       has_frontend: ${{ steps.check.outputs.has_frontend }}
       has_yarn: ${{ steps.check.outputs.has_yarn }}
+      has_backend_dockerfile: ${{ steps.check.outputs.has_backend_dockerfile }}
+      has_frontend_dockerfile: ${{ steps.check.outputs.has_frontend_dockerfile }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -47,6 +49,18 @@ jobs:
             echo "has_yarn=false" >> "$GITHUB_OUTPUT"
           fi
 
+          if [ -f "backend/Dockerfile" ]; then
+            echo "has_backend_dockerfile=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_backend_dockerfile=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ -f "frontend/Dockerfile" ]; then
+            echo "has_frontend_dockerfile=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_frontend_dockerfile=false" >> "$GITHUB_OUTPUT"
+          fi
+
   backend:
     name: Backend (Go) — build + tests
     runs-on: ubuntu-latest
@@ -71,7 +85,7 @@ jobs:
       - name: Build
         run: go build ./...
 
-      # Important pour votre projet (goroutines, WebSocket, MQTT) : race detector
+      #  (goroutines, WebSocket, MQTT) : race detector
       - name: Tests (race + coverage)
         run: |
           go test -race -count=1 -coverprofile=coverage.out ./...
@@ -116,9 +130,41 @@ jobs:
       - name: Lint (si présent)
         run: npm run lint --if-present
 
-      # Si vous ajoutez Vitest/Jest, ce step s'activera automatiquement
+      # Si test, ce step s'activera automatiquement
       - name: Tests (si présent)
         run: npm run test --if-present
 
       - name: Build (si présent)
         run: npm run build --if-present
+
+  docker_backend:
+    name: Docker backend — build
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: ${{ needs.prepare.outputs.has_backend_dockerfile == 'true' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image
+        run: docker build -f backend/Dockerfile -t flipper-backend:ci backend
+
+  docker_frontend:
+    name: Docker frontend — build
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: ${{ needs.prepare.outputs.has_frontend_dockerfile == 'true' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build frontend image
+        run: docker build -f frontend/Dockerfile -t flipper-frontend:ci frontend
