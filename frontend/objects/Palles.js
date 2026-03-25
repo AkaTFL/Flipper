@@ -1,5 +1,6 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import Config from '../physics/Config.js';
 
 export class Palles {
@@ -23,7 +24,9 @@ export class Palles {
         this.angle = Math.abs(Config.palles.rotationAngle);
         this.rotationSpeed = Config.palles.rotationSpeed;
 
-        this.mesh = new THREE.Mesh(
+        this.mesh = new THREE.Group();
+
+        this.fallbackMesh = new THREE.Mesh(
             new THREE.BoxGeometry(this.length, this.width, this.height),
             new THREE.MeshStandardMaterial({
                 color: 0x606060,
@@ -31,12 +34,15 @@ export class Palles {
                 roughness: 0.5
             })
         );
+        this.mesh.add(this.fallbackMesh);
 
         this.mesh.position.copy(position);
 
         this.mesh.rotation.x = rotation.x;
         this.mesh.rotation.y = rotation.y;
         this.mesh.rotation.z = rotation.z;
+
+        this.loadFlipperModel();
 
         // Physics properties - hinge anchors differ for left/right flippers
         const isLeft = side === 'left';
@@ -72,6 +78,46 @@ export class Palles {
         } else {
             this.joint.setLimits(0, this.angle);
         }
+    }
+
+    loadFlipperModel() {
+        const loader = new GLTFLoader();
+        const model = new URL(
+            this.isLeft ? '../assets/Right_flipper.glb' : '../assets/Left_flipper.glb',
+            import.meta.url
+        ).href;
+
+        loader.loadAsync(model)
+            .then((asset) => {
+                const modelRoot = asset.scene;
+                const box = new THREE.Box3().setFromObject(modelRoot);
+                const size = new THREE.Vector3();
+                const center = new THREE.Vector3();
+                box.getSize(size);
+                box.getCenter(center);
+
+                modelRoot.position.set(0, 0, 0);
+                if (size.x > 0) {
+                    const uniformScale = this.length / size.x;
+                    modelRoot.scale.setScalar(uniformScale);
+                }
+
+                const visualYawOffset = this.isLeft ? (-Math.PI / 5) : (Math.PI / 5);
+                modelRoot.rotation.y = visualYawOffset;
+
+                const alignedBox = new THREE.Box3().setFromObject(modelRoot);
+                const hingeTargetX = this.isLeft ? (this.length / 2) : (-this.length / 2);
+                const hingeCurrentX = this.isLeft ? alignedBox.max.x : alignedBox.min.x;
+                modelRoot.position.x += hingeTargetX - hingeCurrentX;
+                modelRoot.position.y -= center.y;
+                modelRoot.position.z -= center.z;
+
+                this.mesh.add(modelRoot);
+                this.fallbackMesh.visible = false;
+            })
+            .catch((error) => {
+                console.error('Failed to load flipper model:', error);
+            });
     }
 
     setActive(active) {
