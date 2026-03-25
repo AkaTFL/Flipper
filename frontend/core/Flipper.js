@@ -5,89 +5,18 @@ import { Wall } from '../objects/Wall.js';
 import { Bumper } from '../objects/Bumper.js';
 import { LaunchingRamp } from '../objects/LaunchingRamp.js';
 import { Palles } from '../objects/Palles.js';
+import { Controls } from './Controls.js';
 
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
-
-
-const input = { left: false, right: false, launch: false, launchPower: 0 };
-let launchChargeStart = 0;
-let launchChargeCount = 0;
-let launchingRampRef = null;
-let ballRef = null;
-
-function getInputKey(event) {
-    if (event.code === 'Space' || event.key === ' ') {
-      event.preventDefault();
-      return 'space';
-    }
-
-    const key = (event.key || '').toLowerCase();
-    if (key === 'arrowleft') return 'left';
-    if (key === 'arrowright') return 'right';
-
-    return key;
-}
-
-window.addEventListener('keydown', (e) => {
-  const key = getInputKey(e);
-
-  if (key === 'e' || key === 'q' || key === 'left') {
-    input.left = true;
-    console.log('Left flipper pressed');
-    return;
-    }
-  if (key === 'a' || key === 'd' || key === 'right') {
-    input.right = true;
-    console.log('Right flipper pressed');
-    return;
-  }
-  if (key === 'space') {
-    if (e.repeat) return;
-
-    input.launch = true;
-    launchChargeStart = Date.now();
-    launchChargeCount += 1;
-    console.log('Launch button pressed');
-  }
-});
-
-window.addEventListener('keyup', (e) => {
-  const key = getInputKey(e);
-
-  if (key === 'e' || key === 'q' || key === 'left') {
-    input.left = false;
-    console.log('Left flipper released');
-    return;
-  }
-  if (key === 'a' || key === 'd' || key === 'right') {
-    input.right = false;
-    console.log('Right flipper released');
-    return;
-  }
-  if (key === 'space') {
-    if (launchingRampRef) launchingRampRef.resetLaunchImpulse();
-    input.launch = false;
-
-    const chargeDuration = launchChargeStart > 0 ? Date.now() - launchChargeStart : 0;
-    input.launchPower = Math.min(chargeDuration * Config.launchingRamp.powerBuild, 1000);
-    launchChargeStart = 0;
-    console.log(`Launch button released after charging for ${chargeDuration}ms, power: ${input.launchPower}`);
-
-      const launchRatio = Math.max(0.1, input.launchPower / 1000);
-      const chargedPower = Config.launchingRamp.power * launchRatio * Config.forceMultiplier;
-      if (ballRef) {
-        ballRef.rigidBody.applyImpulse({ x: 0, y: 0, z: chargedPower }, true);
-      }
-    }
-  }
-);
 
 async function initFlipper() {
     const physics = new GamePhysics(Config);
     await physics.init();
 
     const sceneManager = new Scene(physics.world, 950, 540, { x: 0, y: 500, z: 0 }, { x: (-Math.PI / 2), y: 0, z: 0 });
+
+    const controls = new Controls('q', 'd', 'space');
 
     const container = document.getElementById('three');
     container.appendChild(sceneManager.renderer.domElement);
@@ -98,7 +27,7 @@ async function initFlipper() {
     const wallB = new Wall(physics.world, 540, 100, { x: 0, y: 0, z: 471 }, { x: 0, y: 0, z: 0 });
 
     const launchingRamp = new LaunchingRamp(physics.world, 30, 10, 850, { x: -230, y: 10, z: -50 }, { x: (Math.PI / 2), y: 0, z: 0 });
-    launchingRampRef = launchingRamp;
+    controls.setLaunchingRampRef(launchingRamp);
 
     const bumper1 = new Bumper(physics.world, 50, { x: 0, y: 0, z: 100 }, {x: 0, y: 0, z: 0});
     const bumper2 = new Bumper(physics.world, 50, { x: 100, y: 0, z: 0 }, {x: 0, y: 0, z: 0});
@@ -114,7 +43,7 @@ async function initFlipper() {
     physics.registerLaunchingRamp(launchingRamp);
 
     const ball = new Ball(physics.world, { x: -230, y: 25, z: -400 });
-    ballRef = ball;
+    controls.setBallRef(ball);
 
     sceneManager.scene.add(ball.mesh);
     sceneManager.scene.add(wallR.mesh);
@@ -129,15 +58,14 @@ async function initFlipper() {
     sceneManager.scene.add(palles2.mesh);
 
     sceneManager.startRender(physics, () => {
-      // Keep variable "used" for future tuning/UI feedback.
-      if (launchChargeCount < 0) launchChargeCount = 0;
+      if (controls.getLaunchChargeCount() < 0) controls.setLaunchChargeCount(0);
 
         palles1.syncPalle();
         palles2.syncPalle();
         ball.syncBall();
 
-        palles1.setActive(input.left);
-        palles2.setActive(input.right);
+        palles1.setActive(controls.input.left);
+        palles2.setActive(controls.input.right);
         
     });
 }
