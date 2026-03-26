@@ -22,7 +22,9 @@ export class Palles {
         this.isLeft = side === 'left';
 
         this.angle = Math.abs(Config.palles.rotationAngle);
-        this.rotationSpeed = Config.palles.rotationSpeed;
+        this.initialAngle = Math.abs(Config.palles.initialAngle ?? (Math.PI / 6));
+        this.restAngle = this.isLeft ? -this.initialAngle : this.initialAngle;
+        this.rotationSpeed = Config.palles.rotationSpeed ?? Config.palles.rotationSpeed ?? 60;
 
         this.mesh = new THREE.Group();
 
@@ -40,7 +42,7 @@ export class Palles {
 
         this.mesh.rotation.x = rotation.x;
         this.mesh.rotation.y = rotation.y;
-        this.mesh.rotation.z = rotation.z;
+        this.mesh.rotation.z = rotation.z + this.restAngle;
 
         this.loadFlipperModel();
 
@@ -50,15 +52,22 @@ export class Palles {
         const pivotWorldX = isLeft ? position.x + (length / 2) : position.x - (length / 2);
 
 
+        const initialRotation = {
+            x: rotation.x,
+            y: rotation.y,
+            z: rotation.z + this.restAngle
+        };
+
         const pallesDesc = RAPIER.RigidBodyDesc.dynamic()
             .setTranslation(position.x, position.y, position.z)
             .setCanSleep(false)
-            .setRotation({ x: Math.sin(rotation.x / 2), y: Math.sin(rotation.y / 2), z: Math.sin(rotation.z / 2), w: Math.cos(rotation.x / 2) * Math.cos(rotation.y / 2) * Math.cos(rotation.z / 2) });
+            .setRotation({ x: Math.sin(initialRotation.x / 2), y: Math.sin(initialRotation.y / 2), z: Math.sin(initialRotation.z / 2), w: Math.cos(initialRotation.x / 2) * Math.cos(initialRotation.y / 2) * Math.cos(initialRotation.z / 2) });
 
         this.rigidBody = this.world.createRigidBody(pallesDesc);
 
         const pivotDesc = RAPIER.RigidBodyDesc.fixed()
         .setTranslation(pivotWorldX, position.y, position.z);
+        
         const pivotBody = this.world.createRigidBody(pivotDesc);
 
         // Ajout d'un point pivot pour permettre la rotation autour d'un point spécifique
@@ -82,35 +91,32 @@ export class Palles {
 
     loadFlipperModel() {
         const loader = new GLTFLoader();
-        const model = new URL(
-            this.isLeft ? '../assets/Right_flipper.glb' : '../assets/Left_flipper.glb',
+        const modelPath = new URL(
+            this.isLeft ? '../assets/mesh/Right_flipper.glb' : '../assets/mesh/Left_flipper.glb',
             import.meta.url
         ).href;
 
-        loader.loadAsync(model)
-            .then((asset) => {
-                const modelRoot = asset.scene;
-                const box = new THREE.Box3().setFromObject(modelRoot);
-                const size = new THREE.Vector3();
-                const center = new THREE.Vector3();
-                box.getSize(size);
-                box.getCenter(center);
-
+        loader.loadAsync(modelPath)
+            .then(({ scene: modelRoot }) => {
                 modelRoot.position.set(0, 0, 0);
+
+                const box = new THREE.Box3().setFromObject(modelRoot);
+                const size = box.getSize(new THREE.Vector3());
+                const center = box.getCenter(new THREE.Vector3());
+
                 if (size.x > 0) {
-                    const uniformScale = this.length / size.x;
-                    modelRoot.scale.setScalar(uniformScale);
+                    modelRoot.scale.setScalar(this.length / size.x);
                 }
 
-                const visualYawOffset = this.isLeft ? (-Math.PI / 5) : (Math.PI / 5);
-                modelRoot.rotation.y = visualYawOffset;
+                modelRoot.rotation.y = this.isLeft ? -Math.PI / 5 : Math.PI / 5;
 
                 const alignedBox = new THREE.Box3().setFromObject(modelRoot);
-                const hingeTargetX = this.isLeft ? (this.length / 2) : (-this.length / 2);
-                const hingeCurrentX = this.isLeft ? alignedBox.max.x : alignedBox.min.x;
-                modelRoot.position.x += hingeTargetX - hingeCurrentX;
-                modelRoot.position.y -= center.y;
-                modelRoot.position.z -= center.z;
+                const targetX = this.isLeft ? this.length / 2 : -this.length / 2;
+                const currentX = this.isLeft ? alignedBox.max.x : alignedBox.min.x;
+
+                modelRoot.position.x += targetX - currentX;
+                modelRoot.position.y = -center.y;
+                modelRoot.position.z = -center.z;
 
                 this.mesh.add(modelRoot);
                 this.fallbackMesh.visible = false;
@@ -123,9 +129,9 @@ export class Palles {
     setActive(active) {
         const targetAngle = active
             ? (this.isLeft ? this.angle : -this.angle)
-            : 0;
+            : this.restAngle;
     
-        this.joint.configureMotorPosition(targetAngle, 60.0, 8.0);
+        this.joint.configureMotorPosition(targetAngle, this.rotationSpeed, 8.0);
     }
 
     syncPalle() {
