@@ -110,13 +110,13 @@ test('Palles set left-side joint limits and drive the motor when activated', () 
   assert.equal(state.joints.length, 1);
   assert.deepEqual(state.joints[0].limits, {
     min: -Math.abs(Config.palles.rotationAngle),
-    max: 0,
+    max: -Math.abs(Config.palles.initialAngle ?? (Math.PI / 6)),
   });
 
   palles.setActive(true);
   assert.deepEqual(state.joints[0].motorPosition, {
     angle: Math.abs(Config.palles.rotationAngle),
-    stiffness: 60,
+    stiffness: Config.palles.rotationSpeed,
     damping: 8,
   });
 });
@@ -134,14 +134,14 @@ test('Palles use inverted limits on the right side and reset to neutral when rel
   );
 
   assert.deepEqual(state.joints[0].limits, {
-    min: 0,
+    min: Math.abs(Config.palles.initialAngle ?? (Math.PI / 6)),
     max: Math.abs(Config.palles.rotationAngle),
   });
 
   palles.setActive(false);
   assert.deepEqual(state.joints[0].motorPosition, {
-    angle: 0,
-    stiffness: 60,
+    angle: Math.abs(Config.palles.initialAngle ?? (Math.PI / 6)),
+    stiffness: Config.palles.rotationSpeed,
     damping: 8,
   });
 });

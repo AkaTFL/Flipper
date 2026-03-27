@@ -41,14 +41,17 @@ export class Scene {
         this.scene.background = new THREE.Color(0x0);
 
         // Camera with a wide view and far clipping plane
-        this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1700);
+        this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 3000);
         this.camera.position.z = position.z;
-        this.camera.position.y = position.y;
+        this.camera.position.y = position.y + 1000;
         this.camera.position.x = position.x;
+
+        // Keep a strict top-down camera and flip table orientation to match gameplay view.
+        this.camera.up.set(0, 0, 1);
         this.camera.lookAt(0, 0, 0);
 
         // Orbit controls - commentez cette section pour désactiver facilement
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);        
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
         // ==========================================
         // PARTIE VISUELLE (THREE.JS)
@@ -85,7 +88,8 @@ export class Scene {
 
         let groundColliderDesc = RAPIER.ColliderDesc.cuboid(width / 2, height / 2, 0.1)
             .setRestitution(Config.scene.restitution)
-            .setFriction(Config.scene.friction);
+            .setFriction(Config.scene.friction)
+
             
         this.world.createCollider(groundColliderDesc, groundBody);
 

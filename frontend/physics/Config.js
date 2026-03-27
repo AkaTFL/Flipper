@@ -42,8 +42,9 @@ export default {
     palles: {
         restitution: 0.5,
         friction: 0.5,
-        rotationSpeed: 3,
-        rotationAngle: Math.PI / 4
+        rotationSpeed: 300,
+        rotationAngle: 50 * (Math.PI / 180),
+        initialAngle: 30 * (Math.PI / 180)
     },
 
     forceMultiplier: 100.0  // Multiplicateur de force pour ajuster l'intensité de la physique en fonction de l'échelle

@@ -29,9 +29,6 @@ export class Controls{
             }
 
             const key = (event.key || '').toLowerCase();
-            if (key === 'arrowleft') return 'left';
-            if (key === 'arrowright') return 'right';
-
             return key;
     }
 
@@ -40,17 +37,17 @@ export class Controls{
         window.addEventListener('keydown', (e) => {
             const key = this.getInputKey(e);
 
-            if (key === 'e' || key === 'q' || key === 'left') {
+            if (key === this.left) {
                 this.input.left = true;
                 console.log('Left flipper pressed');
                 return;
                 }
-            if (key === 'a' || key === 'd' || key === 'right') {
+            if (key === this.right) {
                 this.input.right = true;
                 console.log('Right flipper pressed');
                 return;
             }
-            if (key === 'space') {
+            if (key === this.launch) {
                 if (e.repeat) return;
 
                 this.input.launch = true;
@@ -63,17 +60,17 @@ export class Controls{
         window.addEventListener('keyup', (e) => {
             const key = this.getInputKey(e);
 
-            if (key === 'e' || key === 'q' || key === 'left') {
+            if (key === this.left) {
                 this.input.left = false;
                 console.log('Left flipper released');
                 return;
             }
-            if (key === 'a' || key === 'd' || key === 'right') {
+            if (key === this.right) {
                 this.input.right = false;
                 console.log('Right flipper released');
                 return;
             }
-            if (key === 'space') {
+            if (key === this.launch) {
                 if (this.launchingRampRef) this.launchingRampRef.resetLaunchImpulse();
                 this.input.launch = false;
 
