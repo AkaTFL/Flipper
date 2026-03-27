@@ -45,10 +45,13 @@ export class Scene {
         this.camera.position.z = position.z;
         this.camera.position.y = position.y + 1000;
         this.camera.position.x = position.x;
+
+        // Keep a strict top-down camera and flip table orientation to match gameplay view.
+        this.camera.up.set(0, 0, 1);
         this.camera.lookAt(0, 0, 0);
 
         // Orbit controls - commentez cette section pour désactiver facilement
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);        
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
         // ==========================================
         // PARTIE VISUELLE (THREE.JS)
