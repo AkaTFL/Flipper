@@ -24,7 +24,7 @@ export class Palles {
         this.angle = Math.abs(Config.palles.rotationAngle);
         this.initialAngle = Math.abs(Config.palles.initialAngle ?? (Math.PI / 6));
         this.restAngle = this.isLeft ? -this.initialAngle : this.initialAngle;
-        this.rotationSpeed = Config.palles.rotationSpeed ?? Config.palles.rotationSpeed ?? 60;
+        this.rotationSpeed = Config.palles.rotationSpeed ?? 60;
 
         this.mesh = new THREE.Group();
 
@@ -92,7 +92,7 @@ export class Palles {
     loadFlipperModel() {
         const loader = new GLTFLoader();
         const modelPath = new URL(
-            this.isLeft ? '../assets/mesh/Right_flipper.glb' : '../assets/mesh/Left_flipper.glb',
+            this.isLeft ? '../assets/mesh/Left_flipper.glb' : '../assets/mesh/Right_flipper.glb',
             import.meta.url
         ).href;
 
@@ -102,7 +102,6 @@ export class Palles {
 
                 const box = new THREE.Box3().setFromObject(modelRoot);
                 const size = box.getSize(new THREE.Vector3());
-                const center = box.getCenter(new THREE.Vector3());
 
                 if (size.x > 0) {
                     modelRoot.scale.setScalar(this.length / size.x);
@@ -110,13 +109,17 @@ export class Palles {
 
                 modelRoot.rotation.y = this.isLeft ? -Math.PI / 5 : Math.PI / 5;
 
-                const alignedBox = new THREE.Box3().setFromObject(modelRoot);
+                // Recalculate center AFTER scale and rotation
+                const Box = new THREE.Box3().setFromObject(modelRoot);
+                const Center = Box.getCenter(new THREE.Vector3());
+
+                // Align on X (pivot point) and center on Y/Z
                 const targetX = this.isLeft ? this.length / 2 : -this.length / 2;
-                const currentX = this.isLeft ? alignedBox.max.x : alignedBox.min.x;
+                const currentX = this.isLeft ? Box.max.x : Box.min.x;
 
                 modelRoot.position.x += targetX - currentX;
-                modelRoot.position.y = -center.y;
-                modelRoot.position.z = -center.z;
+                modelRoot.position.y = -Center.y;
+                modelRoot.position.z = -Center.z;
 
                 this.mesh.add(modelRoot);
                 this.fallbackMesh.visible = false;
