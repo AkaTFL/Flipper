@@ -1,9 +1,9 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import Config from '../physics/Config.js';
+import { Objects } from './Objects.js';
 
-export class Palles {
+export class Palles extends Objects {
     /**
      * @param {Object} world - The physics world
      * @param {number} length - The length of the palles
@@ -12,12 +12,7 @@ export class Palles {
      * @param {Object} rotation - The rotation object with x, y, z properties
      */
     constructor(world, length = 500, width = 10, height = 10, position = {x: 250, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}, side) {
-        this.world = world;
-        this.length = length;
-        this.width = width;
-        this.height = height;
-        this.position = position;
-        this.rotation = rotation;
+        super(world, length, width, height, position, rotation);
         this.side = side;
         this.isLeft = side === 'left';
 
@@ -26,25 +21,28 @@ export class Palles {
         this.restAngle = this.isLeft ? -this.initialAngle : this.initialAngle;
         this.rotationSpeed = Config.palles.rotationSpeed ?? 60;
 
-        this.mesh = new THREE.Group();
-
-        this.fallbackMesh = new THREE.Mesh(
-            new THREE.BoxGeometry(this.length, this.width, this.height),
-            new THREE.MeshStandardMaterial({
-                color: 0x606060,
-                metalness: 0.5,
-                roughness: 0.5
-            })
-        );
-        this.mesh.add(this.fallbackMesh);
-
-        this.mesh.position.copy(position);
-
-        this.mesh.rotation.x = rotation.x;
-        this.mesh.rotation.y = rotation.y;
         this.mesh.rotation.z = rotation.z + this.restAngle;
 
-        this.loadFlipperModel();
+        const modelPath = new URL(
+            this.isLeft ? '../assets/mesh/Left_flipper.glb' : '../assets/mesh/Right_flipper.glb',
+            import.meta.url
+        ).href;
+        
+        this.addMesh(modelPath, (modelRoot) => {
+            modelRoot.rotation.y = this.isLeft ? -Math.PI / 5 : Math.PI / 5;
+
+            // Recalculate center AFTER scale and rotation
+            const Box = new THREE.Box3().setFromObject(modelRoot);
+            const Center = Box.getCenter(new THREE.Vector3());
+
+            // Align on X (pivot point) and center on Y/Z
+            const targetX = this.isLeft ? this.length / 2 : -this.length / 2;
+            const currentX = this.isLeft ? Box.max.x : Box.min.x;
+
+            modelRoot.position.x += targetX - currentX;
+            modelRoot.position.y = -Center.y;
+            modelRoot.position.z = -Center.z;
+        });
 
         // Physics properties - hinge anchors differ for left/right flippers
         const isLeft = side === 'left';
@@ -87,46 +85,6 @@ export class Palles {
         } else {
             this.joint.setLimits(0, this.angle);
         }
-    }
-
-    loadFlipperModel() {
-        const loader = new GLTFLoader();
-        const modelPath = new URL(
-            this.isLeft ? '../assets/mesh/Left_flipper.glb' : '../assets/mesh/Right_flipper.glb',
-            import.meta.url
-        ).href;
-
-        loader.loadAsync(modelPath)
-            .then(({ scene: modelRoot }) => {
-                modelRoot.position.set(0, 0, 0);
-
-                const box = new THREE.Box3().setFromObject(modelRoot);
-                const size = box.getSize(new THREE.Vector3());
-
-                if (size.x > 0) {
-                    modelRoot.scale.setScalar(this.length / size.x);
-                }
-
-                modelRoot.rotation.y = this.isLeft ? -Math.PI / 5 : Math.PI / 5;
-
-                // Recalculate center AFTER scale and rotation
-                const Box = new THREE.Box3().setFromObject(modelRoot);
-                const Center = Box.getCenter(new THREE.Vector3());
-
-                // Align on X (pivot point) and center on Y/Z
-                const targetX = this.isLeft ? this.length / 2 : -this.length / 2;
-                const currentX = this.isLeft ? Box.max.x : Box.min.x;
-
-                modelRoot.position.x += targetX - currentX;
-                modelRoot.position.y = -Center.y;
-                modelRoot.position.z = -Center.z;
-
-                this.mesh.add(modelRoot);
-                this.fallbackMesh.visible = false;
-            })
-            .catch((error) => {
-                console.error('Failed to load flipper model:', error);
-            });
     }
 
     setActive(active) {
