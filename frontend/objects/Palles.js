@@ -27,6 +27,7 @@ export class Palles extends Objects {
             this.isLeft ? '../assets/mesh/Left_flipper.glb' : '../assets/mesh/Right_flipper.glb',
             import.meta.url
         ).href;
+        
         this.addMesh(modelPath, (modelRoot) => {
             modelRoot.rotation.y = this.isLeft ? -Math.PI / 5 : Math.PI / 5;
 
