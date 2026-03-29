@@ -17,9 +17,9 @@ export class Palles extends Objects {
         this.isLeft = side === 'left';
 
         this.angle = Math.abs(Config.palles.rotationAngle);
-        this.initialAngle = Math.abs(Config.palles.initialAngle ?? (Math.PI / 6));
+        this.initialAngle = Math.abs(Config.palles.initialAngle);
         this.restAngle = this.isLeft ? -this.initialAngle : this.initialAngle;
-        this.rotationSpeed = Config.palles.rotationSpeed ?? 60;
+        this.rotationSpeed = Config.palles.rotationSpeed;
 
         this.mesh.rotation.z = rotation.z + this.restAngle;
 
@@ -77,7 +77,7 @@ export class Palles extends Objects {
             .setRestitution(Config.palles.restitution)
             .setFriction(Config.palles.friction);
 
-        this.collider = this.world.createCollider(colliderDesc, this.rigidBody);
+        this.attachCollider(colliderDesc);
 
         //Movements of the palles
         if (this.isLeft) {
@@ -96,10 +96,6 @@ export class Palles extends Objects {
     }
 
     syncPalle() {
-        const position = this.rigidBody.translation();
-        this.mesh.position.set(position.x, position.y, position.z);
-        
-        const rotation = this.rigidBody.rotation();
-        this.mesh.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+        this.syncObjects();
     }
 }
