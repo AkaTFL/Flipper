@@ -1,11 +1,14 @@
 import * as RAPIER from "@dimforge/rapier3d-compat"
 
+require('dotenv').config()
+
 export class GamePhysics {
     constructor(config) {
         this.config = config
         this.world = null
         this.bumpers = []
         this.launchingRamp = null
+        this.backendSocket = null
     }
 
     async init() {
@@ -20,6 +23,7 @@ export class GamePhysics {
         };
 
         this.world = new RAPIER.World(gravity)
+        this.connectBackend()
     }
 
     step() {
@@ -37,6 +41,22 @@ export class GamePhysics {
         this.launchingRamp = launchingRamp;
     }
 
+    connectBackend() {
+        try {
+            this.backendSocket = new WebSocket(process.env.BACKEND_ADDRESS + ':' + process.env.BACKEND_PORT)
+        } catch (error) {
+            this.backendSocket = null
+            console.warn('Backend non connecté:', error)
+        }
+    }
+
+    sendImpact(objectId) {
+        this.backendSocket.send(JSON.stringify({
+            type: 'impact',
+            payload: { objectId }
+        }))
+    }
+
     handleCollisionEvents() {
         this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
             if (!started) return
@@ -44,6 +64,7 @@ export class GamePhysics {
             for (let bumper of this.bumpers) {
                 if (bumper.collider.handle === handle1 || bumper.collider.handle === handle2) {
                     bumper.applyBumperForce(handle1, handle2)
+                    this.sendImpact(String(bumper.collider.objectId))
                 }
             }
         })

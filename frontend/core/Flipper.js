@@ -29,9 +29,9 @@ async function initFlipper() {
     const launchingRamp = new LaunchingRamp(physics.world, 30, 10, 850, { x: -230, y: 10, z: -50 }, { x: (Math.PI / 2), y: 0, z: 0 });
     controls.setLaunchingRampRef(launchingRamp);
 
-    const bumper1 = new Bumper(physics.world, 50, { x: 0, y: 0, z: 100 }, {x: 0, y: 0, z: 0});
-    const bumper2 = new Bumper(physics.world, 50, { x: 100, y: 0, z: 0 }, {x: 0, y: 0, z: 0});
-    const bumper3 = new Bumper(physics.world, 50, { x: -100, y: 0, z: 0 }, {x: 0, y: 0, z: 0});
+    const bumper1 = new Bumper(physics.world, 50, { x: 0, y: 0, z: 100 }, {x: 0, y: 0, z: 0}, 'bumper-1');
+    const bumper2 = new Bumper(physics.world, 50, { x: 100, y: 0, z: 0 }, {x: 0, y: 0, z: 0}, 'bumper-2');
+    const bumper3 = new Bumper(physics.world, 50, { x: -100, y: 0, z: 0 }, {x: 0, y: 0, z: 0}, 'bumper-3');
 
     const palles1 = new Palles(physics.world, 70, 10, 10, { x: 100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'left');
     const palles2 = new Palles(physics.world, 70, 10, 10, { x: -100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'right');
@@ -56,7 +56,7 @@ async function initFlipper() {
     sceneManager.scene.add(bumper3.mesh);
     sceneManager.scene.add(palles1.mesh);
     sceneManager.scene.add(palles2.mesh);
-
+ 
     sceneManager.startRender(physics, () => {
       if (controls.getLaunchChargeCount() < 0) controls.setLaunchChargeCount(0);
 
