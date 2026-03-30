@@ -80,7 +80,7 @@ export class Scene {
         // ==========================================
         // PARTIE PHYSIQUE (RAPIER)
         // ==========================================
-        // Création du sol physique (Invisible).
+        // Création du sol physique.
     
         let groundBodyDesc = RAPIER.RigidBodyDesc.fixed()
             .setRotation({ x: Math.sin(rotation.x / 2), y: Math.sin(rotation.y / 2), z: Math.sin(rotation.z / 2), w: Math.cos(rotation.x / 2) * Math.cos(rotation.y / 2) * Math.cos(rotation.z / 2) });
