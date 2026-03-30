@@ -32,7 +32,7 @@ export class GamePhysics {
     }
 
 
-    // GESTION DES BUMPERS
+    //REGISTRATION
     registerBumper(bumper) {
         this.bumpers.push(bumper)
     }
@@ -41,6 +41,8 @@ export class GamePhysics {
         this.launchingRamp = launchingRamp;
     }
 
+
+    //BACKEND
     connectBackend() {
         try {
             this.backendSocket = new WebSocket(process.env.BACKEND_ADDRESS + ':' + process.env.BACKEND_PORT)
@@ -57,6 +59,7 @@ export class GamePhysics {
         }))
     }
 
+    //COLLISION HANDLING
     handleCollisionEvents() {
         this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
             if (!started) return
