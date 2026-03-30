@@ -9,7 +9,7 @@ export class LaunchingRamp extends Objects {
      * @param {Object} position - The position object with x, y, z properties
      */
     constructor(world, width, height, length, position = {x: 0, y: 0, z: 0}, rotation = {x: 0, y: 0, z: 0}) {
-        super(world, length, width, height, position, rotation);
+        super(world, length, width, height, position, rotation, null, [], null, Config.sounds.launchingRamp.file);
 
         this.leftRail = new Rail(world, this.length, this.width, this.height, {x: position.x - this.width / 2, y: position.y, z: position.z}, rotation);
         this.rightRail = new Rail(world, this.length, this.width, this.height, {x: position.x + this.width / 2, y: position.y, z: position.z}, rotation);
@@ -69,6 +69,7 @@ export class LaunchingRamp extends Objects {
                 true
             );
             this.pushedBodyHandles.add(otherBody.handle);
+            this.playSound();
             return;
         }
     }

@@ -47,5 +47,13 @@ export default {
         initialAngle: 30 * (Math.PI / 180)
     },
 
+    sounds: {
+        ball: {file : "ball.wav", volume: 0.5},
+        bumper: {file : "bumper.wav"},
+        wall: {file : "wall.wav"},
+        launchingRamp: {file : "launching_ramp.wav"},
+        palles: {file : "palles.wav", volume: 0.6}
+    },
+
     forceMultiplier: 100.0  // Multiplicateur de force pour ajuster l'intensité de la physique en fonction de l'échelle
 }

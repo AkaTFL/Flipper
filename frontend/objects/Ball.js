@@ -9,7 +9,7 @@ export class Ball extends Objects {
      * @param {Object} position - The position object with x, y, z properties
      */
     constructor(world, position = {x: 0, y: 500, z: 0}) {
-        super(world, null, null, null, position, { x: 0, y: 0, z: 0 }, Config.ball.radius);
+        super(world, null, null, null, position, { x: 0, y: 0, z: 0 }, Config.ball.radius, [], null, Config.sounds.ball.file);
 
         this.radius = Config.ball.radius;
         

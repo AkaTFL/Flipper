@@ -9,6 +9,7 @@ export class GamePhysics {
         this.bumpers = []
         this.launchingRamp = null
         this.backendSocket = null
+        this.objects = []
     }
 
     async init() {
@@ -33,12 +34,10 @@ export class GamePhysics {
 
 
     //REGISTRATION
-    registerBumper(bumper) {
-        this.bumpers.push(bumper)
-    }
-
-    registerLaunchingRamp(launchingRamp) {
-        this.launchingRamp = launchingRamp;
+    registerObjects(objects) {
+        for (const obj of objects) {
+            this.objects.push(obj);
+        }
     }
 
 
@@ -48,7 +47,7 @@ export class GamePhysics {
             this.backendSocket = new WebSocket(process.env.BACKEND_ADDRESS + ':' + process.env.BACKEND_PORT)
         } catch (error) {
             this.backendSocket = null
-            console.warn('Backend non connecté:', error)
+            console.error('Backend non connecté:', error)
         }
     }
 
@@ -62,13 +61,25 @@ export class GamePhysics {
     //COLLISION HANDLING
     handleCollisionEvents() {
         this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
-            if (!started) return
+            if (!started) return;
 
-            for (let bumper of this.bumpers) {
-                if (bumper.collider.handle === handle1 || bumper.collider.handle === handle2) {
-                    bumper.applyBumperForce(handle1, handle2)
-                    this.sendImpact(String(bumper.collider.objectId))
+            // Gestion générique pour tous les objets
+            for (let obj of this.objects) {
+                if (!obj.collider) continue;
+
+                if (obj.collider.handle === handle1 || obj.collider.handle === handle2) {
+                    if (typeof obj.handleCollision === 'function') {
+                        obj.handleCollision();
+
+                        if (bumper.collider.handle === handle1 || bumper.collider.handle === handle2) {
+                            if (bumper.collider.handle === handle1 || bumper.collider.handle === handle2) {
+                                bumper.applyBumperForce(handle1, handle2);
+                                this.sendImpact(String(bumper.collider.objectId));
+                            }
+                        }
+                    }
                 }
+
             }
         })
     }

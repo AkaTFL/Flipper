@@ -12,7 +12,7 @@ export class Bumper extends Objects {
      * @param {number} rotation - The rotation of the bumper in radians
      */
     constructor(world, width = 50, position = {x: 0, y: 300, z: 0}, rotation = {x: 0, y: 0, z: 0}, objectId = null) {
-        super(world, null, null, null, position, rotation, width / 2);
+        super(world, null, null, null, position, rotation, width / 2, [], null, Config.sounds.bumper.file);
         this.radius = width / 2;
 
         this.mesh = new THREE.Mesh(
@@ -71,5 +71,7 @@ export class Bumper extends Objects {
             { x: X * power, y: Y * power, z: Z * power },
             true
         )
+
+        this.playSound()
     }
 }

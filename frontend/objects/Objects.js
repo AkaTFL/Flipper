@@ -12,7 +12,8 @@ export class Objects {
         rotation = { x: 0, y: 0, z: 0 },
         radius = null,
         mesh = [],
-        side = null
+        side = null,
+        sound = null
     ) {
         this.world = world;
         this.length = length;
@@ -23,12 +24,15 @@ export class Objects {
         this.radius = radius;
         this.mesh = mesh;
         this.side = side;
+        this.sound = sound;
+
         this.mesh = new THREE.Group();
 
         const hasBoxDimensions = this.length != null && this.width != null && this.height != null;
-        this.fallbackMesh = null;
+        this.TreeMesh = null;
+
         if (hasBoxDimensions) {
-            this.fallbackMesh = new THREE.Mesh(
+            this.TreeMesh = new THREE.Mesh(
                 new THREE.BoxGeometry(this.length, this.width, this.height),
                 new THREE.MeshStandardMaterial({
                     color: 0x606060,
@@ -36,7 +40,7 @@ export class Objects {
                     roughness: 0.5
                 })
             );
-            this.mesh.add(this.fallbackMesh);
+            this.mesh.add(this.TreeMesh);
         }
 
         if (position) {
@@ -48,6 +52,33 @@ export class Objects {
             this.mesh.rotation.y = rotation.y ?? 0;
             this.mesh.rotation.z = rotation.z ?? 0;
         }
+
+        this.audio = this.initSound(this.sound);
+    }
+
+    initSound(soundConfig = null) {
+        if (typeof Audio === 'undefined') return null;
+
+        const soundFile =soundConfig?.file || null;
+        if (!soundFile) return null;
+
+        const source = new URL(`${soundFile}`, import.meta.url).href;
+        const audio = new Audio(source);
+        audio.preload = 'auto';
+        audio.volume = soundConfig.volume ?? 1;
+        return audio;
+    }
+
+    playSound(soundOptions = null) {
+        const options = soundOptions ?? this.sound;
+        if (!this.audio) return;
+
+        this.audio.volume = options.volume ?? 1;
+
+        this.audio.currentTime = 0;
+        this.audio.play().catch((error) => {
+            console.error('Failed to play sound:', error);
+        });
     }
 
     toRotationQuaternion(rotation = this.rotation) {
