@@ -96,12 +96,20 @@ export class Palles extends Objects {
         this.joint.configureMotorPosition(targetAngle, this.rotationSpeed, 8.0);
         
         if (active && !this.wasActive) {
-            this.playSound();
+            this.playSound("move"); //Son de mouvement des palles
         }
         this.wasActive = active;
     }
 
     syncPalle() {
         this.syncObjects();
+    }
+
+    
+    handleCollision() {
+        // Par défaut, joue le son s'il existe
+        if (this.audio) {
+            this.playSound(); // Son de collision des palles
+        }
     }
 }

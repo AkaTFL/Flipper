@@ -69,7 +69,7 @@ export class LaunchingRamp extends Objects {
                 true
             );
             this.pushedBodyHandles.add(otherBody.handle);
-            this.playSound();
+            this.playSound(); // Joue le son de lancement
             return;
         }
     }

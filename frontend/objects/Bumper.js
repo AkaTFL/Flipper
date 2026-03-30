@@ -72,6 +72,6 @@ export class Bumper extends Objects {
             true
         )
 
-        this.playSound()
+        this.playSound() // Joue le son du bumper
     }
 }
