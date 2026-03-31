@@ -28,8 +28,10 @@ async function initFlipper() {
     mesh.push(new Wall(physics.world, 540, 100, { x: 0, y: 0, z: -471 }, { x: 0, y: 0, z: 0 }));
     mesh.push(new Wall(physics.world, 540, 100, { x: 0, y: 0, z: 471 }, { x: 0, y: 0, z: 0 }));
 
-    mesh.push(new LaunchingRamp(physics.world, 30, 10, 850, { x: -230, y: 10, z: -50 }, { x: (Math.PI / 2), y: 0, z: 0 }));
-    controls.setLaunchingRampRef(mesh[mesh.length - 1]);
+    const launching = (new LaunchingRamp(physics.world, 30, 10, 850, { x: -230, y: 10, z: -50 }, { x: (Math.PI / 2), y: 0, z: 0 })); //
+    controls.setLaunchingRampRef(launching); //
+
+    sceneManager.scene.add(...launching.meshes); // Solution temporaire pour ajouter les rails du ramp à la scène, à revoir pour une meilleure intégration
 
     mesh.push(new Bumper(physics.world, 50, { x: 0, y: 0, z: 100 }, {x: 0, y: 0, z: 0}, 'bumper-1'));
     mesh.push(new Bumper(physics.world, 50, { x: 100, y: 0, z: 0 }, {x: 0, y: 0, z: 0}, 'bumper-2'));

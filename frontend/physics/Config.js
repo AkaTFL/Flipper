@@ -56,7 +56,7 @@ export default {
         },
         bumper: {
             file: "bumper.wav",
-            collision: { file: "assets/vfx/Laser_shoot.mp3" },
+            collision: { file: "frontend\assets\vfx\Laser_shoot.mp3" },
             move: { file: "" }
         },
         wall: {
