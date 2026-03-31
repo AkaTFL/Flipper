@@ -57,9 +57,7 @@ export class Objects {
     }
 
     initSound(soundConfig = null) {
-        if (typeof Audio === 'undefined') return null;
-
-        const soundFile =soundConfig?.file || null;
+        const soundFile = soundConfig || null;
         if (!soundFile) return null;
 
         const source = new URL(`${soundFile}`, import.meta.url).href;
