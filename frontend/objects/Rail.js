@@ -40,4 +40,11 @@ export class Rail extends Objects {
         this.attachCollider(colliderDesc);
     }
 
+    handleCollision() {
+        // Par défaut, joue le son s'il existe
+        if (this.audio) {
+            this.playSound();
+        }
+    }
+
 }
