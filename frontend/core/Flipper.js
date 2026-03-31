@@ -43,17 +43,26 @@ async function initFlipper() {
     mesh.push(new Ball(physics.world, { x: -230, y: 25, z: -400 }));
     controls.setBallRef(mesh[mesh.length - 1]);
 
-    sceneManager.scene.add(...mesh);
+    sceneManager.scene.add(...mesh.map(obj => obj.mesh));
 
     sceneManager.startRender(physics, () => {
       controls.setLaunchChargeCount(0);
 
-      mesh[mesh.length - 4].syncPalle();
-      mesh[mesh.length - 3].syncPalle();
-      mesh[mesh.length - 1].syncBall();
-
-      mesh[mesh.length - 4].setActive(controls.input.left);
-      mesh[mesh.length - 3].setActive(controls.input.right);
+      for (let i = 0; i < mesh.length; i++) {
+        if (typeof mesh[i].syncPalle === 'function') {
+          mesh[i].syncPalle();
+        }
+        else if (typeof mesh[i].syncBall === 'function') {
+          mesh[i].syncBall();
+        }
+        if (typeof mesh[i].setActive === 'function') {
+          if (mesh[i].side === 'left') {
+            mesh[i].setActive(controls.input.left);
+          } else if (mesh[i].side === 'right') {
+            mesh[i].setActive(controls.input.right);
+          }
+        }
+      }
     });
 }
 

@@ -60,10 +60,19 @@ export class Objects {
         const soundFile = soundConfig || null;
         if (!soundFile) return null;
 
-        const source = new URL(`${soundFile}`, import.meta.url).href;
+        let source;
+        try {
+            source = new URL(`${soundFile}`, import.meta.url).href;
+        } catch (e) {
+            console.warn('Le chemin du fichier son est invalide:', soundFile);
+            return null;
+        }
         const audio = new Audio(source);
         audio.preload = 'auto';
         audio.volume = soundConfig.volume ?? 1;
+        audio.onerror = () => {
+            console.warn(`Le fichier son est manquant : ${soundFile}`);
+        };
         return audio;
     }
 

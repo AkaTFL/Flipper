@@ -1,7 +1,5 @@
 import * as RAPIER from "@dimforge/rapier3d-compat"
 
-require('dotenv').config()
-
 export class GamePhysics {
     constructor(config) {
         this.config = config
@@ -44,10 +42,10 @@ export class GamePhysics {
     //BACKEND
     connectBackend() {
         try {
-            this.backendSocket = new WebSocket(process.env.BACKEND_ADDRESS + ':' + process.env.BACKEND_PORT)
+            this.backendSocket = new WebSocket("aa" + ':' + "bb") // Remplacez par l'adresse de votre backend
         } catch (error) {
             this.backendSocket = null
-            console.error('Backend non connecté:', error)
+            console.warn('Backend non connecté:', error)
         }
     }
 
