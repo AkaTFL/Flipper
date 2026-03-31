@@ -49,32 +49,32 @@ export default {
 
     sounds: {
         ball: {
-            file: "ball.wav",
-            volume: 0.5,
-            collision: { file: "" },
-            move: { file: "" }
+            collision: { file: "", volume: 0.5 },
+            move: { file: "", volume: 0.5 }
         },
+        
         bumper: {
-            file: "bumper.wav",
-            collision: { file: "frontend\assets\vfx\Laser_shoot.mp3" },
-            move: { file: "" }
+            collision: { file: "", volume: 0.5 },
         },
+
         wall: {
             file: "wall.wav",
-            collision: { file: "Wall" }
+            collision: { file: "Wall", volume: 0.5 }
         },
+
         launchingRamp: {
             file: "launching_ramp.wav",
-            collision: { file: "LaunchingRamp" }
+            collision: { file: "LaunchingRamp", volume: 0.5 }
         },
+
         palles: {
-            file: "palles.wav",
-            volume: 0.6,
-            collision: { file: "Palles" }
+            collision: { file: "frontend/assets/vfx/Laser_shoot.mp3", volume: 0.6 },
+            move: { file: "frontend/assets/vfx/Laser_shoot.mp3", volume: 0.5 }
         },
+
         rail: {
             file: "rail.wav",
-            collision: { file: "Rail" }
+            collision: { file: "Rail", volume: 0.5 }
         }
     },
 

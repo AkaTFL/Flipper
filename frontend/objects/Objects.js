@@ -13,7 +13,6 @@ export class Objects {
         radius = null,
         mesh = [],
         side = null,
-        sound = null
     ) {
         this.world = world;
         this.length = length;
@@ -24,7 +23,6 @@ export class Objects {
         this.radius = radius;
         this.mesh = mesh;
         this.side = side;
-        this.sound = sound;
 
         this.mesh = new THREE.Group();
 
@@ -56,37 +54,40 @@ export class Objects {
         this.audio = this.initSound(this.sound);
     }
 
-    initSound(soundConfig = null) {
-        const soundFile = soundConfig || null;
-        if (!soundFile) return null;
+    // initSound(soundConfig = null) {
+    //     const soundFile = soundConfig || null;
+    //     if (!soundFile) return null;
 
-        let source;
-        try {
-            source = new URL(`${soundFile}`, import.meta.url).href;
-        } catch (e) {
-            console.warn('Le chemin du fichier son est invalide:', soundFile);
-            return null;
-        }
-        const audio = new Audio(source);
-        audio.preload = 'auto';
-        audio.volume = soundConfig.volume ?? 1;
-        audio.onerror = () => {
-            console.warn(`Le fichier son est manquant : ${soundFile}`);
-        };
-        return audio;
-    }
+    //     let source;
+    //     try {
+    //         source = new URL(`${soundFile}`, import.meta.url).href;
+    //     } catch (e) {
+    //         console.warn('Le chemin du fichier son est invalide:', soundFile);
+    //         return null;
+    //     }
+    //     const audio = new Audio(source);
+    //     audio.preload = 'auto';
+    //     audio.volume = soundConfig.volume ?? 1;
+    //     audio.onerror = () => {
+    //         console.warn(`Le fichier son est manquant : ${soundFile}`);
+    //     };
+    //     return audio;
+    // }
+    // Refactorisé pour accepter une configuration de son complète (volume + fichier) ou juste un chemin de fichier
 
-    playSound(soundOptions = null) {
-        const options = soundOptions ?? this.sound;
-        if (!this.audio) return;
+    // playSound(soundOptions = null, soundFile = null) {
+    //     const options = soundOptions ?? this.sound;
+    //     const file = soundFile ?? options.file;
+    //     if (!this.audio) return;
 
-        this.audio.volume = options.volume ?? 1;
+    //     this.audio.volume = options.volume ?? 1;
 
-        this.audio.currentTime = 0;
-        this.audio.play().catch((error) => {
-            console.error('Failed to play sound:', error);
-        });
-    }
+    //     this.audio.currentTime = 0;
+    //     this.audio.play().catch((error) => {
+    //         console.error('Failed to play sound:', error);
+    //     });
+    // }
+    // Meme chose que pour initSound, avec le passage en paramètre des variables et non de this.sound directement
 
     toRotationQuaternion(rotation = this.rotation) {
         const rx = rotation?.x ?? 0;

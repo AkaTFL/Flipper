@@ -10,6 +10,7 @@ export class Palles extends Objects {
      * @param {number} height - The height of the palles
      * @param {Object} position - The position object with x, y, z properties
      * @param {Object} rotation - The rotation object with x, y, z properties
+     * @param {string} side - 'left' ou 'right'
      */
     constructor(world, length = 500, width = 10, height = 10, position = {x: 250, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}, side) {
         super(world, length, width, height, position, rotation, null, [], null, Config.sounds.palles.file);
@@ -96,7 +97,7 @@ export class Palles extends Objects {
         this.joint.configureMotorPosition(targetAngle, this.rotationSpeed, 8.0);
         
         if (active && !this.wasActive) {
-            this.playSound("move"); //Son de mouvement des palles
+            this.playSound(); //Son de mouvement des palles
         }
         this.wasActive = active;
     }
