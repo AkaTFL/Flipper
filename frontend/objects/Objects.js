@@ -55,6 +55,8 @@ export class Objects {
     }
 
     initSound(sound) {
+        if (!sound) return null;
+        
         const soundConfig = typeof sound === 'string' ? { file: sound, volume: 1 } : sound;
 
         let source;
