@@ -50,7 +50,7 @@ export default {
     sounds: {
         ball: {
             collision: { file: "", volume: 0.5 },
-            move: { file: "", volume: 0.5 }
+            movement: { file: "", volume: 0.5 }
         },
         
         bumper: {
@@ -68,8 +68,8 @@ export default {
         },
 
         palles: {
-            collision: { file: "frontend/assets/vfx/Laser_shoot.mp3", volume: 0.6 },
-            move: { file: "frontend/assets/vfx/Laser_shoot.mp3", volume: 0.5 }
+            collision: { file: "../assets/vfx/Laser_shoot.mp3", volume: 0.6 },
+            movement: { file: "../assets/vfx/Laser_shoot.mp3", volume: 0.5 }
         },
 
         rail: {

@@ -12,7 +12,7 @@ export class Wall extends Objects {
      * @param {number} rotation - The rotation of the wall in radians (default is 0, which means no rotation)
      */
     constructor(world, width = 500, height = 500, position = {x: 250, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}) {
-        super(world, null, width, height, position, rotation, null, [], null, Config.sounds.wall.file);
+        super(world, null, width, height, position, rotation, null, [], null);
 
         this.mesh = new THREE.Mesh(
             new THREE.PlaneGeometry(this.width, this.height),

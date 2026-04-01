@@ -54,39 +54,34 @@ export class Objects {
         this.audio = this.initSound(this.sound);
     }
 
-    // initSound(soundConfig = null) {
-    //     const soundFile = soundConfig || null;
-    //     if (!soundFile) return null;
+    initSound(sound) {
+        const soundConfig = typeof sound === 'string' ? { file: sound, volume: 1 } : sound;
 
-    //     let source;
-    //     try {
-    //         source = new URL(`${soundFile}`, import.meta.url).href;
-    //     } catch (e) {
-    //         console.warn('Le chemin du fichier son est invalide:', soundFile);
-    //         return null;
-    //     }
-    //     const audio = new Audio(source);
-    //     audio.preload = 'auto';
-    //     audio.volume = soundConfig.volume ?? 1;
-    //     audio.onerror = () => {
-    //         console.warn(`Le fichier son est manquant : ${soundFile}`);
-    //     };
-    //     return audio;
-    // }
-    // Refactorisé pour accepter une configuration de son complète (volume + fichier) ou juste un chemin de fichier
+        let source;
+        try {
+            source = new URL(`${soundConfig.file}`, import.meta.url).href;
+        } catch (e) {
+            console.warn('Le chemin du fichier son est invalide:', soundConfig.file);
+            return null;
+        }
+        this.audio = new Audio(source);
+        this.audio.preload = 'auto';
+        this.audio.volume = soundConfig.volume ?? 1;
+        this.audio.onerror = () => {
+            console.warn(`Le fichier son est manquant : ${soundConfig.file}`);
+        };
+        return this.audio;
+    }
 
-    // playSound(soundOptions = null, soundFile = null) {
-    //     const options = soundOptions ?? this.sound;
-    //     const file = soundFile ?? options.file;
-    //     if (!this.audio) return;
-
-    //     this.audio.volume = options.volume ?? 1;
-
-    //     this.audio.currentTime = 0;
-    //     this.audio.play().catch((error) => {
-    //         console.error('Failed to play sound:', error);
-    //     });
-    // }
+    playSound(sound = this.sound) {
+        this.audio = this.initSound(sound);
+        if (this.audio !== null) {
+            this.audio.currentTime = 0;
+            this.audio.play().catch((error) => {
+                console.error('Impossible de lire le son:', error);
+            });
+        }
+    }
     // Meme chose que pour initSound, avec le passage en paramètre des variables et non de this.sound directement
 
     toRotationQuaternion(rotation = this.rotation) {

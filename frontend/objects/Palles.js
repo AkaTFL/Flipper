@@ -13,7 +13,7 @@ export class Palles extends Objects {
      * @param {string} side - 'left' ou 'right'
      */
     constructor(world, length = 500, width = 10, height = 10, position = {x: 250, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}, side) {
-        super(world, length, width, height, position, rotation, null, [], null, Config.sounds.palles.file);
+        super(world, length, width, height, position, rotation, null, [], null);
         this.side = side;
         this.isLeft = side === 'left';
         this.wasActive = false;
@@ -97,7 +97,7 @@ export class Palles extends Objects {
         this.joint.configureMotorPosition(targetAngle, this.rotationSpeed, 8.0);
         
         if (active && !this.wasActive) {
-            this.playSound(); //Son de mouvement des palles
+            this.playSound(Config.sounds.palles.movement); //Son de mouvement des palles
         }
         this.wasActive = active;
     }
@@ -110,7 +110,7 @@ export class Palles extends Objects {
     handleCollision() {
         // Par défaut, joue le son s'il existe
         if (this.audio) {
-            this.playSound(); // Son de collision des palles
+            this.playSound(Config.sounds.palles.collision); // Son de collision des palles
         }
     }
 }
