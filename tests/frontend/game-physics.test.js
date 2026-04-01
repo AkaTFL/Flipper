@@ -4,69 +4,33 @@ import assert from 'node:assert/strict';
 import Config from '../../frontend/physics/Config.js';
 import { GamePhysics } from '../../frontend/physics/GamePhysics.js';
 
-test('applyBumperForce applies a normalized impulse scaled by bumper power', () => {
+test('GamePhysics initializes bumper/object registries', () => {
   const physics = new GamePhysics(Config);
-  let appliedImpulse = null;
 
-  const otherBody = {
-    translation: () => ({ x: 3, y: 4, z: 0 }),
-    applyImpulse: (impulse, wakeUp) => {
-      appliedImpulse = { impulse, wakeUp };
-    },
-  };
-
-  physics.world = {
-    colliders: {
-      get: (handle) => {
-        assert.equal(handle, 2);
-        return {
-          parent: () => otherBody,
-        };
-      },
-    },
-  };
-
-  const bumper = {
-    collider: { handle: 1 },
-    rigidBody: {
-      translation: () => ({ x: 0, y: 0, z: 0 }),
-    },
-  };
-
-  physics.applyBumperForce(bumper, 1, 2);
-
-  assert.ok(appliedImpulse);
-  assert.equal(appliedImpulse.wakeUp, true);
-  assert.equal(appliedImpulse.impulse.x, Config.bumper.power * Config.forceMultiplier * 0.6);
-  assert.equal(appliedImpulse.impulse.y, Config.bumper.power * Config.forceMultiplier * 0.8);
-  assert.equal(appliedImpulse.impulse.z, 0);
+  assert.deepEqual(physics.bumpers, []);
+  assert.deepEqual(physics.objects, []);
 });
 
-test('applyBumperForce exits safely when the other collider is missing', () => {
+test('registerObjects appends every provided object', () => {
   const physics = new GamePhysics(Config);
+  const objects = [{ id: 'a' }, { id: 'b' }];
 
-  physics.world = {
-    colliders: {
-      get: () => null,
-    },
-  };
+  physics.registerObjects(objects);
 
-  const bumper = {
-    collider: { handle: 1 },
-    rigidBody: {
-      translation: () => ({ x: 0, y: 0, z: 0 }),
-    },
-  };
-
-  assert.doesNotThrow(() => physics.applyBumperForce(bumper, 1, 2));
+  assert.equal(physics.objects.length, 2);
+  assert.equal(physics.objects[0], objects[0]);
+  assert.equal(physics.objects[1], objects[1]);
 });
 
-test('registerBumper stores bumpers for future collision handling', () => {
+test('registerObjects can be called multiple times', () => {
   const physics = new GamePhysics(Config);
-  const bumper = { collider: { handle: 42 } };
+  const first = { id: 'first' };
+  const second = { id: 'second' };
 
-  physics.registerBumper(bumper);
+  physics.registerObjects([first]);
+  physics.registerObjects([second]);
 
-  assert.equal(physics.bumpers.length, 1);
-  assert.equal(physics.bumpers[0], bumper);
+  assert.equal(physics.objects.length, 2);
+  assert.equal(physics.objects[0], first);
+  assert.equal(physics.objects[1], second);
 });

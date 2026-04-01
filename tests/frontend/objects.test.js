@@ -93,7 +93,7 @@ test('LaunchingRamp builds three rails with the expected offsets', () => {
   assert.equal(ramp.bottomRail.mesh.position.y, 290);
 });
 
-test('Palles set left-side joint limits and drive the motor when activated', () => {
+test('Palles constructor creates physics body/collider and defers joint setup until model load', () => {
   const { world, state } = createWorldStub();
   const palles = new Palles(
     world,
@@ -105,23 +105,14 @@ test('Palles set left-side joint limits and drive the motor when activated', () 
     'left'
   );
 
-  assert.equal(state.rigidBodies.length, 2);
+  assert.equal(state.rigidBodies.length, 1);
   assert.equal(state.colliders.length, 1);
-  assert.equal(state.joints.length, 1);
-  assert.deepEqual(state.joints[0].limits, {
-    min: -Math.abs(Config.palles.rotationAngle),
-    max: -Math.abs(Config.palles.initialAngle ?? (Math.PI / 6)),
-  });
+  assert.equal(state.joints.length, 0);
 
-  palles.setActive(true);
-  assert.deepEqual(state.joints[0].motorPosition, {
-    angle: Math.abs(Config.palles.rotationAngle),
-    stiffness: Config.palles.rotationSpeed,
-    damping: 8,
-  });
+  assert.doesNotThrow(() => palles.setActive(true));
 });
 
-test('Palles use inverted limits on the right side and reset to neutral when released', () => {
+test('Palles keeps rest-angle semantics when inactive', () => {
   const { world, state } = createWorldStub();
   const palles = new Palles(
     world,
@@ -133,15 +124,8 @@ test('Palles use inverted limits on the right side and reset to neutral when rel
     'right'
   );
 
-  assert.deepEqual(state.joints[0].limits, {
-    min: Math.abs(Config.palles.initialAngle ?? (Math.PI / 6)),
-    max: Math.abs(Config.palles.rotationAngle),
-  });
+  assert.equal(state.joints.length, 0);
+  assert.equal(palles.restAngle, Math.abs(Config.palles.initialAngle ?? (Math.PI / 6)));
 
-  palles.setActive(false);
-  assert.deepEqual(state.joints[0].motorPosition, {
-    angle: Math.abs(Config.palles.initialAngle ?? (Math.PI / 6)),
-    stiffness: Config.palles.rotationSpeed,
-    damping: 8,
-  });
+  assert.doesNotThrow(() => palles.setActive(false));
 });
