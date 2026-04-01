@@ -47,5 +47,36 @@ export default {
         initialAngle: 30 * (Math.PI / 180)
     },
 
+    sounds: {
+        ball: {
+            collision: { file: "", volume: 0.5 },
+            movement: { file: "", volume: 0.5 }
+        },
+        
+        bumper: {
+            collision: { file: "", volume: 0.5 },
+        },
+
+        wall: {
+            file: "wall.wav",
+            collision: { file: "Wall", volume: 0.5 }
+        },
+
+        launchingRamp: {
+            file: "launching_ramp.wav",
+            collision: { file: "LaunchingRamp", volume: 0.5 }
+        },
+
+        palles: {
+            collision: { file: "../assets/vfx/Laser_shoot.mp3", volume: 0.6 },
+            movement: { file: "../assets/vfx/Laser_shoot.mp3", volume: 0.5 }
+        },
+
+        rail: {
+            file: "rail.wav",
+            collision: { file: "Rail", volume: 0.5 }
+        }
+    },
+
     forceMultiplier: 100.0  // Multiplicateur de force pour ajuster l'intensité de la physique en fonction de l'échelle
 }

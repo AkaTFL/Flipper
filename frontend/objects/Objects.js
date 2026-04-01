@@ -12,7 +12,7 @@ export class Objects {
         rotation = { x: 0, y: 0, z: 0 },
         radius = null,
         mesh = [],
-        side = null
+        side = null,
     ) {
         this.world = world;
         this.length = length;
@@ -23,12 +23,14 @@ export class Objects {
         this.radius = radius;
         this.mesh = mesh;
         this.side = side;
+
         this.mesh = new THREE.Group();
 
         const hasBoxDimensions = this.length != null && this.width != null && this.height != null;
-        this.fallbackMesh = null;
+        this.TreeMesh = null;
+
         if (hasBoxDimensions) {
-            this.fallbackMesh = new THREE.Mesh(
+            this.TreeMesh = new THREE.Mesh(
                 new THREE.BoxGeometry(this.length, this.width, this.height),
                 new THREE.MeshStandardMaterial({
                     color: 0x606060,
@@ -36,7 +38,7 @@ export class Objects {
                     roughness: 0.5
                 })
             );
-            this.mesh.add(this.fallbackMesh);
+            this.mesh.add(this.TreeMesh);
         }
 
         if (position) {
@@ -48,7 +50,41 @@ export class Objects {
             this.mesh.rotation.y = rotation.y ?? 0;
             this.mesh.rotation.z = rotation.z ?? 0;
         }
+
+        this.audio = this.initSound(this.sound);
     }
+
+    initSound(sound) {
+        if (!sound) return null;
+        
+        const soundConfig = typeof sound === 'string' ? { file: sound, volume: 1 } : sound;
+
+        let source;
+        try {
+            source = new URL(`${soundConfig.file}`, import.meta.url).href;
+        } catch (e) {
+            console.warn('Le chemin du fichier son est invalide:', soundConfig.file);
+            return null;
+        }
+        this.audio = new Audio(source);
+        this.audio.preload = 'auto';
+        this.audio.volume = soundConfig.volume ?? 1;
+        this.audio.onerror = () => {
+            console.warn(`Le fichier son est manquant : ${soundConfig.file}`);
+        };
+        return this.audio;
+    }
+
+    playSound(sound = this.sound) {
+        this.audio = this.initSound(sound);
+        if (this.audio !== null) {
+            this.audio.currentTime = 0;
+            this.audio.play().catch((error) => {
+                console.error('Impossible de lire le son:', error);
+            });
+        }
+    }
+    // Meme chose que pour initSound, avec le passage en paramètre des variables et non de this.sound directement
 
     toRotationQuaternion(rotation = this.rotation) {
         const rx = rotation?.x ?? 0;
@@ -108,6 +144,14 @@ export class Objects {
             .catch((error) => {
                 console.error('Failed to load flipper model:', error);
             });
+    }
+
+    getMeshMetrics(modelRoot) {
+        const box = new THREE.Box3().setFromObject(modelRoot);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+
+        return { box, size, center, halfLengthX: size.x / 2 };
     }
 
     syncObjects() {
