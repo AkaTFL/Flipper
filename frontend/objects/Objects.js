@@ -146,6 +146,14 @@ export class Objects {
             });
     }
 
+    getMeshMetrics(modelRoot) {
+        const box = new THREE.Box3().setFromObject(modelRoot);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+
+        return { box, size, center, halfLengthX: size.x / 2 };
+    }
+
     syncObjects() {
         if (!this.rigidBody || !this.mesh) return;
 
