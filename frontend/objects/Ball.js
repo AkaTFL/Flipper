@@ -1,14 +1,16 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import * as THREE from 'three';
 import Config from '../physics/Config.js';
+import { Objects } from './Objects.js';
 
-export class Ball {
+export class Ball extends Objects {
     /**
      * @param {Object} world - The physics world
      * @param {Object} position - The position object with x, y, z properties
      */
     constructor(world, position = {x: 0, y: 500, z: 0}) {
-        this.world = world;
+        super(world, null, null, null, position, { x: 0, y: 0, z: 0 }, Config.ball.radius, [], null);
+
         this.radius = Config.ball.radius;
         
         this.mesh = new THREE.Mesh(
@@ -33,18 +35,22 @@ export class Ball {
         // Physique précise : friction, restitution, densité
         const colliderDesc = RAPIER.ColliderDesc.ball(this.radius)
             .setDensity(Config.ball.density)               // Densité élevée (acier)
+            .setMass(Config.ball.mass)                     // Masse explicite pour un launch cohérent
             .setRestitution(Config.ball.restitution)       // Rebond
             .setFriction(Config.ball.friction);            // Glissement
 
-        this.world.createCollider(colliderDesc, this.rigidBody);
+        this.attachCollider(colliderDesc);
     }
 
     syncBall() {
-        const position = this.rigidBody.translation();
-        this.mesh.position.set(position.x, position.y, position.z);
-        
-        const rotation = this.rigidBody.rotation();
-        this.mesh.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+        super.syncObjects();
+    }
+
+    handleCollision() {
+        // Par défaut, joue le son s'il existe
+        if (this.audio) {
+            this.playSound();
+        }
     }
 }
     

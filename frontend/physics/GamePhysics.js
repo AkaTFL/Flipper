@@ -1,11 +1,13 @@
 import * as RAPIER from "@dimforge/rapier3d-compat"
-import Config from './Config.js';
 
 export class GamePhysics {
     constructor(config) {
         this.config = config
         this.world = null
         this.bumpers = []
+        this.launchingRamp = null
+        this.backendSocket = null
+        this.objects = []
     }
 
     async init() {
@@ -20,57 +22,63 @@ export class GamePhysics {
         };
 
         this.world = new RAPIER.World(gravity)
+        this.connectBackend()
     }
 
     step() {
-        this.world.step()
-        this.handleBumperCollisions()
+        this.world.step(this.eventQueue)
+        this.handleCollisionEvents()
     }
 
-    registerBumper(bumper) {
-        this.bumpers.push(bumper)
+
+    //REGISTRATION
+    registerObjects(objects) {
+        for (const obj of objects) {
+            this.objects.push(obj);
+        }
     }
 
-    handleBumperCollisions() {
+
+    //BACKEND
+    connectBackend() {
+        try {
+            this.backendSocket = new WebSocket("aa" + ':' + "bb") // Remplacez par l'adresse de votre backend
+        } catch (error) {
+            this.backendSocket = null
+            console.warn('Backend non connecté:', error)
+        }
+    }
+
+    sendImpact(objectId) {
+        this.backendSocket.send(JSON.stringify({
+            type: 'impact',
+            payload: { objectId }
+        }))
+    }
+
+    //COLLISION HANDLING
+    handleCollisionEvents() {
         this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
-            if (!started) return
+            if (!started) return;
 
-            for (let bumper of this.bumpers) {
-                if (bumper.collider.handle === handle1 || bumper.collider.handle === handle2) {
-                    this.applyBumperForce(bumper, handle1, handle2)
+            // Gestion générique pour tous les objets
+            for (let obj of this.objects) {
+                if (!obj.collider) continue;
+
+                if (obj.collider.handle === handle1 || obj.collider.handle === handle2) {
+                    if (typeof obj.handleCollision === 'function') {
+                        obj.handleCollision();
+
+                        if (bumper.collider.handle === handle1 || bumper.collider.handle === handle2) {
+                            if (bumper.collider.handle === handle1 || bumper.collider.handle === handle2) {
+                                bumper.applyBumperForce(handle1, handle2);
+                                this.sendImpact(String(bumper.collider.objectId));
+                            }
+                        }
+                    }
                 }
+
             }
         })
-    }
-
-    applyBumperForce(bumper, handle1, handle2) {
-        const otherHandle = bumper.collider.handle === handle1 ? handle2 : handle1
-        const otherCollider = this.world.colliders.get(otherHandle)
-        if (!otherCollider) return
-
-        const otherBody = otherCollider.parent()
-        if (!otherBody) return
-
-        const bumperPos = bumper.rigidBody.translation()
-        const ballPos = otherBody.translation()
-
-        const dirX = ballPos.x - bumperPos.x
-        const dirY = ballPos.y - bumperPos.y
-        const dirZ = ballPos.z - bumperPos.z
-
-        // Normaliser
-        const length = Math.sqrt(dirX * dirX + dirY * dirY + dirZ * dirZ)
-        if (length === 0) return
-
-        const X = dirX / length
-        const Y = dirY / length
-        const Z = dirZ / length
-
-        // Appliquer force
-        const power = Config.bumper.power * Config.forceMultiplier
-        otherBody.applyImpulse(
-            { x: X * power, y: Y * power, z: Z * power },
-            true
-        )
     }
 }

@@ -18,6 +18,8 @@ jobs:
       has_backend: ${{ steps.check.outputs.has_backend }}
       has_frontend: ${{ steps.check.outputs.has_frontend }}
       has_yarn: ${{ steps.check.outputs.has_yarn }}
+      has_backend_dockerfile: ${{ steps.check.outputs.has_backend_dockerfile }}
+      has_frontend_dockerfile: ${{ steps.check.outputs.has_frontend_dockerfile }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,18 +35,30 @@ jobs:
             echo "has_backend=false" >> "$GITHUB_OUTPUT"
           fi
 
-          # Frontend : on considère prêt si package.json existe
-          if [ -f "frontend/package.json" ]; then
+          # Frontend : on considère prêt si package.json (racine) et index.html existent
+          if [ -f "package.json" ] && [ -f "frontend/index.html" ]; then
             echo "has_frontend=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_frontend=false" >> "$GITHUB_OUTPUT"
           fi
 
           # Détection Yarn (optionnel) : si yarn.lock existe, on utilisera yarn
-          if [ -f "frontend/yarn.lock" ]; then
+          if [ -f "yarn.lock" ]; then
             echo "has_yarn=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_yarn=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ -f "backend/Dockerfile" ]; then
+            echo "has_backend_dockerfile=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_backend_dockerfile=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ -f "frontend/Dockerfile" ]; then
+            echo "has_frontend_dockerfile=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_frontend_dockerfile=false" >> "$GITHUB_OUTPUT"
           fi
 
   backend:
@@ -64,13 +78,14 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.24.x"
+          go-version: "1.25.x"
           cache: true
+          cache-dependency-path: backend/go.sum
 
       - name: Build
         run: go build ./...
 
-      # Important pour votre projet (goroutines, WebSocket, MQTT) : race detector
+      #  (goroutines, WebSocket, MQTT) : race detector
       - name: Tests (race + coverage)
         run: |
           go test -race -count=1 -coverprofile=coverage.out ./...
@@ -92,10 +107,6 @@ jobs:
     needs: prepare
     if: ${{ needs.prepare.outputs.has_frontend == 'true' }}
 
-    defaults:
-      run:
-        working-directory: frontend
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -105,7 +116,7 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: package-lock.json
 
       # Si Yarn est détecté, on utilise Yarn ; sinon NPM
       - name: Install (Yarn)
@@ -119,9 +130,41 @@ jobs:
       - name: Lint (si présent)
         run: npm run lint --if-present
 
-      # Si vous ajoutez Vitest/Jest, ce step s'activera automatiquement
+      # Si test, ce step s'activera automatiquement
       - name: Tests (si présent)
         run: npm run test --if-present
 
       - name: Build (si présent)
         run: npm run build --if-present
+
+  docker_backend:
+    name: Docker backend — build
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: ${{ needs.prepare.outputs.has_backend_dockerfile == 'true' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image
+        run: docker build -f backend/Dockerfile -t flipper-backend:ci backend
+
+  docker_frontend:
+    name: Docker frontend — build
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: ${{ needs.prepare.outputs.has_frontend_dockerfile == 'true' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build frontend image
+        run: docker build -f frontend/Dockerfile -t flipper-frontend:ci frontend
