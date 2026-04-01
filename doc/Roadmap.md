@@ -1,334 +1,265 @@
 ## 9. Roadmap
 
-> Début : 23 février  
-> Fin prévue : 12 juin  
-> Durée : 16 semaines
+> Date de départ : 23 février 2026  
+> Date cible de soutenance : 12 juin 2026  
+> Approche : roadmap par phases (durée variable selon complexité)
 
 ---
 
-### SEMAINE 1 (23 fév – 1 mars) — Initialisation technique
+### Principes d'organisation
 
-**Modestin (Backend Go)**
-- Setup serveur Go
-- WebSocket minimal
-
-**Charles (ESP32 + MQTT)**
-- Installation Mosquitto
-- Test publication MQTT simple
-
-**Hugo (Frontend 3D)**
-- Setup Three.js
-- Scène vide + caméra
-
-**Baptiste (Art 3D)**
-- Début modélisation table
-
-**Raphael (Tests & CI/CD)**
-- Setup Gitflow
-- Pipeline CI (build Go)
+- Priorité au **MVP jouable et stable** avant les fonctionnalités avancées.
+- Les tâches sont organisées par **dépendances techniques**, pas par semaine fixe.
+- Chaque phase se termine avec un **livrable vérifiable**.
+- Le module IA est traité comme un **bonus maîtrisé** après stabilisation du cœur du jeu.
 
 ---
 
-### SEMAINE 2 (2 mars – 8 mars) — Validation flux complet
+### Rôles et responsabilités (référence)
+
+- **Modestin** : Backend Go + logique métier + WebSocket
+- **Charles** : IoT (ESP32 + MQTT + matériel)
+- **Hugo** : Frontend 3D (Three.js + intégration gameplay)
+- **Baptiste** : Art 3D + UI visuelle (Playfield / Backglass / DMD)
+- **Raphael** : Tests + CI/CD + qualité + outillage
+
+---
+
+## Phase 1 — Fondations techniques (23 février → 13 mars, 3 semaines)
+
+### Objectif
+Poser une base exécutable pour backend, frontend et IoT avec pipeline de qualité minimal.
+
+### Travaux par rôle
 
 **Modestin**
-- Intégration client MQTT côté backend
-- Relay MQTT → WebSocket
+- Initialiser la structure backend Go.
+- Exposer un serveur WebSocket minimal.
+- Définir le format d'événements (contrat JSON v1).
 
 **Charles**
-- Connexion ESP32 au broker
+- Installer et configurer Mosquitto.
+- Connecter un ESP32 au broker.
+- Publier des événements de test sur des topics normalisés.
 
 **Hugo**
-- Réception WebSocket frontend
+- Initialiser l'application frontend Three.js.
+- Mettre en place une scène de base (caméra, lumière, boucle render).
+- Consommer un message WebSocket de test.
 
 **Baptiste**
-- Modélisation flippers
+- Créer les premiers assets proxy (table, flippers, bumper placeholders).
+- Définir une direction visuelle et une nomenclature d'assets.
 
 **Raphael**
-- Tests unitaires backend
-- Vérification build automatique
+- Finaliser la CI GitHub Actions (build, lint, tests conditionnels).
+- Ajouter les premiers checks qualité (lint Go/JS quand les projets existent).
+- Définir la stratégie de branches et règles PR appliquées.
 
-**Livrable :** flux complet capteur → navigateur
+### Livrable de fin de phase
+- Flux minimal validé : `ESP32/MQTT (mock ou réel) -> Backend Go -> WebSocket -> Frontend`.
+- CI verte sur `main`.
+
+### Tâches transverses si avance (capacité disponible)
+
+**Charles**
+- Préparer un guide de câblage (GPIO) et un plan de tests matériel pour la Phase 3.
+- Créer des scripts de simulation MQTT pour aider Raphael sur les tests d'intégration.
+- Aider Modestin à valider le schéma d'événements côté MQTT.
+
+**Baptiste**
+- Préparer des variantes d'assets légers pour faciliter les tests de performance frontend.
+
+**Raphael**
+- Mettre en place un template de rapport de test hebdomadaire partagé à l'équipe.
 
 ---
 
-### SEMAINE 3 (9 mars – 15 mars) — Structuration backend & physique
+## Phase 2 — Boucle de jeu MVP clavier (16 mars → 10 avril, 4 semaines)
+
+### Objectif
+Livrer un flipper jouable au clavier, sans dépendance forte au matériel.
+
+### Travaux par rôle
 
 **Modestin**
-- Struct Game / Player
-- Event dispatcher
+- Implémenter le modèle de jeu (`Game`, `Player`, `GameState`).
+- Gérer les états (`IDLE`, `INIT`, `PLAYING`, `BALL_LOST`, `GAME_OVER`).
+- Ajouter la logique de score côté backend.
 
 **Charles**
-- Standardisation topics MQTT
+- Stabiliser le schéma MQTT (topics, payload, QoS par type d'événement).
+- Construire un simulateur d'inputs MQTT pour accélérer les tests.
 
 **Hugo**
-- Intégration Rapier
-- Bille dynamique
+- Intégrer la physique (Rapier) et la logique de collisions côté frontend.
+- Implémenter les contrôles clavier (flippers, lancement bille).
+- Afficher score et état de partie.
 
 **Baptiste**
-- Obstacles 3D
+- Produire un pack d'assets MVP optimisés (low/medium poly).
+- Intégrer les éléments UI minimaux (score, statut, messages).
 
 **Raphael**
-- Activation race detector
-- Tests concurrence backend
+- Ajouter des tests unitaires backend (score, transitions d'état).
+- Mettre en place des tests d'intégration WebSocket multi-clients.
+- Activer la couverture et suivi de qualité dans CI.
+
+### Livrable de fin de phase
+- Prototype jouable complet au clavier avec score fiable.
+- Documentation de test et checklist de non-régression.
+
+### Tâches transverses si avance (capacité disponible)
+
+**Charles**
+- Participer aux tests de robustesse WebSocket avec Raphael (pannes réseau simulées).
+- Préparer les drivers/procédures pour accélérer l'intégration matérielle de la Phase 3.
+
+**Baptiste**
+- Commencer les éléments visuels Backglass/DMD pour réduire la charge de la Phase 3.
+
+**Raphael**
+- Ajouter une base de tests de charge légère (smoke perf) backend/frontend.
 
 ---
 
-### SEMAINE 4 (16 mars – 22 mars) — Gameplay clavier
+## Phase 3 — Intégration IoT réelle et synchronisation multi-écrans (13 avril → 8 mai, 4 semaines)
+
+### Objectif
+Connecter le matériel réel et garantir la cohérence temps réel sur plusieurs vues.
+
+### Travaux par rôle
 
 **Modestin**
-- Gestion score backend
+- Intégrer la réception MQTT réelle dans le moteur de jeu.
+- Garantir l'ordre des événements et éviter les doublons.
+- Gérer le broadcast structuré pour Playfield, Backglass et DMD.
 
 **Charles**
-- Validation stabilité MQTT
+- Mapper GPIO (boutons, capteurs, actionneurs).
+- Piloter les solénoïdes/retours matériels avec contraintes de sécurité.
+- Mesurer latence et stabilité du réseau local.
 
 **Hugo**
-- Flippers clavier
-- Détection collisions
+- Synchroniser Playfield / Backglass / DMD côté frontend.
+- Implémenter les réactions visuelles liées aux événements physiques.
+- Optimiser le rendu (FPS stable sur machines cibles).
 
 **Baptiste**
-- Ajustement modèles 3D
+- Finaliser les assets visuels des 3 vues.
+- Ajouter animations DMD/Backglass cohérentes avec le gameplay.
 
 **Raphael**
-- Tests unitaires score
+- Déployer des tests end-to-end (chaîne complète MQTT -> Frontend).
+- Exécuter tests de robustesse (déconnexions, pertes de messages, recharge client).
+- Produire un tableau de suivi des défauts bloquants.
 
-**Livrable :** prototype jouable clavier
+### Livrable de fin de phase
+- MVP matériel fonctionnel en conditions réelles.
+- Synchronisation valide sur 3 affichages.
+
+### Tâches transverses si avance (capacité disponible)
+
+**Charles**
+- Documenter les incidents matériels et proposer des actions préventives pour la Phase 4.
+- Contribuer au mode fallback (simulation) avec Modestin pour sécuriser la démo.
+
+**Hugo**
+- Préparer des profils graphiques (qualité/performance) selon les machines de démo.
+
+**Raphael**
+- Industrialiser les tests end-to-end pour exécution automatique en pré-release.
 
 ---
 
-### SEMAINE 5 (23 mars – 29 mars) — États du jeu
+## Phase 4 — Stabilisation produit et qualité soutenance (11 mai → 29 mai, 3 semaines)
+
+### Objectif
+Passer de MVP à Release Candidate stable, démontrable et maintenable.
+
+### Travaux par rôle
 
 **Modestin**
-- États : IDLE / PLAYING / GAME_OVER
+- Optimiser concurrence backend (goroutines, mutex/channels).
+- Renforcer la résilience en cas de pics d'événements.
 
 **Charles**
-- Tests QoS MQTT
+- Fiabiliser firmware et reconnect automatique MQTT.
+- Finaliser les procédures de setup matériel.
 
 **Hugo**
-- Affichage score Playfield
+- Optimiser performances frontend (FPS, mémoire, chargement assets).
+- Ajuster ergonomie de jeu et feedback utilisateur.
 
 **Baptiste**
-- Début design DMD
+- Polir la direction artistique finale et les transitions visuelles.
+- Fournir exports optimisés et versionnés.
 
 **Raphael**
-- Tests transitions d’état
+- Monter la couverture de tests sur scénarios critiques.
+- Vérifier pipeline complet avant gel.
+- Préparer scripts de validation pré-demo.
+
+### Livrable de fin de phase
+- **Release Candidate** techniquement stable.
+- Liste de risques résiduels et plans de contournement.
+
+### Tâches transverses si avance (capacité disponible)
+
+**Charles**
+- Renforcer le plan de continuité matériel (matériel de secours, procédure de reprise rapide).
+
+**Baptiste**
+- Produire des packs d'assets "safe mode" (ultra légers) pour garantir la fluidité en soutenance.
+
+**Raphael**
+- Préparer une répétition CI "soutenance" (pipeline + checklist complète en une commande).
 
 ---
 
-### SEMAINE 6 (30 mars – 5 avril) — Stabilisation MVP
+## Phase 5 — IA (optionnelle et cadrée) + soutenance (1 juin → 12 juin, 2 semaines)
+
+### Objectif
+Ajouter une couche IA uniquement si le socle est stable, puis finaliser la soutenance.
+
+### Travaux par rôle
 
 **Modestin**
-- Sécurisation concurrence backend
+- Exposer une interface backend pour consommer un service IA.
+- Isoler l'IA pour ne pas impacter la boucle temps réel principale.
 
 **Charles**
-- Optimisation publication MQTT
+- Garantir la disponibilité des données capteurs utiles à l'IA.
 
 **Hugo**
-- Ajustement collisions
+- Afficher les retours IA (insights, recommandations, mode assisté) sur DMD/UI.
 
 **Baptiste**
-- Optimisation assets 3D
+- Concevoir les éléments visuels dédiés au feedback IA.
 
 **Raphael**
-- Pipeline CI étendu
-- Lint JS + Go
+- Mesurer l'impact perf/latence de l'IA.
+- Valider un mode fallback sans IA pour la démo.
+- Assurer la stabilité finale CI/CD et préparer le tag `v1.0.0`.
 
-**Livrable :** MVP stable
+### Livrable de fin de phase
+- Soutenance prête avec scénario principal stable.
+- IA activée uniquement si les critères de performance sont respectés.
+
+### Tâches transverses si avance (capacité disponible)
+
+**Toute l'équipe**
+- Répétition complète de la démo (conditions réelles) avec mesure du temps par séquence.
+- Préparation d'un plan B strict : scénario sans IA, sans matériel ou sans réseau externe.
 
 ---
 
-### SEMAINE 7 (6 avril – 12 avril) — Synchronisation Playfield / Backglass
+## Jalons de validation (Go / No-Go)
 
-**Modestin**
-- Broadcast structuré WebSocket
-
-**Charles**
-- Monitoring broker MQTT
-
-**Hugo**
-- Synchronisation Playfield / Backglass
-
-**Baptiste**
-- Animations Backglass
-
-**Raphael**
-- Tests multi-clients WebSocket
+- **Jalon A (13 mars)** : socle technique et CI opérationnels.
+- **Jalon B (10 avril)** : MVP jouable clavier validé.
+- **Jalon C (8 mai)** : intégration IoT réelle et multi-écrans validées.
+- **Jalon D (29 mai)** : Release Candidate stabilisée.
+- **Jalon E (12 juin)** : soutenance et livraison finale.
 
 ---
-
-### SEMAINE 8 (13 avril – 19 avril) — Synchronisation DMD
-
-**Modestin**
-- Validation ordre des événements
-
-**Charles**
-- Tests stabilité MQTT
-
-**Hugo**
-- Intégration DMD
-
-**Baptiste**
-- Finalisation UI rétro
-
-**Raphael**
-- Tests robustesse WebSocket
-
-**Livrable :** 3 applications synchronisées
-
----
-
-### SEMAINE 9 (20 avril – 26 avril) — Intégration IoT boutons
-
-**Modestin**
-- Traitement événements physiques backend
-
-**Charles**
-- Mapping GPIO X, C, D, F
-
-**Hugo**
-- Réaction visuelle aux événements physiques
-
-**Baptiste**
-- Ajustement visuel éléments physiques
-
-**Raphael**
-- Tests end-to-end simulés
-
----
-
-### SEMAINE 10 (27 avril – 3 mai) — Intégration solénoïdes
-
-**Modestin**
-- Sécurité anti-doublons événements
-
-**Charles**
-- Pilotage solénoïdes ESP32
-
-**Hugo**
-- Animation visuelle synchronisée
-
-**Baptiste**
-- Ajustement visuel animations
-
-**Raphael**
-- Tests latence IoT → Frontend
-
-**Livrable :** flipper physique fonctionnel
-
----
-
-### SEMAINE 11 (4 mai – 10 mai) — Stabilisation IoT
-
-**Modestin**
-- Optimisation backend
-
-**Charles**
-- Tests matériel réels
-
-**Hugo**
-- Optimisation performance rendu
-
-**Baptiste**
-- Optimisation modèles
-
-**Raphael**
-- Tests robustesse + monitoring CI
-
----
-
-### SEMAINE 12 (11 mai – 17 mai) — Intégration IA — Analyse
-
-**Modestin**
-- API backend pour module IA
-
-**Charles**
-- Transmission données capteurs au backend
-
-**Hugo**
-- Affichage résultats IA sur DMD
-
-**Baptiste**
-- UI visuelle pour feedback IA
-
-**Raphael**
-- Tests performance backend
-
----
-
-### SEMAINE 13 (18 mai – 24 mai) — IA avancée
-
-**Modestin**
-- Intégration logique IA côté backend
-
-**Charles**
-- Vérification stabilité MQTT
-
-**Hugo**
-- Ajustement interface IA
-
-**Baptiste**
-- Ajustement visuel IA
-
-**Raphael**
-- Tests charge backend
-
----
-
-### SEMAINE 14 (25 mai – 31 mai) — Optimisation globale
-
-**Modestin**
-- Optimisation concurrence
-
-**Charles**
-- Stabilisation MQTT
-
-**Hugo**
-- Optimisation FPS
-
-**Baptiste**
-- Finalisation assets
-
-**Raphael**
-- Augmentation couverture tests
-
-**Livrable :** Release Candidate
-
----
-
-### SEMAINE 15 (1 juin – 7 juin) — Documentation
-
-**Modestin**
-- Documentation backend
-
-**Charles**
-- Documentation IoT
-
-**Hugo**
-- Documentation frontend
-
-**Baptiste**
-- Documentation assets
-
-**Raphael**
-- Vérification pipeline complet
-
----
-
-### SEMAINE 16 (8 juin – 12 juin) — Soutenance
-
-**Modestin**
-- Validation backend final
-
-**Charles**
-- Validation IoT final
-
-**Hugo**
-- Validation frontend final
-
-**Baptiste**
-- Validation assets final
-
-**Raphael**
-- Tag v1.0.0
-- Gel du code
-- Vérification CI stable
