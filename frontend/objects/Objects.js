@@ -11,7 +11,6 @@ export class Objects {
         position = { x: 0, y: 0, z: 0 },
         rotation = { x: 0, y: 0, z: 0 },
         radius = null,
-        mesh = [],
         side = null,
     ) {
         this.world = world;
@@ -123,8 +122,11 @@ export class Objects {
 
                 const box = new THREE.Box3().setFromObject(modelRoot);
                 const size = box.getSize(new THREE.Vector3());
-
-                if (size.x > 0) {
+                
+                if (size.x === 0 || size.y === 0 || size.z === 0) {
+                    console.warn('Le modèle 3D a des dimensions invalides (taille nulle) :', modelPath);
+                    return;
+                } else {
                     modelRoot.scale.setScalar(this.length / size.x);
                 }
 
@@ -133,9 +135,6 @@ export class Objects {
                 }
 
                 this.mesh.add(modelRoot);
-                if (this.fallbackMesh) {
-                    this.fallbackMesh.visible = false;
-                }
             })
             .catch((error) => {
                 console.error('Failed to load flipper model:', error);

@@ -58,12 +58,10 @@ export default {
         },
 
         wall: {
-            file: "wall.wav",
-            collision: { file: "Wall", volume: 0.5 }
+            collision: { file: "", volume: 0.5 }
         },
 
-        launchingRamp: {
-            file: "launching_ramp.wav",
+        launchingRamp: {           
             collision: { file: "LaunchingRamp", volume: 0.5 }
         },
 
@@ -72,9 +70,8 @@ export default {
             movement: { file: "../assets/vfx/Laser_shoot.mp3", volume: 0.5 }
         },
 
-        rail: {
-            file: "rail.wav",
-            collision: { file: "Rail", volume: 0.5 }
+        rail: {        
+            collision: { file: "", volume: 0.5 }
         }
     },
 
