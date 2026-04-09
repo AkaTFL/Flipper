@@ -21,7 +21,6 @@ export class Objects {
         this.position = position;
         this.rotation = rotation;
         this.radius = radius;
-        this.mesh = mesh;
         this.side = side;
 
         this.mesh = new THREE.Group();
@@ -46,9 +45,7 @@ export class Objects {
         }
 
         if (rotation) {
-            this.mesh.rotation.x = rotation.x ?? 0;
-            this.mesh.rotation.y = rotation.y ?? 0;
-            this.mesh.rotation.z = rotation.z ?? 0;
+            this.mesh.rotation.set(rotation.x ?? 0, rotation.y ?? 0, rotation.z ?? 0);
         }
 
         this.audio = this.initSound(this.sound);
@@ -61,7 +58,7 @@ export class Objects {
 
         let source;
         try {
-            source = new URL(`${soundConfig.file}`, import.meta.url).href;
+            source = new URL(soundConfig.file, import.meta.url).href;
         } catch (e) {
             console.warn('Le chemin du fichier son est invalide:', soundConfig.file);
             return null;
@@ -77,14 +74,13 @@ export class Objects {
 
     playSound(sound = this.sound) {
         this.audio = this.initSound(sound);
-        if (this.audio !== null) {
-            this.audio.currentTime = 0;
-            this.audio.play().catch((error) => {
-                console.error('Impossible de lire le son:', error);
-            });
-        }
+        if (this.audio === null) return;
+
+        this.audio.currentTime = 0;
+        this.audio.play().catch((error) => {
+            console.error('Impossible de lire le son:', error);
+        });
     }
-    // Meme chose que pour initSound, avec le passage en paramètre des variables et non de this.sound directement
 
     toRotationQuaternion(rotation = this.rotation) {
         const rx = rotation?.x ?? 0;
@@ -102,14 +98,14 @@ export class Objects {
     createFixedRigidBody(position = this.position, rotation = this.rotation, withRotation = true) {
         if (!this.world || !position) return null;
 
-        let rigidBodyDesc = RAPIER.RigidBodyDesc.fixed()
+        const rigidBodyDesc = RAPIER.RigidBodyDesc.fixed()
             .setTranslation(position.x, position.y, position.z);
 
-        if (withRotation) {
-            rigidBodyDesc = rigidBodyDesc.setRotation(this.toRotationQuaternion(rotation));
-        }
+        const finalRigidBodyDesc = withRotation
+            ? rigidBodyDesc.setRotation(this.toRotationQuaternion(rotation))
+            : rigidBodyDesc;
 
-        this.rigidBody = this.world.createRigidBody(rigidBodyDesc);
+        this.rigidBody = this.world.createRigidBody(finalRigidBodyDesc);
         return this.rigidBody;
     }
 
