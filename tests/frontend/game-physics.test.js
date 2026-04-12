@@ -4,33 +4,106 @@ import assert from 'node:assert/strict';
 import Config from '../../frontend/physics/Config.js';
 import { GamePhysics } from '../../frontend/physics/GamePhysics.js';
 
-test('GamePhysics initializes bumper/object registries', () => {
+test('GamePhysics initializes object and collider registries', () => {
   const physics = new GamePhysics(Config);
 
   assert.deepEqual(physics.bumpers, []);
   assert.deepEqual(physics.objects, []);
+  assert.equal(physics.colliderOwners.size, 0);
 });
 
-test('registerObjects appends every provided object', () => {
+test('registerObjects appends every provided object and indexes their colliders', () => {
   const physics = new GamePhysics(Config);
-  const objects = [{ id: 'a' }, { id: 'b' }];
+  const first = { collider: { handle: 11 } };
+  const second = { colliders: [{ handle: 21 }, { handle: 22 }] };
 
-  physics.registerObjects(objects);
+  physics.registerObjects([first, second]);
 
   assert.equal(physics.objects.length, 2);
-  assert.equal(physics.objects[0], objects[0]);
-  assert.equal(physics.objects[1], objects[1]);
+  assert.equal(physics.colliderOwners.get(11), first);
+  assert.equal(physics.colliderOwners.get(21), second);
+  assert.equal(physics.colliderOwners.get(22), second);
 });
 
-test('registerObjects can be called multiple times', () => {
+test('resolveBackendUrl falls back to local websocket endpoint when no browser config is provided', () => {
   const physics = new GamePhysics(Config);
-  const first = { id: 'first' };
-  const second = { id: 'second' };
 
-  physics.registerObjects([first]);
-  physics.registerObjects([second]);
+  assert.equal(physics.resolveBackendUrl(), 'ws://localhost:8080/ws');
+});
 
-  assert.equal(physics.objects.length, 2);
-  assert.equal(physics.objects[0], first);
-  assert.equal(physics.objects[1], second);
+test('sendImpact emits a structured impact payload when the backend socket is ready', () => {
+  const physics = new GamePhysics(Config);
+  const sentPayloads = [];
+  const previousWebSocket = globalThis.WebSocket;
+
+  class FakeWebSocket {}
+  FakeWebSocket.OPEN = 1;
+
+  globalThis.WebSocket = FakeWebSocket;
+  physics.backendSocket = {
+    readyState: 1,
+    send(payload) {
+      sentPayloads.push(JSON.parse(payload));
+    }
+  };
+
+  const sent = physics.sendImpact({ objectId: 'bumper-1', objectType: 'bumper' });
+
+  assert.equal(sent, true);
+  assert.equal(sentPayloads.length, 1);
+  assert.equal(sentPayloads[0].type, 'impact');
+  assert.equal(sentPayloads[0].payload.objectId, 'bumper-1');
+  assert.equal(sentPayloads[0].payload.objectType, 'bumper');
+
+  if (previousWebSocket === undefined) {
+    delete globalThis.WebSocket;
+  } else {
+    globalThis.WebSocket = previousWebSocket;
+  }
+});
+
+test('handleCollisionEvents notifies objects and forwards the contacted gameplay object to the backend', () => {
+  const physics = new GamePhysics(Config);
+  const calls = [];
+
+  const bumper = {
+    objectId: 'bumper-1',
+    objectType: 'bumper',
+    collider: { handle: 10 },
+    handleCollision() {
+      calls.push('bumper:collision');
+    },
+    applyBumperForce(handle1, handle2) {
+      calls.push(`bumper:force:${handle1}-${handle2}`);
+    }
+  };
+
+  const ball = {
+    objectId: 'ball',
+    objectType: 'ball',
+    collider: { handle: 11 },
+    handleCollision() {
+      calls.push('ball:collision');
+    }
+  };
+
+  physics.registerObjects([bumper, ball]);
+  physics.sendImpact = (object) => {
+    calls.push(`impact:${object.objectId}`);
+    return true;
+  };
+  physics.eventQueue = {
+    drainCollisionEvents(callback) {
+      callback(10, 11, true);
+    }
+  };
+
+  physics.handleCollisionEvents();
+
+  assert.deepEqual(calls, [
+    'bumper:collision',
+    'ball:collision',
+    'bumper:force:10-11',
+    'impact:bumper-1'
+  ]);
 });

@@ -10,6 +10,8 @@ export class LaunchingRamp extends Objects {
      */
     constructor(world, width, height, length, position = {x: 0, y: 0, z: 0}, rotation = {x: 0, y: 0, z: 0}) {
         super(world, length, width, height, position, rotation, null, [], null);
+        this.objectId = 'launching-ramp';
+        this.objectType = 'launching_ramp';
 
         this.leftRail = new Rail(world, this.length, this.width, this.height, {x: position.x - this.width / 2, y: position.y, z: position.z}, rotation);
         this.rightRail = new Rail(world, this.length, this.width, this.height, {x: position.x + this.width / 2, y: position.y, z: position.z}, rotation);
@@ -51,7 +53,9 @@ export class LaunchingRamp extends Objects {
             if (rail.collider.handle !== handle1 && rail.collider.handle !== handle2) continue;
 
             const otherHandle = rail.collider.handle === handle1 ? handle2 : handle1;
-            const otherCollider = this.world.colliders.get(otherHandle);
+            const otherCollider = typeof this.world.getCollider === 'function'
+                ? this.world.getCollider(otherHandle)
+                : this.world.colliders?.get(otherHandle);
             if (!otherCollider) continue;
 
             const otherBody = otherCollider.parent();

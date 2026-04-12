@@ -13,6 +13,7 @@ export class Wall extends Objects {
      */
     constructor(world, width = 500, height = 500, position = {x: 250, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}) {
         super(world, null, width, height, position, rotation, null, [], null);
+        this.objectType = 'wall';
 
         this.mesh = new THREE.Mesh(
             new THREE.PlaneGeometry(this.width, this.height),

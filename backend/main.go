@@ -17,12 +17,18 @@ type Message struct {
 
 // GameState représente l'état du jeu de flipper
 type GameState struct {
-	BallX     float64 `json:"ballX"`
-	BallY     float64 `json:"ballY"`
-	BallVelX  float64 `json:"ballVelX"`
-	BallVelY  float64 `json:"ballVelY"`
-	Score     int     `json:"score"`
-	GameOver  bool    `json:"gameOver"`
+	BallX    float64 `json:"ballX"`
+	BallY    float64 `json:"ballY"`
+	BallVelX float64 `json:"ballVelX"`
+	BallVelY float64 `json:"ballVelY"`
+	Score    int     `json:"score"`
+	GameOver bool    `json:"gameOver"`
+}
+
+type ImpactPayload struct {
+	ObjectID   string `json:"objectId"`
+	ObjectType string `json:"objectType"`
+	Timestamp  int64  `json:"timestamp"`
 }
 
 // Client représente une connexion WebSocket
@@ -122,6 +128,16 @@ func (c *Client) readPump(hub *Hub) {
 			// Action de flipper (left/right paddle)
 			log.Printf("Action flipper reçue: %s", string(msg.Payload))
 			// Broadcast à tous les clients
+			hub.broadcast <- messageBytes
+
+		case "impact":
+			var impact ImpactPayload
+			if err := json.Unmarshal(msg.Payload, &impact); err != nil {
+				log.Printf("Erreur parsing impact: %v", err)
+				continue
+			}
+
+			log.Printf("Impact reçu sur %s (%s)", impact.ObjectID, impact.ObjectType)
 			hub.broadcast <- messageBytes
 
 		case "game_state":
