@@ -89,7 +89,8 @@ export class Palles extends Objects {
 
         const colliderDesc = RAPIER.ColliderDesc.cuboid(this.length / 2, this.width / 2, this.height / 2)
             .setRestitution(Config.palles.restitution)
-            .setFriction(Config.palles.friction);
+            .setFriction(Config.palles.friction)
+            .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
 
         this.attachCollider(colliderDesc);
     }

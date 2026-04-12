@@ -11,9 +11,10 @@ export class Rail extends Objects {
      * @param {Object} position - The position object with x, y, z properties
      * @param {Object} rotation - The rotation object with x, y, z properties
      */
-    constructor(world, length = 500, width = 10, height = 10, position = {x: 250, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}) {
+    constructor(world, length = 500, width = 10, height = 10, position = {x: 250, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}, objectId = null, objectType = 'rail') {
         super(world, length, width, height, position, rotation);
-        this.objectType = 'rail';
+        this.objectId = objectId;
+        this.objectType = objectType;
 
         this.mesh = new THREE.Mesh(
             new THREE.CylinderGeometry(this.height / 2, this.height / 2, this.length, this.width),

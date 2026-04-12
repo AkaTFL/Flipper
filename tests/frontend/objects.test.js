@@ -91,6 +91,10 @@ test('LaunchingRamp builds three rails with the expected offsets', () => {
   assert.equal(ramp.leftRail.mesh.position.x, 80);
   assert.equal(ramp.rightRail.mesh.position.x, 120);
   assert.equal(ramp.bottomRail.mesh.position.y, 290);
+  assert.equal(ramp.leftRail.objectId, 'launching-ramp-left-rail');
+  assert.equal(ramp.rightRail.objectId, 'launching-ramp-right-rail');
+  assert.equal(ramp.bottomRail.objectId, 'launching-ramp-bottom-rail');
+  assert.equal(ramp.collisionEntries.length, 3);
 });
 
 test('Palles constructor creates physics body/collider and defers joint setup until model load', () => {

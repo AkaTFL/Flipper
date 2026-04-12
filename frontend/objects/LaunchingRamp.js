@@ -13,14 +13,46 @@ export class LaunchingRamp extends Objects {
         this.objectId = 'launching-ramp';
         this.objectType = 'launching_ramp';
 
-        this.leftRail = new Rail(world, this.length, this.width, this.height, {x: position.x - this.width / 2, y: position.y, z: position.z}, rotation);
-        this.rightRail = new Rail(world, this.length, this.width, this.height, {x: position.x + this.width / 2, y: position.y, z: position.z}, rotation);
-        this.bottomRail = new Rail(world, this.length, (this.width - 5), this.height, {x: position.x, y: position.y - this.height / 2, z: position.z}, rotation);
+        this.leftRail = new Rail(
+            world,
+            this.length,
+            this.width,
+            this.height,
+            {x: position.x - this.width / 2, y: position.y, z: position.z},
+            rotation,
+            'launching-ramp-left-rail',
+            'launching_ramp_rail'
+        );
+        this.rightRail = new Rail(
+            world,
+            this.length,
+            this.width,
+            this.height,
+            {x: position.x + this.width / 2, y: position.y, z: position.z},
+            rotation,
+            'launching-ramp-right-rail',
+            'launching_ramp_rail'
+        );
+        this.bottomRail = new Rail(
+            world,
+            this.length,
+            (this.width - 5),
+            this.height,
+            {x: position.x, y: position.y - this.height / 2, z: position.z},
+            rotation,
+            'launching-ramp-bottom-rail',
+            'launching_ramp_rail'
+        );
 
         this.rails = [this.leftRail, this.rightRail, this.bottomRail];
         this.meshes = [this.leftRail.mesh, this.rightRail.mesh, this.bottomRail.mesh];
 
         this.colliders = this.rails.map((rail) => rail.collider);
+        this.collisionEntries = this.rails.map((rail) => ({
+            collider: rail.collider,
+            owner: rail,
+            responder: this
+        }));
         this.rampDirection = this.computeRampDirection();
         
         this.pushedBodyHandles = new Set();

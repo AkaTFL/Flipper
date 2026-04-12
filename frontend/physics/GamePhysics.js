@@ -9,6 +9,7 @@ export class GamePhysics {
         this.backendSocket = null;
         this.objects = [];
         this.colliderOwners = new Map();
+        this.colliderResponders = new Map();
         this.lastBackendMessage = null;
     }
 
@@ -42,18 +43,20 @@ export class GamePhysics {
     }
 
     registerObjectColliders(obj) {
-        const colliders = [];
+        const entries = Array.isArray(obj.collisionEntries) && obj.collisionEntries.length > 0
+            ? obj.collisionEntries
+            : [
+                ...(obj.collider ? [{ collider: obj.collider, owner: obj, responder: obj }] : []),
+                ...(Array.isArray(obj.colliders)
+                    ? obj.colliders.filter(Boolean).map((collider) => ({ collider, owner: obj, responder: obj }))
+                    : [])
+            ];
 
-        if (obj.collider) {
-            colliders.push(obj.collider);
-        }
+        for (const entry of entries) {
+            if (!entry?.collider) continue;
 
-        if (Array.isArray(obj.colliders)) {
-            colliders.push(...obj.colliders.filter(Boolean));
-        }
-
-        for (const collider of colliders) {
-            this.colliderOwners.set(collider.handle, obj);
+            this.colliderOwners.set(entry.collider.handle, entry.owner || obj);
+            this.colliderResponders.set(entry.collider.handle, entry.responder || entry.owner || obj);
         }
     }
 
@@ -160,6 +163,15 @@ export class GamePhysics {
         ].filter(Boolean))];
     }
 
+    findCollisionResponders(handle1, handle2) {
+        return [...new Set([
+            this.colliderResponders.get(handle1),
+            this.colliderResponders.get(handle2),
+            this.colliderOwners.get(handle1),
+            this.colliderOwners.get(handle2)
+        ].filter(Boolean))];
+    }
+
     reportContactImpacts(collidingObjects) {
         const ball = collidingObjects.find((obj) => obj.objectType === 'ball');
         const reportableObjects = ball
@@ -180,14 +192,15 @@ export class GamePhysics {
             if (!started) return;
 
             const collidingObjects = this.findCollidingObjects(handle1, handle2);
+            const collisionResponders = this.findCollisionResponders(handle1, handle2);
 
-            for (const obj of collidingObjects) {
+            for (const obj of collisionResponders) {
                 if (typeof obj.handleCollision === 'function') {
                     obj.handleCollision({ handle1, handle2 });
                 }
             }
 
-            for (const obj of collidingObjects) {
+            for (const obj of collisionResponders) {
                 if (typeof obj.applyBumperForce === 'function') {
                     obj.applyBumperForce(handle1, handle2);
                 }

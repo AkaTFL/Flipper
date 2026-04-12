@@ -36,7 +36,8 @@ export class Wall extends Objects {
 
         const colliderDesc = RAPIER.ColliderDesc.cuboid(this.width / 2, this.height / 2, 0.1)
             .setRestitution(Config.wall.restitution)
-            .setFriction(Config.wall.friction);
+            .setFriction(Config.wall.friction)
+            .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
 
         this.attachCollider(colliderDesc);
     }
