@@ -24,19 +24,19 @@ async function initFlipper() {
     const gameObjects = [];
 
     const rightWall = new Wall(physics.world, 950, 100, { x: 255, y: 0, z: 0 }, { x: 0, y: (Math.PI / 2), z: 0 });
-    rightWall.objectId = 'wall-right';
+    rightWall.objectId = 'wall-left';
     gameObjects.push(rightWall);
 
     const leftWall = new Wall(physics.world, 950, 100, { x: -255, y: 0, z: 0 }, { x: 0, y: (-Math.PI / 2), z: 0 });
-    leftWall.objectId = 'wall-left';
+    leftWall.objectId = 'wall-right';
     gameObjects.push(leftWall);
 
     const topWall = new Wall(physics.world, 540, 100, { x: 0, y: 0, z: -471 }, { x: 0, y: 0, z: 0 });
-    topWall.objectId = 'wall-top';
+    topWall.objectId = 'wall-bottom';
     gameObjects.push(topWall);
 
     const bottomWall = new Wall(physics.world, 540, 100, { x: 0, y: 0, z: 471 }, { x: 0, y: 0, z: 0 });
-    bottomWall.objectId = 'wall-bottom';
+    bottomWall.objectId = 'wall-top';
     gameObjects.push(bottomWall);
 
     const launching = new LaunchingRamp(physics.world, 30, 10, 850, { x: -230, y: 10, z: -50 }, { x: (Math.PI / 2), y: 0, z: 0 });

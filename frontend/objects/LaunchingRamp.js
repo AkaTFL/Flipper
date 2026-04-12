@@ -20,7 +20,7 @@ export class LaunchingRamp extends Objects {
             this.height,
             {x: position.x - this.width / 2, y: position.y, z: position.z},
             rotation,
-            'launching-ramp-left-rail',
+            'launching-ramp-right-rail',
             'launching_ramp_rail'
         );
         this.rightRail = new Rail(
@@ -30,7 +30,7 @@ export class LaunchingRamp extends Objects {
             this.height,
             {x: position.x + this.width / 2, y: position.y, z: position.z},
             rotation,
-            'launching-ramp-right-rail',
+            'launching-ramp-left-rail',
             'launching_ramp_rail'
         );
         this.bottomRail = new Rail(
@@ -40,7 +40,7 @@ export class LaunchingRamp extends Objects {
             this.height,
             {x: position.x, y: position.y - this.height / 2, z: position.z},
             rotation,
-            'launching-ramp-bottom-rail',
+            'launching-ramp-base-rail',
             'launching_ramp_rail'
         );
 

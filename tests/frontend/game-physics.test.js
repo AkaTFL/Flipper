@@ -131,7 +131,7 @@ test('handleCollisionEvents can report a rail collision while delegating the gam
   };
 
   const leftRail = {
-    objectId: 'launching-ramp-left-rail',
+    objectId: 'launching-ramp-right-rail',
     objectType: 'launching_ramp_rail'
   };
 
@@ -165,6 +165,6 @@ test('handleCollisionEvents can report a rail collision while delegating the gam
   assert.deepEqual(calls, [
     'ramp:collision',
     'ramp:force:10-11',
-    'impact:launching-ramp-left-rail'
+    'impact:launching-ramp-right-rail'
   ]);
 });
