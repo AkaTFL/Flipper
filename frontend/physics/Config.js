@@ -1,4 +1,10 @@
 export default {
+    backend: {
+        host: 'localhost',
+        port: '8080',
+        path: '/ws'
+    },
+
     gravity: { x: 0, y: -9.75, z: -1.11 },
     
     ball: {
@@ -20,7 +26,8 @@ export default {
         height: 20,
         minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
         maximalPower: 50,
-        powerBuild: 0.25  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
+        powerBuild: 0.25,  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
+        power: 10
     },
 
     wall: {

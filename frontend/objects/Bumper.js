@@ -13,6 +13,8 @@ export class Bumper extends Objects {
      */
     constructor(world, width = 50, position = {x: 0, y: 300, z: 0}, rotation = {x: 0, y: 0, z: 0}, objectId = null) {
         super(world, null, null, null, position, rotation, width / 2, [], null);
+        this.objectId = objectId ?? 'bumper';
+        this.objectType = 'bumper';
         this.radius = width / 2;
 
         this.mesh = new THREE.Mesh(
@@ -43,7 +45,9 @@ export class Bumper extends Objects {
     
     applyBumperForce(handle1, handle2) {
         const otherHandle = this.collider.handle === handle1 ? handle2 : handle1
-        const otherCollider = this.world.colliders.get(otherHandle)
+        const otherCollider = typeof this.world.getCollider === 'function'
+            ? this.world.getCollider(otherHandle)
+            : this.world.colliders?.get(otherHandle)
 
         if (!otherCollider) return
 
