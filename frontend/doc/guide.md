@@ -36,7 +36,7 @@ frontend/
   - Palles.js: flippers avec joint revolute
   - Bumper.js: bumpers
   - LaunchingRamp.js: lanceur
-  - Wall.js, Rail.js, etc.: elements statiques
+  - Wall.js, etc.: elements statiques
 - assets/
   - mesh/: modeles 3D GLB
 
@@ -122,7 +122,7 @@ frontend/
   - Palles.js: flippers with revolute joint
   - Bumper.js: bumpers
   - LaunchingRamp.js: launcher
-  - Wall.js, Rail.js, etc.: static elements
+  - Wall.js, etc.: static elements
 - assets/
   - mesh/: GLB 3D models
 
