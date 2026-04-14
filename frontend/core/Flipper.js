@@ -47,7 +47,6 @@ async function initFlipper() {
 
     physics.registerObjects(mesh);
 
-    mesh.push(new Ball(physics.world, { x: -230, y: 25, z: -400 }));
     mesh.push(new Ball(physics.world, { x: -230, y: 35, z: -400 }));
     controls.setBallRef(mesh[mesh.length - 1]);
 

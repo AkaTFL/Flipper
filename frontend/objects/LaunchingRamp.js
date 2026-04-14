@@ -12,7 +12,6 @@ export class LaunchingRamp extends Objects {
      * @param {Object} position - The position object with x, y, z properties
      * @param {Object} rotation - The rotation object with x, y, z properties
      */
-<<<<<<< HEAD
     constructor(
         world,
         length = Config.launchingRamp.length,
@@ -29,53 +28,6 @@ export class LaunchingRamp extends Objects {
             this.TreeMesh = null;
         }
 
-=======
-    constructor(world, width, height, length, position = {x: 0, y: 0, z: 0}, rotation = {x: 0, y: 0, z: 0}) {
-        super(world, length, width, height, position, rotation, null, [], null);
-        this.objectId = 'launching-ramp';
-        this.objectType = 'launching_ramp';
-
-        this.leftRail = new Rail(
-            world,
-            this.length,
-            this.width,
-            this.height,
-            {x: position.x - this.width / 2, y: position.y, z: position.z},
-            rotation,
-            'launching-ramp-right-rail',
-            'launching_ramp_rail'
-        );
-        this.rightRail = new Rail(
-            world,
-            this.length,
-            this.width,
-            this.height,
-            {x: position.x + this.width / 2, y: position.y, z: position.z},
-            rotation,
-            'launching-ramp-left-rail',
-            'launching_ramp_rail'
-        );
-        this.bottomRail = new Rail(
-            world,
-            this.length,
-            (this.width - 5),
-            this.height,
-            {x: position.x, y: position.y - this.height / 2, z: position.z},
-            rotation,
-            'launching-ramp-base-rail',
-            'launching_ramp_rail'
-        );
-
-        this.rails = [this.leftRail, this.rightRail, this.bottomRail];
-        this.meshes = [this.leftRail.mesh, this.rightRail.mesh, this.bottomRail.mesh];
-
-        this.colliders = this.rails.map((rail) => rail.collider);
-        this.collisionEntries = this.rails.map((rail) => ({
-            collider: rail.collider,
-            owner: rail,
-            responder: this
-        }));
->>>>>>> 74a56cff3108a72276c2df81793d5f48bad82a04
         this.rampDirection = this.computeRampDirection();
         this.pushedBodyHandles = new Set();
         this.sound = Config.sounds.launchingRamp.rolling;
@@ -149,16 +101,8 @@ export class LaunchingRamp extends Objects {
     applyLaunchingRampForce(handle1, handle2, powerOverride = null) {
         if (!this.collider) return;
 
-<<<<<<< HEAD
         // Check if the ramp collider matches one of the handles
         if (this.collider.handle !== handle1 && this.collider.handle !== handle2) return;
-=======
-            const otherHandle = rail.collider.handle === handle1 ? handle2 : handle1;
-            const otherCollider = typeof this.world.getCollider === 'function'
-                ? this.world.getCollider(otherHandle)
-                : this.world.colliders?.get(otherHandle);
-            if (!otherCollider) continue;
->>>>>>> 74a56cff3108a72276c2df81793d5f48bad82a04
 
         const otherHandle = this.collider.handle === handle1 ? handle2 : handle1;
         const otherCollider = this.world.colliders.get(otherHandle);
