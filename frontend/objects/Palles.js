@@ -1,5 +1,4 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
-import * as THREE from 'three';
 import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
 

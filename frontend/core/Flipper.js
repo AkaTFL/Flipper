@@ -28,10 +28,16 @@ async function initFlipper() {
     mesh.push(new Wall(physics.world, 540, 100, { x: 0, y: 0, z: -471 }, { x: 0, y: 0, z: 0 }));
     mesh.push(new Wall(physics.world, 540, 100, { x: 0, y: 0, z: 471 }, { x: 0, y: 0, z: 0 }));
 
-    const launching = (new LaunchingRamp(physics.world, 30, 10, 850, { x: -230, y: 10, z: -50 }, { x: (Math.PI / 2), y: 0, z: 0 })); //
-    controls.setLaunchingRampRef(launching); //
-
-    sceneManager.scene.add(...launching.meshes); // Solution temporaire pour ajouter les rails du ramp à la scène, à revoir pour une meilleure intégration
+    const launching = new LaunchingRamp(
+      physics.world,
+      Config.launchingRamp.length,
+      Config.launchingRamp.width,
+      Config.launchingRamp.height,
+      { x: -230, y: 30, z: -50 },
+      { x: 0, y: 0, z: 0 }
+    );
+    controls.setLaunchingRampRef(launching);
+    mesh.push(launching);
 
     mesh.push(new Bumper(physics.world, 50, { x: 0, y: 0, z: 100 }, {x: 0, y: 0, z: 0}, 'bumper-1'));
     mesh.push(new Bumper(physics.world, 50, { x: 100, y: 0, z: 0 }, {x: 0, y: 0, z: 0}, 'bumper-2'));
@@ -40,10 +46,10 @@ async function initFlipper() {
     mesh.push(new Palles(physics.world, 70, 10, 10, { x: 100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'left'));
     mesh.push(new Palles(physics.world, 70, 10, 10, { x: -100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'right'));
 
-    physics.registerObjects(mesh);
-
-    mesh.push(new Ball(physics.world, { x: -230, y: 25, z: -400 }));
+    mesh.push(new Ball(physics.world, { x: -230, y: 35, z: -400 }));
     controls.setBallRef(mesh[mesh.length - 1]);
+
+    physics.registerObjects(mesh);
 
     sceneManager.scene.add(...mesh.map(obj => obj.mesh));
 

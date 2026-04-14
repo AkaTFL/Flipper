@@ -127,7 +127,13 @@ export class Objects {
                     console.warn('Le modèle 3D a des dimensions invalides (taille nulle) :', modelPath);
                     return;
                 } else {
-                    modelRoot.scale.setScalar(this.length / size.x);
+                    const targetX = this.length ?? size.x;
+                    const targetY = this.width ?? size.y;
+                    const targetZ = this.height ?? size.z;
+
+                    modelRoot.scale.x = targetX / size.x;
+                    modelRoot.scale.y = targetY / size.y;
+                    modelRoot.scale.z = targetZ / size.z;
                 }
 
                 if (onModelLoaded) {

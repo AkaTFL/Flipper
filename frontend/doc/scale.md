@@ -4,7 +4,7 @@ Actuellement, la taille de l'écran est de 942mm pour 530mm.
 La taille des plans est augmentée avec un rapport de 100, afin de travailler sur des modèles plus grands.
 
 
-Pour calculer la valeur des forces à appliquer sans avoir besoin de manuellement incliner chaque mesh, voici commetn faire : 
+Pour calculer la valeur des forces à appliquer sans avoir besoin de manuellement incliner chaque mesh, voici comment faire : 
 
 Nous savons qu'un flipper a un inclinaisons comprise entre 6 et 7 degrés, la majorité étant à 6.5
 
