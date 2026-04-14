@@ -66,8 +66,8 @@ export default {
         },
 
         palles: {
-            collision: { file: "../assets/vfx/Laser_shoot.mp3", volume: 0.6 },
-            movement: { file: "../assets/vfx/Laser_shoot.mp3", volume: 0.5 }
+            collision: { file: "../assets/sound/Laser_shoot.mp3", volume: 0.6 },
+            movement: { file: "../assets/sound/Laser_shoot.mp3", volume: 0.5 }
         },
 
         rail: {        
