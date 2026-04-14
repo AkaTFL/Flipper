@@ -10,6 +10,8 @@ export class Ball extends Objects {
      */
     constructor(world, position = {x: 0, y: 500, z: 0}) {
         super(world, null, null, null, position, { x: 0, y: 0, z: 0 }, Config.ball.radius, [], null);
+        this.objectId = 'ball';
+        this.objectType = 'ball';
 
         this.radius = Config.ball.radius;
         

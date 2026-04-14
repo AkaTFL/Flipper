@@ -209,3 +209,43 @@ func TestWebSocketBroadcastsFlipperActionsToOtherClients(t *testing.T) {
 		t.Fatalf("expected flipper_action broadcast, got %s", broadcast.Type)
 	}
 }
+
+func TestWebSocketBroadcastsImpactEventsToOtherClients(t *testing.T) {
+	_, server, wsURL := newTestServer(t)
+	defer server.Close()
+
+	firstConn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	if err != nil {
+		t.Fatalf("failed to connect first websocket client: %v", err)
+	}
+	defer firstConn.Close()
+	_ = readMessageType(t, firstConn)
+
+	secondConn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	if err != nil {
+		t.Fatalf("failed to connect second websocket client: %v", err)
+	}
+	defer secondConn.Close()
+	_ = readMessageType(t, secondConn)
+
+	if err := firstConn.WriteJSON(Message{
+		Type:    "impact",
+		Payload: json.RawMessage(`{"objectId":"bumper-1","objectType":"bumper","timestamp":123456}`),
+	}); err != nil {
+		t.Fatalf("failed to send impact event: %v", err)
+	}
+
+	broadcast := readMessageType(t, secondConn)
+	if broadcast.Type != "impact" {
+		t.Fatalf("expected impact broadcast, got %s", broadcast.Type)
+	}
+
+	var payload ImpactPayload
+	if err := json.Unmarshal(broadcast.Payload, &payload); err != nil {
+		t.Fatalf("failed to unmarshal impact payload: %v", err)
+	}
+
+	if payload.ObjectID != "bumper-1" {
+		t.Fatalf("expected objectId bumper-1, got %s", payload.ObjectID)
+	}
+}

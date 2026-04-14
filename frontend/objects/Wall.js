@@ -13,6 +13,7 @@ export class Wall extends Objects {
      */
     constructor(world, width = 500, height = 500, position = {x: 250, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}) {
         super(world, null, width, height, position, rotation, null, [], null);
+        this.objectType = 'wall';
 
         this.mesh = new THREE.Mesh(
             new THREE.PlaneGeometry(this.width, this.height),
@@ -35,7 +36,8 @@ export class Wall extends Objects {
 
         const colliderDesc = RAPIER.ColliderDesc.cuboid(this.width / 2, this.height / 2, 0.1)
             .setRestitution(Config.wall.restitution)
-            .setFriction(Config.wall.friction);
+            .setFriction(Config.wall.friction)
+            .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
 
         this.attachCollider(colliderDesc);
     }

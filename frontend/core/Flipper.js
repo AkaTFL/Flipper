@@ -41,11 +41,13 @@ async function initFlipper() {
 
     mesh.push(new Bumper(physics.world, 50, { x: 0, y: 0, z: 100 }, {x: 0, y: 0, z: 0}, 'bumper-1'));
     mesh.push(new Bumper(physics.world, 50, { x: 100, y: 0, z: 0 }, {x: 0, y: 0, z: 0}, 'bumper-2'));
-    mesh.push(new Bumper(physics.world, 50, { x: -100, y: 0, z: 0 }, {x: 0, y: 0, z: 0}, 'bumper-3'));
 
     mesh.push(new Palles(physics.world, 70, 10, 10, { x: 100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'left'));
     mesh.push(new Palles(physics.world, 70, 10, 10, { x: -100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'right'));
 
+    physics.registerObjects(mesh);
+
+    mesh.push(new Ball(physics.world, { x: -230, y: 25, z: -400 }));
     mesh.push(new Ball(physics.world, { x: -230, y: 35, z: -400 }));
     controls.setBallRef(mesh[mesh.length - 1]);
 
