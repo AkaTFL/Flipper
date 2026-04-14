@@ -47,7 +47,17 @@ jobs:
             ghcr.io/${{ github.repository }}/frontend:latest
             ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
 
-      # 4. Configuration de l'accès au Cluster K8s
+      # 4. Build et Push de l'image IoT (Mosquitto)
+      - name: Build and push IoT
+        uses: docker/build-push-action@v5
+        with:
+          context: ./iot
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/iot:latest
+            ghcr.io/${{ github.repository }}/iot:${{ github.sha }}
+
+      # 5. Configuration de l'accès au Cluster K8s
 
 
       - name: Set Kubernetes Context
@@ -57,12 +67,19 @@ jobs:
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
 
-      # 5. Déploiement sur le cluster
+      # 6. Déploiement sur le cluster
       - name: Deploy to Cluster
         run: |
-          # Applique tous les fichiers de configuration du dossier k8s
+          # Crée/maintient le namespace avant d'appliquer les ressources namespacées
+          kubectl apply -f k8s/namespace.yaml
           kubectl apply -f k8s/
-          
-          # Force la mise à jour des pods avec les nouvelles images
-          kubectl rollout restart deployment/backend-deployment
-          kubectl rollout restart deployment/frontend-deployment
+
+          # Aligne les images réellement déployées sur le commit courant
+          kubectl -n flipper set image deployment/backend-deployment backend=ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
+          kubectl -n flipper set image deployment/frontend-deployment frontend=ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
+          kubectl -n flipper set image deployment/iot-deployment mosquitto=ghcr.io/${{ github.repository }}/iot:${{ github.sha }}
+
+          # Attendre un rollout sain pour échouer tôt en cas de problème
+          kubectl -n flipper rollout status deployment/backend-deployment --timeout=180s
+          kubectl -n flipper rollout status deployment/frontend-deployment --timeout=180s
+          kubectl -n flipper rollout status deployment/iot-deployment --timeout=180s
