@@ -87,6 +87,55 @@ jobs:
       - name: Vet
         run: go vet ./...
 
+  iot-mqtt-smoke:
+    name: IoT — smoke MQTT (broker Docker + scripts Python)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Démarrer Mosquitto
+        run: docker compose -f iot/docker-compose.yml up -d
+
+      - name: Attendre le broker
+        run: |
+          for i in $(seq 1 30); do
+            if bash -c 'echo > /dev/tcp/127.0.0.1/1883' 2>/dev/null; then
+              echo "Broker prêt"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Timeout broker"
+          exit 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: iot/scripts/requirements.txt
+
+      - name: Dépendances scripts IoT
+        run: pip install -r iot/scripts/requirements.txt
+
+      - name: Tests scripts MQTT
+        run: |
+          python iot/scripts/publish_hello.py
+          python iot/scripts/publish_solenoid_sample.py
+          python iot/scripts/fake_esp32_publisher.py --cycles 2 --interval 0.3
+          python iot/scripts/monitor_sys.py --seconds 2
+          python iot/scripts/stability_run.py --duration 5 --rate 25 --qos 1
+          python iot/scripts/qos_benchmark.py --count 80
+
+      - name: Logs Mosquitto (diagnostic)
+        if: failure()
+        run: docker compose -f iot/docker-compose.yml logs
+
+      - name: Arrêt Mosquitto
+        if: always()
+        run: docker compose -f iot/docker-compose.yml down -v
+
   frontend:
     name: Frontend — install + lint + test + build
     runs-on: ubuntu-latest

@@ -1,0 +1,63 @@
+{
+  "version": "1.0",
+  "description": "Registre MQTT Flipper — aligné sur doc/Hardware_Architecture.md",
+  "root_prefix": "flipper",
+  "payload_encoding": "utf-8-json",
+  "topics": {
+    "solenoid": {
+      "pattern": "flipper/solenoid/{id}",
+      "ids": [
+        "back_left",
+        "back_center",
+        "back_right",
+        "middle_left",
+        "middle_center",
+        "middle_right",
+        "sling_left",
+        "sling_right",
+        "flipper_left",
+        "flipper_right"
+      ],
+      "direction": "server_to_esp32",
+      "default_qos": 1,
+      "payload_schema": {"action": "activate|string", "duration_ms": "number"}
+    },
+    "sensor_tilt": {
+      "warning": {
+        "topic": "flipper/sensor/tilt/warning",
+        "direction": "esp32_to_server",
+        "default_qos": 1,
+        "example_payload": {"level": 1, "acceleration": 1.8}
+      },
+      "triggered": {
+        "topic": "flipper/sensor/tilt/triggered",
+        "direction": "esp32_to_server",
+        "default_qos": 1,
+        "example_payload": {"level": 3, "status": "TILT"}
+      }
+    },
+    "led": {
+      "all": {"topic": "flipper/led/all", "direction": "server_to_esp32", "default_qos": 0},
+      "flash": {"topic": "flipper/led/flash", "direction": "server_to_esp32", "default_qos": 0}
+    },
+    "debug": {
+      "ping": {"topic": "flipper/debug/ping", "direction": "bidirectional_test", "default_qos": 0}
+    }
+  },
+  "wildcards_backend_subscribe": [
+    "flipper/sensor/#",
+    "flipper/debug/#"
+  ],
+  "wildcards_esp32_subscribe": {
+    "esp32_solenoid_group1": [
+      "flipper/solenoid/back_+",
+      "flipper/solenoid/middle_left",
+      "flipper/solenoid/middle_center"
+    ],
+    "esp32_solenoid_group2": [
+      "flipper/solenoid/middle_right",
+      "flipper/solenoid/sling_+",
+      "flipper/solenoid/flipper_+"
+    ]
+  }
+}
