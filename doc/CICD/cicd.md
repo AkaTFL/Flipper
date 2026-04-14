@@ -1,37 +1,48 @@
-🚀 Documentation du Pipeline CD (Kubernetes)
-Ce workflow GitHub Actions automatise le déploiement de l'application Flipper sur un cluster Kubernetes.
+# Documentation CI/CD
 
-🛰️ Fonctionnement Global
-Le pipeline s'active à chaque push sur la branche main.
+## Objectif
+Documenter l'état de la chaîne CI/CD et tracer les travaux récents réalisés pour rendre le déploiement Kubernetes complet.
 
-[Image of CI/CD pipeline for Kubernetes with Docker and GitHub Actions]
+## État de la branche documentation
+Sur cette branche, les workflows existants couvrent:
+- CI backend et frontend.
+- CD backend et frontend vers GHCR + déploiement Kubernetes.
 
+Limites connues sur cette branche:
+- Pas de dossier k8s versionné.
+- Pas de déploiement IoT dans le workflow CD.
+- Déploiement Kubernetes basé sur rollout restart sans alignement explicite des images sur le SHA du commit.
 
-1. Build & Push (Docker)
+## Travaux réalisés sur la branche technique CI/CD
+Une branche dédiée a été créée pour implémenter les manques: chore/ci-cd-hardening.
 
-• Le code est récupéré via `actions/checkout`.
+Travaux effectués:
+- Ajout du dossier Kubernetes avec manifests de base:
+	- namespace flipper
+	- backend deployment + service
+	- frontend deployment + service
+	- iot deployment + service
+- Ajout d'un Dockerfile IoT pour builder une image Mosquitto custom.
+- Extension du workflow CD pour:
+	- builder et push les images backend, frontend et iot
+	- appliquer les manifests Kubernetes
+	- fixer explicitement les images déployées sur le tag SHA
+	- attendre le succès des rollouts backend, frontend et iot
 
-• Connexion au registre d'images GitHub (GHCR.io).
+## Sécurité et secrets requis
+Secrets GitHub requis:
+- GITHUB_TOKEN (fourni automatiquement par GitHub Actions)
+- KUBE_CONFIG (kubeconfig du cluster cible)
 
-• Construction des images Docker pour le Backend et le Frontend.
+## Stratégie de finalisation
+Pour finaliser la CI/CD complète:
+- merger les changements de chore/ci-cd-hardening
+- vérifier les droits du token pour push sur GHCR
+- exécuter un test de déploiement complet sur une branche de validation
+- confirmer que les trois déploiements Kubernetes passent en rollout status
 
-• Envoi des images avec deux tags : `:latest` et le `SHA` du commit (pour la traçabilité).
-
-
-
-2. Déploiement (Kubernetes)
-
-• Connexion au cluster via le secret `KUBE_CONFIG`.
-
-• Application des fichiers de configuration situés dans le dossier `k8s/`.
-
-• Relance forcée des pods (`rollout restart`) pour garantir que les nouvelles images sont bien utilisées.
-
-🔐 Configuration Requise (Secrets GitHub)
-Pour que le déploiement fonctionne, les secrets suivants doivent être configurés :
-
-• `GITHUB_TOKEN` : Géré automatiquement par GitHub.
-
-• `KUBE_CONFIG` : Le fichier de config du cluster (nécessaire pour `kubectl`).
-
----
+## Résultat attendu
+Après intégration, la chaîne CI/CD doit couvrir:
+- CI backend + frontend + IoT smoke
+- CD backend + frontend + IoT
+- Déploiement Kubernetes traçable via tags SHA
