@@ -21,60 +21,54 @@ async function initFlipper() {
     const container = document.getElementById('three');
     container.appendChild(sceneManager.renderer.domElement);
 
-    const gameObjects = [];
+    const mesh = [];
 
-    const rightWall = new Wall(physics.world, 950, 100, { x: 255, y: 0, z: 0 }, { x: 0, y: (Math.PI / 2), z: 0 });
-    rightWall.objectId = 'wall-left';
-    gameObjects.push(rightWall);
+    mesh.push(new Wall(physics.world, 950, 100, { x: 255, y: 0, z: 0 }, { x: 0, y: (Math.PI / 2), z: 0 }));
+    mesh.push(new Wall(physics.world, 950, 100, { x: -255, y: 0, z: 0 }, { x: 0, y: (-Math.PI / 2), z: 0 }));
+    mesh.push(new Wall(physics.world, 540, 100, { x: 0, y: 0, z: -471 }, { x: 0, y: 0, z: 0 }));
+    mesh.push(new Wall(physics.world, 540, 100, { x: 0, y: 0, z: 471 }, { x: 0, y: 0, z: 0 }));
 
-    const leftWall = new Wall(physics.world, 950, 100, { x: -255, y: 0, z: 0 }, { x: 0, y: (-Math.PI / 2), z: 0 });
-    leftWall.objectId = 'wall-right';
-    gameObjects.push(leftWall);
-
-    const topWall = new Wall(physics.world, 540, 100, { x: 0, y: 0, z: -471 }, { x: 0, y: 0, z: 0 });
-    topWall.objectId = 'wall-bottom';
-    gameObjects.push(topWall);
-
-    const bottomWall = new Wall(physics.world, 540, 100, { x: 0, y: 0, z: 471 }, { x: 0, y: 0, z: 0 });
-    bottomWall.objectId = 'wall-top';
-    gameObjects.push(bottomWall);
-
-    const launching = new LaunchingRamp(physics.world, 30, 10, 850, { x: -230, y: 10, z: -50 }, { x: (Math.PI / 2), y: 0, z: 0 });
+    const launching = new LaunchingRamp(
+      physics.world,
+      Config.launchingRamp.length,
+      Config.launchingRamp.width,
+      Config.launchingRamp.height,
+      { x: -230, y: 30, z: -50 },
+      { x: 0, y: 0, z: 0 }
+    );
     controls.setLaunchingRampRef(launching);
-    sceneManager.scene.add(...launching.meshes);
+    mesh.push(launching);
 
-    const bumperCenter = new Bumper(physics.world, 50, { x: 0, y: 0, z: 100 }, { x: 0, y: 0, z: 0 }, 'bumper-1');
-    const bumperRight = new Bumper(physics.world, 50, { x: 100, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, 'bumper-2');
-    const bumperLeft = new Bumper(physics.world, 50, { x: -100, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, 'bumper-3');
-    gameObjects.push(bumperCenter, bumperRight, bumperLeft);
+    mesh.push(new Bumper(physics.world, 50, { x: 0, y: 0, z: 100 }, {x: 0, y: 0, z: 0}, 'bumper-1'));
+    mesh.push(new Bumper(physics.world, 50, { x: 100, y: 0, z: 0 }, {x: 0, y: 0, z: 0}, 'bumper-2'));
 
-    const leftPalle = new Palles(physics.world, 70, 10, 10, { x: 100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'left');
-    const rightPalle = new Palles(physics.world, 70, 10, 10, { x: -100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'right');
-    gameObjects.push(leftPalle, rightPalle);
+    mesh.push(new Palles(physics.world, 70, 10, 10, { x: 100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'left'));
+    mesh.push(new Palles(physics.world, 70, 10, 10, { x: -100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'right'));
 
-    const ball = new Ball(physics.world, { x: -230, y: 25, z: -400 });
-    controls.setBallRef(ball);
-    gameObjects.push(ball);
+    physics.registerObjects(mesh);
 
-    physics.registerObjects([launching, ...gameObjects]);
+    mesh.push(new Ball(physics.world, { x: -230, y: 35, z: -400 }));
+    controls.setBallRef(mesh[mesh.length - 1]);
 
-    sceneManager.scene.add(...gameObjects.map((obj) => obj.mesh));
+    physics.registerObjects(mesh);
+
+    sceneManager.scene.add(...mesh.map(obj => obj.mesh));
 
     sceneManager.startRender(physics, () => {
       controls.setLaunchChargeCount(0);
 
-      for (let i = 0; i < gameObjects.length; i++) {
-        if (typeof gameObjects[i].syncPalle === 'function') {
-          gameObjects[i].syncPalle();
+      for (let i = 0; i < mesh.length; i++) {
+        if (typeof mesh[i].syncPalle === 'function') {
+          mesh[i].syncPalle();
         }
-        else if (typeof gameObjects[i].syncBall === 'function') {
-          gameObjects[i].syncBall();
+        else if (typeof mesh[i].syncBall === 'function') {
+          mesh[i].syncBall();
         }
-        if (typeof gameObjects[i].setActive === 'function') {
-          if (gameObjects[i].side === 'left') {
-            gameObjects[i].setActive(controls.input.left);
-          } else if (gameObjects[i].side === 'right') {
-            gameObjects[i].setActive(controls.input.right);
+        if (typeof mesh[i].setActive === 'function') {
+          if (mesh[i].side === 'left') {
+            mesh[i].setActive(controls.input.left);
+          } else if (mesh[i].side === 'right') {
+            mesh[i].setActive(controls.input.right);
           }
         }
       }

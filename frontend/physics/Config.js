@@ -15,15 +15,10 @@ export default {
         friction: 0.1,      // Glissement 
     },
 
-    rail: {
-        restitution: 0.3,
-        friction: 0.5
-    },
-
     launchingRamp: {
-        width: 100,
-        length: 200,
-        height: 20,
+        width: 30,
+        length: 50,
+        height: 800,
         minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
         maximalPower: 50,
         powerBuild: 0.25,  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
@@ -65,23 +60,22 @@ export default {
         },
 
         wall: {
-            file: "wall.wav",
-            collision: { file: "Wall", volume: 0.5 }
+            collision: { file: "", volume: 0.5 }
         },
 
-        launchingRamp: {
-            file: "launching_ramp.wav",
-            collision: { file: "LaunchingRamp", volume: 0.5 }
+        launchingRamp: {  
+            charging: {file: "../assets/sound/Ramp_charging.mp3"} , 
+            launch: {file: "../assets/sound/Ramp_launch.mp3", volume: 0.5},       
+            rolling: { file: "../assets/sound/Ramp_rolling.mp3", volume: 0.5 }
         },
 
         palles: {
-            collision: { file: "../assets/vfx/Laser_shoot.mp3", volume: 0.6 },
-            movement: { file: "../assets/vfx/Laser_shoot.mp3", volume: 0.5 }
+            collision: { file: "", volume: 0.6 },
+            movement: { file: "", volume: 0.5 }
         },
 
-        rail: {
-            file: "rail.wav",
-            collision: { file: "Rail", volume: 0.5 }
+        rail: {        
+            collision: { file: "", volume: 0.5 }
         }
     },
 

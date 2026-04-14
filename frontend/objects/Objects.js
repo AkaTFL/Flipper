@@ -11,7 +11,6 @@ export class Objects {
         position = { x: 0, y: 0, z: 0 },
         rotation = { x: 0, y: 0, z: 0 },
         radius = null,
-        mesh = [],
         side = null,
     ) {
         this.world = world;
@@ -21,7 +20,6 @@ export class Objects {
         this.position = position;
         this.rotation = rotation;
         this.radius = radius;
-        this.mesh = mesh;
         this.side = side;
 
         this.mesh = new THREE.Group();
@@ -46,9 +44,7 @@ export class Objects {
         }
 
         if (rotation) {
-            this.mesh.rotation.x = rotation.x ?? 0;
-            this.mesh.rotation.y = rotation.y ?? 0;
-            this.mesh.rotation.z = rotation.z ?? 0;
+            this.mesh.rotation.set(rotation.x ?? 0, rotation.y ?? 0, rotation.z ?? 0);
         }
 
         this.audio = this.initSound(this.sound);
@@ -61,7 +57,7 @@ export class Objects {
 
         let source;
         try {
-            source = new URL(`${soundConfig.file}`, import.meta.url).href;
+            source = new URL(soundConfig.file, import.meta.url).href;
         } catch (e) {
             console.warn('Le chemin du fichier son est invalide:', soundConfig.file);
             return null;
@@ -77,14 +73,13 @@ export class Objects {
 
     playSound(sound = this.sound) {
         this.audio = this.initSound(sound);
-        if (this.audio !== null) {
-            this.audio.currentTime = 0;
-            this.audio.play().catch((error) => {
-                console.error('Impossible de lire le son:', error);
-            });
-        }
+        if (this.audio === null) return;
+
+        this.audio.currentTime = 0;
+        this.audio.play().catch((error) => {
+            console.error('Impossible de lire le son:', error);
+        });
     }
-    // Meme chose que pour initSound, avec le passage en paramètre des variables et non de this.sound directement
 
     toRotationQuaternion(rotation = this.rotation) {
         const rx = rotation?.x ?? 0;
@@ -102,14 +97,14 @@ export class Objects {
     createFixedRigidBody(position = this.position, rotation = this.rotation, withRotation = true) {
         if (!this.world || !position) return null;
 
-        let rigidBodyDesc = RAPIER.RigidBodyDesc.fixed()
+        const rigidBodyDesc = RAPIER.RigidBodyDesc.fixed()
             .setTranslation(position.x, position.y, position.z);
 
-        if (withRotation) {
-            rigidBodyDesc = rigidBodyDesc.setRotation(this.toRotationQuaternion(rotation));
-        }
+        const finalRigidBodyDesc = withRotation
+            ? rigidBodyDesc.setRotation(this.toRotationQuaternion(rotation))
+            : rigidBodyDesc;
 
-        this.rigidBody = this.world.createRigidBody(rigidBodyDesc);
+        this.rigidBody = this.world.createRigidBody(finalRigidBodyDesc);
         return this.rigidBody;
     }
 
@@ -127,9 +122,18 @@ export class Objects {
 
                 const box = new THREE.Box3().setFromObject(modelRoot);
                 const size = box.getSize(new THREE.Vector3());
+                
+                if (size.x === 0 || size.y === 0 || size.z === 0) {
+                    console.warn('Le modèle 3D a des dimensions invalides (taille nulle) :', modelPath);
+                    return;
+                } else {
+                    const targetX = this.length ?? size.x;
+                    const targetY = this.width ?? size.y;
+                    const targetZ = this.height ?? size.z;
 
-                if (size.x > 0) {
-                    modelRoot.scale.setScalar(this.length / size.x);
+                    modelRoot.scale.x = targetX / size.x;
+                    modelRoot.scale.y = targetY / size.y;
+                    modelRoot.scale.z = targetZ / size.z;
                 }
 
                 if (onModelLoaded) {
@@ -137,9 +141,6 @@ export class Objects {
                 }
 
                 this.mesh.add(modelRoot);
-                if (this.fallbackMesh) {
-                    this.fallbackMesh.visible = false;
-                }
             })
             .catch((error) => {
                 console.error('Failed to load flipper model:', error);

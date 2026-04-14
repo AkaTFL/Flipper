@@ -18,6 +18,7 @@ export class Controls{
         this.launchChargeCount = 0;
         this.launchingRampRef = null;
         this.ballRef = null;
+        this.impulseUsed = false;
 
         this.initControls();
     }
@@ -71,21 +72,19 @@ export class Controls{
                 return;
             }
             if (key === this.launch) {
-                if (this.launchingRampRef) this.launchingRampRef.resetLaunchImpulse();
                 this.input.launch = false;
 
-                const chargeDuration = this.launchChargeStart > 0 ? Date.now() - this.launchChargeStart : 300;
+                const chargeDuration = this.launchChargeStart > 0 ? Date.now() - this.launchChargeStart : 0;
 
                 this.input.launchPower = Math.min(Config.launchingRamp.minimalPower + (chargeDuration * Config.launchingRamp.powerBuild) / 10, Config.launchingRamp.maximalPower);
 
                 this.launchChargeStart = 0;
                 console.log(`Launch button released after charging for ${chargeDuration}ms, power: ${this.input.launchPower}`);
 
-                    const launchRatio = Math.max(0.1, this.input.launchPower);
-
-                    const chargedPower = Config.launchingRamp.maximalPower * launchRatio * Config.forceMultiplier;
-                    if (this.ballRef) {
+                    if (this.ballRef && !this.impulseUsed) {
+                        const chargedPower = Config.launchingRamp.maximalPower * Math.max(0.1, this.input.launchPower) * Config.forceMultiplier;
                         this.ballRef.rigidBody.applyImpulse({ x: 0, y: 0, z: chargedPower }, true);
+                        this.impulseUsed = true;
                     }
                 }
             }
@@ -98,6 +97,7 @@ export class Controls{
 
     setBallRef(ref) {
         this.ballRef = ref;
+        this.impulseUsed = false;
     }
 
     getLaunchChargeCount() {

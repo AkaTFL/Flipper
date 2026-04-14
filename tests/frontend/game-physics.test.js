@@ -117,7 +117,7 @@ test('handleCollisionEvents notifies objects and forwards the contacted gameplay
   ]);
 });
 
-test('handleCollisionEvents can report a rail collision while delegating the gameplay response to the ramp', () => {
+test('handleCollisionEvents can report a ramp-side collision while delegating the gameplay response to the ramp', () => {
   const physics = new GamePhysics(Config);
   const calls = [];
 
