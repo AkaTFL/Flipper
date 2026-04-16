@@ -26,7 +26,7 @@ export default {
         power: 10
     },
 
-    wall: {
+    wall1: {
         width: 950,
         height: 100,
         position: { x: 255, y: 0, z: 0},
@@ -35,7 +35,7 @@ export default {
         friction: 0.5
     },
 
-    wall1: {
+    wall2: {
         width: 950,
         height: 100,
         position: { x: -255, y: 0, z: 0  },
@@ -44,7 +44,7 @@ export default {
         friction: 0.5
     },
     
-    wall2: {
+    wall3: {
 
         width: 950,
         height: 100,
@@ -53,8 +53,7 @@ export default {
         restitution: 0.3,
         friction: 0.5
     },
-    wall3: {
-  
+    wall4: {
         width: 950,
         height: 100,
         position: { x: 0, y: 0, z: 471},
@@ -72,7 +71,7 @@ export default {
         restitution: 0,
         friction: 0
     },
-    bumper: {
+    bumper1: {
         width: 50,
         height: 50,
         position: { x: 0, y: 0, z: 100},
@@ -82,7 +81,7 @@ export default {
         power: 100
     },
 
-    bumper: {
+    bumper2: {
         width: 50,
         height: 50,
         position: { x: 100, y: 0, z: 0 },
@@ -94,7 +93,7 @@ export default {
 
 
 
-    palles: {
+    palles1: {
        length : 70,
         width: 10,
         height: 10,

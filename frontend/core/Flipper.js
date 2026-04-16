@@ -43,10 +43,10 @@ async function initFlipper() {
     controls.setLaunchingRampRef(launching);
     mesh.push(launching);
 
-    mesh.push(new Bumper(physics.world, Config.bumper.width, Config.bumper.height, Config.bumper.position, Config.bumper.rotation, 'bumper-1'));
-    mesh.push(new Bumper(physics.world, Config.bumper.width, Config.bumper.height, Config.bumper.position, Config.bumper.rotation, 'bumper-2'));
+    mesh.push(new Bumper(physics.world, Config.bumper1.width, Config.bumper1.height, Config.bumper1.position, Config.bumper1.rotation, 'bumper-1'));
+    mesh.push(new Bumper(physics.world, Config.bumper2.width, Config.bumper2.height, Config.bumper2.position, Config.bumper2.rotation, 'bumper-2'));
 
-    mesh.push(new Palles(physics.world, Config.palles.length, Config.palles.width, Config.palles.height, Config.palles.position, Config.palles.rotation, Config.palles.side));
+    mesh.push(new Palles(physics.world, Config.palles1.length, Config.palles1.width, Config.palles1.height, Config.palles1.position, Config.palles1.rotation, Config.palles1.side));
     mesh.push(new Palles(physics.world, Config.palles2.length, Config.palles2.width, Config.palles2.height, Config.palles2.position, Config.palles2.rotation, Config.palles2.side));
 
     physics.registerObjects(mesh);
