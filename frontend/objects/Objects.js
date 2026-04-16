@@ -131,10 +131,12 @@ export class Objects {
                     const center = box.getCenter(new THREE.Vector3());
                     modelRoot.position.sub(center); // Centre le mesh automatiquement
 
-                    // Calcul de l'échelle : on garde les proportions d'origine basées sur la longueur (x)
-                    const scaleFactor = this.length ? (this.length / size.x) : 1;
+                    // Calcul de l'échelle : on adapte selon les dimensions fournies
+                    const scaleX = this.length ? (this.length / size.x) : 1;
+                    const scaleY = this.width ? (this.width / size.y) : scaleX;
+                    const scaleZ = this.height ? (this.height / size.z) : scaleX;
 
-                    modelRoot.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                    modelRoot.scale.set(scaleX, scaleY, scaleZ);
 
                     // Assurer que le modèle est bien visible même sans lumière complexe
                     modelRoot.traverse((child) => {

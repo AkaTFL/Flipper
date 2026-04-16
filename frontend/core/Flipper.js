@@ -14,7 +14,13 @@ async function initFlipper() {
     const physics = new GamePhysics(Config);
     await physics.init();
 
-    const sceneManager = new Scene(physics.world, 950, 540, { x: 0, y: 500, z: 0 }, { x: (-Math.PI / 2), y: 0, z: 0 });
+    const sceneManager = new Scene(
+        physics.world, 
+        Config.scene.manager.width, 
+        Config.scene.manager.height, 
+        Config.scene.manager.position, 
+        Config.scene.manager.rotation
+    );
 
     const controls = new Controls('q', 'd', 'space');
 
@@ -23,31 +29,37 @@ async function initFlipper() {
 
     const mesh = [];
 
-    mesh.push(new Wall(physics.world, 950, 100, { x: 255, y: 0, z: 0 }, { x: 0, y: (Math.PI / 2), z: 0 }));
-    mesh.push(new Wall(physics.world, 950, 100, { x: -255, y: 0, z: 0 }, { x: 0, y: (-Math.PI / 2), z: 0 }));
-    mesh.push(new Wall(physics.world, 540, 100, { x: 0, y: 0, z: -471 }, { x: 0, y: 0, z: 0 }));
-    mesh.push(new Wall(physics.world, 540, 100, { x: 0, y: 0, z: 471 }, { x: 0, y: 0, z: 0 }));
+    // Walls
+    Config.wall.instances.forEach(wall => {
+        mesh.push(new Wall(physics.world, wall.length, wall.height, wall.position, wall.rotation));
+    });
 
+    // Launching Ramp
     const launching = new LaunchingRamp(
       physics.world,
       Config.launchingRamp.length,
       Config.launchingRamp.width,
       Config.launchingRamp.height,
-      { x: -230, y: 30, z: -50 },
-      { x: 0, y: 0, z: 0 }
+      Config.launchingRamp.position,
+      Config.launchingRamp.rotation
     );
     controls.setLaunchingRampRef(launching);
     mesh.push(launching);
 
-    mesh.push(new Bumper(physics.world, 50, { x: 0, y: 0, z: 100 }, {x: 0, y: 0, z: 0}, 'bumper-1'));
-    mesh.push(new Bumper(physics.world, 50, { x: 100, y: 0, z: 0 }, {x: 0, y: 0, z: 0}, 'bumper-2'));
+    // Bumpers
+    Config.bumper.instances.forEach(bumper => {
+        mesh.push(new Bumper(physics.world, bumper.radius, bumper.position, bumper.rotation, bumper.id));
+    });
 
-    mesh.push(new Palles(physics.world, 70, 10, 10, { x: 100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'left'));
-    mesh.push(new Palles(physics.world, 70, 10, 10, { x: -100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'right'));
+    // Palles
+    Config.palles.instances.forEach(pnl => {
+        mesh.push(new Palles(physics.world, pnl.length, pnl.width, pnl.height, pnl.position, pnl.rotation, pnl.side));
+    });
 
     physics.registerObjects(mesh);
 
-    mesh.push(new Ball(physics.world, { x: -230, y: 35, z: -400 }));
+    // Ball
+    mesh.push(new Ball(physics.world, Config.ball.position));
     controls.setBallRef(mesh[mesh.length - 1]);
 
     physics.registerObjects(mesh);
