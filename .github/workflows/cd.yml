@@ -1,0 +1,85 @@
+name: CD - Deploy to Kubernetes
+
+on:
+  push:
+    branches: ["main"] # On ne déploie que ce qui arrive sur main
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      # 1. Connexion au registre d'images (GitHub Container Registry)
+
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 2. Build et Push de l'image Backend
+
+
+      - name: Build and push Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/backend:latest
+            ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
+
+      # 3. Build et Push de l'image Frontend
+
+
+      - name: Build and push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/frontend:latest
+            ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
+
+      # 4. Build et Push de l'image IoT (Mosquitto)
+      - name: Build and push IoT
+        uses: docker/build-push-action@v5
+        with:
+          context: ./iot
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/iot:latest
+            ghcr.io/${{ github.repository }}/iot:${{ github.sha }}
+
+      # 5. Configuration de l'accès au Cluster K8s
+
+
+      - name: Set Kubernetes Context
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+
+      # 6. Déploiement sur le cluster
+      - name: Deploy to Cluster
+        run: |
+          # Crée/maintient le namespace avant d'appliquer les ressources namespacées
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/
+
+          # Aligne les images réellement déployées sur le commit courant
+          kubectl -n flipper set image deployment/backend-deployment backend=ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
+          kubectl -n flipper set image deployment/frontend-deployment frontend=ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
+          kubectl -n flipper set image deployment/iot-deployment mosquitto=ghcr.io/${{ github.repository }}/iot:${{ github.sha }}
+
+          # Attendre un rollout sain pour échouer tôt en cas de problème
+          kubectl -n flipper rollout status deployment/backend-deployment --timeout=180s
+          kubectl -n flipper rollout status deployment/frontend-deployment --timeout=180s
+          kubectl -n flipper rollout status deployment/iot-deployment --timeout=180s

@@ -1,0 +1,7 @@
+Note pour le dev 3D
+
+- Cette image sert de base conceptuelle : positions et proportions restent à valider avec le gameplay final.
+- Priorité : garder une lecture très claire entre les portails, les rampes, les bumpers et les noyaux d’énergie.
+- Les trois bumpers supérieurs doivent rester strictement alignés et ne pas changer de position.
+- Le boss vit surtout sur le backglass ; le playfield représente sa fusion feu / eau / forêt à travers les accents orange, bleus, verts et les portails.
+- Les accents verts doivent rester secondaires et lisibles, comme une couche supplémentaire de corruption forestière, sans casser la silhouette générale du plateau.

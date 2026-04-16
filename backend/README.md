@@ -57,6 +57,7 @@ Variables utiles:
 | `start_game` | Client → Serveur | Démarrer une nouvelle partie |
 | `game_started` | Serveur → Client | Confirmation du démarrage |
 | `flipper_action` | Client → Serveur | Action sur les flippers (left/right) |
+| `impact` | Client → Serveur | Contact détecté côté frontend (bumper, palle, mur, rampe) |
 | `game_state` | Bidirectionnel | État actuel du jeu |
 
 ## Pont MQTT

@@ -1,419 +1,175 @@
-# Guide Frontend - Flipper 🎮
-
-## Vue d'ensemble
-
-Le frontend utilise **3 technologies**:
-- **Three.js** → Affiche les objets 3D à l'écran
-- **Rapier** → Simule la physique (gravité, collisions)
-- **JavaScript** → Crée les objets du jeu
-
-## Comment ça marche?
-
-Chaque frame (60 fois/sec):
-```
-1. Rapier calcule les nouvelles positions (physique)
-2. On copie ces positions sur les objets 3D
-3. Three.js affiche à l'écran
-```
-
----
-
-## 1️⃣ Initialiser la scène (Three.js)
-
-**Fichier:** `Scene.js`
-
-```javascript
-// Crée le rendu, la caméra et la scène
-renderer = new THREE.WebGLRenderer({antialias: true});
-renderer.setSize(WIDTH, HEIGHT);
-
-scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0);  // Noir
-
-camera = new THREE.PerspectiveCamera(60, WIDTH/HEIGHT, 0.1, 1550);
-camera.position.set(50, 10, -100);  // Position de la caméra
-```
-
-**Points importants:**
-- Le `renderer` affiche à l'écran
-- La `scene` contient tous les objets
-- La `camera` définit le point de vue
-
----
-
-## 2️⃣ Créer le monde physique (Rapier)
-
-**Fichier:** `GamePhysics.js`
-
-```javascript
-async init() {
-    await RAPIER.init();
-    this.world = new RAPIER.World({x: 0, y: -9.81, z: 0});
-}
-
-step() {
-    this.world.step();  // Avance la simulation
-}
-```
-
-C'est simple: 
-- `init()` crée le monde avec la gravité
-- `step()` met à jour les positions de tous les objets
-
----
-
-## 3️⃣ Créer un objet (Mesh + Physique)
-
-**Fichier:** `Ball.js`
-
-```javascript
-constructor(world, radius) {
-    // Partie VISUELLE (ce qu'on voit)
-    this.mesh = new THREE.Mesh(
-        new THREE.SphereGeometry(radius, 32, 32),
-        new THREE.MeshStandardMaterial({color: 0xff0000})
-    );
-    
-    // Partie PHYSIQUE (corps rigide)
-    const desc = RAPIER.RigidBodyDesc.ball(radius);
-    this.rigidBody = world.createRigidBody(desc);
-    
-    // Forme de collision
-    const collider = RAPIER.ColliderDesc.ball(radius);
-    world.createCollider(collider, this.rigidBody);
-}
-
-// Copier la position/rotation depuis Rapier vers Three.js
-syncFromPhysics() {
-    const pos = this.rigidBody.translation();
-    this.mesh.position.set(pos.x, pos.y, pos.z);
-}
-```
-
-**Résumé:** Chaque objet a deux parties:
-- Un `mesh` (visuel dans Three.js)
-- Un `rigidBody` + `collider` (physique dans Rapier)
-
----
-
-## 4️⃣ Ajouter un nouvel objet
-
-### Exemple: Créer un flipper
-
-1. **Créer le fichier** `frontend/objects/Flipper.js`:
-
-```javascript
-import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
-import * as RAPIER from "@dimforge/rapier3d-compat";
-
-export class Flipper {
-    constructor(world) {
-        // Visuel
-        this.mesh = new THREE.Mesh(
-            new THREE.BoxGeometry(100, 20, 10),
-            new THREE.MeshStandardMaterial({color: 0x0088ff})
-        );
-        
-        // Physique (fixe = ne bouge pas)
-        const desc = RAPIER.RigidBodyDesc.fixed();
-        this.rigidBody = world.createRigidBody(desc);
-        
-        const collider = RAPIER.ColliderDesc.cuboid(50, 10, 5);
-        world.createCollider(collider, this.rigidBody);
-    }
-}
-```
-
-2. **Utiliser dans** `Flipper.js`:
-
-```javascript
-import { Flipper } from '../objects/Flipper.js';
-
-const flipper = new Flipper(physics.world);
-flipper.mesh.position.y = -50;  // Placer en bas
-scene.add(flipper.mesh);
-```
-
----
-
-## 5️⃣ Types de corps Rapier
-
-```javascript
-// FIXE (ne bouge pas) → Murs, sol
-RAPIER.RigidBodyDesc.fixed()
-
-// DYNAMIQUE (tombe avec la gravité) → Balle
-RAPIER.RigidBodyDesc.dynamic()
-
-// KINEMATIC (bougé manuellement) → Plateforme mobile
-RAPIER.RigidBodyDesc.kinematic()
-```
-
----
-
-## 6️⃣ Formes de collision (Colliders)
-
-```javascript
-// Sphère
-RAPIER.ColliderDesc.ball(radius);
-
-// Cube
-RAPIER.ColliderDesc.cuboid(halfWidth, halfHeight, halfDepth);
-
-// Cylindre
-RAPIER.ColliderDesc.cylinder(halfHeight, radius);
-```
-
----
-
-## 7️⃣ Ajouter des assets (textures/modèles)
-
-### Charger une texture:
-
-```javascript
-const loader = new THREE.TextureLoader();
-loader.load('assets/texture.png', (texture) => {
-    const material = new THREE.MeshStandardMaterial({map: texture});
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 10), material);
-    scene.add(mesh);
-});
-```
-
-### Charger un modèle 3D (GLB):
-
-```javascript
-const gltfLoader = new THREE.GLTFLoader();
-gltfLoader.load('assets/model.glb', (gltf) => {
-    const model = gltf.scene;
-    scene.add(model);
-});
-```
-
----
-
-## 📋 Checklist pour un nouvel objet
-
-1. **Créer une classe** avec `mesh` (visuel) et `rigidBody` (physique)
-2. **Ajouter au monde** `physics.world.createRigidBody()`
-3. **Ajouter un collider** `world.createCollider()`
-4. **Ajouter au rendu** `scene.add(mesh)`
-5. **Synchroniser** `syncFromPhysics()` dans la boucle
-
----
-
-## ✅ Bonnes pratiques
-
-- ✅ Synchroniser après `physics.step()`
-- ✅ Attendre `RAPIER.init()` avant créer le monde
-- ✅ Un objet = 1 mesh + 1 rigidBody
-- ❌ Ne pas créer d'objets dans la boucle de rendu
-
-# Frontend Guide - Flipper 🎮
-
-## Overview
-
-The frontend uses **3 technologies**:
-- **Three.js** → Displays 3D objects on screen
-- **Rapier** → Simulates physics (gravity, collisions)
-- **JavaScript ES6** → Creates game objects
-
-## How Does It Work?
-
-Every frame (60 times/sec):
-```
-1. Rapier calculates new positions (physics)
-2. Copy those positions to 3D objects
-3. Three.js displays on screen
-```
-
----
-
-## 1️⃣ Initialize the Scene (Three.js)
-
-**File:** `Scene.js`
-
-```javascript
-// Create renderer, camera, and scene
-renderer = new THREE.WebGLRenderer({antialias: true});
-renderer.setSize(WIDTH, HEIGHT);
-
-scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0);  // Black
-
-camera = new THREE.PerspectiveCamera(60, WIDTH/HEIGHT, 0.1, 1550);
-camera.position.set(50, 10, -100);  // Camera position
-```
-
-**Key points:**
-- The `renderer` displays on screen
-- The `scene` contains all objects
-- The `camera` defines the viewpoint
-
----
-
-## 2️⃣ Create the Physics World (Rapier)
-
-**File:** `GamePhysics.js`
-
-```javascript
-async init() {
-    await RAPIER.init();
-    this.world = new RAPIER.World({x: 0, y: -9.81, z: 0});
-}
-
-step() {
-    this.world.step();  // Advance simulation
-}
-```
-
-Simple:
-- `init()` creates the world with gravity
-- `step()` updates positions of all objects
-
----
-
-## 3️⃣ Create an Object (Mesh + Physics)
-
-**File:** `Ball.js`
-
-```javascript
-constructor(world, radius) {
-    // VISUAL part (what we see)
-    this.mesh = new THREE.Mesh(
-        new THREE.SphereGeometry(radius, 32, 32),
-        new THREE.MeshStandardMaterial({color: 0xff0000})
-    );
-    
-    // PHYSICS part (rigid body)
-    const desc = RAPIER.RigidBodyDesc.ball(radius);
-    this.rigidBody = world.createRigidBody(desc);
-    
-    // Collision shape
-    const collider = RAPIER.ColliderDesc.ball(radius);
-    world.createCollider(collider, this.rigidBody);
-}
-
-// Copy position/rotation from Rapier to Three.js
-syncFromPhysics() {
-    const pos = this.rigidBody.translation();
-    this.mesh.position.set(pos.x, pos.y, pos.z);
-}
-```
-
-**Summary:** Each object has two parts:
-- A `mesh` (visual in Three.js)
-- A `rigidBody` + `collider` (physics in Rapier)
-
----
-
-## 4️⃣ Add a New Object
-
-### Example: Create a Flipper
-
-1. **Create file** `frontend/objects/Flipper.js`:
-
-```javascript
-import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
-import * as RAPIER from "@dimforge/rapier3d-compat";
-
-export class Flipper {
-    constructor(world) {
-        // Visual
-        this.mesh = new THREE.Mesh(
-            new THREE.BoxGeometry(100, 20, 10),
-            new THREE.MeshStandardMaterial({color: 0x0088ff})
-        );
-        
-        // Physics (fixed = doesn't move)
-        const desc = RAPIER.RigidBodyDesc.fixed();
-        this.rigidBody = world.createRigidBody(desc);
-        
-        const collider = RAPIER.ColliderDesc.cuboid(50, 10, 5);
-        world.createCollider(collider, this.rigidBody);
-    }
-}
-```
-
-2. **Use in** `Flipper.js`:
-
-```javascript
-import { Flipper } from '../objects/Flipper.js';
-
-const flipper = new Flipper(physics.world);
-flipper.mesh.position.y = -50;  // Position at bottom
-scene.add(flipper.mesh);
-```
-
----
-
-## 5️⃣ Rapier Body Types
-
-```javascript
-// FIXED (doesn't move) → Walls, floor
-RAPIER.RigidBodyDesc.fixed()
-
-// DYNAMIC (falls with gravity) → Ball
-RAPIER.RigidBodyDesc.dynamic()
-
-// KINEMATIC (moved manually) → Moving platform
-RAPIER.RigidBodyDesc.kinematic()
-```
-
----
-
-## 6️⃣ Collision Shapes (Colliders)
-
-```javascript
-// Sphere
-RAPIER.ColliderDesc.ball(radius);
-
-// Box
-RAPIER.ColliderDesc.cuboid(halfWidth, halfHeight, halfDepth);
-
-// Cylinder
-RAPIER.ColliderDesc.cylinder(halfHeight, radius);
-```
-
----
-
-## 7️⃣ Add Assets (Textures/Models)
-
-### Load a Texture:
-
-```javascript
-const loader = new THREE.TextureLoader();
-loader.load('assets/texture.png', (texture) => {
-    const material = new THREE.MeshStandardMaterial({map: texture});
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 10), material);
-    scene.add(mesh);
-});
-```
-
-### Load a 3D Model (GLB):
-
-```javascript
-const gltfLoader = new THREE.GLTFLoader();
-gltfLoader.load('assets/model.glb', (gltf) => {
-    const model = gltf.scene;
-    scene.add(model);
-});
-```
-
----
-
-## 📋 Checklist for a New Object
-
-1. **Create a class** with `mesh` (visual) and `rigidBody` (physics)
-2. **Add to world** `physics.world.createRigidBody()`
-3. **Add a collider** `world.createCollider()`
-4. **Add to render** `scene.add(mesh)`
-5. **Synchronize** `syncFromPhysics()` in loop
-
----
-
-## ✅ Best Practices
-
-- ✅ Synchronize after `physics.step()`
-- ✅ Wait for `RAPIER.init()` before creating world
-- ✅ One object = 1 mesh + 1 rigidBody
-- ❌ Don't create objects in render loop
+# Guide frontend Flipper
+
+Objectif de ce document: expliquer simplement comment le front est organise, et dans quel ordre les objets sont instancies.
+
+## Version francaise
+
+### Vue rapide
+
+Le frontend combine:
+- Three.js pour l affichage 3D
+- Rapier pour la physique
+- Des classes JS pour chaque objet du jeu
+
+Principe general:
+- Chaque objet de jeu possede une partie visuelle mesh Three.js
+- Et une partie physique rigidBody + collider Rapier
+- A chaque frame, on avance la physique puis on synchronise le mesh avec le rigidBody
+
+### Arbre des fichiers frontend
+
+frontend/
+- index.html
+  - Point d entree navigateur
+  - Charge le module principal core/Flipper.js
+- core/
+  - Flipper.js: orchestration du jeu, instancie tout
+  - Scene.js: renderer, camera, scene Three.js, boucle de rendu
+  - Controls.js: clavier et actions joueur
+- physics/
+  - GamePhysics.js: monde Rapier, pas de simulation, evenements de collision
+  - Config.js: parametres gameplay/physique
+  - LevelConfig.js: donnees de niveau
+- objects/
+  - Objects.js: classe de base commune, helpers mesh/collider/sync
+  - Ball.js: balle dynamique
+  - Palles.js: flippers avec joint revolute
+  - Bumper.js: bumpers
+  - LaunchingRamp.js: lanceur
+  - Wall.js, etc.: elements statiques
+- assets/
+  - mesh/: modeles 3D GLB
+
+### Instanciations: ordre reel au demarrage
+
+1. index.html charge core/Flipper.js
+2. initFlipper() est appelee
+3. GamePhysics est cree puis await physics.init()
+   - RAPIER.init()
+   - creation du monde this.world
+4. Scene est instanciee avec physics.world
+   - creation renderer/camera/scene
+   - creation du sol visuel + sol physique
+5. Controls est instancie
+6. Les objets de jeu sont crees
+   - murs Wall
+   - launcher LaunchingRamp
+   - bumpers Bumper
+   - flippers Palles
+   - balle Ball
+7. Les references de controle sont branchees
+   - controls.setLaunchingRampRef(...)
+   - controls.setBallRef(...)
+8. Les objets visuels sont ajoutes a sceneManager.scene
+9. sceneManager.startRender(physics, onUpdate) demarre la boucle
+
+### Ce qui se passe dans la boucle
+
+Dans Scene.render:
+1. physics.step() avance Rapier
+2. onUpdate() execute la logique metier
+   - sync des flippers et de la balle
+   - activation des flippers selon clavier
+3. renderer.render(scene, camera) dessine la frame
+4. requestAnimationFrame relance la frame suivante
+
+### Regle simple pour ajouter un nouvel objet
+
+1. Creer une classe dans objects/ (souvent en heritant de Objects)
+2. Dans le constructor:
+   - creer le mesh Three.js
+   - creer le rigidBody Rapier
+   - attacher le collider
+3. Ajouter l instance dans core/Flipper.js
+4. Ajouter son mesh dans la scene
+5. Ajouter une methode de sync dans onUpdate si besoin
+
+### Resume en une phrase
+
+core/Flipper.js instancie monde + scene + objets, puis la boucle appelle physique -> sync -> rendu en continu.
+
+## English version
+
+### Quick overview
+
+The frontend combines:
+- Three.js for 3D rendering
+- Rapier for physics
+- JavaScript classes for game objects
+
+Core idea:
+- Each game object has a visual part (Three.js mesh)
+- And a physics part (Rapier rigidBody + collider)
+- On each frame, physics is updated first, then mesh transforms are synced from rigid bodies
+
+### Frontend file tree
+
+frontend/
+- index.html
+  - Browser entry point
+  - Loads the main module core/Flipper.js
+- core/
+  - Flipper.js: game orchestration, instantiates everything
+  - Scene.js: Three.js renderer, camera, scene, render loop
+  - Controls.js: keyboard input and player actions
+- physics/
+  - GamePhysics.js: Rapier world, simulation step, collision events
+  - Config.js: gameplay and physics settings
+  - LevelConfig.js: level data
+- objects/
+  - Objects.js: shared base class, mesh/collider/sync helpers
+  - Ball.js: dynamic ball
+  - Palles.js: flippers with revolute joint
+  - Bumper.js: bumpers
+  - LaunchingRamp.js: launcher
+  - Wall.js, etc.: static elements
+- assets/
+  - mesh/: GLB 3D models
+
+### Instantiation order at startup
+
+1. index.html loads core/Flipper.js
+2. initFlipper() is called
+3. GamePhysics is created, then await physics.init()
+   - RAPIER.init()
+   - this.world creation
+4. Scene is instantiated with physics.world
+   - renderer/camera/scene creation
+   - visual floor + physical floor creation
+5. Controls is instantiated
+6. Game objects are created
+   - walls (Wall)
+   - launcher (LaunchingRamp)
+   - bumpers (Bumper)
+   - flippers (Palles)
+   - ball (Ball)
+7. Control references are connected
+   - controls.setLaunchingRampRef(...)
+   - controls.setBallRef(...)
+8. Visual objects are added to sceneManager.scene
+9. sceneManager.startRender(physics, onUpdate) starts the loop
+
+### What happens in the render loop
+
+In Scene.render:
+1. physics.step() updates Rapier
+2. onUpdate() runs game logic
+   - flipper and ball sync
+   - flipper activation from keyboard input
+3. renderer.render(scene, camera) draws the frame
+4. requestAnimationFrame schedules the next frame
+
+### Simple rule to add a new object
+
+1. Create a class in objects/ (often extending Objects)
+2. In the constructor:
+   - create the Three.js mesh
+   - create the Rapier rigid body
+   - attach the collider
+3. Instantiate it in core/Flipper.js
+4. Add its mesh to the scene
+5. Add a sync call in onUpdate if needed
+
+### One-line summary
+
+core/Flipper.js instantiates world + scene + objects, then the loop runs physics -> sync -> render continuously.

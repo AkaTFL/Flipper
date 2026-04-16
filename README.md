@@ -1,4 +1,4 @@
-# Flipper
+# Flipper V1.0.0
 
 Participants : 
 - [Hugo Martins](https://github.com/AkaTFL)
