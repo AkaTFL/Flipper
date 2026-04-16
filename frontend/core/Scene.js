@@ -76,7 +76,6 @@ export class Scene {
         const light = new THREE.AmbientLight(0xffffff, 0.5);
         this.scene.add(light);
 
-
         // ==========================================
         // PARTIE PHYSIQUE (RAPIER)
         // ==========================================
