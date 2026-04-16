@@ -8,6 +8,7 @@ export default {
     gravity: { x: 0, y: -9.75, z: -1.11 },
     
     ball: {
+
         position: { x: -230, y: 35, z: -400 },
         density: 2.0,       // Densité
         radius: 14,          // Rayon de la balle. Une balle de flipper typique a un rayon d'environ 14 mm)
