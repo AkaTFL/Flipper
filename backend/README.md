@@ -1,10 +1,11 @@
-# Backend Flipper - WebSocket Server
+# Backend Flipper - WebSocket + MQTT Bridge
 
-Serveur WebSocket en Go pour le jeu de flipper.
+Serveur Go pour le jeu de flipper. Il garde le canal WebSocket pour le frontend et relaie aussi des événements vers MQTT pour le matériel IoT.
 
 ## Prérequis
 
 - Go 1.21 ou supérieur
+- Un broker MQTT Mosquitto accessible sur `MQTT_HOST:MQTT_PORT`
 
 ## Installation
 
@@ -20,6 +21,13 @@ go run main.go
 ```
 
 Le serveur démarre sur `http://localhost:8080`
+
+Variables utiles:
+
+- `MQTT_HOST` : hôte du broker, par défaut `127.0.0.1`
+- `MQTT_PORT` : port du broker, par défaut `1883`
+- `MQTT_CLIENT_ID` : identifiant du client MQTT
+- `MQTT_USERNAME` / `MQTT_PASSWORD` : si le broker est protégé
 
 ## Endpoints
 
@@ -51,12 +59,24 @@ Le serveur démarre sur `http://localhost:8080`
 | `flipper_action` | Client → Serveur | Action sur les flippers (left/right) |
 | `game_state` | Bidirectionnel | État actuel du jeu |
 
+## Pont MQTT
+
+Le backend publie les impacts vers les solénoïdes et relaie les alertes tilt du broker vers le WebSocket.
+
+Topics utilisés:
+
+- `flipper/solenoid/{id}` : commande de solénoïde envoyée quand un impact est reçu côté frontend
+- `flipper/led/flash` : impulsion LED au démarrage d'une partie
+- `flipper/sensor/tilt/warning` : alerte tilt remontée côté WebSocket
+- `flipper/sensor/tilt/triggered` : tilt déclenché, retransmis côté WebSocket et converti en `game_state` avec `gameOver=true`
+
 
 ## Structure du projet
 
 ```
 backend/
 ├── main.go       # Point d'entrée et serveur WebSocket
+├── mqtt_bridge.go # Pont MQTT + configuration
 ├── go.mod        # Dépendances Go
 └── go.sum        # Checksums des dépendances
 ```
