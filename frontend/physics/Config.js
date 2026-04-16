@@ -8,6 +8,7 @@ export default {
     gravity: { x: 0, y: -9.75, z: -1.11 },
     
     ball: {
+        position: { x: -230, y: 35, z: -400 },
         density: 2.0,       // Densité
         radius: 14,          // Rayon de la balle. Une balle de flipper typique a un rayon d'environ 14 mm)
         mass: 80,           // Masse
@@ -26,27 +27,99 @@ export default {
     },
 
     wall: {
+        width: 950,
+        height: 100,
+        position: { x: 255, y: 0, z: 0},
+        rotation: {  x: 0, y: (Math.PI / 2), z: 0 },
         restitution: 0.3,
         friction: 0.5
     },
 
+    wall1: {
+        width: 950,
+        height: 100,
+        position: { x: -255, y: 0, z: 0  },
+        rotation: { x: 0, y: (-Math.PI / 2), z: 0 },
+        restitution: 0.3,
+        friction: 0.5
+    },
+    
+    wall2: {
+
+        width: 950,
+        height: 100,
+        position: { x: 0, y: 0, z: -471},
+        rotation: {  x: 0, y: 0, z: 0 },
+        restitution: 0.3,
+        friction: 0.5
+    },
+    wall3: {
+  
+        width: 950,
+        height: 100,
+        position: { x: 0, y: 0, z: 471},
+        rotation: {  x: 0, y: 0, z: 0 },
+        restitution: 0.3,
+        friction: 0.5
+    },
+      
+
     scene: {
+        width: 950,
+        height: 540,
+        position: { x: 0, y: 500, z: 0 },
+        rotation: {   x: (-Math.PI / 2), y: 0, z: 0 },
         restitution: 0,
         friction: 0
     },
-
     bumper: {
+        width: 50,
+        height: 50,
+        position: { x: 0, y: 0, z: 100},
+        rotation: { x: 0, y: 0, z: 0 },
         restitution: 0.9,
         friction: 0.5,
         power: 100
     },
 
+    bumper: {
+        width: 50,
+        height: 50,
+        position: { x: 100, y: 0, z: 0 },
+        rotation: { x: 0, y: 0, z: 0 },
+        restitution: 0.9,
+        friction: 0.5,
+        power: 100
+    },
+
+
+
     palles: {
+       length : 70,
+        width: 10,
+        height: 10,
+        position: { x: 100, y: 10, z: -400 },
+        rotation: { x: 0, y: 0, z: 0 },   
         restitution: 0.5,
         friction: 0.5,
         rotationSpeed: 300,
         rotationAngle: 50 * (Math.PI / 180),
-        initialAngle: 30 * (Math.PI / 180)
+        initialAngle: 30 * (Math.PI / 180),
+        side: 'left'
+    },
+
+    palles2: {
+        length : 70,
+        width: 10,
+        height: 10,
+        position: { x: -100, y: 10, z: -400},
+        rotation: { x: 0, y: 0, z: 0},   
+        restitution: 0.5,
+        friction: 0.5,
+        rotationSpeed: 300,
+        rotationAngle: 50 * (Math.PI / 180),
+        initialAngle: 30 * (Math.PI / 180),
+        side: 'right'
     },
 
     sounds: {
