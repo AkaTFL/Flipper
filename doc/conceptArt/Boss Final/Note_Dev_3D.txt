@@ -1,0 +1,5 @@
+Note pour le dev 3D
+
+- Cette image sert de base conceptuelle : positions et proportions à confirmer avec le gameplay final.
+- Priorité : garder une forte lisibilité entre portails, bumpers, couloirs, slingshots et objectifs centraux.
+- Le boss vit surtout sur le backglass ; le playfield représente ses zones d’attaque, ses portails et ses points d’impact.
