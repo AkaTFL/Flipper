@@ -9,13 +9,11 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// Message représente un message échangé via WebSocket
 type Message struct {
 	Type    string          `json:"type"`
 	Payload json.RawMessage `json:"payload,omitempty"`
 }
 
-// GameState représente l'état du jeu de flipper
 type GameState struct {
 	BallX    float64 `json:"ballX"`
 	BallY    float64 `json:"ballY"`
@@ -31,25 +29,23 @@ type ImpactPayload struct {
 	Timestamp  int64  `json:"timestamp"`
 }
 
-// Client représente une connexion WebSocket
 type Client struct {
 	conn *websocket.Conn
 	send chan []byte
 }
 
-// Hub gère toutes les connexions clients
 type Hub struct {
 	clients    map[*Client]bool
 	broadcast  chan []byte
 	register   chan *Client
 	unregister chan *Client
+	mqtt       *MQTTBridge
 	mutex      sync.RWMutex
 }
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	// Autoriser toutes les origines pour le développement
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
@@ -75,7 +71,7 @@ func (h *Hub) run() {
 
 		case client := <-h.unregister:
 			h.mutex.Lock()
-			if _, ok := h.clients[client]; ok {
+			if _, exists := h.clients[client]; exists {
 				delete(h.clients, client)
 				close(client.send)
 			}
@@ -100,34 +96,31 @@ func (h *Hub) run() {
 func (c *Client) readPump(hub *Hub) {
 	defer func() {
 		hub.unregister <- c
-		c.conn.Close()
+		_ = c.conn.Close()
 	}()
 
 	for {
 		_, messageBytes, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("Erreur: %v", err)
+				log.Printf("Erreur WebSocket: %v", err)
 			}
 			break
 		}
 
 		var msg Message
 		if err := json.Unmarshal(messageBytes, &msg); err != nil {
-			log.Printf("Erreur parsing message: %v", err)
+			log.Printf("Message WebSocket invalide: %v", err)
 			continue
 		}
 
-		// Traitement des différents types de messages
 		switch msg.Type {
 		case "ping":
 			response, _ := json.Marshal(Message{Type: "pong"})
 			c.send <- response
 
 		case "flipper_action":
-			// Action de flipper (left/right paddle)
 			log.Printf("Action flipper reçue: %s", string(msg.Payload))
-			// Broadcast à tous les clients
 			hub.broadcast <- messageBytes
 
 		case "impact":
@@ -138,17 +131,22 @@ func (c *Client) readPump(hub *Hub) {
 			}
 
 			log.Printf("Impact reçu sur %s (%s)", impact.ObjectID, impact.ObjectType)
+			if hub.mqtt != nil {
+				hub.mqtt.PublishImpact(impact)
+			}
 			hub.broadcast <- messageBytes
 
 		case "game_state":
-			// Mise à jour de l'état du jeu
 			hub.broadcast <- messageBytes
 
 		case "start_game":
 			log.Println("Nouvelle partie démarrée")
+			if hub.mqtt != nil {
+				hub.mqtt.PublishLEDFlash()
+			}
 			response, _ := json.Marshal(Message{
 				Type:    "game_started",
-				Payload: json.RawMessage(`{"status": "ok"}`),
+				Payload: json.RawMessage(`{"status":"ok"}`),
 			})
 			hub.broadcast <- response
 
@@ -159,7 +157,9 @@ func (c *Client) readPump(hub *Hub) {
 }
 
 func (c *Client) writePump() {
-	defer c.conn.Close()
+	defer func() {
+		_ = c.conn.Close()
+	}()
 
 	for message := range c.send {
 		if err := c.conn.WriteMessage(websocket.TextMessage, message); err != nil {
@@ -181,10 +181,9 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	}
 	hub.register <- client
 
-	// Envoyer un message de bienvenue
 	welcome, _ := json.Marshal(Message{
 		Type:    "welcome",
-		Payload: json.RawMessage(`{"message": "Bienvenue sur Flipper WebSocket!"}`),
+		Payload: json.RawMessage(`{"message":"Bienvenue sur Flipper WebSocket!"}`),
 	})
 	client.send <- welcome
 
@@ -193,26 +192,30 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	config := loadAppConfig()
 	hub := newHub()
-	go hub.run()
+	mqttBridge := newMQTTBridge(config.MQTT, hub)
+	hub.mqtt = mqttBridge
+	defer mqttBridge.Close()
 
-	// Route WebSocket
+	go hub.run()
+	mqttBridge.Start()
+
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
 
-	// Route de santé
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status": "ok"}`))
+		_, _ = w.Write([]byte(`{"status":"ok"}`))
 	})
 
-	port := ":8080"
-	log.Printf("Serveur WebSocket démarré sur http://localhost%s", port)
-	log.Printf("Endpoint WebSocket: ws://localhost%s/ws", port)
+	log.Printf("Serveur WebSocket démarré sur http://localhost%s", config.HTTPPort)
+	log.Printf("Endpoint WebSocket: ws://localhost%s/ws", config.HTTPPort)
+	log.Printf("MQTT: %s:%d", config.MQTT.Host, config.MQTT.Port)
 
-	if err := http.ListenAndServe(port, nil); err != nil {
+	if err := http.ListenAndServe(config.HTTPPort, nil); err != nil {
 		log.Fatal("Erreur démarrage serveur:", err)
 	}
 }
