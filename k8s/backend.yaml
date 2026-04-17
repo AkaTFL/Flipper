@@ -21,6 +21,11 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+          env:
+            - name: MQTT_HOST
+              value: iot-service
+            - name: MQTT_PORT
+              value: "1883"
           livenessProbe:
             httpGet:
               path: /health
