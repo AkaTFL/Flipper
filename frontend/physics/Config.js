@@ -72,27 +72,27 @@ export default {
         restitution: 0,
         friction: 0
     },
+
+
     bumper1: {
         width: 50,
-        height: 50,
         position: { x: 0, y: 0, z: 100},
         rotation: { x: 0, y: 0, z: 0 },
-        restitution: 0.9,
-        friction: 0.5,
-        power: 100
     },
 
     bumper2: {
         width: 50,
-        height: 50,
         position: { x: 100, y: 0, z: 0 },
         rotation: { x: 0, y: 0, z: 0 },
-        restitution: 0.9,
-        friction: 0.5,
-        power: 100
     },
 
 
+
+    palles: {
+        rotationSpeed: 300,
+        rotationAngle: 50 * (Math.PI / 180),
+        initialAngle: 30 * (Math.PI / 180),
+    },
 
     palles1: {
        length : 70,
@@ -102,9 +102,6 @@ export default {
         rotation: { x: 0, y: 0, z: 0 },   
         restitution: 0.5,
         friction: 0.5,
-        rotationSpeed: 300,
-        rotationAngle: 50 * (Math.PI / 180),
-        initialAngle: 30 * (Math.PI / 180),
         side: 'left'
     },
 
@@ -116,9 +113,6 @@ export default {
         rotation: { x: 0, y: 0, z: 0},   
         restitution: 0.5,
         friction: 0.5,
-        rotationSpeed: 300,
-        rotationAngle: 50 * (Math.PI / 180),
-        initialAngle: 30 * (Math.PI / 180),
         side: 'right'
     },
 
