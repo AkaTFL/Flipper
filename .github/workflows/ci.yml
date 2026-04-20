@@ -35,8 +35,8 @@ jobs:
             echo "has_backend=false" >> "$GITHUB_OUTPUT"
           fi
 
-          # Frontend : on considère prêt si package.json (racine) et index.html existent
-          if [ -f "package.json" ] && [ -f "frontend/index.html" ]; then
+          # Frontend : compatible ancien et nouveau layout
+          if [ -f "package.json" ] && { [ -f "frontend/index.html" ] || [ -f "frontend/flipper/index.html" ]; }; then
             echo "has_frontend=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_frontend=false" >> "$GITHUB_OUTPUT"
