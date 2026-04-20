@@ -168,3 +168,125 @@ test('handleCollisionEvents can report a ramp-side collision while delegating th
     'impact:launching-ramp-right-rail'
   ]);
 });
+
+
+test('sendBallLost envoie le bon message si le backend est prêt', () => {
+  const physics = new GamePhysics(Config);
+  const sentPayloads = [];
+  const previousWebSocket = globalThis.WebSocket;
+
+  class FakeWebSocket {}
+  FakeWebSocket.OPEN = 1;
+  globalThis.WebSocket = FakeWebSocket;
+
+  physics.backendSocket = {
+    readyState: 1,
+    send(payload) {
+      sentPayloads.push(JSON.parse(payload));
+    }
+  };
+
+  const sent = physics.sendBallLost();
+
+  assert.equal(sent, true);
+  assert.equal(sentPayloads.length, 1);
+  assert.equal(sentPayloads[0].type, 'ball_lost');
+  assert.equal(sentPayloads[0].payload.balls, 1);
+  assert.ok(typeof sentPayloads[0].payload.timestamp === 'number');
+
+  if (previousWebSocket === undefined) {
+    delete globalThis.WebSocket;
+  } else {
+    globalThis.WebSocket = previousWebSocket;
+  }
+});
+
+test('sendBallReady envoie le bon message si le backend est prêt', () => {
+  const physics = new GamePhysics(Config);
+  const sentPayloads = [];
+  const previousWebSocket = globalThis.WebSocket;
+
+  class FakeWebSocket {}
+  FakeWebSocket.OPEN = 1;
+  globalThis.WebSocket = FakeWebSocket;
+
+  physics.backendSocket = {
+    readyState: 1,
+    send(payload) {
+      sentPayloads.push(JSON.parse(payload));
+    }
+  };
+
+  const sent = physics.sendBallReady();
+
+  assert.equal(sent, true);
+  assert.equal(sentPayloads.length, 1);
+  assert.equal(sentPayloads[0].type, 'ball_ready');
+  assert.ok(typeof sentPayloads[0].payload.timestamp === 'number');
+
+  if (previousWebSocket === undefined) {
+    delete globalThis.WebSocket;
+  } else {
+    globalThis.WebSocket = previousWebSocket;
+  }
+});
+
+test('sendInit envoie le bon message si le backend est prêt', () => {
+  const physics = new GamePhysics(Config);
+  const sentPayloads = [];
+  const previousWebSocket = globalThis.WebSocket;
+
+  class FakeWebSocket {}
+  FakeWebSocket.OPEN = 1;
+  globalThis.WebSocket = FakeWebSocket;
+
+  physics.backendSocket = {
+    readyState: 1,
+    send(payload) {
+      sentPayloads.push(JSON.parse(payload));
+    }
+  };
+
+  const sent = physics.sendInit();
+
+  assert.equal(sent, true);
+  assert.equal(sentPayloads.length, 1);
+  assert.equal(sentPayloads[0].type, 'init');
+  assert.ok(typeof sentPayloads[0].payload.timestamp === 'number');
+
+  if (previousWebSocket === undefined) {
+    delete globalThis.WebSocket;
+  } else {
+    globalThis.WebSocket = previousWebSocket;
+  }
+});
+
+test('sendGameOver envoie le bon message si le backend est prêt', () => {
+  const physics = new GamePhysics(Config);
+  const sentPayloads = [];
+  const previousWebSocket = globalThis.WebSocket;
+
+  class FakeWebSocket {}
+  FakeWebSocket.OPEN = 1;
+  globalThis.WebSocket = FakeWebSocket;
+
+  physics.backendSocket = {
+    readyState: 1,
+    send(payload) {
+      sentPayloads.push(JSON.parse(payload));
+    }
+  };
+
+  const sent = physics.sendGameOver();
+
+  assert.equal(sent, true);
+  assert.equal(sentPayloads.length, 1);
+  assert.equal(sentPayloads[0].type, 'game_over');
+  assert.ok(typeof sentPayloads[0].payload.timestamp === 'number');
+
+  if (previousWebSocket === undefined) {
+    delete globalThis.WebSocket;
+  } else {
+    globalThis.WebSocket = previousWebSocket;
+  }
+});
