@@ -19,7 +19,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ./frontend/flipper
       dockerfile: Dockerfile
     container_name: flipper-frontend
     ports:
