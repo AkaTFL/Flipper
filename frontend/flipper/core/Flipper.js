@@ -6,6 +6,7 @@ import { Bumper } from '../objects/Bumper.js';
 import { LaunchingRamp } from '../objects/LaunchingRamp.js';
 import { Palles } from '../objects/Palles.js';
 import { Controls } from './Controls.js';
+import { ScoreDisplay } from '../ui/ScoreDisplay.js';
 
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
@@ -22,10 +23,25 @@ async function initFlipper() {
         Config.scene.manager.rotation
     );
 
-    const controls = new Controls('q', 'd', 'space');
-
     const container = document.getElementById('three');
+    const controls = new Controls('q', 'd', 'space');
+    const scoreDisplay = new ScoreDisplay();
+    scoreDisplay.mount(container);
     container.appendChild(sceneManager.renderer.domElement);
+    let startGameSent = false;
+
+    controls.setStartGameCallback(() => {
+        if (startGameSent) {
+            return;
+        }
+
+        if (physics.sendMessage('start_game')) {
+            startGameSent = true;
+        }
+    });
+    controls.setBossFightStartCallback(() => {
+        physics.sendMessage('boss_fight_toggled');
+    });
 
     const mesh = [];
 

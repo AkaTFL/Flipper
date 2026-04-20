@@ -71,6 +71,30 @@ test('sendImpact emits a structured impact payload when the backend socket is re
   }
 });
 
+test('handleBackendMessage stores score_update payload for later UI consumption', () => {
+  const physics = new GamePhysics(Config);
+
+  const message = physics.handleBackendMessage(JSON.stringify({
+    type: 'score_update',
+    payload: {
+      score: 325,
+      delta: 200,
+      comboMultiplier: 2,
+      comboCount: 2,
+      objectType: 'bumper'
+    }
+  }));
+
+  assert.equal(message.type, 'score_update');
+  assert.deepEqual(physics.lastScoreUpdate, {
+    score: 325,
+    delta: 200,
+    comboMultiplier: 2,
+    comboCount: 2,
+    objectType: 'bumper'
+  });
+});
+
 test('handleCollisionEvents notifies objects and forwards the contacted gameplay object to the backend', () => {
   const physics = new GamePhysics(Config);
   const calls = [];
@@ -169,124 +193,188 @@ test('handleCollisionEvents can report a ramp-side collision while delegating th
   ]);
 });
 
+test('detectScoreZoneEntries emits more specific target and star impacts when the ball enters configured zones', () => {
+  const physics = new GamePhysics({
+    ...Config,
+    scoreZones: {
+      instances: [
+        {
+          id: 'target-left-centre',
+          type: 'target',
+          center: { x: 10, y: 0, z: -10 },
+          size: { x: 20, y: 20, z: 20 }
+        },
+        {
+          id: 'star-center-exact',
+          type: 'star_zone',
+          center: { x: 0, y: 0, z: -30 },
+          size: { x: 30, y: 20, z: 20 }
+        }
+      ]
+    }
+  });
 
-test('sendBallLost envoie le bon message si le backend est prêt', () => {
-  const physics = new GamePhysics(Config);
-  const sentPayloads = [];
-  const previousWebSocket = globalThis.WebSocket;
+  const sent = [];
+  physics.sendImpact = (payload) => {
+    sent.push(`${payload.objectType}:${payload.objectId}`);
+    return true;
+  };
 
-  class FakeWebSocket {}
-  FakeWebSocket.OPEN = 1;
-  globalThis.WebSocket = FakeWebSocket;
-
-  physics.backendSocket = {
-    readyState: 1,
-    send(payload) {
-      sentPayloads.push(JSON.parse(payload));
+  const ball = {
+    objectId: 'ball',
+    objectType: 'ball',
+    rigidBody: {
+      translation() {
+        return { x: 10, y: 0, z: -10 };
+      }
     }
   };
 
-  const sent = physics.sendBallLost();
+  physics.objects = [ball];
+  physics.detectScoreZoneEntries();
 
-  assert.equal(sent, true);
-  assert.equal(sentPayloads.length, 1);
-  assert.equal(sentPayloads[0].type, 'ball_lost');
-  assert.equal(sentPayloads[0].payload.balls, 1);
-  assert.ok(typeof sentPayloads[0].payload.timestamp === 'number');
+  assert.deepEqual(sent, ['target:target-left-centre']);
 
-  if (previousWebSocket === undefined) {
-    delete globalThis.WebSocket;
-  } else {
-    globalThis.WebSocket = previousWebSocket;
-  }
+  ball.rigidBody.translation = () => ({ x: 0, y: 0, z: -30 });
+  physics.detectScoreZoneEntries();
+
+  assert.deepEqual(sent, [
+    'target:target-left-centre',
+    'star_zone:star-center-exact'
+  ]);
 });
 
-test('sendBallReady envoie le bon message si le backend est prêt', () => {
-  const physics = new GamePhysics(Config);
-  const sentPayloads = [];
-  const previousWebSocket = globalThis.WebSocket;
+test('detectScoreZoneEntries does not spam the same zone until the ball exits and re-enters', () => {
+  const physics = new GamePhysics({
+    ...Config,
+    scoreZones: {
+      instances: [
+        {
+          id: 'loop-left',
+          type: 'lane',
+          center: { x: 50, y: 0, z: 50 },
+          size: { x: 40, y: 20, z: 40 }
+        }
+      ]
+    }
+  });
 
-  class FakeWebSocket {}
-  FakeWebSocket.OPEN = 1;
-  globalThis.WebSocket = FakeWebSocket;
+  const sent = [];
+  physics.sendImpact = (payload) => {
+    sent.push(payload.objectId);
+    return true;
+  };
 
-  physics.backendSocket = {
-    readyState: 1,
-    send(payload) {
-      sentPayloads.push(JSON.parse(payload));
+  const ball = {
+    objectId: 'ball',
+    objectType: 'ball',
+    rigidBody: {
+      translation() {
+        return { x: 50, y: 0, z: 50 };
+      }
     }
   };
 
-  const sent = physics.sendBallReady();
+  physics.objects = [ball];
 
-  assert.equal(sent, true);
-  assert.equal(sentPayloads.length, 1);
-  assert.equal(sentPayloads[0].type, 'ball_ready');
-  assert.ok(typeof sentPayloads[0].payload.timestamp === 'number');
+  physics.detectScoreZoneEntries();
+  physics.detectScoreZoneEntries();
+  assert.deepEqual(sent, ['loop-left']);
 
-  if (previousWebSocket === undefined) {
-    delete globalThis.WebSocket;
-  } else {
-    globalThis.WebSocket = previousWebSocket;
-  }
+  ball.rigidBody.translation = () => ({ x: 200, y: 0, z: 200 });
+  physics.detectScoreZoneEntries();
+
+  ball.rigidBody.translation = () => ({ x: 50, y: 0, z: 50 });
+  physics.detectScoreZoneEntries();
+
+  assert.deepEqual(sent, ['loop-left', 'loop-left']);
 });
 
-test('sendInit envoie le bon message si le backend est prêt', () => {
-  const physics = new GamePhysics(Config);
-  const sentPayloads = [];
-  const previousWebSocket = globalThis.WebSocket;
+test('detectRampTraversal emits ramp-main-perfect when the ball crosses the ramp without wall bounce', () => {
+  const physics = new GamePhysics({
+    ...Config,
+    rampScoring: {
+      entryZone: {
+        id: 'ramp-main-entry',
+        center: { x: 0, y: 0, z: 0 },
+        size: { x: 20, y: 20, z: 20 }
+      },
+      exitZone: {
+        id: 'ramp-main-exit',
+        center: { x: 0, y: 0, z: 100 },
+        size: { x: 20, y: 20, z: 20 }
+      },
+      timeoutMs: 4000
+    }
+  });
 
-  class FakeWebSocket {}
-  FakeWebSocket.OPEN = 1;
-  globalThis.WebSocket = FakeWebSocket;
+  const sent = [];
+  physics.sendImpact = (payload) => {
+    sent.push(`${payload.objectType}:${payload.objectId}`);
+    return true;
+  };
 
-  physics.backendSocket = {
-    readyState: 1,
-    send(payload) {
-      sentPayloads.push(JSON.parse(payload));
+  const ball = {
+    objectId: 'ball',
+    objectType: 'ball',
+    rigidBody: {
+      translation() {
+        return { x: 0, y: 0, z: 0 };
+      }
     }
   };
 
-  const sent = physics.sendInit();
+  physics.objects = [ball];
 
-  assert.equal(sent, true);
-  assert.equal(sentPayloads.length, 1);
-  assert.equal(sentPayloads[0].type, 'init');
-  assert.ok(typeof sentPayloads[0].payload.timestamp === 'number');
+  physics.detectRampTraversal();
+  ball.rigidBody.translation = () => ({ x: 0, y: 0, z: 100 });
+  physics.activeRampZones.clear();
+  physics.detectRampTraversal();
 
-  if (previousWebSocket === undefined) {
-    delete globalThis.WebSocket;
-  } else {
-    globalThis.WebSocket = previousWebSocket;
-  }
+  assert.deepEqual(sent, ['launching_ramp:ramp-main-perfect']);
 });
 
-test('sendGameOver envoie le bon message si le backend est prêt', () => {
-  const physics = new GamePhysics(Config);
-  const sentPayloads = [];
-  const previousWebSocket = globalThis.WebSocket;
+test('detectRampTraversal emits ramp-main-simple after a wall bounce during traversal', () => {
+  const physics = new GamePhysics({
+    ...Config,
+    rampScoring: {
+      entryZone: {
+        id: 'ramp-main-entry',
+        center: { x: 0, y: 0, z: 0 },
+        size: { x: 20, y: 20, z: 20 }
+      },
+      exitZone: {
+        id: 'ramp-main-exit',
+        center: { x: 0, y: 0, z: 100 },
+        size: { x: 20, y: 20, z: 20 }
+      },
+      timeoutMs: 4000
+    }
+  });
 
-  class FakeWebSocket {}
-  FakeWebSocket.OPEN = 1;
-  globalThis.WebSocket = FakeWebSocket;
+  const sent = [];
+  physics.sendImpact = (payload) => {
+    sent.push(`${payload.objectType}:${payload.objectId}`);
+    return true;
+  };
 
-  physics.backendSocket = {
-    readyState: 1,
-    send(payload) {
-      sentPayloads.push(JSON.parse(payload));
+  const ball = {
+    objectId: 'ball',
+    objectType: 'ball',
+    rigidBody: {
+      translation() {
+        return { x: 0, y: 0, z: 0 };
+      }
     }
   };
 
-  const sent = physics.sendGameOver();
+  physics.objects = [ball];
 
-  assert.equal(sent, true);
-  assert.equal(sentPayloads.length, 1);
-  assert.equal(sentPayloads[0].type, 'game_over');
-  assert.ok(typeof sentPayloads[0].payload.timestamp === 'number');
+  physics.detectRampTraversal();
+  physics.markRampBounce([{ objectType: 'wall' }, { objectType: 'ball' }]);
+  ball.rigidBody.translation = () => ({ x: 0, y: 0, z: 100 });
+  physics.activeRampZones.clear();
+  physics.detectRampTraversal();
 
-  if (previousWebSocket === undefined) {
-    delete globalThis.WebSocket;
-  } else {
-    globalThis.WebSocket = previousWebSocket;
-  }
+  assert.deepEqual(sent, ['launching_ramp:ramp-main-simple']);
 });

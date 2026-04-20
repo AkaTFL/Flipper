@@ -11,6 +11,10 @@ export class GamePhysics {
         this.colliderOwners = new Map();
         this.colliderResponders = new Map();
         this.lastBackendMessage = null;
+        this.lastScoreUpdate = null;
+        this.activeScoreZones = new Set();
+        this.activeRampZones = new Set();
+        this.rampTraversal = null;
     }
 
     async init() {
@@ -31,6 +35,8 @@ export class GamePhysics {
     step() {
         this.world.step(this.eventQueue);
         this.handleCollisionEvents();
+        this.detectScoreZoneEntries();
+        this.detectRampTraversal();
     }
 
     registerObjects(objects) {
@@ -113,6 +119,9 @@ export class GamePhysics {
         try {
             const message = JSON.parse(rawData);
             this.lastBackendMessage = message;
+            if (message?.type === 'score_update') {
+                this.lastScoreUpdate = message.payload ?? null;
+            }
 
             if (typeof globalThis.dispatchEvent === 'function' && typeof globalThis.CustomEvent === 'function') {
                 globalThis.dispatchEvent(new globalThis.CustomEvent('flipper:backend-message', {
@@ -158,38 +167,101 @@ export class GamePhysics {
         });
     }
 
-    // Retour nécessaire : Nombre de balles restantes mis à jour
-    sendBallLost(){
-        return this.sendMessage('ball_lost', {
-            balls : 1,
-            timestamp: Date.now()
-        });
+    detectScoreZoneEntries() {
+        const scoreZones = this.config.scoreZones?.instances;
+        if (!Array.isArray(scoreZones) || scoreZones.length === 0) {
+            return;
+        }
+
+        const ball = this.objects.find((obj) => obj?.objectType === 'ball' && obj?.rigidBody);
+        if (!ball?.rigidBody || typeof ball.rigidBody.translation !== 'function') {
+            return;
+        }
+
+        const position = ball.rigidBody.translation();
+        const nextActiveZones = new Set();
+
+        for (const zone of scoreZones) {
+            if (!zone?.id || !zone?.center || !zone?.size) {
+                continue;
+            }
+
+            if (!this.isPositionInsideZone(position, zone)) {
+                continue;
+            }
+
+            nextActiveZones.add(zone.id);
+            if (this.activeScoreZones.has(zone.id)) {
+                continue;
+            }
+
+            this.sendImpact({
+                objectId: zone.id,
+                objectType: zone.type || 'target'
+            });
+        }
+
+        this.activeScoreZones = nextActiveZones;
     }
 
-    // Retour nécessaire : Score null et nombre de balles réintialisé
-    sendBallReady(){
-        return this.sendMessage('ball_ready', {
-            timestamp: Date.now()
-        });
+    detectRampTraversal() {
+        const rampScoring = this.config.rampScoring;
+        if (!rampScoring?.entryZone || !rampScoring?.exitZone) {
+            return;
+        }
+
+        const ball = this.objects.find((obj) => obj?.objectType === 'ball' && obj?.rigidBody);
+        if (!ball?.rigidBody || typeof ball.rigidBody.translation !== 'function') {
+            return;
+        }
+
+        const position = ball.rigidBody.translation();
+        const nextActiveRampZones = new Set();
+        const now = Date.now();
+
+        if (this.rampTraversal?.startedAt && (now - this.rampTraversal.startedAt) > (rampScoring.timeoutMs || 4000)) {
+            this.rampTraversal = null;
+        }
+
+        const entryZone = rampScoring.entryZone;
+        if (this.isPositionInsideZone(position, entryZone)) {
+            nextActiveRampZones.add(entryZone.id);
+            if (!this.activeRampZones.has(entryZone.id)) {
+                this.rampTraversal = {
+                    startedAt: now,
+                    hasWallBounce: false
+                };
+            }
+        }
+
+        const exitZone = rampScoring.exitZone;
+        if (this.isPositionInsideZone(position, exitZone)) {
+            nextActiveRampZones.add(exitZone.id);
+            if (!this.activeRampZones.has(exitZone.id) && this.rampTraversal) {
+                const objectId = this.rampTraversal.hasWallBounce
+                    ? 'ramp-main-simple'
+                    : 'ramp-main-perfect';
+
+                this.sendImpact({
+                    objectId,
+                    objectType: 'launching_ramp'
+                });
+                this.rampTraversal = null;
+            }
+        }
+
+        this.activeRampZones = nextActiveRampZones;
     }
 
-    // Retour nécessaire : début de parti
-    sendInit(){
-        return this.sendMessage('init', {
-            timestamp: Date.now()
-        });
+    isPositionInsideZone(position, zone) {
+        const halfX = (zone.size.x || 0) / 2;
+        const halfY = (zone.size.y || 0) / 2;
+        const halfZ = (zone.size.z || 0) / 2;
+
+        return Math.abs((position.x ?? 0) - zone.center.x) <= halfX
+            && Math.abs((position.y ?? 0) - zone.center.y) <= halfY
+            && Math.abs((position.z ?? 0) - zone.center.z) <= halfZ;
     }
-
-    // Retour nécessaire : fin de partie, score final
-    sendGameOver(){
-        return this.sendMessage('game_over', {
-            timestamp: Date.now()
-        });
-    }
-
-
-
-
 
     findCollidingObjects(handle1, handle2) {
         return [...new Set([
@@ -246,7 +318,19 @@ export class GamePhysics {
                 }
             }
 
-            this.reportContactImpacts(collidingObjects, combo);
+            this.reportContactImpacts(collidingObjects);
+            this.markRampBounce(collidingObjects);
         });
+    }
+
+    markRampBounce(collidingObjects) {
+        if (!this.rampTraversal) {
+            return;
+        }
+
+        const hitWall = collidingObjects.some((obj) => obj?.objectType === 'wall');
+        if (hitWall) {
+            this.rampTraversal.hasWallBounce = true;
+        }
     }
 }

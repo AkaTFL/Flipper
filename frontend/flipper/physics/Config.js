@@ -60,6 +60,73 @@ export default {
         ]
     },
 
+    scoreZones: {
+        instances: [
+            {
+                id: 'loop-left',
+                type: 'lane',
+                center: { x: 205, y: 0, z: 170 },
+                size: { x: 95, y: 80, z: 130 }
+            },
+            {
+                id: 'loop-right',
+                type: 'lane',
+                center: { x: -205, y: 0, z: 170 },
+                size: { x: 95, y: 80, z: 130 }
+            },
+            {
+                id: 'target-left',
+                type: 'target',
+                center: { x: 155, y: 0, z: -265 },
+                size: { x: 70, y: 80, z: 85 }
+            },
+            {
+                id: 'target-right',
+                type: 'target',
+                center: { x: -155, y: 0, z: -265 },
+                size: { x: 70, y: 80, z: 85 }
+            },
+            {
+                id: 'target-left-centre',
+                type: 'target',
+                center: { x: 155, y: 0, z: -265 },
+                size: { x: 28, y: 80, z: 32 }
+            },
+            {
+                id: 'target-right-centre',
+                type: 'target',
+                center: { x: -155, y: 0, z: -265 },
+                size: { x: 28, y: 80, z: 32 }
+            },
+            {
+                id: 'star-center',
+                type: 'star_zone',
+                center: { x: 0, y: 0, z: -245 },
+                size: { x: 150, y: 90, z: 120 }
+            },
+            {
+                id: 'star-center-exact',
+                type: 'star_zone',
+                center: { x: 0, y: 0, z: -245 },
+                size: { x: 48, y: 90, z: 42 }
+            }
+        ]
+    },
+
+    rampScoring: {
+        entryZone: {
+            id: 'ramp-main-entry',
+            center: { x: -225, y: 0, z: -280 },
+            size: { x: 80, y: 90, z: 130 }
+        },
+        exitZone: {
+            id: 'ramp-main-exit',
+            center: { x: -225, y: 0, z: 170 },
+            size: { x: 80, y: 90, z: 140 }
+        },
+        timeoutMs: 4000
+    },
+
     palles: {
         restitution: 0.5,
         friction: 0.5,
