@@ -146,7 +146,8 @@ export class GamePhysics {
         return true;
     }
 
-    sendImpact(object) {
+    // Retour nécessaire : score mis à jour par rapport aux différents objets/multiplicateurs
+    sendImpact(object, combo) {
         if (!object) {
             return false;
         }
@@ -154,11 +155,12 @@ export class GamePhysics {
         return this.sendMessage('impact', {
             objectId: object.objectId || null,
             objectType: object.objectType || object.constructor?.name?.toLowerCase() || 'object',
+            combo: combo || null,
             timestamp: Date.now()
         });
     }
 
-    
+    // Retour nécessaire : Nombre de balles restantes mis à jour
     sendBallLost(){
         return this.sendMessage('ball_lost', {
             balls : 1,
@@ -166,18 +168,21 @@ export class GamePhysics {
         });
     }
 
+    // Retour nécessaire : Score null et nombre de balles réintialisé
     sendBallReady(){
         return this.sendMessage('ball_ready', {
             timestamp: Date.now()
         });
     }
 
+    // Retour nécessaire : début de parti
     sendInit(){
         return this.sendMessage('init', {
             timestamp: Date.now()
         });
     }
 
+    // Retour nécessaire : fin de partie, score final
     sendGameOver(){
         return this.sendMessage('game_over', {
             timestamp: Date.now()
@@ -215,14 +220,15 @@ export class GamePhysics {
                 continue;
             }
 
-            this.sendImpact(obj);
+            this.sendImpact(obj, combo);
         }
     }
 
-    handleCollisionEvents() {
+    handleCollisionEvents(comboS) {
         this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
             if (!started) return;
 
+            const combo = comboS || null;
             const collidingObjects = this.findCollidingObjects(handle1, handle2);
             const collisionResponders = this.findCollisionResponders(handle1, handle2);
 
@@ -242,7 +248,7 @@ export class GamePhysics {
                 }
             }
 
-            this.reportContactImpacts(collidingObjects);
+            this.reportContactImpacts(collidingObjects, combo);
         });
     }
 }

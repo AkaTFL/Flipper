@@ -67,8 +67,8 @@ export default {
         rotationAngle: 50 * (Math.PI / 180),
         initialAngle: 30 * (Math.PI / 180),
         instances: [
-            { length: 70, width: 20, height: 30, position: { x: 100, y: 10, z: -400 }, rotation: { x: 0, y: 0, z: 0 }, side: 'left' },
-            { length: 70, width: 20, height: 30, position: { x: -100, y: 10, z: -400 }, rotation: { x: 0, y: 0, z: 0 }, side: 'right' }
+            { length: 70, width: 20, height: 30, position: { x: 100, y: 13, z: -400 }, rotation: { x: 0, y: 0, z: 0 }, side: 'left' },
+            { length: 70, width: 20, height: 30, position: { x: -100, y: 13, z: -400 }, rotation: { x: 0, y: 0, z: 0 }, side: 'right' }
         ]
     },
 
