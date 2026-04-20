@@ -135,8 +135,6 @@ export class GamePhysics {
         return Boolean(this.backendSocket) && this.backendSocket.readyState === openState;
     }
 
-
-
     sendMessage(type, payload = {}) {
         if (!this.isBackendReady()) {
             return false;
@@ -209,7 +207,7 @@ export class GamePhysics {
         ].filter(Boolean))];
     }
 
-    reportContactImpacts(collidingObjects) {
+    reportContactImpacts(collidingObjects, combo = null) {
         const ball = collidingObjects.find((obj) => obj.objectType === 'ball');
         const reportableObjects = ball
             ? collidingObjects.filter((obj) => obj !== ball)
