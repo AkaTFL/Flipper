@@ -249,3 +249,96 @@ func TestWebSocketBroadcastsImpactEventsToOtherClients(t *testing.T) {
 		t.Fatalf("expected objectId bumper-1, got %s", payload.ObjectID)
 	}
 }
+
+func TestWebSocketBroadcastsScoreUpdateAfterImpact(t *testing.T) {
+	_, server, wsURL := newTestServer(t)
+	defer server.Close()
+
+	firstConn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	if err != nil {
+		t.Fatalf("failed to connect first websocket client: %v", err)
+	}
+	defer firstConn.Close()
+	_ = readMessageType(t, firstConn)
+
+	secondConn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	if err != nil {
+		t.Fatalf("failed to connect second websocket client: %v", err)
+	}
+	defer secondConn.Close()
+	_ = readMessageType(t, secondConn)
+
+	if err := firstConn.WriteJSON(Message{
+		Type:    "impact",
+		Payload: json.RawMessage(`{"objectId":"bumper-1","objectType":"bumper","timestamp":1000}`),
+	}); err != nil {
+		t.Fatalf("failed to send impact event: %v", err)
+	}
+
+	broadcast := readMessageType(t, secondConn)
+	if broadcast.Type != "impact" {
+		t.Fatalf("expected impact broadcast first, got %s", broadcast.Type)
+	}
+
+	scoreUpdate := readMessageType(t, secondConn)
+	if scoreUpdate.Type != "score_update" {
+		t.Fatalf("expected score_update broadcast second, got %s", scoreUpdate.Type)
+	}
+
+	var payload ScoreUpdatePayload
+	if err := json.Unmarshal(scoreUpdate.Payload, &payload); err != nil {
+		t.Fatalf("failed to unmarshal score update payload: %v", err)
+	}
+
+	if payload.Score != 50 || payload.Delta != 50 {
+		t.Fatalf("expected score update to report 50 points, got score=%d delta=%d", payload.Score, payload.Delta)
+	}
+	if payload.ComboCount != 1 || payload.ComboMultiplier != 1 {
+		t.Fatalf("expected first hit combo to be x1, got combo=%d multiplier=%d", payload.ComboCount, payload.ComboMultiplier)
+	}
+}
+
+func TestWebSocketStartGameResetsScoreState(t *testing.T) {
+	_, server, wsURL := newTestServer(t)
+	defer server.Close()
+
+	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	if err != nil {
+		t.Fatalf("failed to connect websocket client: %v", err)
+	}
+	defer conn.Close()
+	_ = readMessageType(t, conn)
+
+	if err := conn.WriteJSON(Message{
+		Type:    "impact",
+		Payload: json.RawMessage(`{"objectId":"bumper-1","objectType":"bumper","timestamp":1000}`),
+	}); err != nil {
+		t.Fatalf("failed to seed score state: %v", err)
+	}
+
+	_ = readMessageType(t, conn)
+	_ = readMessageType(t, conn)
+
+	if err := conn.WriteJSON(Message{Type: "start_game"}); err != nil {
+		t.Fatalf("failed to send start_game: %v", err)
+	}
+
+	gameStarted := readMessageType(t, conn)
+	if gameStarted.Type != "game_started" {
+		t.Fatalf("expected game_started message, got %s", gameStarted.Type)
+	}
+
+	scoreUpdate := readMessageType(t, conn)
+	if scoreUpdate.Type != "score_update" {
+		t.Fatalf("expected score_update reset message, got %s", scoreUpdate.Type)
+	}
+
+	var payload ScoreUpdatePayload
+	if err := json.Unmarshal(scoreUpdate.Payload, &payload); err != nil {
+		t.Fatalf("failed to unmarshal reset score payload: %v", err)
+	}
+
+	if payload.Score != 0 || payload.ComboCount != 0 || payload.Delta != 0 {
+		t.Fatalf("expected reset score payload, got %+v", payload)
+	}
+}

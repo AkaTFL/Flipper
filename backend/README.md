@@ -56,6 +56,7 @@ Variables utiles:
 | `welcome` | Serveur → Client | Message de bienvenue à la connexion |
 | `start_game` | Client → Serveur | Démarrer une nouvelle partie |
 | `game_started` | Serveur → Client | Confirmation du démarrage |
+| `score_update` | Serveur → Client | Nouveau score calculé avec delta et combo courant |
 | `flipper_action` | Client → Serveur | Action sur les flippers (left/right) |
 | `impact` | Client → Serveur | Contact détecté côté frontend (bumper, palle, mur, rampe) |
 | `game_state` | Bidirectionnel | État actuel du jeu |

@@ -19,6 +19,7 @@ export class Controls{
         this.launchingRampRef = null;
         this.ballRef = null;
         this.impulseUsed = false;
+        this.startGameCallback = null;
 
         this.initControls();
     }
@@ -82,6 +83,9 @@ export class Controls{
                 console.log(`Launch button released after charging for ${chargeDuration}ms, power: ${this.input.launchPower}`);
 
                     if (this.ballRef && !this.impulseUsed) {
+                        if (typeof this.startGameCallback === 'function') {
+                            this.startGameCallback();
+                        }
                         const chargedPower = Config.launchingRamp.maximalPower * Math.max(0.1, this.input.launchPower) * Config.forceMultiplier;
                         this.ballRef.rigidBody.applyImpulse({ x: 0, y: 0, z: chargedPower }, true);
                         this.impulseUsed = true;
@@ -98,6 +102,10 @@ export class Controls{
     setBallRef(ref) {
         this.ballRef = ref;
         this.impulseUsed = false;
+    }
+
+    setStartGameCallback(callback) {
+        this.startGameCallback = callback;
     }
 
     getLaunchChargeCount() {

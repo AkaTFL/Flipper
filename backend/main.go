@@ -40,6 +40,7 @@ type Hub struct {
 	register   chan *Client
 	unregister chan *Client
 	mqtt       *MQTTBridge
+	scorer     *ScoreTracker
 	mutex      sync.RWMutex
 }
 
@@ -57,6 +58,7 @@ func newHub() *Hub {
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
+		scorer:     newScoreTracker(defaultScoreConfig),
 	}
 }
 
@@ -135,6 +137,12 @@ func (c *Client) readPump(hub *Hub) {
 				hub.mqtt.PublishImpact(impact)
 			}
 			hub.broadcast <- messageBytes
+			if scoreUpdate, ok := hub.scorer.ApplyImpact(impact); ok {
+				hub.broadcast <- mustMarshalMessage(Message{
+					Type:    "score_update",
+					Payload: mustMarshalJSON(scoreUpdate),
+				})
+			}
 
 		case "game_state":
 			hub.broadcast <- messageBytes
@@ -149,6 +157,10 @@ func (c *Client) readPump(hub *Hub) {
 				Payload: json.RawMessage(`{"status":"ok"}`),
 			})
 			hub.broadcast <- response
+			hub.broadcast <- mustMarshalMessage(Message{
+				Type:    "score_update",
+				Payload: mustMarshalJSON(hub.scorer.Reset()),
+			})
 
 		default:
 			log.Printf("Type de message inconnu: %s", msg.Type)
