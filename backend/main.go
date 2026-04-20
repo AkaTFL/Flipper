@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -29,6 +30,15 @@ type ImpactPayload struct {
 	Timestamp  int64  `json:"timestamp"`
 }
 
+type BackendGameState struct {
+	Status        string `json:"status"`
+	Balls         int    `json:"balls"`
+	Score         int    `json:"score"`
+	GameOver      bool   `json:"gameOver"`
+	LastEvent     string `json:"lastEvent,omitempty"`
+	Timestamp     int64  `json:"timestamp"`
+}
+
 type Client struct {
 	conn *websocket.Conn
 	send chan []byte
@@ -40,6 +50,7 @@ type Hub struct {
 	register   chan *Client
 	unregister chan *Client
 	mqtt       *MQTTBridge
+	state      BackendGameState
 	mutex      sync.RWMutex
 }
 
@@ -57,7 +68,41 @@ func newHub() *Hub {
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
+		state: BackendGameState{
+			Status:    "idle",
+			Balls:     3,
+			Score:     0,
+			GameOver:  false,
+			Timestamp: 0,
+		},
 	}
+}
+
+func (h *Hub) updateState(status string, lastEvent string, balls int, gameOver bool) {
+	h.mutex.Lock()
+	h.state.Status = status
+	h.state.LastEvent = lastEvent
+	h.state.Balls = balls
+	h.state.GameOver = gameOver
+	h.state.Timestamp = timeNowMillis()
+	currentState := h.state
+	h.mutex.Unlock()
+
+	h.broadcastGameState(currentState)
+}
+
+func (h *Hub) broadcastGameState(state BackendGameState) {
+	payload, err := json.Marshal(Message{Type: "game_state", Payload: json.RawMessage(mustMarshalJSON(state))})
+	if err != nil {
+		log.Printf("Erreur sérialisation game_state: %v", err)
+		return
+	}
+
+	h.broadcast <- payload
+}
+
+func timeNowMillis() int64 {
+	return time.Now().UnixMilli()
 }
 
 func (h *Hub) run() {
@@ -119,6 +164,22 @@ func (c *Client) readPump(hub *Hub) {
 			response, _ := json.Marshal(Message{Type: "pong"})
 			c.send <- response
 
+		case "init":
+			log.Println("Initialisation partie reçue")
+			hub.updateState("started", "init", 3, false)
+
+		case "ball_lost":
+			log.Println("Balle perdue reçue")
+			hub.updateState("ball_lost", "ball_lost", 2, false)
+
+		case "ball_ready":
+			log.Println("Balle prête reçue")
+			hub.updateState("ball_ready", "ball_ready", 3, false)
+
+		case "game_over":
+			log.Println("Game over reçu")
+			hub.updateState("game_over", "game_over", 0, true)
+
 		case "flipper_action":
 			log.Printf("Action flipper reçue: %s", string(msg.Payload))
 			hub.broadcast <- messageBytes
@@ -132,7 +193,11 @@ func (c *Client) readPump(hub *Hub) {
 
 			log.Printf("Impact reçu sur %s (%s)", impact.ObjectID, impact.ObjectType)
 			if hub.mqtt != nil {
-				hub.mqtt.PublishImpact(impact)
+				if hub.mqtt.PublishImpact(impact) {
+					log.Printf("Commande solénoïde publiée pour %s (%s)", impact.ObjectID, impact.ObjectType)
+				} else {
+					log.Printf("Échec publication solénoïde pour %s (%s)", impact.ObjectID, impact.ObjectType)
+				}
 			}
 			hub.broadcast <- messageBytes
 
@@ -144,6 +209,7 @@ func (c *Client) readPump(hub *Hub) {
 			if hub.mqtt != nil {
 				hub.mqtt.PublishLEDFlash()
 			}
+			hub.updateState("started", "start_game", 3, false)
 			response, _ := json.Marshal(Message{
 				Type:    "game_started",
 				Payload: json.RawMessage(`{"status":"ok"}`),
