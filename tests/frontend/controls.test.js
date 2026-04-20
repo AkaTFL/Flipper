@@ -47,3 +47,22 @@ test('Controls triggers start_game callback on first launch impulse', () => {
   Date.now = previousDateNow;
   globalThis.window = previousWindow;
 });
+
+test('Controls triggers boss_fight_started callback on debug key press', () => {
+  const previousWindow = globalThis.window;
+  const windowStub = createWindowStub();
+  globalThis.window = windowStub;
+
+  const controls = new Controls('q', 'd', 'space', 'b');
+  let bossFightCalls = 0;
+
+  controls.setBossFightStartCallback(() => {
+    bossFightCalls += 1;
+  });
+
+  windowStub.listeners.get('keydown')({ key: 'b', preventDefault() {}, repeat: false });
+
+  assert.equal(bossFightCalls, 1);
+
+  globalThis.window = previousWindow;
+});

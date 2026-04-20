@@ -7,10 +7,11 @@ export class Controls{
      * @param {string} launch
      */
 
-    constructor(left = 'a', right = 'e', launch = 'space') {
+    constructor(left = 'a', right = 'e', launch = 'space', bossDebug = 'b') {
         this.left = left;
         this.right = right;
         this.launch = launch;
+        this.bossDebug = bossDebug;
 
         this.input = { left: false, right: false, launch: false, launchPower: 0 };
 
@@ -20,6 +21,7 @@ export class Controls{
         this.ballRef = null;
         this.impulseUsed = false;
         this.startGameCallback = null;
+        this.bossFightStartCallback = null;
 
         this.initControls();
     }
@@ -56,6 +58,13 @@ export class Controls{
                 this.launchChargeStart = Date.now();
                 this.launchChargeCount += 1;
                 console.log('Launch button pressed');
+                return;
+            }
+            if (key === this.bossDebug) {
+                if (e.repeat) return;
+                if (typeof this.bossFightStartCallback === 'function') {
+                    this.bossFightStartCallback();
+                }
             }
         });
 
@@ -106,6 +115,10 @@ export class Controls{
 
     setStartGameCallback(callback) {
         this.startGameCallback = callback;
+    }
+
+    setBossFightStartCallback(callback) {
+        this.bossFightStartCallback = callback;
     }
 
     getLaunchChargeCount() {
