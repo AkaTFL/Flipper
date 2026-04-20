@@ -55,8 +55,11 @@ Variables utiles:
 | `pong` | Serveur → Client | Réponse au ping |
 | `welcome` | Serveur → Client | Message de bienvenue à la connexion |
 | `start_game` | Client → Serveur | Démarrer une nouvelle partie |
+| `boss_fight_started` | Client → Serveur | Activer explicitement le boss fight |
+| `boss_fight_toggled` | Client → Serveur | Basculer le boss fight entre actif et inactif |
 | `game_started` | Serveur → Client | Confirmation du démarrage |
 | `score_update` | Serveur → Client | Nouveau score calculé avec delta et combo courant |
+| `boss_state_update` | Serveur → Client | État courant du boss (HP, activation, dégâts) |
 | `flipper_action` | Client → Serveur | Action sur les flippers (left/right) |
 | `impact` | Client → Serveur | Contact détecté côté frontend (bumper, palle, mur, rampe) |
 | `game_state` | Bidirectionnel | État actuel du jeu |

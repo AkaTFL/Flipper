@@ -341,4 +341,145 @@ func TestWebSocketStartGameResetsScoreState(t *testing.T) {
 	if payload.Score != 0 || payload.ComboCount != 0 || payload.Delta != 0 {
 		t.Fatalf("expected reset score payload, got %+v", payload)
 	}
+
+	bossUpdate := readMessageType(t, conn)
+	if bossUpdate.Type != "boss_state_update" {
+		t.Fatalf("expected boss_state_update after reset, got %s", bossUpdate.Type)
+	}
+
+	var bossPayload BossStateUpdatePayload
+	if err := json.Unmarshal(bossUpdate.Payload, &bossPayload); err != nil {
+		t.Fatalf("failed to unmarshal boss payload: %v", err)
+	}
+
+	if bossPayload.Active || bossPayload.HP != defaultBossMaxHP || bossPayload.DamageTaken != 0 {
+		t.Fatalf("expected inactive reset boss payload, got %+v", bossPayload)
+	}
+}
+
+func TestWebSocketBroadcastsBossStateUpdateAfterImpactWhileBossIsActive(t *testing.T) {
+	_, server, wsURL := newTestServer(t)
+	defer server.Close()
+
+	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	if err != nil {
+		t.Fatalf("failed to connect websocket client: %v", err)
+	}
+	defer conn.Close()
+	_ = readMessageType(t, conn)
+
+	if err := conn.WriteJSON(Message{Type: "start_game"}); err != nil {
+		t.Fatalf("failed to send start_game: %v", err)
+	}
+
+	_ = readMessageType(t, conn) // game_started
+	_ = readMessageType(t, conn) // score_update reset
+	_ = readMessageType(t, conn) // boss_state_update reset
+
+	if err := conn.WriteJSON(Message{Type: "boss_fight_started"}); err != nil {
+		t.Fatalf("failed to send boss_fight_started: %v", err)
+	}
+
+	_ = readMessageType(t, conn) // boss_state_update activation
+
+	if err := conn.WriteJSON(Message{
+		Type:    "impact",
+		Payload: json.RawMessage(`{"objectId":"bumper-1","objectType":"bumper","timestamp":1000}`),
+	}); err != nil {
+		t.Fatalf("failed to send impact event: %v", err)
+	}
+
+	_ = readMessageType(t, conn) // impact
+	_ = readMessageType(t, conn) // score_update
+	bossUpdate := readMessageType(t, conn)
+	if bossUpdate.Type != "boss_state_update" {
+		t.Fatalf("expected boss_state_update broadcast, got %s", bossUpdate.Type)
+	}
+
+	var payload BossStateUpdatePayload
+	if err := json.Unmarshal(bossUpdate.Payload, &payload); err != nil {
+		t.Fatalf("failed to unmarshal boss state payload: %v", err)
+	}
+
+	if payload.HP != 995 || payload.DamageTaken != 5 || !payload.Active {
+		t.Fatalf("expected 5 damage on active boss, got %+v", payload)
+	}
+}
+
+func TestWebSocketBossFightStartedActivatesBossExplicitly(t *testing.T) {
+	_, server, wsURL := newTestServer(t)
+	defer server.Close()
+
+	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	if err != nil {
+		t.Fatalf("failed to connect websocket client: %v", err)
+	}
+	defer conn.Close()
+	_ = readMessageType(t, conn)
+
+	if err := conn.WriteJSON(Message{Type: "boss_fight_started"}); err != nil {
+		t.Fatalf("failed to send boss_fight_started: %v", err)
+	}
+
+	bossUpdate := readMessageType(t, conn)
+	if bossUpdate.Type != "boss_state_update" {
+		t.Fatalf("expected boss_state_update after boss_fight_started, got %s", bossUpdate.Type)
+	}
+
+	var payload BossStateUpdatePayload
+	if err := json.Unmarshal(bossUpdate.Payload, &payload); err != nil {
+		t.Fatalf("failed to unmarshal boss payload: %v", err)
+	}
+
+	if !payload.Active || payload.HP != defaultBossMaxHP || payload.Mode != "boss_fight_started" {
+		t.Fatalf("unexpected boss activation payload: %+v", payload)
+	}
+}
+
+func TestWebSocketBossFightToggledAlternatesBossState(t *testing.T) {
+	_, server, wsURL := newTestServer(t)
+	defer server.Close()
+
+	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	if err != nil {
+		t.Fatalf("failed to connect websocket client: %v", err)
+	}
+	defer conn.Close()
+	_ = readMessageType(t, conn)
+
+	if err := conn.WriteJSON(Message{Type: "boss_fight_toggled"}); err != nil {
+		t.Fatalf("failed to send boss_fight_toggled: %v", err)
+	}
+
+	firstUpdate := readMessageType(t, conn)
+	if firstUpdate.Type != "boss_state_update" {
+		t.Fatalf("expected boss_state_update after first toggle, got %s", firstUpdate.Type)
+	}
+
+	var firstPayload BossStateUpdatePayload
+	if err := json.Unmarshal(firstUpdate.Payload, &firstPayload); err != nil {
+		t.Fatalf("failed to unmarshal first boss payload: %v", err)
+	}
+
+	if !firstPayload.Active || firstPayload.Mode != "boss_fight_activated" {
+		t.Fatalf("expected active boss after first toggle, got %+v", firstPayload)
+	}
+
+	if err := conn.WriteJSON(Message{Type: "boss_fight_toggled"}); err != nil {
+		t.Fatalf("failed to send second boss_fight_toggled: %v", err)
+	}
+
+	secondUpdate := readMessageType(t, conn)
+	if secondUpdate.Type != "boss_state_update" {
+		t.Fatalf("expected boss_state_update after second toggle, got %s", secondUpdate.Type)
+	}
+
+	var secondPayload BossStateUpdatePayload
+	if err := json.Unmarshal(secondUpdate.Payload, &secondPayload); err != nil {
+		t.Fatalf("failed to unmarshal second boss payload: %v", err)
+	}
+
+	if secondPayload.Active || secondPayload.Mode != "boss_fight_deactivated" {
+		t.Fatalf("expected inactive boss after second toggle, got %+v", secondPayload)
+	}
 }

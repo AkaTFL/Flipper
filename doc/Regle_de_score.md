@@ -121,6 +121,44 @@ La logique backend implémente déjà la base suivante :
 - super combo `rampe → rampe → rampe` ;
 - reset du score et de l'état de combo au `start_game`.
 
+## Score et dégâts du boss
+
+Le score sert maintenant aussi de base de dégâts pendant le boss fight.
+
+### Règle actuelle
+
+```text
+Dégâts boss = Delta de score × coefficient
+```
+
+### Valeur temporaire utilisée
+
+- coefficient actuel : `0.10`
+- exemple :
+  - `+50 pts` => `5 dégâts boss`
+  - `+750 pts` => `75 dégâts boss`
+
+### État actuel d'intégration
+
+- le backend maintient un état minimal du boss ;
+- le boss possède `1000 HP` maximum ;
+- un message `boss_state_update` est renvoyé au frontend ;
+- au `start_game`, le boss est réinitialisé mais reste `inactif` ;
+- pour les tests, le boss peut être activé ou désactivé manuellement.
+
+### Important
+
+Le flux de test actuel sert à valider la boucle suivante :
+
+1. `start_game`
+2. boss `inactif`
+3. activation manuelle du boss
+4. `score_update`
+5. conversion en dégâts
+6. `boss_state_update`
+
+Quand les `3 quêtes` seront implémentées, l'activation manuelle devra être remplacée par un déclenchement explicite du boss fight à la fin des quêtes.
+
 Les bonus plus avancés comme `Mode Bonus`, `Rampe Boost`, `Hot Zone` et `Skill Shot` dépendent encore d'événements de gameplay spécifiques à envoyer depuis le frontend.
 
 ## Événements spécifiques envoyés par le frontend
@@ -142,7 +180,15 @@ Ces identifiants permettent au backend d'appliquer un score plus proche du game 
 
 ## Message WebSocket renvoyé
 
-Le backend envoie un message `score_update`.
+Le backend envoie maintenant :
+
+- `score_update`
+- `boss_state_update`
+
+Pendant les tests, le frontend peut aussi envoyer :
+
+- `boss_fight_started`
+- `boss_fight_toggled`
 
 ### Exemple
 
@@ -160,6 +206,23 @@ Le backend envoie un message `score_update`.
     "superCombo": false,
     "objectId": "bumper-2",
     "objectType": "bumper"
+  }
+}
+```
+
+### Exemple `boss_state_update`
+
+```json
+{
+  "type": "boss_state_update",
+  "payload": {
+    "active": true,
+    "hp": 925,
+    "maxHp": 1000,
+    "damageTaken": 75,
+    "coefficient": 0.1,
+    "defeated": false,
+    "mode": "score_damage"
   }
 }
 ```

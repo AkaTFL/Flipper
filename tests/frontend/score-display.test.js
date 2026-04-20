@@ -44,6 +44,8 @@ test('ScoreDisplay mounts with default values', () => {
   assert.equal(display.comboValue.textContent, 'Combo x1');
   assert.equal(display.deltaValue.textContent, '+0');
   assert.equal(display.detailValue.textContent, 'En attente des impacts');
+  assert.equal(display.bossValue.textContent, 'Boss: en attente');
+  assert.equal(display.bossDetailValue.textContent, 'Dégâts boss: --');
 });
 
 test('ScoreDisplay updates its fields when receiving score_update', () => {
@@ -67,4 +69,25 @@ test('ScoreDisplay updates its fields when receiving score_update', () => {
   assert.equal(display.comboValue.textContent, 'Combo x3');
   assert.equal(display.deltaValue.textContent, '+225');
   assert.equal(display.detailValue.textContent, 'Dernier impact: launching_ramp_rail');
+});
+
+test('ScoreDisplay updates boss state when receiving boss_state_update', () => {
+  const documentRef = createFakeDocument();
+  const display = new ScoreDisplay({ documentRef, eventTarget: null });
+  display.mount();
+
+  const handled = display.handleBackendEvent({
+    type: 'boss_state_update',
+    payload: {
+      active: true,
+      hp: 845,
+      maxHp: 1000,
+      damageTaken: 75,
+      defeated: false
+    }
+  });
+
+  assert.equal(handled, true);
+  assert.equal(display.bossValue.textContent, 'Boss: 845/1000 (actif)');
+  assert.equal(display.bossDetailValue.textContent, 'Derniers dégâts boss: -75');
 });

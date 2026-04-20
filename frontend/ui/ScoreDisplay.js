@@ -3,7 +3,12 @@ const DEFAULT_STATE = {
     comboMultiplier: 1,
     comboCount: 0,
     delta: 0,
-    objectType: ''
+    objectType: '',
+    bossActive: false,
+    bossHp: 0,
+    bossMaxHp: 0,
+    bossDamageTaken: 0,
+    bossDefeated: false
 };
 
 export class ScoreDisplay {
@@ -16,6 +21,8 @@ export class ScoreDisplay {
         this.comboValue = null;
         this.deltaValue = null;
         this.detailValue = null;
+        this.bossValue = null;
+        this.bossDetailValue = null;
         this.boundHandler = (event) => this.handleBackendEvent(event?.detail);
     }
 
@@ -83,11 +90,30 @@ export class ScoreDisplay {
             color: '#c8d6ea'
         });
 
+        this.bossValue = this.documentRef.createElement('div');
+        Object.assign(this.bossValue.style, {
+            fontSize: '12px',
+            marginTop: '10px',
+            paddingTop: '10px',
+            borderTop: '1px solid rgba(126, 255, 179, 0.14)',
+            color: '#ffb3ce'
+        });
+
+        this.bossDetailValue = this.documentRef.createElement('div');
+        Object.assign(this.bossDetailValue.style, {
+            fontSize: '11px',
+            marginTop: '6px',
+            color: '#ffd1a6',
+            opacity: '0.92'
+        });
+
         this.container.appendChild(title);
         this.container.appendChild(this.scoreValue);
         this.container.appendChild(this.comboValue);
         this.container.appendChild(this.deltaValue);
         this.container.appendChild(this.detailValue);
+        this.container.appendChild(this.bossValue);
+        this.container.appendChild(this.bossDetailValue);
         container.appendChild(this.container);
 
         if (typeof this.eventTarget?.addEventListener === 'function') {
@@ -99,17 +125,31 @@ export class ScoreDisplay {
     }
 
     handleBackendEvent(message) {
-        if (!message || message.type !== 'score_update' || !message.payload) {
+        if (!message?.payload) {
             return false;
         }
 
-        this.state = {
-            score: Number(message.payload.score ?? 0),
-            comboMultiplier: Number(message.payload.comboMultiplier ?? 1),
-            comboCount: Number(message.payload.comboCount ?? 0),
-            delta: Number(message.payload.delta ?? 0),
-            objectType: message.payload.objectType ?? ''
-        };
+        if (message.type === 'score_update') {
+            this.state = {
+                ...this.state,
+                score: Number(message.payload.score ?? 0),
+                comboMultiplier: Number(message.payload.comboMultiplier ?? 1),
+                comboCount: Number(message.payload.comboCount ?? 0),
+                delta: Number(message.payload.delta ?? 0),
+                objectType: message.payload.objectType ?? ''
+            };
+        } else if (message.type === 'boss_state_update') {
+            this.state = {
+                ...this.state,
+                bossActive: Boolean(message.payload.active),
+                bossHp: Number(message.payload.hp ?? 0),
+                bossMaxHp: Number(message.payload.maxHp ?? 0),
+                bossDamageTaken: Number(message.payload.damageTaken ?? 0),
+                bossDefeated: Boolean(message.payload.defeated)
+            };
+        } else {
+            return false;
+        }
 
         this.render();
         return true;
@@ -126,9 +166,33 @@ export class ScoreDisplay {
         this.detailValue.textContent = this.state.objectType
             ? `Dernier impact: ${this.state.objectType}`
             : 'En attente des impacts';
+        this.bossValue.textContent = this.formatBossLabel();
+        this.bossDetailValue.textContent = this.formatBossDetail();
     }
 
     formatScore(value) {
         return new Intl.NumberFormat('fr-FR').format(Math.max(0, Number(value) || 0));
+    }
+
+    formatBossLabel() {
+        if (this.state.bossMaxHp <= 0) {
+            return 'Boss: en attente';
+        }
+
+        if (this.state.bossDefeated) {
+            return `Boss: vaincu (${this.state.bossHp}/${this.state.bossMaxHp})`;
+        }
+
+        return `Boss: ${Math.max(0, this.state.bossHp)}/${this.state.bossMaxHp}${this.state.bossActive ? ' (actif)' : ' (inactif)'}`;
+    }
+
+    formatBossDetail() {
+        if (this.state.bossMaxHp <= 0) {
+            return 'Dégâts boss: --';
+        }
+
+        return this.state.bossDamageTaken > 0
+            ? `Derniers dégâts boss: -${this.state.bossDamageTaken}`
+            : 'Dégâts boss: en attente';
     }
 }

@@ -41,6 +41,7 @@ type Hub struct {
 	unregister chan *Client
 	mqtt       *MQTTBridge
 	scorer     *ScoreTracker
+	boss       *BossTracker
 	mutex      sync.RWMutex
 }
 
@@ -59,6 +60,7 @@ func newHub() *Hub {
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		scorer:     newScoreTracker(defaultScoreConfig),
+		boss:       newBossTracker(defaultBossConfig),
 	}
 }
 
@@ -142,6 +144,12 @@ func (c *Client) readPump(hub *Hub) {
 					Type:    "score_update",
 					Payload: mustMarshalJSON(scoreUpdate),
 				})
+				if bossUpdate, ok := hub.boss.ApplyScoreDamage(scoreUpdate.Delta); ok {
+					hub.broadcast <- mustMarshalMessage(Message{
+						Type:    "boss_state_update",
+						Payload: mustMarshalJSON(bossUpdate),
+					})
+				}
 			}
 
 		case "game_state":
@@ -160,6 +168,24 @@ func (c *Client) readPump(hub *Hub) {
 			hub.broadcast <- mustMarshalMessage(Message{
 				Type:    "score_update",
 				Payload: mustMarshalJSON(hub.scorer.Reset()),
+			})
+			hub.broadcast <- mustMarshalMessage(Message{
+				Type:    "boss_state_update",
+				Payload: mustMarshalJSON(hub.boss.ResetForGameStart()),
+			})
+
+		case "boss_fight_started":
+			log.Println("Boss fight activé")
+			hub.broadcast <- mustMarshalMessage(Message{
+				Type:    "boss_state_update",
+				Payload: mustMarshalJSON(hub.boss.StartBossFight()),
+			})
+
+		case "boss_fight_toggled":
+			log.Println("Boss fight toggle")
+			hub.broadcast <- mustMarshalMessage(Message{
+				Type:    "boss_state_update",
+				Payload: mustMarshalJSON(hub.boss.ToggleBossFight()),
 			})
 
 		default:

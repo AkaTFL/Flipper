@@ -39,6 +39,9 @@ async function initFlipper() {
             startGameSent = true;
         }
     });
+    controls.setBossFightStartCallback(() => {
+        physics.sendMessage('boss_fight_toggled');
+    });
 
     const mesh = [];
 
