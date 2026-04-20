@@ -135,6 +135,8 @@ export class GamePhysics {
         return Boolean(this.backendSocket) && this.backendSocket.readyState === openState;
     }
 
+
+
     sendMessage(type, payload = {}) {
         if (!this.isBackendReady()) {
             return false;
@@ -155,6 +157,36 @@ export class GamePhysics {
             timestamp: Date.now()
         });
     }
+
+    
+    sendBallLost(){
+        return this.sendMessage('ball_lost', {
+            balls : 1,
+            timestamp: Date.now()
+        });
+    }
+
+    sendBallReady(){
+        return this.sendMessage('ball_ready', {
+            timestamp: Date.now()
+        });
+    }
+
+    sendInit(){
+        return this.sendMessage('init', {
+            timestamp: Date.now()
+        });
+    }
+
+    sendGameOver(){
+        return this.sendMessage('game_over', {
+            timestamp: Date.now()
+        });
+    }
+
+
+
+
 
     findCollidingObjects(handle1, handle2) {
         return [...new Set([
