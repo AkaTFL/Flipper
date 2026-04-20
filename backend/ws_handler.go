@@ -1,0 +1,30 @@
+package main
+
+import (
+	"encoding/json"
+	"log"
+	"net/http"
+)
+
+func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Printf("Erreur upgrade WebSocket: %v", err)
+		return
+	}
+
+	client := &Client{
+		conn: conn,
+		send: make(chan []byte, 256),
+	}
+	hub.register <- client
+
+	welcome, _ := json.Marshal(Message{
+		Type:    "welcome",
+		Payload: json.RawMessage(`{"message":"Bienvenue sur Flipper WebSocket!"}`),
+	})
+	client.send <- welcome
+
+	go client.writePump()
+	go client.readPump(hub)
+}
