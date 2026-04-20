@@ -1,10 +1,10 @@
 import test, { mock } from 'node:test';
 import assert from 'node:assert/strict';
 
-import Config from '../../frontend/physics/Config.js';
-import { Bumper } from '../../frontend/objects/Bumper.js';
-import { LaunchingRamp } from '../../frontend/objects/LaunchingRamp.js';
-import { Palles } from '../../frontend/objects/Palles.js';
+import Config from '../../frontend/flipper/physics/Config.js';
+import { Bumper } from '../../frontend/flipper/objects/Bumper.js';
+import { LaunchingRamp } from '../../frontend/flipper/objects/LaunchingRamp.js';
+import { Palles } from '../../frontend/flipper/objects/Palles.js';
 
 mock.method(global, 'fetch', () => new Promise(() => {}));
 

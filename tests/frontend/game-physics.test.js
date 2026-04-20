@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import Config from '../../frontend/physics/Config.js';
-import { GamePhysics } from '../../frontend/physics/GamePhysics.js';
+import Config from '../../frontend/flipper/physics/Config.js';
+import { GamePhysics } from '../../frontend/flipper/physics/GamePhysics.js';
 
 test('GamePhysics initializes object and collider registries', () => {
   const physics = new GamePhysics(Config);
