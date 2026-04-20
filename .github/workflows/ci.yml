@@ -35,8 +35,8 @@ jobs:
             echo "has_backend=false" >> "$GITHUB_OUTPUT"
           fi
 
-          # Frontend : on considère prêt si package.json (racine) et index.html existent
-          if [ -f "package.json" ] && [ -f "frontend/index.html" ]; then
+          # Frontend : compatible ancien et nouveau layout
+          if [ -f "package.json" ] && { [ -f "frontend/index.html" ] || [ -f "frontend/flipper/index.html" ]; }; then
             echo "has_frontend=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_frontend=false" >> "$GITHUB_OUTPUT"
@@ -55,7 +55,7 @@ jobs:
             echo "has_backend_dockerfile=false" >> "$GITHUB_OUTPUT"
           fi
 
-          if [ -f "frontend/Dockerfile" ]; then
+          if [ -f "frontend/Dockerfile" ] || [ -f "frontend/flipper/Dockerfile" ]; then
             echo "has_frontend_dockerfile=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_frontend_dockerfile=false" >> "$GITHUB_OUTPUT"
@@ -216,4 +216,13 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build frontend image
-        run: docker build -f frontend/Dockerfile -t flipper-frontend:ci frontend
+        shell: bash
+        run: |
+          if [ -f "frontend/flipper/Dockerfile" ]; then
+            docker build -f frontend/flipper/Dockerfile -t flipper-frontend:ci frontend/flipper
+          elif [ -f "frontend/Dockerfile" ]; then
+            docker build -f frontend/Dockerfile -t flipper-frontend:ci frontend
+          else
+            echo "No frontend Dockerfile found"
+            exit 1
+          fi
