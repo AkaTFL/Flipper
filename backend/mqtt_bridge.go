@@ -65,9 +65,9 @@ type SolenoidCommand struct {
 }
 
 var impactToSolenoidTopic = map[string]string{
-	"bumper-1":   "back_center",
-	"bumper-2":   "back_right",
-	"palle-left": "flipper_left",
+	"bumper-1":    "back_center",
+	"bumper-2":    "back_right",
+	"palle-left":  "flipper_left",
 	"palle-right": "flipper_right",
 }
 
