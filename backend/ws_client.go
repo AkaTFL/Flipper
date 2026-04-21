@@ -18,6 +18,8 @@ func (c *Client) readPump(hub *Hub) {
 		_ = c.conn.Close()
 	}()
 
+	service := NewGameService(hub)
+
 	for {
 		_, messageBytes, err := c.conn.ReadMessage()
 		if err != nil {
@@ -33,78 +35,9 @@ func (c *Client) readPump(hub *Hub) {
 			continue
 		}
 
-		switch msg.Type {
-		case "ping":
-			response, _ := json.Marshal(Message{Type: "pong"})
+		// Traiter le message via le service
+		if response, isDirectResponse := service.HandleMessage(msg, messageBytes); isDirectResponse && response != nil {
 			c.send <- response
-
-		case "flipper_action":
-			log.Printf("Action flipper reçue: %s", string(msg.Payload))
-			hub.broadcast <- messageBytes
-
-		case "impact":
-			var impact ImpactPayload
-			if err := json.Unmarshal(msg.Payload, &impact); err != nil {
-				log.Printf("Erreur parsing impact: %v", err)
-				continue
-			}
-
-			log.Printf("Impact reçu sur %s (%s)", impact.ObjectID, impact.ObjectType)
-			if hub.mqtt != nil {
-				hub.mqtt.PublishImpact(impact)
-			}
-			hub.broadcast <- messageBytes
-			if scoreUpdate, ok := hub.scorer.ApplyImpact(impact); ok {
-				hub.broadcast <- mustMarshalMessage(Message{
-					Type:    "score_update",
-					Payload: mustMarshalJSON(scoreUpdate),
-				})
-				if bossUpdate, ok := hub.boss.ApplyScoreDamage(scoreUpdate.Delta); ok {
-					hub.broadcast <- mustMarshalMessage(Message{
-						Type:    "boss_state_update",
-						Payload: mustMarshalJSON(bossUpdate),
-					})
-				}
-			}
-
-		case "game_state":
-			hub.broadcast <- messageBytes
-
-		case "start_game":
-			log.Println("Nouvelle partie démarrée")
-			if hub.mqtt != nil {
-				hub.mqtt.PublishLEDFlash()
-			}
-			response, _ := json.Marshal(Message{
-				Type:    "game_started",
-				Payload: json.RawMessage(`{"status":"ok"}`),
-			})
-			hub.broadcast <- response
-			hub.broadcast <- mustMarshalMessage(Message{
-				Type:    "score_update",
-				Payload: mustMarshalJSON(hub.scorer.Reset()),
-			})
-			hub.broadcast <- mustMarshalMessage(Message{
-				Type:    "boss_state_update",
-				Payload: mustMarshalJSON(hub.boss.ResetForGameStart()),
-			})
-
-		case "boss_fight_started":
-			log.Println("Boss fight activé")
-			hub.broadcast <- mustMarshalMessage(Message{
-				Type:    "boss_state_update",
-				Payload: mustMarshalJSON(hub.boss.StartBossFight()),
-			})
-
-		case "boss_fight_toggled":
-			log.Println("Boss fight toggle")
-			hub.broadcast <- mustMarshalMessage(Message{
-				Type:    "boss_state_update",
-				Payload: mustMarshalJSON(hub.boss.ToggleBossFight()),
-			})
-
-		default:
-			log.Printf("Type de message inconnu: %s", msg.Type)
 		}
 	}
 }

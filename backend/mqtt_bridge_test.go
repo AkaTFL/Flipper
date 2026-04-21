@@ -4,7 +4,7 @@ import "testing"
 
 func TestClassifyMQTTMessage(t *testing.T) {
 	tests := []struct {
-		name string
+		name  string
 		topic string
 		want  string
 	}{
@@ -27,10 +27,10 @@ func TestImpactToSolenoidTopic(t *testing.T) {
 	bridge := &MQTTBridge{}
 
 	tests := []struct {
-		name    string
-		impact  ImpactPayload
-		want    string
-		wantOK  bool
+		name   string
+		impact ImpactPayload
+		want   string
+		wantOK bool
 	}{
 		{
 			name:   "bumper one",
