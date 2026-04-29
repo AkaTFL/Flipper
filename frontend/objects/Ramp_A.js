@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
 
-export class LaunchingRamp extends Objects {
+export class RampA extends Objects {
     /**
      * @param {Object} world - The physics world
      * @param {number} length - The length of the ramp
@@ -14,11 +14,11 @@ export class LaunchingRamp extends Objects {
      */
     constructor(
         world,      
-        length = Config.launchingRamp.length,
-        width = Config.launchingRamp.width,
-        height = Config.launchingRamp.height,
-        position = {x: 0, y: 0, z: 0},
-        rotation = {x: 0, y: 0, z: 0}
+        length = Config.ramp_A.length,
+        width = Config.ramp_A.width,
+        height = Config.ramp_A.height,
+        position = Config.ramp_A.position,
+        rotation = Config.ramp_A.rotation
     ) {
         super(world, length, width, height, position, rotation, null, null);
 
@@ -39,7 +39,7 @@ export class LaunchingRamp extends Objects {
 
         // Load the 3D model
         const modelPath = new URL(
-            '../assets/mesh/ramp_launch.glb',
+            '../assets/mesh/ramp_A.glb',
             import.meta.url
         ).href;
         
@@ -65,8 +65,8 @@ export class LaunchingRamp extends Objects {
         }
 
         const colliderDesc = RAPIER.ColliderDesc.cuboid(halfX, halfY, halfZ)
-            .setRestitution(Config.launchingRamp?.restitution)
-            .setFriction(Config.launchingRamp?.friction)
+            .setRestitution(Config.ramp_A?.restitution)
+            .setFriction(Config.ramp_A?.friction)
             .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
 
         this.attachCollider(colliderDesc);

@@ -6,6 +6,8 @@ import { Bumper } from '../objects/Bumper.js';
 import { Bumper as BumperTriangleLeft } from '../objects/Bumper_triangle_left.js';
 import { Bumper as BumperTriangleRight } from '../objects/Bumper_triangle_right .js';
 import { LaunchingRamp } from '../objects/LaunchingRamp.js';
+import { RampA } from '../objects/Ramp_A.js';
+import { RampB } from '../objects/Ramp_B.js';
 import { Palles } from '../objects/Palles.js';
 import { Controls } from './Controls.js';
 
@@ -36,10 +38,16 @@ async function initFlipper() {
       Config.launchingRamp.width,
       Config.launchingRamp.height,
       { x: -230, y: 30, z: -50 },
-      { x: 0, y: Math.PI, z: 0 }
+      Config.launchingRamp.rotation
     );
     controls.setLaunchingRampRef(launching);
     mesh.push(launching);
+
+    const rampA = new RampA(physics.world);
+    mesh.push(rampA);
+
+    const rampB = new RampB(physics.world);
+    mesh.push(rampB);
 
     (Config.bumpers || []).forEach((bumperConfig) => {
       mesh.push(new Bumper(

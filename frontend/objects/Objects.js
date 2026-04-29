@@ -113,7 +113,8 @@ export class Objects {
         return this.collider;
     }
 
-    addMesh(modelPath, onModelLoaded) {
+    addMesh(modelPath, onModelLoaded, options = {}) {
+        const { preserveScale = false } = options;
         const loader = new GLTFLoader();
 
         loader.loadAsync(modelPath)
@@ -126,7 +127,7 @@ export class Objects {
                 if (size.x === 0 || size.y === 0 || size.z === 0) {
                     console.warn('Le modèle 3D a des dimensions invalides (taille nulle) :', modelPath);
                     return;
-                } else {
+                } else if (!preserveScale) {
                     const targetX = this.length ?? size.x;
                     const targetY = this.width ?? size.y;
                     const targetZ = this.height ?? size.z;

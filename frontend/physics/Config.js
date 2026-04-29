@@ -27,6 +27,48 @@ export default {
         power: 10
     },
 
+    ramp_A: {
+        width: 100,
+        length: 250,
+        height: 300,
+        position: { x: -80, y: 30, z: -50 },
+        rotation: { x: 0, y: Math.PI, z: 0 },
+        restitution: 0.3,
+        friction: 0.5,
+        minimalPower: 10,
+        maximalPower: 50,
+        powerBuild: 0.25,
+        power: 10
+    },
+
+    ramp_B: {
+        width: 200,
+        length: 250,
+        height: 500,
+        position: { x: 80, y: 30, z: -50 },
+        rotation: { x: 0, y: Math.PI, z: 0 },
+        restitution: 0.3,
+        friction: 0.5,
+        minimalPower: 10,
+        maximalPower: 50,
+        powerBuild: 0.25,
+        power: 10
+    },
+
+    ramp_C: {
+        width: 150,
+        length: 250,
+        height: 400,
+        position: { x: 0, y: 30, z: -150 },
+        rotation: { x: 0, y: Math.PI, z: 0 },
+        restitution: 0.3,
+        friction: 0.5,
+        minimalPower: 10,
+        maximalPower: 50,
+        powerBuild: 0.25,
+        power: 10
+    },
+
     wall: {
         restitution: 0.3,
         friction: 0.5
@@ -85,6 +127,34 @@ export default {
         rotationSpeed: 300,
         rotationAngle: 50 * (Math.PI / 180),
         initialAngle: 30 * (Math.PI / 180)
+    },
+
+    palles1: {
+       length: 70,
+        width: 10,
+        height: 10,
+        position: { x: 100, y: 10, z: -400 },
+        rotation: { x: 0, y: 0, z: 0 },
+        restitution: 0.5,
+        friction: 0.5,
+        rotationSpeed: 300,
+        rotationAngle: 50 * (Math.PI / 180),
+        initialAngle: 30 * (Math.PI / 180),
+        side: 'left'
+    },
+
+    palles2: {
+        length: 70,
+        width: 10,
+        height: 10,
+        position: { x: -100, y: 10, z: -400 },
+        rotation: { x: 0, y: 0, z: 0 },
+        restitution: 0.5,
+        friction: 0.5,
+        rotationSpeed: 300,
+        rotationAngle: 50 * (Math.PI / 180),
+        initialAngle: 30 * (Math.PI / 180),
+        side: 'right'
     },
 
     sounds: {
