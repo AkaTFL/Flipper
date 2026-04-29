@@ -39,7 +39,7 @@ export class LaunchingRamp extends Objects {
 
         // Load the 3D model
         const modelPath = new URL(
-            '../assets/mesh/launch_ramp.glb',
+            '../assets/mesh/ramp_launch.glb',
             import.meta.url
         ).href;
         
@@ -52,9 +52,9 @@ export class LaunchingRamp extends Objects {
 
             // Fit collider to visual mesh once the GLB is loaded and scaled.
             this.rebuildColliderFromHalfExtents(
-                Math.max(size.x / 2, 0.1),
-                Math.max(size.y / 2, 0.1),
-                Math.max(size.z / 2, 0.1)
+                Math.max(size.x / 1, 1),
+                Math.max(size.y / 1, 1),
+                Math.max(size.z / 1, 1)
             );
         });
     }
@@ -75,7 +75,7 @@ export class LaunchingRamp extends Objects {
     computeRampDirection() {
         const rx = this.rotation.x || 0;
         const ry = this.rotation.y || 0;
-        const rz = this.rotation.z || 0;
+        const rz = this.rotation.z || 180;
 
         // Compute the launch direction by rotating the Y-axis according to the ramp's rotation
         const direction = new THREE.Vector3(0, 1, 0).applyEuler(new THREE.Euler(rx, ry, rz, 'XYZ')).normalize();

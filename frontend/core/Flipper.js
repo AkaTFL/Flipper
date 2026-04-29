@@ -3,6 +3,8 @@ import { Scene } from './Scene.js';
 import { Ball } from '../objects/Ball.js';
 import { Wall } from '../objects/Wall.js';
 import { Bumper } from '../objects/Bumper.js';
+import { Bumper as BumperTriangleLeft } from '../objects/Bumper_triangle_left.js';
+import { Bumper as BumperTriangleRight } from '../objects/Bumper_triangle_right .js';
 import { LaunchingRamp } from '../objects/LaunchingRamp.js';
 import { Palles } from '../objects/Palles.js';
 import { Controls } from './Controls.js';
@@ -34,20 +36,41 @@ async function initFlipper() {
       Config.launchingRamp.width,
       Config.launchingRamp.height,
       { x: -230, y: 30, z: -50 },
-      { x: 0, y: 0, z: 0 }
+      { x: 0, y: Math.PI, z: 0 }
     );
     controls.setLaunchingRampRef(launching);
     mesh.push(launching);
 
-    mesh.push(new Bumper(physics.world, 50, { x: 0, y: 0, z: 100 }, {x: 0, y: 0, z: 0}, 'bumper-1'));
-    mesh.push(new Bumper(physics.world, 50, { x: 100, y: 0, z: 0 }, {x: 0, y: 0, z: 0}, 'bumper-2'));
+    (Config.bumpers || []).forEach((bumperConfig) => {
+      mesh.push(new Bumper(
+        physics.world,
+        bumperConfig.width,
+        bumperConfig.position,
+        bumperConfig.rotation,
+        bumperConfig.objectId
+      ));
+    });
+
+    (Config.bumpers_triangle || []).forEach((triangleConfig) => {
+      const TriangleClass = triangleConfig.variant === 'right'
+        ? BumperTriangleRight
+        : BumperTriangleLeft;
+
+      mesh.push(new TriangleClass(
+        physics.world,
+        triangleConfig.width,
+        triangleConfig.position,
+        triangleConfig.rotation,
+        triangleConfig.objectId
+      ));
+    });
 
     mesh.push(new Palles(physics.world, 70, 10, 10, { x: 100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'left'));
     mesh.push(new Palles(physics.world, 70, 10, 10, { x: -100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'right'));
 
     physics.registerObjects(mesh);
 
-    mesh.push(new Ball(physics.world, { x: -230, y: 35, z: -400 }));
+    mesh.push(new Ball(physics.world, { x: -230, y: 35, z: -20 }));
     controls.setBallRef(mesh[mesh.length - 1]);
 
     physics.registerObjects(mesh);

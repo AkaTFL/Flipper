@@ -21,7 +21,7 @@ export class Bumper extends Objects {
 
         console.log('Bumper créé', { objectId: this.objectId, position, radius: this.radius });
 
-        const modelPath = new URL('../assets/mesh/Bumper.glb', import.meta.url).href;
+        const modelPath = new URL('../assets/mesh/bumper_triangle_right.glb', import.meta.url).href;
         this.addMesh(modelPath, (modelRoot) => {
             const { size, center } = this.getMeshMetrics(modelRoot);
 

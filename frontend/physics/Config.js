@@ -16,9 +16,11 @@ export default {
     },
 
     launchingRamp: {
-        width: 30,
-        length: 50,
+        width: 100,
+        length: 250,
         height: 800,
+        position: { x: -80, y: 30, z: -50 },
+        rotation: { x: 0, y: Math.PI, z: 0 },
         minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
         maximalPower: 50,
         powerBuild: 0.25,  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
@@ -41,6 +43,42 @@ export default {
         power: 100
     },
 
+    bumpers: [
+        {
+            objectId: 'bumper-2',
+            width: 50,
+            position: { x: -80, y: 20, z: -120 },
+            rotation: { x: 0, y: 0, z: 0 }
+        },
+        {
+            objectId: 'bumper-3',
+            width: 50,
+            position: { x: 0, y: 20, z: -20 },
+            rotation: { x: 0, y: 0, z: 0 }
+        },
+        {
+            objectId: 'bumper-4',
+            width: 50,
+            position: { x: 80, y: 20, z: -120 },
+            rotation: { x: 0, y: 0, z: 0 }
+        }
+    ],
+    bumpers_triangle: [
+        {
+            objectId: 'bumper-triangle-left-1',
+            variant: 'left',
+            width: 50,
+            position: { x: -80, y: 20, z: -120 },
+            rotation: { x: 0, y: 0, z: 0 }
+        },
+        {
+            objectId: 'bumper-triangle-right-1',
+            variant: 'right',
+            width: 50,
+            position: { x: 0, y: 20, z: -20 },
+            rotation: { x: 0, y: 0, z: 0 }
+        }
+    ],
     palles: {
         restitution: 0.5,
         friction: 0.5,
