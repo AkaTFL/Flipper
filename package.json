@@ -1,14 +1,15 @@
-{
+﻿{
   "type": "module",
   "scripts": {
     "lint": "node ./scripts/lint.mjs",
     "test": "npm run test:frontend",
     "test:backend": "cd backend && go test ./...",
-    "test:frontend": "node --test $(find ./tests/frontend -name '*.test.js' -print)"
+    "test:frontend": "node --test tests/frontend/config.test.js tests/frontend/game-physics.test.js tests/frontend/objects.test.js",
+    "build": "node -e \"console.log('Frontend build placeholder: no bundler configured yet')\""
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.19.3",
-    "dotenv": "^17.3.1",
-    "three": "^0.183.0"
+    "dotenv": "^17.4.2",
+    "three": "^0.184.0"
   }
 }

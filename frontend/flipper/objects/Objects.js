@@ -120,6 +120,7 @@ export class Objects {
         loader.loadAsync(modelPath)
             .then(({ scene: modelRoot }) => {
                 modelRoot.position.set(0, 0, 0);
+                modelRoot.updateMatrixWorld(true);
 
                 const box = new THREE.Box3().setFromObject(modelRoot);
                 const size = box.getSize(new THREE.Vector3());
@@ -127,14 +128,35 @@ export class Objects {
                 if (size.x === 0 || size.y === 0 || size.z === 0) {
                     console.warn('Le modèle 3D a des dimensions invalides (taille nulle) :', modelPath);
                     return;
+<<<<<<< HEAD:frontend/objects/Objects.js
                 } else if (!preserveScale) {
                     const targetX = this.length ?? size.x;
                     const targetY = this.width ?? size.y;
                     const targetZ = this.height ?? size.z;
+=======
+                } else {
+                    const center = box.getCenter(new THREE.Vector3());
+                    modelRoot.position.sub(center); // Centre le mesh automatiquement
+>>>>>>> develop:frontend/flipper/objects/Objects.js
 
-                    modelRoot.scale.x = targetX / size.x;
-                    modelRoot.scale.y = targetY / size.y;
-                    modelRoot.scale.z = targetZ / size.z;
+                    // Calcul de l'échelle : on adapte selon les dimensions fournies
+                    const scaleX = this.length ? (this.length / size.x) : 1;
+                    const scaleY = this.width ? (this.width / size.y) : scaleX;
+                    const scaleZ = this.height ? (this.height / size.z) : scaleX;
+
+                    modelRoot.scale.set(scaleX, scaleY, scaleZ);
+
+                    // Assurer que le modèle est bien visible même sans lumière complexe
+                    modelRoot.traverse((child) => {
+                        if (child.isMesh) {
+                            if (!child.material || Object.keys(child.material).length === 0) {
+                                child.material = new THREE.MeshStandardMaterial({
+                                    color: 0xcccccc
+                                });
+                            }
+                            child.material.side = THREE.DoubleSide;
+                        }
+                    });
                 }
 
                 if (onModelLoaded) {
@@ -149,6 +171,7 @@ export class Objects {
     }
 
     getMeshMetrics(modelRoot) {
+        modelRoot.updateMatrixWorld(true);
         const box = new THREE.Box3().setFromObject(modelRoot);
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());

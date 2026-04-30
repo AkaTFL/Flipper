@@ -10,6 +10,7 @@ import { RampA } from '../objects/Ramp_A.js';
 import { RampB } from '../objects/Ramp_B.js';
 import { Palles } from '../objects/Palles.js';
 import { Controls } from './Controls.js';
+import { ScoreDisplay } from '../ui/ScoreDisplay.js';
 
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
@@ -18,31 +19,58 @@ async function initFlipper() {
     const physics = new GamePhysics(Config);
     await physics.init();
 
-    const sceneManager = new Scene(physics.world, 950, 540, { x: 0, y: 500, z: 0 }, { x: (-Math.PI / 2), y: 0, z: 0 });
-
-    const controls = new Controls('q', 'd', 'space');
+    const sceneManager = new Scene(
+        physics.world, 
+        Config.scene.manager.width, 
+        Config.scene.manager.height, 
+        Config.scene.manager.position, 
+        Config.scene.manager.rotation
+    );
 
     const container = document.getElementById('three');
+    const controls = new Controls('q', 'd', 'space');
+    const scoreDisplay = new ScoreDisplay();
+    scoreDisplay.mount(container);
     container.appendChild(sceneManager.renderer.domElement);
+    let startGameSent = false;
+
+    controls.setStartGameCallback(() => {
+        if (startGameSent) {
+            return;
+        }
+
+        if (physics.sendMessage('start_game')) {
+            startGameSent = true;
+        }
+    });
+    controls.setBossFightStartCallback(() => {
+        physics.sendMessage('boss_fight_toggled');
+    });
 
     const mesh = [];
 
-    mesh.push(new Wall(physics.world, 950, 100, { x: 255, y: 0, z: 0 }, { x: 0, y: (Math.PI / 2), z: 0 }));
-    mesh.push(new Wall(physics.world, 950, 100, { x: -255, y: 0, z: 0 }, { x: 0, y: (-Math.PI / 2), z: 0 }));
-    mesh.push(new Wall(physics.world, 540, 100, { x: 0, y: 0, z: -471 }, { x: 0, y: 0, z: 0 }));
-    mesh.push(new Wall(physics.world, 540, 100, { x: 0, y: 0, z: 471 }, { x: 0, y: 0, z: 0 }));
+    // Walls
+    Config.wall.instances.forEach(wall => {
+        mesh.push(new Wall(physics.world, wall.length, wall.height, wall.position, wall.rotation));
+    });
 
+    // Launching Ramp
     const launching = new LaunchingRamp(
       physics.world,
       Config.launchingRamp.length,
       Config.launchingRamp.width,
       Config.launchingRamp.height,
+<<<<<<< HEAD:frontend/core/Flipper.js
       { x: -230, y: 30, z: -50 },
+=======
+      Config.launchingRamp.position,
+>>>>>>> develop:frontend/flipper/core/Flipper.js
       Config.launchingRamp.rotation
     );
     controls.setLaunchingRampRef(launching);
     mesh.push(launching);
 
+<<<<<<< HEAD:frontend/core/Flipper.js
     const rampA = new RampA(physics.world);
     mesh.push(rampA);
 
@@ -71,14 +99,26 @@ async function initFlipper() {
         triangleConfig.rotation,
         triangleConfig.objectId
       ));
+=======
+    // Bumpers
+    Config.bumper.instances.forEach(bumper => {
+        mesh.push(new Bumper(physics.world, bumper.radius, bumper.position, bumper.rotation, bumper.id));
+>>>>>>> develop:frontend/flipper/core/Flipper.js
     });
 
-    mesh.push(new Palles(physics.world, 70, 10, 10, { x: 100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'left'));
-    mesh.push(new Palles(physics.world, 70, 10, 10, { x: -100, y: 10, z: -400 }, { x: 0, y: 0, z: 0 }, 'right'));
+    // Palles
+    Config.palles.instances.forEach(pnl => {
+        mesh.push(new Palles(physics.world, pnl.length, pnl.width, pnl.height, pnl.position, pnl.rotation, pnl.side));
+    });
 
     physics.registerObjects(mesh);
 
+<<<<<<< HEAD:frontend/core/Flipper.js
     mesh.push(new Ball(physics.world, { x: -230, y: 35, z: -20 }));
+=======
+    // Ball
+    mesh.push(new Ball(physics.world, Config.ball.position));
+>>>>>>> develop:frontend/flipper/core/Flipper.js
     controls.setBallRef(mesh[mesh.length - 1]);
 
     physics.registerObjects(mesh);

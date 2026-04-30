@@ -19,26 +19,29 @@ Principe general:
 ### Arbre des fichiers frontend
 
 frontend/
-- index.html
-  - Point d entree navigateur
-  - Charge le module principal core/Flipper.js
-- core/
-  - Flipper.js: orchestration du jeu, instancie tout
-  - Scene.js: renderer, camera, scene Three.js, boucle de rendu
-  - Controls.js: clavier et actions joueur
-- physics/
-  - GamePhysics.js: monde Rapier, pas de simulation, evenements de collision
-  - Config.js: parametres gameplay/physique
-  - LevelConfig.js: donnees de niveau
-- objects/
-  - Objects.js: classe de base commune, helpers mesh/collider/sync
-  - Ball.js: balle dynamique
-  - Palles.js: flippers avec joint revolute
-  - Bumper.js: bumpers
-  - LaunchingRamp.js: lanceur
-  - Wall.js, etc.: elements statiques
-- assets/
-  - mesh/: modeles 3D GLB
+- flipper/
+  - index.html
+    - Point d entree navigateur
+    - Charge le module principal core/Flipper.js
+  - core/
+    - Flipper.js: orchestration du jeu, instancie tout
+    - Scene.js: renderer, camera, scene Three.js, boucle de rendu
+    - Controls.js: clavier et actions joueur
+  - physics/
+    - GamePhysics.js: monde Rapier, pas de simulation, evenements de collision
+    - Config.js: parametres gameplay/physique
+    - LevelConfig.js: donnees de niveau
+  - objects/
+    - Objects.js: classe de base commune, helpers mesh/collider/sync
+    - Ball.js: balle dynamique
+    - Palles.js: flippers avec joint revolute
+    - Bumper.js: bumpers
+    - LaunchingRamp.js: lanceur
+    - Wall.js, etc.: elements statiques
+  - assets/
+    - mesh/: modeles 3D GLB
+- dmd/
+  - index.html
 
 ### Instanciations: ordre reel au demarrage
 
@@ -105,26 +108,29 @@ Core idea:
 ### Frontend file tree
 
 frontend/
-- index.html
-  - Browser entry point
-  - Loads the main module core/Flipper.js
-- core/
-  - Flipper.js: game orchestration, instantiates everything
-  - Scene.js: Three.js renderer, camera, scene, render loop
-  - Controls.js: keyboard input and player actions
-- physics/
-  - GamePhysics.js: Rapier world, simulation step, collision events
-  - Config.js: gameplay and physics settings
-  - LevelConfig.js: level data
-- objects/
-  - Objects.js: shared base class, mesh/collider/sync helpers
-  - Ball.js: dynamic ball
-  - Palles.js: flippers with revolute joint
-  - Bumper.js: bumpers
-  - LaunchingRamp.js: launcher
-  - Wall.js, etc.: static elements
-- assets/
-  - mesh/: GLB 3D models
+- flipper/
+  - index.html
+    - Browser entry point
+    - Loads the main module core/Flipper.js
+  - core/
+    - Flipper.js: game orchestration, instantiates everything
+    - Scene.js: Three.js renderer, camera, scene, render loop
+    - Controls.js: keyboard input and player actions
+  - physics/
+    - GamePhysics.js: Rapier world, simulation step, collision events
+    - Config.js: gameplay and physics settings
+    - LevelConfig.js: level data
+  - objects/
+    - Objects.js: shared base class, mesh/collider/sync helpers
+    - Ball.js: dynamic ball
+    - Palles.js: flippers with revolute joint
+    - Bumper.js: bumpers
+    - LaunchingRamp.js: launcher
+    - Wall.js, etc.: static elements
+  - assets/
+    - mesh/: GLB 3D models
+- dmd/
+  - index.html
 
 ### Instantiation order at startup
 
