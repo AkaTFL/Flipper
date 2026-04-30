@@ -56,54 +56,47 @@ async function initFlipper() {
 
     // Launching Ramp
     const launching = new LaunchingRamp(
-      physics.world,
-      Config.launchingRamp.length,
-      Config.launchingRamp.width,
-      Config.launchingRamp.height,
-<<<<<<< HEAD:frontend/core/Flipper.js
-      { x: -230, y: 30, z: -50 },
-=======
-      Config.launchingRamp.position,
->>>>>>> develop:frontend/flipper/core/Flipper.js
-      Config.launchingRamp.rotation
+        physics.world,
+        Config.launchingRamp.length,
+        Config.launchingRamp.width,
+        Config.launchingRamp.height,
+        Config.launchingRamp.position,
+        Config.launchingRamp.rotation
     );
     controls.setLaunchingRampRef(launching);
     mesh.push(launching);
 
-<<<<<<< HEAD:frontend/core/Flipper.js
+    // Ramps
     const rampA = new RampA(physics.world);
     mesh.push(rampA);
 
     const rampB = new RampB(physics.world);
     mesh.push(rampB);
 
+    // Bumpers
     (Config.bumpers || []).forEach((bumperConfig) => {
-      mesh.push(new Bumper(
-        physics.world,
-        bumperConfig.width,
-        bumperConfig.position,
-        bumperConfig.rotation,
-        bumperConfig.objectId
-      ));
+        mesh.push(new Bumper(
+            physics.world,
+            bumperConfig.width,
+            bumperConfig.position,
+            bumperConfig.rotation,
+            bumperConfig.objectId
+        ));
     });
 
+    // Triangle Bumpers
     (Config.bumpers_triangle || []).forEach((triangleConfig) => {
-      const TriangleClass = triangleConfig.variant === 'right'
-        ? BumperTriangleRight
-        : BumperTriangleLeft;
+        const TriangleClass = triangleConfig.variant === 'right'
+            ? BumperTriangleRight
+            : BumperTriangleLeft;
 
-      mesh.push(new TriangleClass(
-        physics.world,
-        triangleConfig.width,
-        triangleConfig.position,
-        triangleConfig.rotation,
-        triangleConfig.objectId
-      ));
-=======
-    // Bumpers
-    Config.bumper.instances.forEach(bumper => {
-        mesh.push(new Bumper(physics.world, bumper.radius, bumper.position, bumper.rotation, bumper.id));
->>>>>>> develop:frontend/flipper/core/Flipper.js
+        mesh.push(new TriangleClass(
+            physics.world,
+            triangleConfig.width,
+            triangleConfig.position,
+            triangleConfig.rotation,
+            triangleConfig.objectId
+        ));
     });
 
     // Palles
@@ -111,38 +104,33 @@ async function initFlipper() {
         mesh.push(new Palles(physics.world, pnl.length, pnl.width, pnl.height, pnl.position, pnl.rotation, pnl.side));
     });
 
-    physics.registerObjects(mesh);
-
-<<<<<<< HEAD:frontend/core/Flipper.js
-    mesh.push(new Ball(physics.world, { x: -230, y: 35, z: -20 }));
-=======
     // Ball
-    mesh.push(new Ball(physics.world, Config.ball.position));
->>>>>>> develop:frontend/flipper/core/Flipper.js
-    controls.setBallRef(mesh[mesh.length - 1]);
+    const ball = new Ball(physics.world, Config.ball.position);
+    mesh.push(ball);
+    controls.setBallRef(ball);
 
     physics.registerObjects(mesh);
 
     sceneManager.scene.add(...mesh.map(obj => obj.mesh));
 
     sceneManager.startRender(physics, () => {
-      controls.setLaunchChargeCount(0);
+        controls.setLaunchChargeCount(0);
 
-      for (let i = 0; i < mesh.length; i++) {
-        if (typeof mesh[i].syncPalle === 'function') {
-          mesh[i].syncPalle();
+        for (let i = 0; i < mesh.length; i++) {
+            if (typeof mesh[i].syncPalle === 'function') {
+                mesh[i].syncPalle();
+            }
+            else if (typeof mesh[i].syncBall === 'function') {
+                mesh[i].syncBall();
+            }
+            if (typeof mesh[i].setActive === 'function') {
+                if (mesh[i].side === 'left') {
+                    mesh[i].setActive(controls.input.left);
+                } else if (mesh[i].side === 'right') {
+                    mesh[i].setActive(controls.input.right);
+                }
+            }
         }
-        else if (typeof mesh[i].syncBall === 'function') {
-          mesh[i].syncBall();
-        }
-        if (typeof mesh[i].setActive === 'function') {
-          if (mesh[i].side === 'left') {
-            mesh[i].setActive(controls.input.left);
-          } else if (mesh[i].side === 'right') {
-            mesh[i].setActive(controls.input.right);
-          }
-        }
-      }
     });
 }
 
