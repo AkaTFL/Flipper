@@ -10,7 +10,7 @@ import { RampA } from '../objects/Ramp_A.js';
 import { RampB } from '../objects/Ramp_B.js';
 import { Palles } from '../objects/Palles.js';
 import { Controls } from './Controls.js';
-import { ScoreDisplay } from '../ui/ScoreDisplay.js';
+import { ScoreDisplay } from '../../ui/ScoreDisplay.js';
 
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
