@@ -60,50 +60,15 @@ async function initFlipper() {
       Config.launchingRamp.length,
       Config.launchingRamp.width,
       Config.launchingRamp.height,
-<<<<<<< HEAD:frontend/core/Flipper.js
-      { x: -230, y: 30, z: -50 },
-=======
       Config.launchingRamp.position,
->>>>>>> develop:frontend/flipper/core/Flipper.js
       Config.launchingRamp.rotation
     );
     controls.setLaunchingRampRef(launching);
     mesh.push(launching);
 
-<<<<<<< HEAD:frontend/core/Flipper.js
-    const rampA = new RampA(physics.world);
-    mesh.push(rampA);
-
-    const rampB = new RampB(physics.world);
-    mesh.push(rampB);
-
-    (Config.bumpers || []).forEach((bumperConfig) => {
-      mesh.push(new Bumper(
-        physics.world,
-        bumperConfig.width,
-        bumperConfig.position,
-        bumperConfig.rotation,
-        bumperConfig.objectId
-      ));
-    });
-
-    (Config.bumpers_triangle || []).forEach((triangleConfig) => {
-      const TriangleClass = triangleConfig.variant === 'right'
-        ? BumperTriangleRight
-        : BumperTriangleLeft;
-
-      mesh.push(new TriangleClass(
-        physics.world,
-        triangleConfig.width,
-        triangleConfig.position,
-        triangleConfig.rotation,
-        triangleConfig.objectId
-      ));
-=======
     // Bumpers
     Config.bumper.instances.forEach(bumper => {
         mesh.push(new Bumper(physics.world, bumper.radius, bumper.position, bumper.rotation, bumper.id));
->>>>>>> develop:frontend/flipper/core/Flipper.js
     });
 
     // Palles
@@ -113,12 +78,8 @@ async function initFlipper() {
 
     physics.registerObjects(mesh);
 
-<<<<<<< HEAD:frontend/core/Flipper.js
-    mesh.push(new Ball(physics.world, { x: -230, y: 35, z: -20 }));
-=======
     // Ball
     mesh.push(new Ball(physics.world, Config.ball.position));
->>>>>>> develop:frontend/flipper/core/Flipper.js
     controls.setBallRef(mesh[mesh.length - 1]);
 
     physics.registerObjects(mesh);
