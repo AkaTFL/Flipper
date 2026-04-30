@@ -73,9 +73,17 @@ export class Scene {
         this.scene.add(planeMesh);
 
         // Soft ambient light
-        const light = new THREE.AmbientLight(0xffffff, 0.5);
-        this.scene.add(light);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        this.scene.add(ambientLight);
 
+<<<<<<< HEAD:frontend/core/Scene.js
+        // Add a directional light to better illuminate 3D models
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+        directionalLight.position.set(0, 1000, 1000);
+        this.scene.add(directionalLight);
+
+=======
+>>>>>>> develop:frontend/flipper/core/Scene.js
         // ==========================================
         // PARTIE PHYSIQUE (RAPIER)
         // ==========================================

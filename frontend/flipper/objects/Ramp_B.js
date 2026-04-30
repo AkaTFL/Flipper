@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
 
-export class LaunchingRamp extends Objects {
+export class RampB extends Objects {
     /**
      * @param {Object} world - The physics world
      * @param {number} length - The length of the ramp
@@ -13,16 +13,15 @@ export class LaunchingRamp extends Objects {
      * @param {Object} rotation - The rotation object with x, y, z properties
      */
     constructor(
-        world,      
-        length = Config.launchingRamp.length,
-        width = Config.launchingRamp.width,
-        height = Config.launchingRamp.height,
-        position = {x: 0, y: 0, z: 0},
-        rotation = {x: 0, y: 0, z: 0}
+        world,
+        length = Config.ramp_B.length,
+        width = Config.ramp_B.width,
+        height = Config.ramp_B.height,
+        position = Config.ramp_B.position,
+        rotation = Config.ramp_B.rotation
     ) {
         super(world, length, width, height, position, rotation, null, null);
 
-        // Remove the default TreeMesh
         if (this.TreeMesh) {
             this.mesh.remove(this.TreeMesh);
             this.TreeMesh = null;
@@ -32,25 +31,20 @@ export class LaunchingRamp extends Objects {
         this.pushedBodyHandles = new Set();
         this.sound = Config.sounds.launchingRamp.rolling;
 
-        // Physics properties - Fixed (Static)
         this.createFixedRigidBody(position, rotation, true);
-
         this.rebuildColliderFromHalfExtents(this.length / 2, this.width / 2, this.height / 2);
 
-        // Load the 3D model
         const modelPath = new URL(
-            '../assets/mesh/ramp_launch.glb',
+            '../assets/mesh/ramp_B.glb',
             import.meta.url
         ).href;
-        
+
         this.addMesh(modelPath, (modelRoot) => {
             const { size, center } = this.getMeshMetrics(modelRoot);
 
-            // Center the model
             modelRoot.position.y = -center.y;
             modelRoot.position.z = -center.z;
 
-            // Fit collider to visual mesh once the GLB is loaded and scaled.
             this.rebuildColliderFromHalfExtents(
                 Math.max(size.x / 1, 1),
                 Math.max(size.y / 1, 1),
@@ -65,8 +59,8 @@ export class LaunchingRamp extends Objects {
         }
 
         const colliderDesc = RAPIER.ColliderDesc.cuboid(halfX, halfY, halfZ)
-            .setRestitution(Config.launchingRamp?.restitution)
-            .setFriction(Config.launchingRamp?.friction)
+            .setRestitution(Config.ramp_B?.restitution)
+            .setFriction(Config.ramp_B?.friction)
             .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
 
         this.attachCollider(colliderDesc);
@@ -77,7 +71,6 @@ export class LaunchingRamp extends Objects {
         const ry = this.rotation.y || 0;
         const rz = this.rotation.z || 180;
 
-        // Compute the launch direction by rotating the Y-axis according to the ramp's rotation
         const direction = new THREE.Vector3(0, 1, 0).applyEuler(new THREE.Euler(rx, ry, rz, 'XYZ')).normalize();
         if (!Number.isFinite(direction.x) || !Number.isFinite(direction.y) || !Number.isFinite(direction.z)) {
             return { x: 0, y: 0, z: 1 };
@@ -101,7 +94,6 @@ export class LaunchingRamp extends Objects {
     applyLaunchingRampForce(handle1, handle2, powerOverride = null) {
         if (!this.collider) return;
 
-        // Check if the ramp collider matches one of the handles
         if (this.collider.handle !== handle1 && this.collider.handle !== handle2) return;
 
         const otherHandle = this.collider.handle === handle1 ? handle2 : handle1;
@@ -124,6 +116,6 @@ export class LaunchingRamp extends Objects {
             true
         );
         this.pushedBodyHandles.add(otherBody.handle);
-        this.playSound(Config.sounds.launchingRamp.launch); // Joue le son de lancement
+        this.playSound(Config.sounds.launchingRamp.launch);
     }
 }
