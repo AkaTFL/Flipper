@@ -113,8 +113,7 @@ export class Objects {
         return this.collider;
     }
 
-    addMesh(modelPath, onModelLoaded, options = {}) {
-        const { preserveScale = false } = options;
+    addMesh(modelPath, onModelLoaded) {
         const loader = new GLTFLoader();
 
         loader.loadAsync(modelPath)
@@ -128,16 +127,9 @@ export class Objects {
                 if (size.x === 0 || size.y === 0 || size.z === 0) {
                     console.warn('Le modèle 3D a des dimensions invalides (taille nulle) :', modelPath);
                     return;
-<<<<<<< HEAD:frontend/objects/Objects.js
-                } else if (!preserveScale) {
-                    const targetX = this.length ?? size.x;
-                    const targetY = this.width ?? size.y;
-                    const targetZ = this.height ?? size.z;
-=======
                 } else {
                     const center = box.getCenter(new THREE.Vector3());
                     modelRoot.position.sub(center); // Centre le mesh automatiquement
->>>>>>> develop:frontend/flipper/objects/Objects.js
 
                     // Calcul de l'échelle : on adapte selon les dimensions fournies
                     const scaleX = this.length ? (this.length / size.x) : 1;
