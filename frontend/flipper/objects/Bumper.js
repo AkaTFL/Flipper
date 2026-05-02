@@ -17,19 +17,47 @@ export class Bumper extends Objects {
         this.objectType = 'bumper';
         this.radius = width / 2;
 
-        this.mesh = new THREE.Mesh(
-            new THREE.SphereGeometry(this.radius, 32, 32),
-            new THREE.MeshStandardMaterial({
-                color: 0xffaa00,
-                metalness: 0.4,
-                roughness: 0.5
-            })
-        );
-
+        // Keep group from Objects; add either GLB model or procedural sphere
         this.mesh.position.copy(position);
         this.mesh.rotation.x = rotation.x;
         this.mesh.rotation.y = rotation.y;
         this.mesh.rotation.z = rotation.z;
+
+        if (Config.bumperModel) {
+            const modelPath = new URL(Config.bumperModel, import.meta.url).href;
+            this.addMesh(modelPath, (modelRoot) => {
+                const { size, center } = this.getMeshMetrics(modelRoot);
+                modelRoot.position.sub(center);
+
+                // Estimate radius from model bounding box
+                const maxDim = Math.max(size.x, size.y, size.z) || (this.radius * 2);
+                const modelRadius = maxDim / 2;
+
+                // If model size differs from configured radius, rebuild collider
+                if (Math.abs(modelRadius - this.radius) > 1e-3) {
+                    if (this.collider && typeof this.world.removeCollider === 'function') {
+                        this.world.removeCollider(this.collider, true);
+                    }
+
+                    const colliderDesc = RAPIER.ColliderDesc.ball(modelRadius)
+                        .setRestitution(Config.bumper.restitution)
+                        .setFriction(Config.bumper.friction)
+                        .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+
+                    this.attachCollider(colliderDesc);
+                }
+            });
+        } else {
+            const sphere = new THREE.Mesh(
+                new THREE.SphereGeometry(this.radius, 32, 32),
+                new THREE.MeshStandardMaterial({
+                    color: 0xffaa00,
+                    metalness: 0.4,
+                    roughness: 0.5
+                })
+            );
+            this.mesh.add(sphere);
+        }
 
         // Physics properties - Fixed (Static)
         this.createFixedRigidBody(position, rotation, false);

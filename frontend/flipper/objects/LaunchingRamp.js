@@ -37,12 +37,10 @@ export class LaunchingRamp extends Objects {
 
         this.rebuildColliderFromHalfExtents(this.length / 2, this.width / 2, this.height / 2);
 
-        // Load the 3D model
-        const modelPath = new URL(
-            '../assets/mesh/launch_ramp.glb',
-            import.meta.url
-        ).href;
-        
+        // Load the 3D model (use `model` from Config.launchingRamp when present)
+        const launchModelRelative = (Config.launchingRamp && Config.launchingRamp.model) || '../assets/mesh/launch_ramp.glb';
+        const modelPath = new URL(launchModelRelative, import.meta.url).href;
+
         this.addMesh(modelPath, (modelRoot) => {
             const { size, center } = this.getMeshMetrics(modelRoot);
 

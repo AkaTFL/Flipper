@@ -13,19 +13,22 @@ export default {
         mass: 80,           // Masse
         restitution: 0.7,   // Bounciness (0 = pas de rebond, 1 = rebond total)
         friction: 0.1,      // Glissement 
-        position: { x: -230, y: 35, z: -400 } // Position de départ
+        position: { x: -230, y: 35, z: -400 },
+        model: '../assets/mesh/Body_flipper.glb' // Position de départ
     },
+    
 
     launchingRamp: {
-        width: 30,
-        length: 50,
-        height: 800,
-        position: { x: -230, y: 30, z: -50 },
-        rotation: { x: 0, y: 0, z: 0 },
+        width: 60,
+        length: 290,
+        height: 1000,
+        position: { x: -78, y: 27, z: -70 },
+        rotation: { x: Math.PI, y: 0, z: Math.PI },
         minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
         maximalPower: 50,
         powerBuild: 0.25,  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
-        power: 10
+        power: 10,
+        model: '../assets/mesh/ramp_launch.glb'
     },
 
     wall: {
@@ -59,6 +62,64 @@ export default {
             { radius: 50, position: { x: 100, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, id: 'bumper-2' }
         ]
     },
+
+    // Frontend instantiation aliases consumed by core/Flipper.js.
+    ramps: {
+        A: {
+            length: 600,
+            width: 80,
+            height: 500,
+            position: { x: -160, y: 0, z: -120 },
+            rotation: { x: 0, y: Math.PI, z: 0 },
+            objectId: 'ramp-a',
+            model: '../assets/mesh/ramp_A.glb'
+        },
+        B: {
+            length: 140,
+            width: 80,
+            height: 300,
+            position: { x: 160, y: 0, z: -120 },
+            rotation: { x: 0, y: Math.PI, z: 0 },
+            objectId: 'ramp-b',
+            model: '../assets/mesh/ramp_Bglb.glb'
+        }
+    },
+
+    bumpers: [
+        {
+            width: 100,
+            position: { x: 0, y: 0, z: 100 },
+            rotation: { x: 0, y: 0, z: 0 },
+            objectId: 'bumper-1'
+        },
+        {
+            width: 100,
+            position: { x: 100, y: 0, z: 0 },
+            rotation: { x: 0, y: 0, z: 0 },
+            objectId: 'bumper-2'
+        }
+    ],
+
+    bumpers_triangle: [
+        {
+            variant: 'left',
+            width: 60,
+            height: 30,
+            position: { x: -90, y: 40, z: -330 },
+            rotation: { x: 0, y: -(Math.PI / 3.5), z: 0 },
+            objectId: 'bumper-triangle-left',
+            model: '../assets/mesh/bumper_triangle_right.glb'
+        },
+        {
+            variant: 'right',
+            width: 60,
+            height: 30,
+            position: { x: 90, y: 40, z: -330 },
+            rotation: { x: 0, y: (Math.PI / 3.5), z: 0 },
+            objectId: 'bumper-triangle-right',
+            model: '../assets/mesh/bumper_triangle_right.glb'
+        }
+    ],
 
     scoreZones: {
         instances: [
@@ -136,7 +197,9 @@ export default {
         instances: [
             { length: 70, width: 20, height: 30, position: { x: 100, y: 13, z: -400 }, rotation: { x: 0, y: 0, z: 0 }, side: 'left' },
             { length: 70, width: 20, height: 30, position: { x: -100, y: 13, z: -400 }, rotation: { x: 0, y: 0, z: 0 }, side: 'right' }
-        ]
+        ],
+        modelRight: '../assets/mesh/Right_flipper.glb',
+        modelLeft: '../assets/mesh/Left_flipper.glb'
     },
 
     sounds: {

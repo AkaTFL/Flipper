@@ -33,12 +33,10 @@ export class Palles extends Objects {
         this.mesh.rotation.z = rotation.z + this.restAngle;
         this.joint = null;
 
-        const modelPath = new URL(
-            this.isLeft ? '../assets/mesh/Left_flipper.glb' : '../assets/mesh/Right_flipper.glb',
-            import.meta.url
-        ).href;
-        
-        this.addMesh(modelPath, (modelRoot) => {
+            const modelRelative = this.isLeft ? (Config.palles && Config.palles.modelLeft) : (Config.palles && Config.palles.modelRight);
+        const modelPath = modelRelative ? new URL(modelRelative, import.meta.url).href : null;
+        if (modelPath) {
+            this.addMesh(modelPath, (modelRoot) => {
             modelRoot.rotation.y = this.isLeft ? -Math.PI / 5 : Math.PI / 5;
 
             const { box, center, halfLengthX } = this.getMeshMetrics(modelRoot);
@@ -71,6 +69,9 @@ export class Palles extends Objects {
                 this.joint.setLimits(0, this.angle);
             }
         });
+        } else {
+            // No GLB configured - keep the procedural box (TreeMesh) that was present
+        }
 
 
         const initialRotation = {

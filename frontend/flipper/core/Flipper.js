@@ -3,8 +3,10 @@ import { Scene } from './Scene.js';
 import { Ball } from '../objects/Ball.js';
 import { Wall } from '../objects/Wall.js';
 import { Bumper } from '../objects/Bumper.js';
+import { BumperTriangleLeft, BumperTriangleRight } from '../objects/BumperTriangle.js';
 import { LaunchingRamp } from '../objects/LaunchingRamp.js';
 import { Palles } from '../objects/Palles.js';
+import { RampA, RampB } from '../objects/Ramp.js';
 import { Controls } from './Controls.js';
 import { ScoreDisplay } from '../ui/ScoreDisplay.js';
 
@@ -63,10 +65,10 @@ async function initFlipper() {
     mesh.push(launching);
 
     // Ramps
-    const rampA = new RampA(physics.world);
+    const rampA = new RampA(physics.world, Config.ramps?.A);
     mesh.push(rampA);
 
-    const rampB = new RampB(physics.world);
+    const rampB = new RampB(physics.world, Config.ramps?.B);
     mesh.push(rampB);
 
     // Bumpers
