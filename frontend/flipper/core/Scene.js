@@ -85,7 +85,10 @@ export class Scene {
             .setRotation({ x: Math.sin(rotation.x / 2), y: Math.sin(rotation.y / 2), z: Math.sin(rotation.z / 2), w: Math.cos(rotation.x / 2) * Math.cos(rotation.y / 2) * Math.cos(rotation.z / 2) });
         let groundBody = this.world.createRigidBody(groundBodyDesc);
 
-        let groundColliderDesc = RAPIER.ColliderDesc.cuboid(width / 2, height / 2, 0.1)
+        const groundVertices = Array.from(plane.attributes.position.array);
+        const groundIndices = Array.from(plane.index.array);
+
+        let groundColliderDesc = RAPIER.ColliderDesc.trimesh(groundVertices, groundIndices)
             .setRestitution(Config.scene.restitution)
             .setFriction(Config.scene.friction)
 

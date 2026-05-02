@@ -34,12 +34,12 @@ export class Wall extends Objects {
         // Physics properties - Fixed (Static)
         this.createFixedRigidBody(position, rotation, true);
 
-        const colliderDesc = RAPIER.ColliderDesc.cuboid(this.width / 2, this.height / 2, 0.1)
-            .setRestitution(Config.wall.restitution)
-            .setFriction(Config.wall.friction)
-            .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-
-        this.attachCollider(colliderDesc);
+        const wallColliderMesh = new THREE.Mesh(new THREE.PlaneGeometry(this.width, this.height));
+        this.rebuildTrimeshColliderFromMesh(wallColliderMesh, {
+            restitution: Config.wall.restitution,
+            friction: Config.wall.friction,
+            activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+        });
     }
     
     handleCollision() {

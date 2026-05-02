@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
@@ -68,9 +69,16 @@ export class Palles extends Objects {
             } else {
                 this.joint.setLimits(0, this.angle);
             }
+
+            this.rebuildTrimeshColliderFromMesh(modelRoot, {
+                restitution: Config.palles.restitution,
+                friction: Config.palles.friction,
+                activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS,
+                rigidBody: this.rigidBody
+            });
         });
         } else {
-            // No GLB configured - keep the procedural box (TreeMesh) that was present
+            // Keep fallback trimesh collider created below when no GLB is configured.
         }
 
 
@@ -87,12 +95,13 @@ export class Palles extends Objects {
 
         this.rigidBody = this.world.createRigidBody(pallesDesc);
 
-        const colliderDesc = RAPIER.ColliderDesc.cuboid(this.length / 2, this.width / 2, this.height / 2)
-            .setRestitution(Config.palles.restitution)
-            .setFriction(Config.palles.friction)
-            .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-
-        this.attachCollider(colliderDesc);
+        const fallbackMesh = new THREE.Mesh(new THREE.BoxGeometry(this.length, this.width, this.height));
+        this.rebuildTrimeshColliderFromMesh(fallbackMesh, {
+            restitution: Config.palles.restitution,
+            friction: Config.palles.friction,
+            activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS,
+            rigidBody: this.rigidBody
+        });
     }
 
     setActive(active) {

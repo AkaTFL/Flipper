@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
@@ -24,16 +25,23 @@ class RampBase extends Objects {
 
         this.createFixedRigidBody(position, rotation, true);
 
-        const colliderDesc = RAPIER.ColliderDesc.cuboid(this.length / 2, this.width / 2, this.height / 2)
-            .setRestitution(Config.wall.restitution)
-            .setFriction(Config.wall.friction)
-            .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-
-        this.attachCollider(colliderDesc);
+        const fallbackMesh = new THREE.Mesh(new THREE.BoxGeometry(this.length, this.width, this.height));
+        this.rebuildTrimeshColliderFromMesh(fallbackMesh, {
+            restitution: Config.wall.restitution,
+            friction: Config.wall.friction,
+            activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+        });
 
         // Use `options.model` when provided (relative to Config.js), otherwise use the fallback modelFile
-        const modelPath = new URL(options.model, import.meta.url).href
-        this.addMesh(modelPath);
+        const modelRelative = options?.model || `../assets/mesh/${modelFile}`;
+        const modelPath = new URL(modelRelative, import.meta.url).href;
+        this.addMesh(modelPath, (modelRoot) => {
+            this.rebuildTrimeshColliderFromMesh(modelRoot, {
+                restitution: Config.wall.restitution,
+                friction: Config.wall.friction,
+                activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+            });
+        });
     }
 }
 

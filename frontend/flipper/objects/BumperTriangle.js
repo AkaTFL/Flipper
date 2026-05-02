@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
@@ -15,12 +16,12 @@ class BumperTriangleBase extends Objects {
 
         this.createFixedRigidBody(position, rotation, true);
 
-        const colliderDesc = RAPIER.ColliderDesc.cuboid(this.length / 2, this.width / 2, this.height / 2)
-            .setRestitution(Config.bumper.restitution)
-            .setFriction(Config.bumper.friction)
-            .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-
-        this.attachCollider(colliderDesc);
+        const fallbackMesh = new THREE.Mesh(new THREE.BoxGeometry(this.length, this.width, this.height));
+        this.rebuildTrimeshColliderFromMesh(fallbackMesh, {
+            restitution: Config.bumper.restitution,
+            friction: Config.bumper.friction,
+            activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+        });
 
         // Look for a per-instance model in Config.bumpers_triangle by objectId; fallback to default
         const triangleCfg = (Config.bumpers_triangle || []).find(t => t.objectId === this.objectId) || null;
@@ -30,6 +31,12 @@ class BumperTriangleBase extends Objects {
             if (variant === 'left') {
                 modelRoot.scale.x *= -1;
             }
+
+            this.rebuildTrimeshColliderFromMesh(modelRoot, {
+                restitution: Config.bumper.restitution,
+                friction: Config.bumper.friction,
+                activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+            });
         });
     }
 }

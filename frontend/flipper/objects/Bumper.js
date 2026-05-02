@@ -16,6 +16,12 @@ export class Bumper extends Objects {
         this.objectId = objectId ?? 'bumper';
         this.objectType = 'bumper';
         this.radius = width / 2;
+        this.length = width;
+        this.width = width;
+        this.height = width;
+
+        // Physics properties - Fixed (Static)
+        this.createFixedRigidBody(position, rotation, false);
 
         // Keep group from Objects; add either GLB model or procedural sphere
         this.mesh.position.copy(position);
@@ -23,29 +29,17 @@ export class Bumper extends Objects {
         this.mesh.rotation.y = rotation.y;
         this.mesh.rotation.z = rotation.z;
 
-        if (Config.bumperModel) {
-            const modelPath = new URL(Config.bumperModel, import.meta.url).href;
+        const bumperConfig = (Config.bumpers || []).find((entry) => entry.objectId === this.objectId) || null;
+        const modelRelative = bumperConfig?.model || null;
+
+        if (modelRelative) {
+            const modelPath = new URL(modelRelative, import.meta.url).href;
             this.addMesh(modelPath, (modelRoot) => {
-                const { size, center } = this.getMeshMetrics(modelRoot);
-                modelRoot.position.sub(center);
-
-                // Estimate radius from model bounding box
-                const maxDim = Math.max(size.x, size.y, size.z) || (this.radius * 2);
-                const modelRadius = maxDim / 2;
-
-                // If model size differs from configured radius, rebuild collider
-                if (Math.abs(modelRadius - this.radius) > 1e-3) {
-                    if (this.collider && typeof this.world.removeCollider === 'function') {
-                        this.world.removeCollider(this.collider, true);
-                    }
-
-                    const colliderDesc = RAPIER.ColliderDesc.ball(modelRadius)
-                        .setRestitution(Config.bumper.restitution)
-                        .setFriction(Config.bumper.friction)
-                        .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-
-                    this.attachCollider(colliderDesc);
-                }
+                this.rebuildTrimeshColliderFromMesh(modelRoot, {
+                    restitution: Config.bumper.restitution,
+                    friction: Config.bumper.friction,
+                    activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+                });
             });
         } else {
             const sphere = new THREE.Mesh(
@@ -57,17 +51,22 @@ export class Bumper extends Objects {
                 })
             );
             this.mesh.add(sphere);
+
+            this.rebuildTrimeshColliderFromMesh(sphere, {
+                restitution: Config.bumper.restitution,
+                friction: Config.bumper.friction,
+                activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+            });
         }
 
-        // Physics properties - Fixed (Static)
-        this.createFixedRigidBody(position, rotation, false);
-
-        const colliderDesc = RAPIER.ColliderDesc.ball(this.radius)
-            .setRestitution(Config.bumper.restitution)
-            .setFriction(Config.bumper.friction)
-            .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-
-        this.attachCollider(colliderDesc);
+        if (!this.collider) {
+            const fallbackMesh = new THREE.Mesh(new THREE.SphereGeometry(this.radius, 16, 16));
+            this.rebuildTrimeshColliderFromMesh(fallbackMesh, {
+                restitution: Config.bumper.restitution,
+                friction: Config.bumper.friction,
+                activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+            });
+        }
     }
 
     

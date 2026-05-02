@@ -22,7 +22,7 @@ export default {
         width: 60,
         length: 290,
         height: 1000,
-        position: { x: -78, y: 27, z: -70 },
+        position: { x: -78, y: 15, z: -70 },
         rotation: { x: Math.PI, y: 0, z: Math.PI },
         minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
         maximalPower: 50,
@@ -63,22 +63,21 @@ export default {
         ]
     },
 
-    // Frontend instantiation aliases consumed by core/Flipper.js.
     ramps: {
-        A: {
-            length: 600,
-            width: 80,
-            height: 500,
-            position: { x: -160, y: 0, z: -120 },
-            rotation: { x: 0, y: Math.PI, z: 0 },
-            objectId: 'ramp-a',
-            model: '../assets/mesh/ramp_A.glb'
-        },
+        // A: {
+        //     length: 600,
+        //     width: 80,
+        //     height: 500,
+        //     position: { x: -160, y: 0, z: -120 },
+        //     rotation: { x: 0, y: Math.PI, z: 0 },
+        //     objectId: 'ramp-a',
+        //     model: '../assets/mesh/ramp_A.glb'
+        // },
         B: {
-            length: 140,
+            length: 200,
             width: 80,
-            height: 300,
-            position: { x: 160, y: 0, z: -120 },
+            height: 400,
+            position: { x: 10, y: 0, z: 160 },
             rotation: { x: 0, y: Math.PI, z: 0 },
             objectId: 'ramp-b',
             model: '../assets/mesh/ramp_Bglb.glb'
@@ -87,16 +86,25 @@ export default {
 
     bumpers: [
         {
-            width: 100,
+            width: 40,
             position: { x: 0, y: 0, z: 100 },
             rotation: { x: 0, y: 0, z: 0 },
-            objectId: 'bumper-1'
+            objectId: 'bumper-1',
+            model: '../assets/mesh/bumper.glb'
         },
         {
-            width: 100,
-            position: { x: 100, y: 0, z: 0 },
+            width: 40,
+            position: { x: 100, y: 0, z: 180 },
             rotation: { x: 0, y: 0, z: 0 },
-            objectId: 'bumper-2'
+            objectId: 'bumper-2',
+            model: '../assets/mesh/bumper.glb'
+        },
+        {
+            width: 40,
+            position: { x: -100, y: 0, z: 180 },
+            rotation: { x: 0, y: 0, z: 0 },
+            objectId: 'bumper-2',
+            model: '../assets/mesh/bumper.glb'
         }
     ],
 

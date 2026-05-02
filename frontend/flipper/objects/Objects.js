@@ -113,6 +113,85 @@ export class Objects {
         return this.collider;
     }
 
+    replaceCollider(colliderDesc, rigidBody = this.rigidBody) {
+        if (this.collider && typeof this.world.removeCollider === 'function') {
+            this.world.removeCollider(this.collider, true);
+            this.collider = null;
+        }
+
+        return this.attachCollider(colliderDesc, rigidBody);
+    }
+
+    buildTrimeshColliderDescFromMesh(modelRoot) {
+        if (!modelRoot) return null;
+
+        modelRoot.updateMatrixWorld(true);
+
+        const vertices = [];
+        const indices = [];
+        let vertexOffset = 0;
+
+        modelRoot.traverse((child) => {
+            if (!child.isMesh || !child.geometry) return;
+
+            const geometry = child.geometry.clone();
+            const positionAttribute = geometry.getAttribute('position');
+            if (!positionAttribute) {
+                geometry.dispose();
+                return;
+            }
+
+            if (!geometry.index) {
+                geometry.setIndex(Array.from({ length: positionAttribute.count }, (_, i) => i));
+            }
+
+            geometry.applyMatrix4(child.matrixWorld);
+
+            const transformedPosition = geometry.getAttribute('position');
+            for (let i = 0; i < transformedPosition.count; i += 1) {
+                vertices.push(
+                    transformedPosition.getX(i),
+                    transformedPosition.getY(i),
+                    transformedPosition.getZ(i)
+                );
+            }
+
+            const geometryIndices = geometry.index?.array;
+            if (geometryIndices && geometryIndices.length >= 3) {
+                for (let i = 0; i < geometryIndices.length; i += 1) {
+                    indices.push(geometryIndices[i] + vertexOffset);
+                }
+            }
+
+            vertexOffset += transformedPosition.count;
+            geometry.dispose();
+        });
+
+        if (vertices.length < 9 || indices.length < 3) {
+            return null;
+        }
+
+        return RAPIER.ColliderDesc.trimesh(vertices, indices);
+    }
+
+    rebuildTrimeshColliderFromMesh(modelRoot, options = {}) {
+        const {
+            restitution = null,
+            friction = null,
+            activeEvents = null,
+            rigidBody = this.rigidBody
+        } = options;
+
+        const colliderDesc = this.buildTrimeshColliderDescFromMesh(modelRoot);
+        if (!colliderDesc) return null;
+
+        if (restitution != null) colliderDesc.setRestitution(restitution);
+        if (friction != null) colliderDesc.setFriction(friction);
+        if (activeEvents != null) colliderDesc.setActiveEvents(activeEvents);
+
+        return this.replaceCollider(colliderDesc, rigidBody);
+    }
+
     addMesh(modelPath, onModelLoaded) {
         const loader = new GLTFLoader();
 

@@ -35,7 +35,12 @@ export class LaunchingRamp extends Objects {
         // Physics properties - Fixed (Static)
         this.createFixedRigidBody(position, rotation, true);
 
-        this.rebuildColliderFromHalfExtents(this.length / 2, this.width / 2, this.height / 2);
+        const fallbackMesh = new THREE.Mesh(new THREE.BoxGeometry(this.length, this.width, this.height));
+        this.rebuildTrimeshColliderFromMesh(fallbackMesh, {
+            restitution: Config.launchingRamp?.restitution,
+            friction: Config.launchingRamp?.friction,
+            activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+        });
 
         // Load the 3D model (use `model` from Config.launchingRamp when present)
         const launchModelRelative = (Config.launchingRamp && Config.launchingRamp.model) || '../assets/mesh/launch_ramp.glb';
@@ -49,25 +54,12 @@ export class LaunchingRamp extends Objects {
             modelRoot.position.z = -center.z;
 
             // Fit collider to visual mesh once the GLB is loaded and scaled.
-            this.rebuildColliderFromHalfExtents(
-                Math.max(size.x / 2, 0.1),
-                Math.max(size.y / 2, 0.1),
-                Math.max(size.z / 2, 0.1)
-            );
+            this.rebuildTrimeshColliderFromMesh(modelRoot, {
+                restitution: Config.launchingRamp?.restitution,
+                friction: Config.launchingRamp?.friction,
+                activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+            });
         });
-    }
-
-    rebuildColliderFromHalfExtents(halfX, halfY, halfZ) {
-        if (this.collider && typeof this.world.removeCollider === 'function') {
-            this.world.removeCollider(this.collider, true);
-        }
-
-        const colliderDesc = RAPIER.ColliderDesc.cuboid(halfX, halfY, halfZ)
-            .setRestitution(Config.launchingRamp?.restitution)
-            .setFriction(Config.launchingRamp?.friction)
-            .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-
-        this.attachCollider(colliderDesc);
     }
 
     computeRampDirection() {
