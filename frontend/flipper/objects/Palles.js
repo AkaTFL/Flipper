@@ -47,7 +47,7 @@ export class Palles extends Objects {
         this.rigidBody = this.world.createRigidBody(pallesDesc);
 
         const modelRelative = this.isLeft ? (Config.palles.modelLeft) : (Config.palles.modelRight);
-        const modelPath = modelRelative ? new URL(modelRelative, import.meta.url).href : null;
+        const modelPath = new URL(modelRelative, import.meta.url).href;
 
         if (modelPath) {
             this.addMesh(modelPath, (modelRoot) => {
@@ -62,7 +62,6 @@ export class Palles extends Objects {
                 modelRoot.position.x += targetX - currentX;
                 modelRoot.position.y = -center.y;
                 modelRoot.position.z = -center.z;
-
                 const anchorBody = this.isLeft
                     ? { x: halfLengthX, y: 0, z: 0 }
                     : { x: -halfLengthX, y: 0, z: 0 };
@@ -81,6 +80,13 @@ export class Palles extends Objects {
                     this.joint.setLimits(-this.angle, 0);
                 } else {
                     this.joint.setLimits(0, this.angle);
+                }
+
+                const desc = this.buildTrimeshCollider(modelRoot);
+                if (desc) {
+                    this.replaceCollider(desc, this.rigidBody);
+                } else {
+                    this.attachCollider(RAPIER.ColliderDesc.ball(this.radius));
                 }
             });
         }

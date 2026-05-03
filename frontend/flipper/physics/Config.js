@@ -109,7 +109,7 @@ export default {
             width: 60,
             height: 30,
             position: { x: -90, y: 40, z: -330 },
-            rotation: { x: 0, y: 0, z: 0 },
+            rotation: { x: 0, y: -(Math.PI / 3.5), z: 0 },
             objectId: 'bumper-triangle-left',
             model: '../assets/mesh/bumper_triangle_right.glb'
         },
@@ -198,8 +198,8 @@ export default {
         rotationAngle: 50 * (Math.PI / 180),
         initialAngle: 30 * (Math.PI / 180),
         instances: [
-            { length: 70, width: 20, height: 30, position: { x: 100, y: 13, z: -400 }, rotation: { x: 0, y: 0, z: 0 }, side: 'left' },
-            { length: 70, width: 20, height: 30, position: { x: -100, y: 13, z: -400 }, rotation: { x: 0, y: 0, z: 0 }, side: 'right' }
+            { length: 70, width: 20, height: 30, position: { x: 100, y: 15, z: -400 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+            { length: 70, width: 20, height: 30, position: { x: -100, y: 15, z: -400 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
         ],
         modelRight: '../assets/mesh/Right_flipper.glb',
         modelLeft: '../assets/mesh/Left_flipper.glb'

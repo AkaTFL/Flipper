@@ -86,10 +86,16 @@ export class Objects {
         const ry = rotation?.y ?? 0;
         const rz = rotation?.z ?? 0;
 
+        // Formule pour une rotation composite XYZ
+        const cx = Math.cos(rx / 2), sx = Math.sin(rx / 2);
+        const cy = Math.cos(ry / 2), sy = Math.sin(ry / 2);
+        const cz = Math.cos(rz / 2), sz = Math.sin(rz / 2);
+
         return {
-            x: Math.sin(rx / 2),
-            y: Math.sin(ry / 2),
-            z: Math.sin(rz / 2),
+            x: sx * cy * cz - cx * sy * sz,
+            y: cx * sy * cz + sx * cy * sz,
+            z: cx * cy * sz - sx * sy * cz,
+            w: cx * cy * cz + sx * sy * sz
         };
     }
 
@@ -121,7 +127,7 @@ export class Objects {
         return this.attachCollider(colliderDesc, rigidBody);
     }
 
-    buildTrimeshColliderDescFromMesh(modelRoot) {
+    buildTrimeshCollider(modelRoot) {
         if (!modelRoot) return null;
 
         modelRoot.updateMatrixWorld(true);
@@ -148,11 +154,18 @@ export class Objects {
 
             const transformedPosition = geometry.getAttribute('position');
             for (let i = 0; i < transformedPosition.count; i += 1) {
-                vertices.push(
-                    transformedPosition.getX(i),
-                    transformedPosition.getY(i),
-                    transformedPosition.getZ(i)
-                );
+                const x = transformedPosition.getX(i);
+                const y = transformedPosition.getY(i);
+                const z = transformedPosition.getZ(i);
+                
+                // ✅ VÉRIFICATION : rejeter les valeurs invalides
+                if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
+                    console.warn(`[buildTrimeshCollider] Vertex invalide détecté: (${x}, ${y}, ${z})`);
+                    geometry.dispose();
+                    return;
+                }
+                
+                vertices.push(x, y, z);
             }
 
             const geometryIndices = geometry.index?.array;
@@ -166,10 +179,18 @@ export class Objects {
             geometry.dispose();
         });
 
-        if (vertices.length < 9 || indices.length < 3) {
+        // ✅ VÉRIFICATION : émettre un avertissement si trimesh vide
+        if (vertices.length === 0 || indices.length === 0) {
+            console.warn(`[buildTrimeshCollider] Pas de géométrie valide trouvée (vertices: ${vertices.length}, indices: ${indices.length})`);
             return null;
         }
 
+        if (vertices.length < 9 || indices.length < 3) {
+            console.warn(`[buildTrimeshCollider] Géométrie insuffisante (vertices: ${vertices.length}, indices: ${indices.length})`);
+            return null;
+        }
+
+        console.log(`[buildTrimeshCollider] Trimesh créé : ${vertices.length / 3} vertices, ${indices.length / 3} triangles`);
         return RAPIER.ColliderDesc.trimesh(vertices, indices);
     }
 
@@ -220,6 +241,7 @@ export class Objects {
 
     getMeshMetrics(modelRoot) {
         modelRoot.updateMatrixWorld(true);
+        
         const box = new THREE.Box3().setFromObject(modelRoot);
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());

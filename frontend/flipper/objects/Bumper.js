@@ -32,7 +32,14 @@ export class Bumper extends Objects {
         const bumperConfig = Config.bumper.instances.find((entry) => entry.objectId === this.objectId) || null;
 
         const modelPath = new URL(bumperConfig.model, import.meta.url).href;
-        this.addMesh(modelPath);
+        this.addMesh(modelPath, (modelRoot) => {
+            const desc = this.buildTrimeshCollider(modelRoot);
+            if (desc) {
+                this.replaceCollider(desc, this.rigidBody);
+            } else {
+                this.attachCollider(RAPIER.ColliderDesc.ball(this.radius));
+            }
+        });
     }
 
     

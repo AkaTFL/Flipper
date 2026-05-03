@@ -33,21 +33,20 @@ export class LaunchingRamp extends Objects {
         this.sound = Config.sounds.launchingRamp.rolling;
 
         // Load the 3D model (use `model` from Config.launchingRamp when present)
-        const launchModelRelative = Config.launchingRamp.model;
-        const modelPath = new URL(launchModelRelative, import.meta.url).href;
+        const modelPath = new URL(Config.launchingRamp.model, import.meta.url).href;
 
         this.addMesh(modelPath, (modelRoot) => {
-            const { center } = this.getMeshMetrics(modelRoot);
+            if (!this.rigidBody) this.createFixedRigidBody(position, rotation);
+            
+            const desc = this.buildTrimeshCollider(modelRoot);
+            if (desc) {
+                this.replaceCollider(desc, this.rigidBody);
+            } else {
+                this.attachCollider(RAPIER.ColliderDesc.cuboid(this.length/2, this.width/2, this.height/2));
+            }
 
-            // Center the model on all axes so the collider uses the same local origin as the mesh.
-            modelRoot.position.x = -center.x;
-            modelRoot.position.y = -center.y;
-            modelRoot.position.z = -center.z;
-            modelRoot.updateMatrixWorld(true);
-
-            // Physics properties - Fixed (Static)
-            this.createFixedRigidBody(position, rotation);
-        });
+            this.mesh.add(modelRoot); // si vous ne l'avez pas déjà ajouté ailleurs
+            });
     }
 
     computeRampDirection() {

@@ -22,10 +22,17 @@ class BumperTriangleBase extends Objects {
         if (modelRelative) {
             const modelPath = new URL(modelRelative, import.meta.url).href;
             this.addMesh(modelPath, (modelRoot) => {
-                if (variant === 'left') {
-                    modelRoot.scale.x *= -1;
-                }
-            });
+            if (variant === 'left') {
+                modelRoot.scale.x *= -1;
+            }
+            
+            const desc = this.buildTrimeshCollider(modelRoot);
+            if (desc) {
+                this.replaceCollider(desc, this.rigidBody);
+            } else {
+                this.attachCollider(RAPIER.ColliderDesc.cuboid(this.width / 2, this.width / 2, this.width / 2));
+            }
+        });
         }
     }
 }

@@ -64,9 +64,9 @@ async function initFlipper() {
     controls.setLaunchingRampRef(launching);
     mesh.push(launching);
 
-    // Ramps
-    const rampA = new RampA(physics.world, Config.ramps?.A);
-    mesh.push(rampA);
+    // // Ramps
+    // const rampA = new RampA(physics.world, Config.ramps?.A);
+    // mesh.push(rampA);
 
     const rampB = new RampB(physics.world, Config.ramps?.B);
     mesh.push(rampB);
