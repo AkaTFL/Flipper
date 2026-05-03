@@ -21,7 +21,7 @@ export class Bumper extends Objects {
         this.height = width;
 
         // Physics properties - Fixed (Static)
-        this.createFixedRigidBody(position, rotation, false);
+        this.createFixedRigidBody(position, rotation);
 
         // Keep group from Objects; add either GLB model or procedural sphere
         this.mesh.position.copy(position);
@@ -29,44 +29,10 @@ export class Bumper extends Objects {
         this.mesh.rotation.y = rotation.y;
         this.mesh.rotation.z = rotation.z;
 
-        const bumperConfig = (Config.bumpers || []).find((entry) => entry.objectId === this.objectId) || null;
-        const modelRelative = bumperConfig?.model || null;
+        const bumperConfig = Config.bumper.instances.find((entry) => entry.objectId === this.objectId) || null;
 
-        if (modelRelative) {
-            const modelPath = new URL(modelRelative, import.meta.url).href;
-            this.addMesh(modelPath, (modelRoot) => {
-                this.rebuildTrimeshColliderFromMesh(modelRoot, {
-                    restitution: Config.bumper.restitution,
-                    friction: Config.bumper.friction,
-                    activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
-                });
-            });
-        } else {
-            const sphere = new THREE.Mesh(
-                new THREE.SphereGeometry(this.radius, 32, 32),
-                new THREE.MeshStandardMaterial({
-                    color: 0xffaa00,
-                    metalness: 0.4,
-                    roughness: 0.5
-                })
-            );
-            this.mesh.add(sphere);
-
-            this.rebuildTrimeshColliderFromMesh(sphere, {
-                restitution: Config.bumper.restitution,
-                friction: Config.bumper.friction,
-                activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
-            });
-        }
-
-        if (!this.collider) {
-            const fallbackMesh = new THREE.Mesh(new THREE.SphereGeometry(this.radius, 16, 16));
-            this.rebuildTrimeshColliderFromMesh(fallbackMesh, {
-                restitution: Config.bumper.restitution,
-                friction: Config.bumper.friction,
-                activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
-            });
-        }
+        const modelPath = new URL(bumperConfig.model, import.meta.url).href;
+        this.addMesh(modelPath);
     }
 
     

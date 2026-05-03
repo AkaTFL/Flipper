@@ -72,7 +72,8 @@ async function initFlipper() {
     mesh.push(rampB);
 
     // Bumpers
-    (Config.bumpers || []).forEach((bumperConfig) => {
+    Config.bumpers = Config.bumper.instances;
+    Config.bumpers.forEach((bumperConfig) => {
         mesh.push(new Bumper(
             physics.world,
             bumperConfig.width,

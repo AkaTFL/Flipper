@@ -14,30 +14,19 @@ class BumperTriangleBase extends Objects {
             this.TreeMesh = null;
         }
 
-        this.createFixedRigidBody(position, rotation, true);
-
-        const fallbackMesh = new THREE.Mesh(new THREE.BoxGeometry(this.length, this.width, this.height));
-        this.rebuildTrimeshColliderFromMesh(fallbackMesh, {
-            restitution: Config.bumper.restitution,
-            friction: Config.bumper.friction,
-            activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
-        });
+        this.createFixedRigidBody(position, rotation);
 
         // Look for a per-instance model in Config.bumpers_triangle by objectId; fallback to default
         const triangleCfg = (Config.bumpers_triangle || []).find(t => t.objectId === this.objectId) || null;
         const modelRelative = triangleCfg?.model || '../assets/mesh/bumper_triangle_right.glb';
-        const modelPath = new URL(modelRelative, import.meta.url).href;
-        this.addMesh(modelPath, (modelRoot) => {
-            if (variant === 'left') {
-                modelRoot.scale.x *= -1;
-            }
-
-            this.rebuildTrimeshColliderFromMesh(modelRoot, {
-                restitution: Config.bumper.restitution,
-                friction: Config.bumper.friction,
-                activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+        if (modelRelative) {
+            const modelPath = new URL(modelRelative, import.meta.url).href;
+            this.addMesh(modelPath, (modelRoot) => {
+                if (variant === 'left') {
+                    modelRoot.scale.x *= -1;
+                }
             });
-        });
+        }
     }
 }
 

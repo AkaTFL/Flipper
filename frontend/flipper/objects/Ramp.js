@@ -23,25 +23,16 @@ class RampBase extends Objects {
             this.TreeMesh = null;
         }
 
-        this.createFixedRigidBody(position, rotation, true);
+        this.createFixedRigidBody(position, rotation);
 
         const fallbackMesh = new THREE.Mesh(new THREE.BoxGeometry(this.length, this.width, this.height));
-        this.rebuildTrimeshColliderFromMesh(fallbackMesh, {
-            restitution: Config.wall.restitution,
-            friction: Config.wall.friction,
-            activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
-        });
 
         // Use `options.model` when provided (relative to Config.js), otherwise use the fallback modelFile
         const modelRelative = options?.model || `../assets/mesh/${modelFile}`;
-        const modelPath = new URL(modelRelative, import.meta.url).href;
-        this.addMesh(modelPath, (modelRoot) => {
-            this.rebuildTrimeshColliderFromMesh(modelRoot, {
-                restitution: Config.wall.restitution,
-                friction: Config.wall.friction,
-                activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
-            });
-        });
+        if (modelRelative) {
+            const modelPath = new URL(modelRelative, import.meta.url).href;
+            this.addMesh(modelPath);
+        }
     }
 }
 

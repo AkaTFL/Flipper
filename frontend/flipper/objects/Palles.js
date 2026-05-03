@@ -33,55 +33,6 @@ export class Palles extends Objects {
 
         this.mesh.rotation.z = rotation.z + this.restAngle;
         this.joint = null;
-
-            const modelRelative = this.isLeft ? (Config.palles && Config.palles.modelLeft) : (Config.palles && Config.palles.modelRight);
-        const modelPath = modelRelative ? new URL(modelRelative, import.meta.url).href : null;
-        if (modelPath) {
-            this.addMesh(modelPath, (modelRoot) => {
-            modelRoot.rotation.y = this.isLeft ? -Math.PI / 5 : Math.PI / 5;
-
-            const { box, center, halfLengthX } = this.getMeshMetrics(modelRoot);
-
-            // Align on X (pivot point) and center on Y/Z
-            const targetX = this.isLeft ? halfLengthX : -halfLengthX;
-            const currentX = this.isLeft ? box.max.x : box.min.x;
-
-            modelRoot.position.x += targetX - currentX;
-            modelRoot.position.y = -center.y;
-            modelRoot.position.z = -center.z;
-
-            const anchorBody = this.isLeft
-                ? { x: halfLengthX, y: 0, z: 0 }
-                : { x: -halfLengthX, y: 0, z: 0 };
-            const pivotWorldX = this.isLeft
-                ? position.x + halfLengthX
-                : position.x - halfLengthX;
-
-            const pivotDesc = RAPIER.RigidBodyDesc.fixed()
-                .setTranslation(pivotWorldX, position.y, position.z);
-            const pivotBody = this.world.createRigidBody(pivotDesc);
-
-            const pivot = RAPIER.JointData.revolute({ x: 0, y: 0, z: 0 }, anchorBody, { x: 0, y: 1, z: 0 });
-            this.joint = this.world.createImpulseJoint(pivot, pivotBody, this.rigidBody, true);
-
-            if (this.isLeft) {
-                this.joint.setLimits(-this.angle, 0);
-            } else {
-                this.joint.setLimits(0, this.angle);
-            }
-
-            this.rebuildTrimeshColliderFromMesh(modelRoot, {
-                restitution: Config.palles.restitution,
-                friction: Config.palles.friction,
-                activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS,
-                rigidBody: this.rigidBody
-            });
-        });
-        } else {
-            // Keep fallback trimesh collider created below when no GLB is configured.
-        }
-
-
         const initialRotation = {
             x: rotation.x,
             y: rotation.y,
@@ -95,13 +46,44 @@ export class Palles extends Objects {
 
         this.rigidBody = this.world.createRigidBody(pallesDesc);
 
-        const fallbackMesh = new THREE.Mesh(new THREE.BoxGeometry(this.length, this.width, this.height));
-        this.rebuildTrimeshColliderFromMesh(fallbackMesh, {
-            restitution: Config.palles.restitution,
-            friction: Config.palles.friction,
-            activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS,
-            rigidBody: this.rigidBody
-        });
+        const modelRelative = this.isLeft ? (Config.palles.modelLeft) : (Config.palles.modelRight);
+        const modelPath = modelRelative ? new URL(modelRelative, import.meta.url).href : null;
+
+        if (modelPath) {
+            this.addMesh(modelPath, (modelRoot) => {
+                modelRoot.rotation.y = this.isLeft ? -Math.PI / 5 : Math.PI / 5;
+
+                const { box, center, halfLengthX } = this.getMeshMetrics(modelRoot);
+
+                // Align on X (pivot point) and center on Y/Z
+                const targetX = this.isLeft ? halfLengthX : -halfLengthX;
+                const currentX = this.isLeft ? box.max.x : box.min.x;
+
+                modelRoot.position.x += targetX - currentX;
+                modelRoot.position.y = -center.y;
+                modelRoot.position.z = -center.z;
+
+                const anchorBody = this.isLeft
+                    ? { x: halfLengthX, y: 0, z: 0 }
+                    : { x: -halfLengthX, y: 0, z: 0 };
+                const pivotWorldX = this.isLeft
+                    ? position.x + halfLengthX
+                    : position.x - halfLengthX;
+
+                const pivotDesc = RAPIER.RigidBodyDesc.fixed()
+                    .setTranslation(pivotWorldX, position.y, position.z);
+                const pivotBody = this.world.createRigidBody(pivotDesc);
+
+                const pivot = RAPIER.JointData.revolute({ x: 0, y: 0, z: 0 }, anchorBody, { x: 0, y: 1, z: 0 });
+                this.joint = this.world.createImpulseJoint(pivot, pivotBody, this.rigidBody, true);
+
+                if (this.isLeft) {
+                    this.joint.setLimits(-this.angle, 0);
+                } else {
+                    this.joint.setLimits(0, this.angle);
+                }
+            });
+        }
     }
 
     setActive(active) {

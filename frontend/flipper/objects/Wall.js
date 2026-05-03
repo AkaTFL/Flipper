@@ -32,14 +32,9 @@ export class Wall extends Objects {
         this.mesh.rotation.z = rotation.z;
 
         // Physics properties - Fixed (Static)
-        this.createFixedRigidBody(position, rotation, true);
+        this.createFixedRigidBody(position, rotation);
 
         const wallColliderMesh = new THREE.Mesh(new THREE.PlaneGeometry(this.width, this.height));
-        this.rebuildTrimeshColliderFromMesh(wallColliderMesh, {
-            restitution: Config.wall.restitution,
-            friction: Config.wall.friction,
-            activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
-        });
     }
     
     handleCollision() {

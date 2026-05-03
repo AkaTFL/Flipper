@@ -90,17 +90,16 @@ export class Objects {
             x: Math.sin(rx / 2),
             y: Math.sin(ry / 2),
             z: Math.sin(rz / 2),
-            w: Math.cos(rx / 2) * Math.cos(ry / 2) * Math.cos(rz / 2)
         };
     }
 
-    createFixedRigidBody(position = this.position, rotation = this.rotation, withRotation = true) {
+    createFixedRigidBody(position = this.position, rotation = this.rotation) {
         if (!this.world || !position) return null;
 
         const rigidBodyDesc = RAPIER.RigidBodyDesc.fixed()
             .setTranslation(position.x, position.y, position.z);
 
-        const finalRigidBodyDesc = withRotation
+        const finalRigidBodyDesc = rotation
             ? rigidBodyDesc.setRotation(this.toRotationQuaternion(rotation))
             : rigidBodyDesc;
 
@@ -174,24 +173,6 @@ export class Objects {
         return RAPIER.ColliderDesc.trimesh(vertices, indices);
     }
 
-    rebuildTrimeshColliderFromMesh(modelRoot, options = {}) {
-        const {
-            restitution = null,
-            friction = null,
-            activeEvents = null,
-            rigidBody = this.rigidBody
-        } = options;
-
-        const colliderDesc = this.buildTrimeshColliderDescFromMesh(modelRoot);
-        if (!colliderDesc) return null;
-
-        if (restitution != null) colliderDesc.setRestitution(restitution);
-        if (friction != null) colliderDesc.setFriction(friction);
-        if (activeEvents != null) colliderDesc.setActiveEvents(activeEvents);
-
-        return this.replaceCollider(colliderDesc, rigidBody);
-    }
-
     addMesh(modelPath, onModelLoaded) {
         const loader = new GLTFLoader();
 
@@ -202,33 +183,29 @@ export class Objects {
 
                 const box = new THREE.Box3().setFromObject(modelRoot);
                 const size = box.getSize(new THREE.Vector3());
-                
+
                 if (size.x === 0 || size.y === 0 || size.z === 0) {
                     console.warn('Le modèle 3D a des dimensions invalides (taille nulle) :', modelPath);
                     return;
-                } else {
-                    const center = box.getCenter(new THREE.Vector3());
-                    modelRoot.position.sub(center); // Centre le mesh automatiquement
-
-                    // Calcul de l'échelle : on adapte selon les dimensions fournies
-                    const scaleX = this.length ? (this.length / size.x) : 1;
-                    const scaleY = this.width ? (this.width / size.y) : scaleX;
-                    const scaleZ = this.height ? (this.height / size.z) : scaleX;
-
-                    modelRoot.scale.set(scaleX, scaleY, scaleZ);
-
-                    // Assurer que le modèle est bien visible même sans lumière complexe
-                    modelRoot.traverse((child) => {
-                        if (child.isMesh) {
-                            if (!child.material || Object.keys(child.material).length === 0) {
-                                child.material = new THREE.MeshStandardMaterial({
-                                    color: 0xcccccc
-                                });
-                            }
-                            child.material.side = THREE.DoubleSide;
-                        }
-                    });
                 }
+
+                const scaleX = this.length ? (this.length / size.x) : 1;
+                const scaleY = this.width ? (this.width / size.y) : scaleX;
+                const scaleZ = this.height ? (this.height / size.z) : scaleX;
+
+                modelRoot.scale.set(scaleX, scaleY, scaleZ);
+                modelRoot.updateMatrixWorld(true);
+
+                modelRoot.traverse((child) => {
+                    if (child.isMesh) {
+                        if (!child.material || Object.keys(child.material).length === 0) {
+                            child.material = new THREE.MeshStandardMaterial({
+                                color: 0xcccccc
+                            });
+                        }
+                        child.material.side = THREE.DoubleSide;
+                    }
+                });
 
                 if (onModelLoaded) {
                     onModelLoaded(modelRoot);

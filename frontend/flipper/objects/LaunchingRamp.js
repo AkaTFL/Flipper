@@ -32,33 +32,21 @@ export class LaunchingRamp extends Objects {
         this.pushedBodyHandles = new Set();
         this.sound = Config.sounds.launchingRamp.rolling;
 
-        // Physics properties - Fixed (Static)
-        this.createFixedRigidBody(position, rotation, true);
-
-        const fallbackMesh = new THREE.Mesh(new THREE.BoxGeometry(this.length, this.width, this.height));
-        this.rebuildTrimeshColliderFromMesh(fallbackMesh, {
-            restitution: Config.launchingRamp?.restitution,
-            friction: Config.launchingRamp?.friction,
-            activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
-        });
-
         // Load the 3D model (use `model` from Config.launchingRamp when present)
-        const launchModelRelative = (Config.launchingRamp && Config.launchingRamp.model) || '../assets/mesh/launch_ramp.glb';
+        const launchModelRelative = Config.launchingRamp.model;
         const modelPath = new URL(launchModelRelative, import.meta.url).href;
 
         this.addMesh(modelPath, (modelRoot) => {
-            const { size, center } = this.getMeshMetrics(modelRoot);
+            const { center } = this.getMeshMetrics(modelRoot);
 
-            // Center the model
+            // Center the model on all axes so the collider uses the same local origin as the mesh.
+            modelRoot.position.x = -center.x;
             modelRoot.position.y = -center.y;
             modelRoot.position.z = -center.z;
+            modelRoot.updateMatrixWorld(true);
 
-            // Fit collider to visual mesh once the GLB is loaded and scaled.
-            this.rebuildTrimeshColliderFromMesh(modelRoot, {
-                restitution: Config.launchingRamp?.restitution,
-                friction: Config.launchingRamp?.friction,
-                activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
-            });
+            // Physics properties - Fixed (Static)
+            this.createFixedRigidBody(position, rotation);
         });
     }
 

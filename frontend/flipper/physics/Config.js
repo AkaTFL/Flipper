@@ -58,9 +58,28 @@ export default {
         friction: 0.5,
         power: 100,
         instances: [
-            { radius: 50, position: { x: 0, y: 0, z: 100 }, rotation: { x: 0, y: 0, z: 0 }, id: 'bumper-1' },
-            { radius: 50, position: { x: 100, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, id: 'bumper-2' }
-        ]
+            {
+                width: 40,
+                position: { x: 0, y: 10, z: 100 },
+                rotation: { x: 0, y: 0, z: 0 },
+                objectId: 'bumper-1',
+                model: '../assets/mesh/bumper.glb'
+            },
+            {
+                width: 40,
+                position: { x: 100, y: 10, z: 180 },
+                rotation: { x: 0, y: 0, z: 0 },
+                objectId: 'bumper-2',
+                model: '../assets/mesh/bumper.glb'
+            },
+            {
+                width: 40,
+                position: { x: -100, y: 10, z: 180 },
+                rotation: { x: 0, y: 0, z: 0 },
+                objectId: 'bumper-3',
+                model: '../assets/mesh/bumper.glb'
+            }
+        ],
     },
 
     ramps: {
@@ -84,37 +103,13 @@ export default {
         }
     },
 
-    bumpers: [
-        {
-            width: 40,
-            position: { x: 0, y: 0, z: 100 },
-            rotation: { x: 0, y: 0, z: 0 },
-            objectId: 'bumper-1',
-            model: '../assets/mesh/bumper.glb'
-        },
-        {
-            width: 40,
-            position: { x: 100, y: 0, z: 180 },
-            rotation: { x: 0, y: 0, z: 0 },
-            objectId: 'bumper-2',
-            model: '../assets/mesh/bumper.glb'
-        },
-        {
-            width: 40,
-            position: { x: -100, y: 0, z: 180 },
-            rotation: { x: 0, y: 0, z: 0 },
-            objectId: 'bumper-2',
-            model: '../assets/mesh/bumper.glb'
-        }
-    ],
-
     bumpers_triangle: [
         {
             variant: 'left',
             width: 60,
             height: 30,
             position: { x: -90, y: 40, z: -330 },
-            rotation: { x: 0, y: -(Math.PI / 3.5), z: 0 },
+            rotation: { x: 0, y: 0, z: 0 },
             objectId: 'bumper-triangle-left',
             model: '../assets/mesh/bumper_triangle_right.glb'
         },
