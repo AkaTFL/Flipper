@@ -1,4 +1,5 @@
 import Config from '../physics/Config.js';
+import {Objects} from '../objects/Objects.js';
 
 export class Controls{
     /**
@@ -36,6 +37,8 @@ export class Controls{
             return key;
     }
 
+    obj = new Objects();
+
     initControls() {
 
         window.addEventListener('keydown', (e) => {
@@ -58,6 +61,7 @@ export class Controls{
                 this.launchChargeStart = Date.now();
                 this.launchChargeCount += 1;
                 console.log('Launch button pressed');
+                if (!this.impulseUsed) this.obj.playSound(Config.sounds.launchingRamp.charging);
                 return;
             }
             if (key === this.bossDebug) {
@@ -92,12 +96,13 @@ export class Controls{
                 console.log(`Launch button released after charging for ${chargeDuration}ms, power: ${this.input.launchPower}`);
 
                     if (this.ballRef && !this.impulseUsed) {
+                        this.obj.playSound(Config.sounds.launchingRamp.launch);
                         if (typeof this.startGameCallback === 'function') {
                             this.startGameCallback();
                         }
                         const chargedPower = Config.launchingRamp.maximalPower * Math.max(0.1, this.input.launchPower) * Config.forceMultiplier;
                         this.ballRef.rigidBody.applyImpulse({ x: 0, y: 0, z: chargedPower }, true);
-                        //this.impulseUsed = true;
+                        this.impulseUsed = true;
                     }
                 }
             }

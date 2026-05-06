@@ -220,14 +220,14 @@ export default {
         },
 
         launchingRamp: {  
-            charging: {file: "../assets/sound/Ramp_charging.mp3"} , 
+            charging: {file: "../assets/sound/Ramp_reload_1.mp3"} , 
             launch: {file: "../assets/sound/Ramp_launch.mp3", volume: 0.5},       
             rolling: { file: "../assets/sound/Ramp_rolling.mp3", volume: 0.5 }
         },
 
         palles: {
             collision: { file: "", volume: 0.6 },
-            movement: { file: "", volume: 0.5 }
+            movement: { file: "../assets/sound/Palles_move.mp3", volume: 0.5 }
         },
 
         rail: {        

@@ -101,6 +101,6 @@ export class LaunchingRamp extends Objects {
             true
         );
         this.pushedBodyHandles.add(otherBody.handle);
-        this.playSound(Config.sounds.launchingRamp.launch); // Joue le son de lancement
+        this.playSound(Config.sounds.launchingRamp.rolling); // Joue le son de lancement
     }
 }
