@@ -212,7 +212,7 @@ export default {
         },
         
         bumper: {
-            collision: { file: "", volume: 0.5 },
+            collision: { file: "../assets/sound/Bumpers_collision.mp3", volume: 0.5 },
         },
 
         wall: {

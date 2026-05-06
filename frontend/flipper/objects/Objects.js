@@ -81,6 +81,10 @@ export class Objects {
         });
     }
 
+    stopSound(sound = this.sound) {
+        this.audio.pause();
+    }
+
     toRotationQuaternion(rotation = this.rotation) {
         const rx = rotation?.x ?? 0;
         const ry = rotation?.y ?? 0;

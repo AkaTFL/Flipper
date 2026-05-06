@@ -96,6 +96,7 @@ export class Controls{
                 console.log(`Launch button released after charging for ${chargeDuration}ms, power: ${this.input.launchPower}`);
 
                     if (this.ballRef && !this.impulseUsed) {
+                        this.obj.stopSound(Config.sounds.launchingRamp.charging);
                         this.obj.playSound(Config.sounds.launchingRamp.launch);
                         if (typeof this.startGameCallback === 'function') {
                             this.startGameCallback();
