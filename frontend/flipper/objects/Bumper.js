@@ -80,9 +80,6 @@ export class Bumper extends Objects {
     }
 
     handleCollision() {
-        // Par défaut, joue le son s'il existe
-        if (this.audio) {
-            this.playSound(Config.sounds.bumper.collision); // Son de collision des palles
-        }
+        this.playSound(Config.sounds.bumper.collision); // Son de collision des palles
     }
 }

@@ -1,6 +1,7 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import AudioManager from '../physics/Audio.js';
 
 export class Objects {
     constructor(
@@ -47,42 +48,25 @@ export class Objects {
             this.mesh.rotation.set(rotation.x ?? 0, rotation.y ?? 0, rotation.z ?? 0);
         }
 
-        this.audio = this.initSound(this.sound);
+        this.audioManager = new AudioManager();
+        this.audio = null;
     }
 
     initSound(sound) {
-        if (!sound) return null;
-        
-        const soundConfig = typeof sound === 'string' ? { file: sound, volume: 1 } : sound;
-
-        let source;
-        try {
-            source = new URL(soundConfig.file, import.meta.url).href;
-        } catch (e) {
-            console.warn('Le chemin du fichier son est invalide:', soundConfig.file);
-            return null;
-        }
-        this.audio = new Audio(source);
-        this.audio.preload = 'auto';
-        this.audio.volume = soundConfig.volume ?? 1;
-        this.audio.onerror = () => {
-            console.warn(`Le fichier son est manquant : ${soundConfig.file}`);
-        };
+        this.audio = this.audioManager.initSound(sound);
         return this.audio;
     }
 
-    playSound(sound = this.sound) {
-        this.audio = this.initSound(sound);
-        if (this.audio === null) return;
-
-        this.audio.currentTime = 0;
-        this.audio.play().catch((error) => {
-            console.error('Impossible de lire le son:', error);
-        });
+    playSound(sound) {
+        return this.audioManager.playSound(sound);
     }
 
-    stopSound(sound = this.sound) {
-        this.audio.pause();
+    playBallSound(surface, speed) {
+        return this.audioManager.playBallSound(surface, speed);
+    }
+
+    stopSound(sound) {
+        return this.audioManager.stopSound(sound);
     }
 
     toRotationQuaternion(rotation = this.rotation) {

@@ -207,8 +207,17 @@ export default {
 
     sounds: {
         ball: {
-            collision: { file: "", volume: 0.5 },
-            movement: { file: "", volume: 0.5 }
+            wood: {
+                sound: 'sounds/wood.mp3',
+                pitch: 1,
+                volume: 0.8
+            },
+
+            metal: {
+                sound: 'sounds/metal.mp3',
+                pitch: 1.3,
+                volume: 1
+            },
         },
         
         bumper: {
