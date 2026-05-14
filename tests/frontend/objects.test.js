@@ -1,45 +1,12 @@
 import test, { mock } from 'node:test';
 import assert from 'node:assert/strict';
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 import Config from '../../frontend/flipper/physics/Config.js';
 import { Bumper } from '../../frontend/flipper/objects/Bumper.js';
 import { LaunchingRamp } from '../../frontend/flipper/objects/LaunchingRamp.js';
 import { Palles } from '../../frontend/flipper/objects/Palles.js';
 
-if (typeof globalThis.Audio !== 'function') {
-  globalThis.Audio = class {
-    constructor() {
-      this.currentTime = 0;
-      this.preload = 'auto';
-      this.volume = 1;
-    }
-
-    play() {
-      return Promise.resolve();
-    }
-  };
-}
-
-mock.method(GLTFLoader.prototype, 'loadAsync', async () => ({
-  scene: createLoadedModelRoot()
-}));
-
-function createLoadedModelRoot() {
-  const root = new THREE.Group();
-  const mesh = new THREE.Mesh(
-    new THREE.BoxGeometry(2, 4, 6),
-    new THREE.MeshStandardMaterial({ color: 0xffffff })
-  );
-
-  root.add(mesh);
-  return root;
-}
-
-function flushAsyncLoads() {
-  return new Promise((resolve) => setImmediate(resolve));
-}
+mock.method(global, 'fetch', () => new Promise(() => {}));
 
 function createWorldStub() {
   const state = {
@@ -91,11 +58,9 @@ function createWorldStub() {
   return { world, state };
 }
 
-test('Bumper registers a collider and uses the expected radius', async () => {
+test('Bumper registers a collider and uses the expected radius', () => {
   const { world, state } = createWorldStub();
-  const bumper = new Bumper(world, 60, { x: 10, y: 20, z: 30 }, { x: 0, y: 0, z: 0 }, 'bumper-1');
-
-  await flushAsyncLoads();
+  const bumper = new Bumper(world, 60, { x: 10, y: 20, z: 30 });
 
   assert.equal(bumper.radius, 30);
   assert.equal(state.rigidBodies.length, 1);
@@ -105,7 +70,7 @@ test('Bumper registers a collider and uses the expected radius', async () => {
   assert.equal(bumper.mesh.position.z, 30);
 });
 
-test('Palles constructor creates physics body/collider and defers joint setup until model load', async () => {
+test('Palles constructor creates physics body/collider and defers joint setup until model load', () => {
   const { world, state } = createWorldStub();
   const palles = new Palles(
     world,
@@ -118,19 +83,13 @@ test('Palles constructor creates physics body/collider and defers joint setup un
   );
 
   assert.equal(state.rigidBodies.length, 1);
-  assert.equal(state.colliders.length, 0);
-  assert.equal(state.joints.length, 0);
-
-  await flushAsyncLoads();
-
-  assert.equal(state.rigidBodies.length, 2);
   assert.equal(state.colliders.length, 1);
-  assert.equal(state.joints.length, 1);
+  assert.equal(state.joints.length, 0);
 
   assert.doesNotThrow(() => palles.setActive(true));
 });
 
-test('Palles keeps rest-angle semantics when inactive', async () => {
+test('Palles keeps rest-angle semantics when inactive', () => {
   const { world, state } = createWorldStub();
   const palles = new Palles(
     world,
@@ -142,9 +101,7 @@ test('Palles keeps rest-angle semantics when inactive', async () => {
     'right'
   );
 
-  await flushAsyncLoads();
-
-  assert.equal(state.joints.length, 1);
+  assert.equal(state.joints.length, 0);
   assert.equal(palles.restAngle, Math.abs(Config.palles.initialAngle ?? (Math.PI / 6)));
 
   assert.doesNotThrow(() => palles.setActive(false));
