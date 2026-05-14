@@ -4,25 +4,16 @@ import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
 
 export class LaunchingRamp extends Objects {
-    /**
-     * @param {Object} world - The physics world
-     * @param {number} length - The length of the ramp
-     * @param {number} width - The width of the ramp
-     * @param {number} height - The height of the ramp
-     * @param {Object} position - The position object with x, y, z properties
-     * @param {Object} rotation - The rotation object with x, y, z properties
-     */
     constructor(
-        world,      
+        world,
         length = Config.launchingRamp.length,
         width = Config.launchingRamp.width,
         height = Config.launchingRamp.height,
-        position = {x: 0, y: 0, z: 0},
-        rotation = {x: 0, y: 0, z: 0}
+        position = Config.launchingRamp.position,
+        rotation = Config.launchingRamp.rotation
     ) {
         super(world, length, width, height, position, rotation, null, null);
 
-        // Remove the default TreeMesh
         if (this.TreeMesh) {
             this.mesh.remove(this.TreeMesh);
             this.TreeMesh = null;
@@ -30,78 +21,74 @@ export class LaunchingRamp extends Objects {
 
         this.rampDirection = this.computeRampDirection();
         this.pushedBodyHandles = new Set();
-        this.sound = Config.sounds.launchingRamp.rolling;
 
-        // Physics properties - Fixed (Static)
-        this.createFixedRigidBody(position, rotation, true);
+        const modelPath = new URL(Config.launchingRamp.model, import.meta.url).href;
 
-        this.rebuildColliderFromHalfExtents(this.length / 2, this.width / 2, this.height / 2);
-
-        // Load the 3D model
-        const modelPath = new URL(
-            '../assets/mesh/ramp_launch.glb',
-            import.meta.url
-        ).href;
-        
         this.addMesh(modelPath, (modelRoot) => {
-            const { size, center } = this.getMeshMetrics(modelRoot);
+            if (!this.rigidBody) this.createFixedRigidBody(position, rotation);
+            
+            // 1. PROTECTION CRITIQUE : Active la CCD sur le corps de la rampe
+            this.rigidBody.enableCcd(true);
 
-            // Center the model
-            modelRoot.position.y = -center.y;
-            modelRoot.position.z = -center.z;
+            modelRoot.updateMatrixWorld(true);
+            const desc = this.buildTrimeshCollider(modelRoot);
+            
+            if (desc) {
+                // 2. PRÉCISION MAXIMALE : On configure le collider pour coller au mesh
+                desc.setFriction(0.1)
+                    .setRestitution(0.2)
+                    .setCcdEnabled(true) // Active la détection continue sur la surface
+                    .setSolverGroups(0x00010001); // Assure que les calculs de collision sont prioritaires
 
-            // Fit collider to visual mesh once the GLB is loaded and scaled.
-            this.rebuildColliderFromHalfExtents(
-                Math.max(size.x / 1, 1),
-                Math.max(size.y / 1, 1),
-                Math.max(size.z / 1, 1)
-            );
+                this.replaceCollider(desc, this.rigidBody);
+            }
+            this.mesh.add(modelRoot);
         });
     }
 
-    rebuildColliderFromHalfExtents(halfX, halfY, halfZ) {
-        if (this.collider && typeof this.world.removeCollider === 'function') {
-            this.world.removeCollider(this.collider, true);
-        }
+    /**
+     * BuildTrimeshCollider : Copie exacte de la géométrie 3D
+     */
+    buildTrimeshCollider(modelRoot) {
+        let vertices = [];
+        let indices = [];
+        modelRoot.traverse((child) => {
+            if (child.isMesh) {
+                const geometry = child.geometry;
+                const pos = geometry.attributes.position;
+                const idx = geometry.index;
+                const offset = vertices.length / 3;
 
-        const colliderDesc = RAPIER.ColliderDesc.cuboid(halfX, halfY, halfZ)
-            .setRestitution(Config.launchingRamp?.restitution)
-            .setFriction(Config.launchingRamp?.friction)
-            .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+                for (let i = 0; i < pos.count; i++) {
+                    const v = new THREE.Vector3().fromBufferAttribute(pos, i);
+                    v.applyMatrix4(child.matrixWorld);
+                    const localV = this.mesh.worldToLocal(v);
+                    vertices.push(localV.x, localV.y, localV.z);
+                }
 
-        this.attachCollider(colliderDesc);
+                if (idx) {
+                    for (let i = 0; i < idx.count; i++) {
+                        indices.push(idx.getX(i) + offset);
+                    }
+                }
+            }
+        });
+        return vertices.length > 0 ? RAPIER.ColliderDesc.trimesh(new Float32Array(vertices), new Uint32Array(indices)) : null;
     }
 
     computeRampDirection() {
         const rx = this.rotation.x || 0;
         const ry = this.rotation.y || 0;
-        const rz = this.rotation.z || 180;
-
-        // Compute the launch direction by rotating the Y-axis according to the ramp's rotation
+        const rz = this.rotation.z || 0;
         const direction = new THREE.Vector3(0, 1, 0).applyEuler(new THREE.Euler(rx, ry, rz, 'XYZ')).normalize();
-        if (!Number.isFinite(direction.x) || !Number.isFinite(direction.y) || !Number.isFinite(direction.z)) {
-            return { x: 0, y: 0, z: 1 };
-        }
-
         return { x: direction.x, y: direction.y, z: direction.z };
     }
 
-    hasCollider(handle) {
-        return this.collider && this.collider.handle === handle;
-    }
-
-    resetLaunchImpulse() {
-        this.pushedBodyHandles.clear();
-    }
-
-    handleCollision() {
-        this.playSound(Config.sounds.launchingRamp.rolling);
-    }
-
+    /**
+     * Application de la force avec bride de sécurité absolue
+     */
     applyLaunchingRampForce(handle1, handle2, powerOverride = null) {
         if (!this.collider) return;
-
-        // Check if the ramp collider matches one of the handles
         if (this.collider.handle !== handle1 && this.collider.handle !== handle2) return;
 
         const otherHandle = this.collider.handle === handle1 ? handle2 : handle1;
@@ -111,19 +98,32 @@ export class LaunchingRamp extends Objects {
         const otherBody = otherCollider.parent();
         if (!otherBody || otherBody.isFixed()) return;
 
+        // Anti-répétition
         if (this.pushedBodyHandles.has(otherBody.handle)) return;
 
-        const launchPower = powerOverride ?? Config.launchingRamp.maximalPower;
-        const power = launchPower * Config.forceMultiplier;
-        otherBody.applyImpulse(
+        // --- LE PLAFOND VIRTUEL ---
+        const absoluteMax = Config.launchingRamp.maximalPower; // 50
+        let targetSpeed = powerOverride ?? Config.launchingRamp.power;
+
+        // On écrête la valeur avant même qu'elle ne touche au moteur physique
+        if (targetSpeed > absoluteMax) targetSpeed = absoluteMax;
+
+        // On définit la vitesse directement : c'est 100% plus stable que l'impulsion
+        // pour éviter de traverser le modèle 3D.
+        otherBody.setLinvel(
             {
-                x: this.rampDirection.x * power,
-                y: this.rampDirection.y * power,
-                z: this.rampDirection.z * power
+                x: this.rampDirection.x * targetSpeed,
+                y: this.rampDirection.y * targetSpeed,
+                z: this.rampDirection.z * targetSpeed
             },
             true
         );
+
         this.pushedBodyHandles.add(otherBody.handle);
-        this.playSound(Config.sounds.launchingRamp.launch); // Joue le son de lancement
+        this.playSound(Config.sounds.launchingRamp.launch);
+    }
+
+    resetLaunchImpulse() {
+        this.pushedBodyHandles.clear();
     }
 }

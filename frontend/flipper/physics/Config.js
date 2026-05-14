@@ -23,9 +23,9 @@ export default {
         position: { x: -230, y: 30, z: -50 },
         rotation: { x: 0, y: 0, z: 0 },
         minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
-        maximalPower: 50,
-        powerBuild: 0.25,  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
-        power: 10
+        maximalPower: 20,
+        powerBuild: 0.025,  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
+        power: 0
     },
 
     wall: {
