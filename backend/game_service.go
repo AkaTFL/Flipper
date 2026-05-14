@@ -20,7 +20,7 @@ func NewGameService(hub *Hub) *GameService {
 func (gs *GameService) HandleMessage(msg Message, messageBytes []byte) ([]byte, bool) {
 	switch msg.Type {
 	case "ping":
-		return gs.handlePing(), true
+		return NewPongMessage(), true
 
 	case "flipper_action":
 		gs.handleFlipperAction(messageBytes)
@@ -52,12 +52,6 @@ func (gs *GameService) HandleMessage(msg Message, messageBytes []byte) ([]byte, 
 	}
 }
 
-// handlePing traite les messages ping et retourne la réponse pong
-func (gs *GameService) handlePing() []byte {
-	response, _ := json.Marshal(Message{Type: "pong"})
-	return response
-}
-
 // handleFlipperAction traite les actions flipper (broadcast uniquement)
 func (gs *GameService) handleFlipperAction(messageBytes []byte) {
 	log.Printf("Action flipper reçue: %s", string(messageBytes))
@@ -79,26 +73,16 @@ func (gs *GameService) handleImpact(payload json.RawMessage) {
 		gs.hub.mqtt.PublishImpact(impact)
 	}
 
-	// Broadcaster l'impact brut
-	originalMsg, _ := json.Marshal(Message{
-		Type:    "impact",
-		Payload: payload,
-	})
-	gs.hub.broadcast <- originalMsg
+	// Broadcaster l'impact
+	gs.hub.broadcast <- NewImpactMessage(payload)
 
 	// Appliquer le calcul de score
 	if scoreUpdate, ok := gs.hub.scorer.ApplyImpact(impact); ok {
-		gs.hub.broadcast <- mustMarshalMessage(Message{
-			Type:    "score_update",
-			Payload: mustMarshalJSON(scoreUpdate),
-		})
+		gs.hub.broadcast <- NewScoreUpdateMessage(scoreUpdate)
 
 		// Appliquer les dégâts au boss
 		if bossUpdate, ok := gs.hub.boss.ApplyScoreDamage(scoreUpdate.Delta); ok {
-			gs.hub.broadcast <- mustMarshalMessage(Message{
-				Type:    "boss_state_update",
-				Payload: mustMarshalJSON(bossUpdate),
-			})
+			gs.hub.broadcast <- NewBossStateUpdateMessage(bossUpdate)
 		}
 	}
 }
@@ -118,39 +102,23 @@ func (gs *GameService) handleStartGame() {
 	}
 
 	// Broadcaster la confirmation de démarrage
-	response, _ := json.Marshal(Message{
-		Type:    "game_started",
-		Payload: json.RawMessage(`{"status":"ok"}`),
-	})
-	gs.hub.broadcast <- response
+	gs.hub.broadcast <- NewGameStartedMessage()
 
 	// Broadcaster reset score
-	gs.hub.broadcast <- mustMarshalMessage(Message{
-		Type:    "score_update",
-		Payload: mustMarshalJSON(gs.hub.scorer.Reset()),
-	})
+	gs.hub.broadcast <- NewScoreUpdateMessage(gs.hub.scorer.Reset())
 
 	// Broadcaster reset boss
-	gs.hub.broadcast <- mustMarshalMessage(Message{
-		Type:    "boss_state_update",
-		Payload: mustMarshalJSON(gs.hub.boss.ResetForGameStart()),
-	})
+	gs.hub.broadcast <- NewBossStateUpdateMessage(gs.hub.boss.ResetForGameStart())
 }
 
 // handleBossFightStarted traite l'activation du combat de boss
 func (gs *GameService) handleBossFightStarted() {
 	log.Println("Boss fight activé")
-	gs.hub.broadcast <- mustMarshalMessage(Message{
-		Type:    "boss_state_update",
-		Payload: mustMarshalJSON(gs.hub.boss.StartBossFight()),
-	})
+	gs.hub.broadcast <- NewBossStateUpdateMessage(gs.hub.boss.StartBossFight())
 }
 
 // handleBossFightToggled traite le toggle du combat de boss
 func (gs *GameService) handleBossFightToggled() {
 	log.Println("Boss fight toggle")
-	gs.hub.broadcast <- mustMarshalMessage(Message{
-		Type:    "boss_state_update",
-		Payload: mustMarshalJSON(gs.hub.boss.ToggleBossFight()),
-	})
+	gs.hub.broadcast <- NewBossStateUpdateMessage(gs.hub.boss.ToggleBossFight())
 }

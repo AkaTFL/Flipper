@@ -76,18 +76,148 @@ Topics utilisés:
 - `flipper/sensor/tilt/triggered` : tilt déclenché, retransmis côté WebSocket et converti en `game_state` avec `gameOver=true`
 
 
+## Architecture
+
+### Couches logiques
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Frontend                             │
+│                      (WebSocket Client)                      │
+└────────────────────────────┬────────────────────────────────┘
+                             │
+                             ▼
+            ┌────────────────────────────────────┐
+            │     WebSocket HTTP Server          │
+            │  (main.go + ws_handler.go)         │
+            └────────────────┬───────────────────┘
+                             │
+                    ┌────────┴────────┐
+                    ▼                 ▼
+         ┌──────────────────┐  ┌──────────────────┐
+         │   Hub (ws_hub.go)│  │ GameService      │
+         │  (broadcast,     │  │(game_service.go) │
+         │   register,      │  │ Routing métier   │
+         │   unregister)    │  └─────┬────────────┘
+         └─────────────────┬┘         │
+                           │    ┌────┴──────┬──────────┐
+                           │    ▼           ▼          ▼
+         ┌─────────────────┴────┐  ┌───────────────────┬──┐
+         │   Client WriteLoop   │  │ ScoreTracker      │  │
+         │   (ws_client.go)     │  │ (score.go)        │  │
+         │   Broadcast deliver  │  └───────────────────┘  │
+         └──────────────────────┘  ┌──────────────────────┘
+                                   │
+                    ┌──────────────┴──────────────┐
+                    ▼                             ▼
+         ┌─────────────────────┐      ┌─────────────────────┐
+         │  BossTracker        │      │  MQTTBridge         │
+         │  (boss.go)          │      │  (mqtt_bridge.go)   │
+         │  Boss HP, phases    │      │  Solenoid, sensor   │
+         └─────────────────────┘      └────────┬────────────┘
+                                               │
+                                    ┌──────────┴───────────┐
+                                    ▼                      ▼
+                          ┌──────────────────┐  ┌─────────────────┐
+                          │ Mosquitto Broker │  │  IoT (ESP32)    │
+                          │ (MQTT)           │  │  Sensors, LEDs  │
+                          └──────────────────┘  └─────────────────┘
+```
+
+### Responsabilités par module
+
+| Module | Responsabilité |
+|--------|-----------------|
+| `main.go` | Bootstrap serveur HTTP, initialisation du hub et pont MQTT |
+| `ws_handler.go` | Upgrade WebSocket, envoi du message de bienvenue |
+| `ws_hub.go` | Gestion des clients connectés, broadcasting |
+| `ws_client.go` | I/O WebSocket pur: readPump/writePump |
+| `game_service.go` | Routing des messages métier (impact, score, boss, etc.) |
+| `messages.go` | Helpers de sérialisation JSON et constructeurs de messages typés |
+| `types.go` | Types DTO (Message, GameState, ImpactPayload, etc.) |
+| `score.go` | Calcul de score, combo, multiplicateurs |
+| `boss.go` | Gestion de l'état du boss (HP, phases, dégâts) |
+| `mqtt_bridge.go` | Pont vers Mosquitto, publication solénoïdes, souscription capteurs |
+| `mqtt_publisher.go` | Utilitaires de publication MQTT |
+
 ## Structure du projet
 
 ```
 backend/
-├── main.go       # Point d'entrée et serveur WebSocket
-├── mqtt_bridge.go # Pont MQTT + configuration
-├── go.mod        # Dépendances Go
-└── go.sum        # Checksums des dépendances
+├── main.go                  # Bootstrap + serveur HTTP
+├── main_test.go             # Tests d'intégration WebSocket
+│
+├── ws_handler.go            # Upgrade WebSocket
+├── ws_hub.go                # Gestion des clients
+├── ws_client.go             # I/O WebSocket
+│
+├── game_service.go          # Routing métier des messages
+├── game_service_test.go     # Tests unitaires du service
+│
+├── messages.go              # Helpers sérialisation + constructeurs
+├── messages_test.go         # Tests des messages
+├── types.go                 # Types DTO
+│
+├── score.go                 # Logique de scoring
+├── score_test.go            # Tests unitaires du scoring
+│
+├── boss.go                  # Gestion boss
+│
+├── mqtt_bridge.go           # Pont MQTT + config
+├── mqtt_bridge_test.go      # Tests du pont MQTT
+├── mqtt_publisher.go        # Utilitaires publication
+│
+├── go.mod                   # Dépendances Go
+├── go.sum                   # Checksums
+├── README.md                # Cette documentation
+└── Dockerfile               # Image Docker
 ```
 
-## Réaalisé
+## Tests
+
+Tous les tests passent via `go test ./...`:
+
+- **Tests d'intégration WebSocket** (`main_test.go`): inscription/désinscription clients, broadcast
+- **Tests unitaires GameService** (`game_service_test.go`): routing des messages, impacts, scoring
+- **Tests unitaires Messages** (`messages_test.go`): sérialisation, constructeurs typés
+- **Tests unitaires Score** (`score_test.go`): combo, multiplicateurs, resets
+- **Tests unitaires MQTT** (`mqtt_bridge_test.go`): classification topics, enveloppe MQTT
+
+## Flux type d'une interaction
+
+1. Frontend détecte un impact (bumper, palle)
+2. Envoie `{"type":"impact","payload":{...}}` via WebSocket
+3. Client readPump reçoit et crée un Message
+4. GameService route vers `handleImpact()`
+5. Impact publié via MQTT vers solénoïde
+6. Score appliqué (calcul + bonus combo)
+7. BroadCast `score_update` vers tous les clients WebSocket
+8. Boss damage appliqué si actif
+9. Broadcast `boss_state_update` vers tous les clients
+
+## Commandes utiles
+
+```bash
+# Lancer les tests
+go test ./...
+
+# Tests verbose avec couverture
+go test -v -cover ./...
+
+# Lancer le serveur en local
+go run main.go
+
+# Build Docker
+docker build -t flipper-backend .
+
+# Run Docker avec Mosquitto externe
+docker run -e MQTT_HOST=host.docker.internal -p 8080:8080 flipper-backend
+```
+
+## Version
+
 ```
 version: 0.1.0
+Refactoring étapes 1-4 complétées
 Modestin HOUNGA
 ```
