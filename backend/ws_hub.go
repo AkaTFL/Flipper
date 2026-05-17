@@ -16,6 +16,7 @@ type Hub struct {
 	mqtt       *MQTTBridge
 	scorer     *ScoreTracker
 	boss       *BossTracker
+	player     *PlayerTracker
 	mutex      sync.RWMutex
 }
 
@@ -35,6 +36,7 @@ func newHub() *Hub {
 		unregister: make(chan *Client),
 		scorer:     newScoreTracker(defaultScoreConfig),
 		boss:       newBossTracker(defaultBossConfig),
+		player:     newPlayerTracker(defaultPlayerConfig),
 	}
 }
 

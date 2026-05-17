@@ -57,9 +57,13 @@ Variables utiles:
 | `start_game` | Client → Serveur | Démarrer une nouvelle partie |
 | `boss_fight_started` | Client → Serveur | Activer explicitement le boss fight |
 | `boss_fight_toggled` | Client → Serveur | Basculer le boss fight entre actif et inactif |
+| `boss_attack_test` | Client → Serveur | Simuler une attaque moyenne du boss sur le joueur |
+| `player_damage_test` | Client → Serveur | Simuler des dégâts joueur pour les tests |
+| `ball_lost` | Client → Serveur | Simuler une perte de balle |
 | `game_started` | Serveur → Client | Confirmation du démarrage |
 | `score_update` | Serveur → Client | Nouveau score calculé avec delta et combo courant |
 | `boss_state_update` | Serveur → Client | État courant du boss (HP, activation, dégâts) |
+| `player_state_update` | Serveur → Client | État courant du joueur (HP, balles, game over) |
 | `flipper_action` | Client → Serveur | Action sur les flippers (left/right) |
 | `impact` | Client → Serveur | Contact détecté côté frontend (bumper, palle, mur, rampe) |
 | `game_state` | Bidirectionnel | État actuel du jeu |
@@ -137,6 +141,7 @@ Topics utilisés:
 | `types.go` | Types DTO (Message, GameState, ImpactPayload, etc.) |
 | `score.go` | Calcul de score, combo, multiplicateurs |
 | `boss.go` | Gestion de l'état du boss (HP, phases, dégâts) |
+| `player.go` | Gestion de l'état du joueur (HP, balles, game over) |
 | `mqtt_bridge.go` | Pont vers Mosquitto, publication solénoïdes, souscription capteurs |
 | `mqtt_publisher.go` | Utilitaires de publication MQTT |
 
@@ -162,6 +167,7 @@ backend/
 ├── score_test.go            # Tests unitaires du scoring
 │
 ├── boss.go                  # Gestion boss
+├── player.go                # Gestion joueur
 │
 ├── mqtt_bridge.go           # Pont MQTT + config
 ├── mqtt_bridge_test.go      # Tests du pont MQTT
@@ -181,6 +187,7 @@ Tous les tests passent via `go test ./...`:
 - **Tests unitaires GameService** (`game_service_test.go`): routing des messages, impacts, scoring
 - **Tests unitaires Messages** (`messages_test.go`): sérialisation, constructeurs typés
 - **Tests unitaires Score** (`score_test.go`): combo, multiplicateurs, resets
+- **Tests unitaires Player** (`player_test.go`): HP joueur, perte de balle, game over
 - **Tests unitaires MQTT** (`mqtt_bridge_test.go`): classification topics, enveloppe MQTT
 
 ## Flux type d'une interaction
@@ -194,6 +201,8 @@ Tous les tests passent via `go test ./...`:
 7. BroadCast `score_update` vers tous les clients WebSocket
 8. Boss damage appliqué si actif
 9. Broadcast `boss_state_update` vers tous les clients
+
+Au démarrage d'une partie, le backend réinitialise aussi l'état joueur et diffuse `player_state_update`.
 
 ## Commandes utiles
 
