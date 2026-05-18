@@ -193,6 +193,45 @@ test('handleCollisionEvents can report a ramp-side collision while delegating th
   ]);
 });
 
+test('step only verifies ramp traversal after a collision is detected', () => {
+  const physics = new GamePhysics(Config);
+  const calls = [];
+
+  physics.world = {
+    step() {
+      calls.push('world:step');
+    }
+  };
+
+  physics.eventQueue = {
+    drainCollisionEvents(callback) {
+      callback(10, 11, true);
+    }
+  };
+
+  physics.handleCollisionEvents = function () {
+    calls.push('collision');
+    return true;
+  };
+
+  physics.detectRampTraversal = function () {
+    calls.push('ramp-check');
+  };
+
+  physics.detectScoreZoneEntries = function () {
+    calls.push('score-check');
+  };
+
+  physics.step();
+
+  assert.deepEqual(calls, [
+    'world:step',
+    'collision',
+    'ramp-check',
+    'score-check'
+  ]);
+});
+
 test('detectScoreZoneEntries emits more specific target and star impacts when the ball enters configured zones', () => {
   const physics = new GamePhysics({
     ...Config,

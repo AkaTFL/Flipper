@@ -1,8 +1,8 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
+import Config from '../physics/Config.js';
 
 export class GamePhysics {
-    constructor(config) {
-        this.config = config;
+    constructor() {
         this.world = null;
         this.bumpers = [];
         this.launchingRamp = null;
@@ -21,11 +21,11 @@ export class GamePhysics {
         await RAPIER.init({});
 
         this.eventQueue = new RAPIER.EventQueue(true);
-        const multiplier = this.config.forceMultiplier || 1.0;
+        const multiplier = Config.forceMultiplier;
         const gravity = {
-            x: this.config.gravity.x * multiplier,
-            y: this.config.gravity.y * multiplier,
-            z: this.config.gravity.z * multiplier
+            x: Config.gravity.x * multiplier,
+            y: Config.gravity.y * multiplier,
+            z: Config.gravity.z * multiplier
         };
 
         this.world = new RAPIER.World(gravity);
@@ -36,7 +36,6 @@ export class GamePhysics {
         this.world.step(this.eventQueue);
         this.handleCollisionEvents();
         this.detectScoreZoneEntries();
-        this.detectRampTraversal();
     }
 
     registerObjects(objects) {
@@ -66,30 +65,8 @@ export class GamePhysics {
         }
     }
 
-    resolveBackendUrl() {
-        const explicitUrl = this.config.backend?.url
-            || globalThis.document?.body?.dataset?.backendUrl
-            || globalThis.FLIPPER_BACKEND_URL;
-
-        if (explicitUrl) {
-            return explicitUrl;
-        }
-
-        const location = globalThis.window?.location || globalThis.location || null;
-        const protocol = location?.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = this.config.backend?.host || location?.hostname || 'localhost';
-        const port = this.config.backend?.port || location?.port || '8080';
-        const path = this.config.backend?.path || '/ws';
-
-        return `${protocol}//${host}:${port}${path}`;
-    }
-
     connectBackend() {
-        if (typeof globalThis.WebSocket !== 'function') {
-            return;
-        }
-
-        const socketUrl = this.resolveBackendUrl();
+        const socketUrl = 'http://localhost:8080/ws';
 
         try {
             this.backendSocket = new globalThis.WebSocket(socketUrl);
@@ -136,19 +113,8 @@ export class GamePhysics {
         }
     }
 
-    isBackendReady() {
-        const openState = typeof globalThis.WebSocket?.OPEN === 'number'
-            ? globalThis.WebSocket.OPEN
-            : 1;
-
-        return Boolean(this.backendSocket) && this.backendSocket.readyState === openState;
-    }
 
     sendMessage(type, payload = {}) {
-        if (!this.isBackendReady()) {
-            return false;
-        }
-
         this.backendSocket.send(JSON.stringify({ type, payload }));
         return true;
     }
@@ -168,7 +134,7 @@ export class GamePhysics {
     }
 
     detectScoreZoneEntries() {
-        const scoreZones = this.config.scoreZones?.instances;
+        const scoreZones = Config.scoreZones?.instances;
         if (!Array.isArray(scoreZones) || scoreZones.length === 0) {
             return;
         }
@@ -205,15 +171,8 @@ export class GamePhysics {
     }
 
     detectRampTraversal() {
-        const rampScoring = this.config.rampScoring;
-        if (!rampScoring?.entryZone || !rampScoring?.exitZone) {
-            return;
-        }
-
+        const rampScoring = Config.rampScoring;
         const ball = this.objects.find((obj) => obj?.objectType === 'ball' && obj?.rigidBody);
-        if (!ball?.rigidBody || typeof ball.rigidBody.translation !== 'function') {
-            return;
-        }
 
         const position = ball.rigidBody.translation();
         const nextActiveRampZones = new Set();
@@ -298,6 +257,7 @@ export class GamePhysics {
         this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
             if (!started) return;
 
+            
             const combo = comboS || null;
             const collidingObjects = this.findCollidingObjects(handle1, handle2);
             const collisionResponders = this.findCollisionResponders(handle1, handle2);
@@ -315,6 +275,10 @@ export class GamePhysics {
 
                 if (typeof obj.applyLaunchingRampForce === 'function') {
                     obj.applyLaunchingRampForce(handle1, handle2);
+                }
+
+                if (typeof obj === 'ramps') {
+                    this.detectRampTraversal();
                 }
             }
 

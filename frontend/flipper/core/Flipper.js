@@ -14,7 +14,7 @@ import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
 
 async function initFlipper() {
-    const physics = new GamePhysics(Config);
+    const physics = new GamePhysics();
     await physics.init();
 
     const sceneManager = new Scene(

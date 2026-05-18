@@ -1,10 +1,4 @@
 export default {
-    backend: {
-        host: 'localhost',
-        port: '8080',
-        path: '/ws'
-    },
-
     gravity: { x: 0, y: -9.75, z: -1.11 },
     
     ball: {
