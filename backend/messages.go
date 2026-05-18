@@ -69,6 +69,14 @@ func NewPlayerStateUpdateMessage(playerUpdate any) []byte {
 	})
 }
 
+// NewQuestUpdateMessage crée le message de mise à jour des quêtes actives
+func NewQuestUpdateMessage(questUpdate any) []byte {
+	return mustMarshalMessage(Message{
+		Type:    "quest_update",
+		Payload: mustMarshalJSON(questUpdate),
+	})
+}
+
 // NewImpactMessage crée le message d'impact
 func NewImpactMessage(payload json.RawMessage) []byte {
 	return mustMarshalMessage(Message{

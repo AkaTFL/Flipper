@@ -17,6 +17,7 @@ type Hub struct {
 	scorer     *ScoreTracker
 	boss       *BossTracker
 	player     *PlayerTracker
+	quests     *QuestTracker
 	mutex      sync.RWMutex
 }
 
@@ -37,6 +38,7 @@ func newHub() *Hub {
 		scorer:     newScoreTracker(defaultScoreConfig),
 		boss:       newBossTracker(defaultBossConfig),
 		player:     newPlayerTracker(defaultPlayerConfig),
+		quests:     newQuestTracker(),
 	}
 }
 

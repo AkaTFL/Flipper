@@ -116,6 +116,13 @@ func (b *BossTracker) ApplyScoreDamage(scoreDelta int) (BossStateUpdatePayload, 
 	return b.currentStateLocked(damage, "score_damage"), true
 }
 
+func (b *BossTracker) IsActive() bool {
+	b.mutex.Lock()
+	defer b.mutex.Unlock()
+
+	return b.active
+}
+
 func (b *BossTracker) currentStateLocked(damageTaken int, mode string) BossStateUpdatePayload {
 	return BossStateUpdatePayload{
 		Active:      b.active,
