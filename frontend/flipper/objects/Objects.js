@@ -73,7 +73,7 @@ export class Objects {
 
     playSound(sound = this.sound) {
         this.audio = this.initSound(sound);
-        if (this.audio === null) return;
+        if (this.audio === null) return console.warn('Aucun son à jouer pour cet objet.');
 
         this.audio.currentTime = 0;
         this.audio.play().catch((error) => {

@@ -38,6 +38,8 @@ export class GamePhysics {
         this.detectScoreZoneEntries();
     }
 
+    //Register des objets
+
     registerObjects(objects) {
         for (const obj of objects) {
             if (!obj) continue;
@@ -64,7 +66,11 @@ export class GamePhysics {
             this.colliderResponders.set(entry.collider.handle, entry.responder || entry.owner || obj);
         }
     }
+    //
+    //
+    //
 
+    // Communication avec le backend
     connectBackend() {
         const socketUrl = 'http://localhost:8080/ws';
 
@@ -115,9 +121,21 @@ export class GamePhysics {
 
 
     sendMessage(type, payload = {}) {
-        this.backendSocket.send(JSON.stringify({ type, payload }));
+        const message = { type, payload };
+
+        console.log('[backend] envoi', message);
+
+        if (!this.backendSocket || this.backendSocket.readyState !== globalThis.WebSocket?.OPEN) {
+            console.warn('[backend] socket indisponible, envoi ignoré', message);
+            return false;
+        }
+
+        this.backendSocket.send(JSON.stringify(message));
         return true;
     }
+    //
+    //
+    //
 
     // Retour nécessaire : score mis à jour par rapport aux différents objets/multiplicateurs
     sendImpact(object, combo) {
@@ -128,8 +146,6 @@ export class GamePhysics {
         return this.sendMessage('impact', {
             objectId: object.objectId || null,
             objectType: object.objectType || object.constructor?.name?.toLowerCase() || 'object',
-            combo: combo || null,
-            timestamp: Date.now()
         });
     }
 
@@ -171,43 +187,46 @@ export class GamePhysics {
     }
 
     detectRampTraversal() {
-        const rampScoring = Config.rampScoring;
+        const rampScoring = Config.ramps;
         const ball = this.objects.find((obj) => obj?.objectType === 'ball' && obj?.rigidBody);
 
         const position = ball.rigidBody.translation();
         const nextActiveRampZones = new Set();
         const now = Date.now();
 
-        if (this.rampTraversal?.startedAt && (now - this.rampTraversal.startedAt) > (rampScoring.timeoutMs || 4000)) {
+        if (this.rampTraversal?.startedAt && (now - this.rampTraversal.startedAt) > (rampScoring.timeoutMs)) {
             this.rampTraversal = null;
         }
 
-        const entryZone = rampScoring.entryZone;
-        if (this.isPositionInsideZone(position, entryZone)) {
-            nextActiveRampZones.add(entryZone.id);
+        rampScoring.instances.forEach((ramp) => {
+            const entryZone = ramp.entryZone;
+            if (this.isPositionInsideZone(position, entryZone)) {
+                nextActiveRampZones.add(entryZone.id);
+            }
             if (!this.activeRampZones.has(entryZone.id)) {
                 this.rampTraversal = {
                     startedAt: now,
                     hasWallBounce: false
                 };
             }
-        }
 
-        const exitZone = rampScoring.exitZone;
-        if (this.isPositionInsideZone(position, exitZone)) {
-            nextActiveRampZones.add(exitZone.id);
-            if (!this.activeRampZones.has(exitZone.id) && this.rampTraversal) {
-                const objectId = this.rampTraversal.hasWallBounce
-                    ? 'ramp-main-simple'
-                    : 'ramp-main-perfect';
+            const exitZone = rampScoring.exitZone;
+            
+            if (this.isPositionInsideZone(position, exitZone)) {
+                nextActiveRampZones.add(exitZone.id);
+                if (!this.activeRampZones.has(exitZone.id) && this.rampTraversal) {
+                    const objectId = this.rampTraversal.hasWallBounce
+                        ? 'ramp-main-simple'
+                        : 'ramp-main-perfect';
 
-                this.sendImpact({
-                    objectId,
-                    objectType: 'launching_ramp'
-                });
-                this.rampTraversal = null;
+                    this.sendImpact({
+                        objectId,
+                        objectType: 'launching_ramp'
+                    });
+                    this.rampTraversal = null;
+                }
             }
-        }
+        });
 
         this.activeRampZones = nextActiveRampZones;
     }
@@ -239,16 +258,7 @@ export class GamePhysics {
     }
 
     reportContactImpacts(collidingObjects, combo = null) {
-        const ball = collidingObjects.find((obj) => obj.objectType === 'ball');
-        const reportableObjects = ball
-            ? collidingObjects.filter((obj) => obj !== ball)
-            : collidingObjects;
-
-        for (const obj of reportableObjects) {
-            if (!obj.objectId || obj.objectType === 'ball') {
-                continue;
-            }
-
+        for (const obj of collidingObjects) {
             this.sendImpact(obj, combo);
         }
     }
@@ -257,7 +267,6 @@ export class GamePhysics {
         this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
             if (!started) return;
 
-            
             const combo = comboS || null;
             const collidingObjects = this.findCollidingObjects(handle1, handle2);
             const collisionResponders = this.findCollisionResponders(handle1, handle2);
@@ -269,29 +278,25 @@ export class GamePhysics {
             }
 
             for (const obj of collisionResponders) {
-                if (typeof obj.applyBumperForce === 'function') {
+                if (obj.objectType === 'bumper' && typeof obj.applyBumperForce === 'function') {
                     obj.applyBumperForce(handle1, handle2);
                 }
 
-                if (typeof obj.applyLaunchingRampForce === 'function') {
+                if (obj.objectType === 'launching_ramp' && typeof obj.applyLaunchingRampForce === 'function') {
                     obj.applyLaunchingRampForce(handle1, handle2);
                 }
 
-                if (typeof obj === 'ramps') {
+                if (obj.objectType === 'ramp') {
                     this.detectRampTraversal();
+                    this.markRampBounce(collidingObjects);
                 }
             }
 
             this.reportContactImpacts(collidingObjects);
-            this.markRampBounce(collidingObjects);
         });
     }
 
     markRampBounce(collidingObjects) {
-        if (!this.rampTraversal) {
-            return;
-        }
-
         const hitWall = collidingObjects.some((obj) => obj?.objectType === 'wall');
         if (hitWall) {
             this.rampTraversal.hasWallBounce = true;

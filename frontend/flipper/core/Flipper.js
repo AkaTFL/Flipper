@@ -55,7 +55,7 @@ async function initFlipper() {
 
     // Walls
     Config.wall.instances.forEach(wall => {
-        mesh.push(new Wall(physics.world, wall.length, wall.height, wall.position, wall.rotation));
+        mesh.push(new Wall(physics, wall.length, wall.height, wall.position, wall.rotation, wall.objectId));
     });
 
     // Launching Ramp
@@ -65,7 +65,8 @@ async function initFlipper() {
       Config.launchingRamp.width,
       Config.launchingRamp.height,
       Config.launchingRamp.position,
-      Config.launchingRamp.rotation
+      Config.launchingRamp.rotation,
+      Config.launchingRamp.objectId
     );
     controls.setLaunchingRampRef(launching);
     mesh.push(launching);
@@ -74,7 +75,7 @@ async function initFlipper() {
     // const rampA = new RampA(physics.world, Config.ramps?.A);
     // mesh.push(rampA);
 
-    const rampB = new RampB(physics.world, Config.ramps?.B);
+    const rampB = new RampB(physics.world, Config.ramps.B);
     mesh.push(rampB);
 
     // Bumpers
