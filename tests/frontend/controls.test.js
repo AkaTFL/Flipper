@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { Controls } from '../../frontend/core/Controls.js';
+import { Controls } from '../../frontend/flipper/core/Controls.js';
 
 function createWindowStub() {
   const listeners = new Map();
@@ -63,6 +63,31 @@ test('Controls triggers boss_fight_started callback on debug key press', () => {
   windowStub.listeners.get('keydown')({ key: 'b', preventDefault() {}, repeat: false });
 
   assert.equal(bossFightCalls, 1);
+
+  globalThis.window = previousWindow;
+});
+
+test('Controls triggers player damage and ball lost callbacks on debug keys', () => {
+  const previousWindow = globalThis.window;
+  const windowStub = createWindowStub();
+  globalThis.window = windowStub;
+
+  const controls = new Controls('q', 'd', 'space', 'b');
+  let damageCalls = 0;
+  let ballLostCalls = 0;
+
+  controls.setPlayerDamageCallback(() => {
+    damageCalls += 1;
+  });
+  controls.setBallLostCallback(() => {
+    ballLostCalls += 1;
+  });
+
+  windowStub.listeners.get('keydown')({ key: 'h', preventDefault() {}, repeat: false });
+  windowStub.listeners.get('keydown')({ key: 'l', preventDefault() {}, repeat: false });
+
+  assert.equal(damageCalls, 1);
+  assert.equal(ballLostCalls, 1);
 
   globalThis.window = previousWindow;
 });

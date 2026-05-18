@@ -61,6 +61,14 @@ func NewBossStateUpdateMessage(bossUpdate any) []byte {
 	})
 }
 
+// NewPlayerStateUpdateMessage crée le message de mise à jour de l'état du joueur
+func NewPlayerStateUpdateMessage(playerUpdate any) []byte {
+	return mustMarshalMessage(Message{
+		Type:    "player_state_update",
+		Payload: mustMarshalJSON(playerUpdate),
+	})
+}
+
 // NewImpactMessage crée le message d'impact
 func NewImpactMessage(payload json.RawMessage) []byte {
 	return mustMarshalMessage(Message{
