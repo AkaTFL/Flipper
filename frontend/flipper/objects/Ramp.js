@@ -37,8 +37,8 @@ class RampBase extends Objects {
                     desc.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
                     this.replaceCollider(desc, this.rigidBody);
                 } else {
-                    desc = RAPIER.ColliderDesc.cuboid(this.length / 2, this.width / 2, this.height / 2);
-                    desc.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+                    desc = RAPIER.ColliderDesc.cuboid(this.length / 2, this.width / 2, this.height / 2)
+                                              .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
                     this.attachCollider(desc);
                 }
             });

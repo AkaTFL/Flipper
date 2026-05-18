@@ -67,14 +67,11 @@ export class LaunchingRamp extends Objects {
         if (this.pushedBodyHandles.has(otherBody.handle)) return;
 
         // --- LE PLAFOND VIRTUEL ---
-        const absoluteMax = Config.launchingRamp.maximalPower; // 50
-        let targetSpeed = powerOverride ?? Config.launchingRamp.power;
+        const absoluteMax = Config.launchingRamp.maximalPower;
+        let targetSpeed = powerOverride;
 
-        // On écrête la valeur avant même qu'elle ne touche au moteur physique
         if (targetSpeed > absoluteMax) targetSpeed = absoluteMax;
 
-        // On définit la vitesse directement : c'est 100% plus stable que l'impulsion
-        // pour éviter de traverser le modèle 3D.
         otherBody.setLinvel(
             {
                 x: this.rampDirection.x * targetSpeed,

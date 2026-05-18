@@ -49,9 +49,6 @@ export class Wall extends Objects {
         if (this.audio) {
             this.playSound();
         }
-
-        this.gamePhysics.sendImpact(this);
-
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }
