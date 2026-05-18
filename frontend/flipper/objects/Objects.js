@@ -86,21 +86,26 @@ export class Objects {
         const ry = rotation?.y ?? 0;
         const rz = rotation?.z ?? 0;
 
+        // Formule pour une rotation composite XYZ
+        const cx = Math.cos(rx / 2), sx = Math.sin(rx / 2);
+        const cy = Math.cos(ry / 2), sy = Math.sin(ry / 2);
+        const cz = Math.cos(rz / 2), sz = Math.sin(rz / 2);
+
         return {
-            x: Math.sin(rx / 2),
-            y: Math.sin(ry / 2),
-            z: Math.sin(rz / 2),
-            w: Math.cos(rx / 2) * Math.cos(ry / 2) * Math.cos(rz / 2)
+            x: sx * cy * cz - cx * sy * sz,
+            y: cx * sy * cz + sx * cy * sz,
+            z: cx * cy * sz - sx * sy * cz,
+            w: cx * cy * cz + sx * sy * sz
         };
     }
 
-    createFixedRigidBody(position = this.position, rotation = this.rotation, withRotation = true) {
+    createFixedRigidBody(position = this.position, rotation = this.rotation) {
         if (!this.world || !position) return null;
 
         const rigidBodyDesc = RAPIER.RigidBodyDesc.fixed()
             .setTranslation(position.x, position.y, position.z);
 
-        const finalRigidBodyDesc = withRotation
+        const finalRigidBodyDesc = rotation
             ? rigidBodyDesc.setRotation(this.toRotationQuaternion(rotation))
             : rigidBodyDesc;
 
@@ -113,8 +118,83 @@ export class Objects {
         return this.collider;
     }
 
-    addMesh(modelPath, onModelLoaded, options = {}) {
-        const { preserveScale = false } = options;
+    replaceCollider(colliderDesc, rigidBody = this.rigidBody) {
+        if (this.collider && typeof this.world.removeCollider === 'function') {
+            this.world.removeCollider(this.collider, true);
+            this.collider = null;
+        }
+
+        return this.attachCollider(colliderDesc, rigidBody);
+    }
+
+    buildTrimeshCollider(modelRoot) {
+        if (!modelRoot) return null;
+
+        modelRoot.updateMatrixWorld(true);
+
+        const vertices = [];
+        const indices = [];
+        let vertexOffset = 0;
+
+        modelRoot.traverse((child) => {
+            if (!child.isMesh || !child.geometry) return;
+
+            const geometry = child.geometry.clone();
+            const positionAttribute = geometry.getAttribute('position');
+            if (!positionAttribute) {
+                geometry.dispose();
+                return;
+            }
+
+            if (!geometry.index) {
+                geometry.setIndex(Array.from({ length: positionAttribute.count }, (_, i) => i));
+            }
+
+            geometry.applyMatrix4(child.matrixWorld);
+
+            const transformedPosition = geometry.getAttribute('position');
+            for (let i = 0; i < transformedPosition.count; i += 1) {
+                const x = transformedPosition.getX(i);
+                const y = transformedPosition.getY(i);
+                const z = transformedPosition.getZ(i);
+                
+                // ✅ VÉRIFICATION : rejeter les valeurs invalides
+                if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
+                    console.warn(`[buildTrimeshCollider] Vertex invalide détecté: (${x}, ${y}, ${z})`);
+                    geometry.dispose();
+                    return;
+                }
+                
+                vertices.push(x, y, z);
+            }
+
+            const geometryIndices = geometry.index?.array;
+            if (geometryIndices && geometryIndices.length >= 3) {
+                for (let i = 0; i < geometryIndices.length; i += 1) {
+                    indices.push(geometryIndices[i] + vertexOffset);
+                }
+            }
+
+            vertexOffset += transformedPosition.count;
+            geometry.dispose();
+        });
+
+        // ✅ VÉRIFICATION : émettre un avertissement si trimesh vide
+        if (vertices.length === 0 || indices.length === 0) {
+            console.warn(`[buildTrimeshCollider] Pas de géométrie valide trouvée (vertices: ${vertices.length}, indices: ${indices.length})`);
+            return null;
+        }
+
+        if (vertices.length < 9 || indices.length < 3) {
+            console.warn(`[buildTrimeshCollider] Géométrie insuffisante (vertices: ${vertices.length}, indices: ${indices.length})`);
+            return null;
+        }
+
+        console.log(`[buildTrimeshCollider] Trimesh créé : ${vertices.length / 3} vertices, ${indices.length / 3} triangles`);
+        return RAPIER.ColliderDesc.trimesh(vertices, indices);
+    }
+
+    addMesh(modelPath, onModelLoaded) {
         const loader = new GLTFLoader();
 
         loader.loadAsync(modelPath)
@@ -124,40 +204,29 @@ export class Objects {
 
                 const box = new THREE.Box3().setFromObject(modelRoot);
                 const size = box.getSize(new THREE.Vector3());
-                
+
                 if (size.x === 0 || size.y === 0 || size.z === 0) {
                     console.warn('Le modèle 3D a des dimensions invalides (taille nulle) :', modelPath);
                     return;
-<<<<<<< HEAD:frontend/objects/Objects.js
-                } else if (!preserveScale) {
-                    const targetX = this.length ?? size.x;
-                    const targetY = this.width ?? size.y;
-                    const targetZ = this.height ?? size.z;
-=======
-                } else {
-                    const center = box.getCenter(new THREE.Vector3());
-                    modelRoot.position.sub(center); // Centre le mesh automatiquement
->>>>>>> develop:frontend/flipper/objects/Objects.js
-
-                    // Calcul de l'échelle : on adapte selon les dimensions fournies
-                    const scaleX = this.length ? (this.length / size.x) : 1;
-                    const scaleY = this.width ? (this.width / size.y) : scaleX;
-                    const scaleZ = this.height ? (this.height / size.z) : scaleX;
-
-                    modelRoot.scale.set(scaleX, scaleY, scaleZ);
-
-                    // Assurer que le modèle est bien visible même sans lumière complexe
-                    modelRoot.traverse((child) => {
-                        if (child.isMesh) {
-                            if (!child.material || Object.keys(child.material).length === 0) {
-                                child.material = new THREE.MeshStandardMaterial({
-                                    color: 0xcccccc
-                                });
-                            }
-                            child.material.side = THREE.DoubleSide;
-                        }
-                    });
                 }
+
+                const scaleX = this.length ? (this.length / size.x) : 1;
+                const scaleY = this.width ? (this.width / size.y) : scaleX;
+                const scaleZ = this.height ? (this.height / size.z) : scaleX;
+
+                modelRoot.scale.set(scaleX, scaleY, scaleZ);
+                modelRoot.updateMatrixWorld(true);
+
+                modelRoot.traverse((child) => {
+                    if (child.isMesh) {
+                        if (!child.material || Object.keys(child.material).length === 0) {
+                            child.material = new THREE.MeshStandardMaterial({
+                                color: 0xcccccc
+                            });
+                        }
+                        child.material.side = THREE.DoubleSide;
+                    }
+                });
 
                 if (onModelLoaded) {
                     onModelLoaded(modelRoot);
@@ -172,6 +241,7 @@ export class Objects {
 
     getMeshMetrics(modelRoot) {
         modelRoot.updateMatrixWorld(true);
+        
         const box = new THREE.Box3().setFromObject(modelRoot);
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());

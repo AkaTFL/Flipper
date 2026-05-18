@@ -16,55 +16,33 @@ export class Bumper extends Objects {
         this.objectId = objectId ?? 'bumper';
         this.objectType = 'bumper';
         this.radius = width / 2;
-        this.length = this.width = this.radius * 2;
-        this.height = this.radius * 2 * 1.5; // bumper un peu plus haut
-
-        console.log('Bumper créé', { objectId: this.objectId, position, radius: this.radius });
-
-        const modelPath = new URL('../assets/mesh/Bumper.glb', import.meta.url).href;
-        this.addMesh(modelPath, (modelRoot) => {
-            const { size, center } = this.getMeshMetrics(modelRoot);
-
-            modelRoot.position.x = -center.x;
-            modelRoot.position.y = -center.y;
-            modelRoot.position.z = -center.z;
-
-            console.log('Bumper chargé', { objectId: this.objectId, modelPath, size, center });
-
-            modelRoot.traverse((node) => {
-                if (!node.isMesh) return;
-
-                node.castShadow = true;
-                node.receiveShadow = true;
-
-                const updateMaterial = (material) => {
-                    if (!material) return;
-                    if (Array.isArray(material)) {
-                        material.forEach((mat) => mat.color?.set?.(0xff0000));
-                        return;
-                    }
-                    material.color?.set?.(0xff0000);
-                };
-
-                updateMaterial(node.material);
-            });
-        });
-
-        // Place le mesh comme la balle
-        this.mesh.position.copy(position);
-        this.mesh.rotation.set(rotation.x ?? 0, rotation.y ?? 0, rotation.z ?? 0);
+        this.length = width;
+        this.width = width;
+        this.height = width;
 
         // Physics properties - Fixed (Static)
-        this.createFixedRigidBody(position, rotation, false);
+        this.createFixedRigidBody(position, rotation);
 
-        const colliderDesc = RAPIER.ColliderDesc.ball(this.radius)
-            .setRestitution(Config.bumper.restitution)
-            .setFriction(Config.bumper.friction)
-            .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+        // Keep group from Objects; add either GLB model or procedural sphere
+        this.mesh.position.copy(position);
+        this.mesh.rotation.x = rotation.x;
+        this.mesh.rotation.y = rotation.y;
+        this.mesh.rotation.z = rotation.z;
 
-        this.attachCollider(colliderDesc);
+        const bumperConfig = Config.bumper.instances.find((entry) => entry.objectId === this.objectId) || null;
+
+        const modelPath = new URL(bumperConfig.model, import.meta.url).href;
+        this.addMesh(modelPath, (modelRoot) => {
+            const desc = this.buildTrimeshCollider(modelRoot);
+            if (desc) {
+                this.replaceCollider(desc, this.rigidBody);
+            } else {
+                this.attachCollider(RAPIER.ColliderDesc.ball(this.radius));
+            }
+        });
     }
 
+    
     applyBumperForce(handle1, handle2) {
         const otherHandle = this.collider.handle === handle1 ? handle2 : handle1
         const otherCollider = typeof this.world.getCollider === 'function'
@@ -74,7 +52,7 @@ export class Bumper extends Objects {
         if (!otherCollider) return
 
         const otherBody = otherCollider.parent()
-        if (!otherBody || (otherBody.isFixed && otherBody.isFixed())) return
+        if (!otherBody || otherBody.isFixed && otherBody.isFixed()) return
 
         const bumperPos = this.rigidBody.translation()
         const ballPos = otherBody.translation()
@@ -98,12 +76,13 @@ export class Bumper extends Objects {
             true
         )
 
-        this.playSound(Config.sounds.bumper.move) 
+        this.playSound(Config.sounds.bumper.move) // Joue le son du bumper
     }
 
     handleCollision() {
+        // Par défaut, joue le son s'il existe
         if (this.audio) {
-            this.playSound(Config.sounds.bumper.collision);
+            this.playSound(Config.sounds.bumper.collision); // Son de collision des palles
         }
     }
 }

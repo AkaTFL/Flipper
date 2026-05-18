@@ -22,64 +22,29 @@ export class LaunchingRamp extends Objects {
         this.rampDirection = this.computeRampDirection();
         this.pushedBodyHandles = new Set();
 
+        // Load the 3D model (use `model` from Config.launchingRamp when present)
         const modelPath = new URL(Config.launchingRamp.model, import.meta.url).href;
 
         this.addMesh(modelPath, (modelRoot) => {
             if (!this.rigidBody) this.createFixedRigidBody(position, rotation);
             
-            // 1. PROTECTION CRITIQUE : Active la CCD sur le corps de la rampe
-            this.rigidBody.enableCcd(true);
-
-            modelRoot.updateMatrixWorld(true);
             const desc = this.buildTrimeshCollider(modelRoot);
-            
             if (desc) {
-                // 2. PRÉCISION MAXIMALE : On configure le collider pour coller au mesh
-                desc.setFriction(0.1)
-                    .setRestitution(0.2)
-                    .setCcdEnabled(true) // Active la détection continue sur la surface
-                    .setSolverGroups(0x00010001); // Assure que les calculs de collision sont prioritaires
-
                 this.replaceCollider(desc, this.rigidBody);
+            } else {
+                this.attachCollider(RAPIER.ColliderDesc.cuboid(this.length/2, this.width/2, this.height/2));
             }
-            this.mesh.add(modelRoot);
-        });
-    }
 
-    /**
-     * BuildTrimeshCollider : Copie exacte de la géométrie 3D
-     */
-    buildTrimeshCollider(modelRoot) {
-        let vertices = [];
-        let indices = [];
-        modelRoot.traverse((child) => {
-            if (child.isMesh) {
-                const geometry = child.geometry;
-                const pos = geometry.attributes.position;
-                const idx = geometry.index;
-                const offset = vertices.length / 3;
-
-                for (let i = 0; i < pos.count; i++) {
-                    const v = new THREE.Vector3().fromBufferAttribute(pos, i);
-                    v.applyMatrix4(child.matrixWorld);
-                    const localV = this.mesh.worldToLocal(v);
-                    vertices.push(localV.x, localV.y, localV.z);
-                }
-
-                if (idx) {
-                    for (let i = 0; i < idx.count; i++) {
-                        indices.push(idx.getX(i) + offset);
-                    }
-                }
-            }
-        });
-        return vertices.length > 0 ? RAPIER.ColliderDesc.trimesh(new Float32Array(vertices), new Uint32Array(indices)) : null;
+            this.mesh.add(modelRoot); // si vous ne l'avez pas déjà ajouté ailleurs
+            });
     }
 
     computeRampDirection() {
         const rx = this.rotation.x || 0;
         const ry = this.rotation.y || 0;
         const rz = this.rotation.z || 0;
+
+        // Compute the launch direction by rotating the Y-axis according to the ramp's rotation
         const direction = new THREE.Vector3(0, 1, 0).applyEuler(new THREE.Euler(rx, ry, rz, 'XYZ')).normalize();
         return { x: direction.x, y: direction.y, z: direction.z };
     }

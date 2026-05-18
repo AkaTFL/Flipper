@@ -97,7 +97,7 @@ export class Controls{
                         }
                         const chargedPower = Config.launchingRamp.maximalPower * Math.max(0.1, this.input.launchPower) * Config.forceMultiplier;
                         this.ballRef.rigidBody.applyImpulse({ x: 0, y: 0, z: chargedPower }, true);
-                        this.impulseUsed = true;
+                        //this.impulseUsed = true;
                     }
                 }
             }

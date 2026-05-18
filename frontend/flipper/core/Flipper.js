@@ -3,12 +3,10 @@ import { Scene } from './Scene.js';
 import { Ball } from '../objects/Ball.js';
 import { Wall } from '../objects/Wall.js';
 import { Bumper } from '../objects/Bumper.js';
-import { Bumper as BumperTriangleLeft } from '../objects/Bumper_triangle_left.js';
-import { Bumper as BumperTriangleRight } from '../objects/Bumper_triangle_right .js';
+import { BumperTriangleLeft, BumperTriangleRight } from '../objects/BumperTriangle.js';
 import { LaunchingRamp } from '../objects/LaunchingRamp.js';
-import { RampA } from '../objects/Ramp_A.js';
-import { RampB } from '../objects/Ramp_B.js';
 import { Palles } from '../objects/Palles.js';
+import { RampA, RampB } from '../objects/Ramp.js';
 import { Controls } from './Controls.js';
 import { ScoreDisplay } from '../../ui/ScoreDisplay.js';
 
@@ -66,9 +64,38 @@ async function initFlipper() {
     controls.setLaunchingRampRef(launching);
     mesh.push(launching);
 
+    // // Ramps
+    // const rampA = new RampA(physics.world, Config.ramps?.A);
+    // mesh.push(rampA);
+
+    const rampB = new RampB(physics.world, Config.ramps?.B);
+    mesh.push(rampB);
+
     // Bumpers
-    Config.bumper.instances.forEach(bumper => {
-        mesh.push(new Bumper(physics.world, bumper.radius, bumper.position, bumper.rotation, bumper.id));
+    Config.bumpers = Config.bumper.instances;
+    Config.bumpers.forEach((bumperConfig) => {
+        mesh.push(new Bumper(
+            physics.world,
+            bumperConfig.width,
+            bumperConfig.position,
+            bumperConfig.rotation,
+            bumperConfig.objectId
+        ));
+    });
+
+    // Triangle Bumpers
+    (Config.bumpers_triangle || []).forEach((triangleConfig) => {
+        const TriangleClass = triangleConfig.variant === 'right'
+            ? BumperTriangleRight
+            : BumperTriangleLeft;
+
+        mesh.push(new TriangleClass(
+            physics.world,
+            triangleConfig.width,
+            triangleConfig.position,
+            triangleConfig.rotation,
+            triangleConfig.objectId
+        ));
     });
 
     // Palles
@@ -76,34 +103,33 @@ async function initFlipper() {
         mesh.push(new Palles(physics.world, pnl.length, pnl.width, pnl.height, pnl.position, pnl.rotation, pnl.side));
     });
 
-    physics.registerObjects(mesh);
-
     // Ball
-    mesh.push(new Ball(physics.world, Config.ball.position));
-    controls.setBallRef(mesh[mesh.length - 1]);
+    const ball = new Ball(physics.world, Config.ball.position);
+    mesh.push(ball);
+    controls.setBallRef(ball);
 
     physics.registerObjects(mesh);
 
     sceneManager.scene.add(...mesh.map(obj => obj.mesh));
 
     sceneManager.startRender(physics, () => {
-      controls.setLaunchChargeCount(0);
+        controls.setLaunchChargeCount(0);
 
-      for (let i = 0; i < mesh.length; i++) {
-        if (typeof mesh[i].syncPalle === 'function') {
-          mesh[i].syncPalle();
+        for (let i = 0; i < mesh.length; i++) {
+            if (typeof mesh[i].syncPalle === 'function') {
+                mesh[i].syncPalle();
+            }
+            else if (typeof mesh[i].syncBall === 'function') {
+                mesh[i].syncBall();
+            }
+            if (typeof mesh[i].setActive === 'function') {
+                if (mesh[i].side === 'left') {
+                    mesh[i].setActive(controls.input.left);
+                } else if (mesh[i].side === 'right') {
+                    mesh[i].setActive(controls.input.right);
+                }
+            }
         }
-        else if (typeof mesh[i].syncBall === 'function') {
-          mesh[i].syncBall();
-        }
-        if (typeof mesh[i].setActive === 'function') {
-          if (mesh[i].side === 'left') {
-            mesh[i].setActive(controls.input.left);
-          } else if (mesh[i].side === 'right') {
-            mesh[i].setActive(controls.input.right);
-          }
-        }
-      }
     });
 }
 
