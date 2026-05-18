@@ -23,7 +23,7 @@ services:
       dockerfile: Dockerfile
     container_name: flipper-frontend
     ports:
-      - "3000:80"
+      - "${FRONTEND_PORT:-3001}:80"
     depends_on:
       backend:
         condition: service_healthy
