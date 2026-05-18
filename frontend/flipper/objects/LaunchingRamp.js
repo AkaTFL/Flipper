@@ -4,25 +4,16 @@ import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
 
 export class LaunchingRamp extends Objects {
-    /**
-     * @param {Object} world - The physics world
-     * @param {number} length - The length of the ramp
-     * @param {number} width - The width of the ramp
-     * @param {number} height - The height of the ramp
-     * @param {Object} position - The position object with x, y, z properties
-     * @param {Object} rotation - The rotation object with x, y, z properties
-     */
     constructor(
         world,
         length = Config.launchingRamp.length,
         width = Config.launchingRamp.width,
         height = Config.launchingRamp.height,
-        position = {x: 0, y: 0, z: 0},
-        rotation = {x: 0, y: 0, z: 0}
+        position = Config.launchingRamp.position,
+        rotation = Config.launchingRamp.rotation
     ) {
         super(world, length, width, height, position, rotation, null, null);
 
-        // Remove the default TreeMesh
         if (this.TreeMesh) {
             this.mesh.remove(this.TreeMesh);
             this.TreeMesh = null;
@@ -30,7 +21,6 @@ export class LaunchingRamp extends Objects {
 
         this.rampDirection = this.computeRampDirection();
         this.pushedBodyHandles = new Set();
-        this.sound = Config.sounds.launchingRamp.rolling;
 
         // Load the 3D model (use `model` from Config.launchingRamp when present)
         const modelPath = new URL(Config.launchingRamp.model, import.meta.url).href;
@@ -56,29 +46,14 @@ export class LaunchingRamp extends Objects {
 
         // Compute the launch direction by rotating the Y-axis according to the ramp's rotation
         const direction = new THREE.Vector3(0, 1, 0).applyEuler(new THREE.Euler(rx, ry, rz, 'XYZ')).normalize();
-        if (!Number.isFinite(direction.x) || !Number.isFinite(direction.y) || !Number.isFinite(direction.z)) {
-            return { x: 0, y: 0, z: 1 };
-        }
-
         return { x: direction.x, y: direction.y, z: direction.z };
     }
 
-    hasCollider(handle) {
-        return this.collider && this.collider.handle === handle;
-    }
-
-    resetLaunchImpulse() {
-        this.pushedBodyHandles.clear();
-    }
-
-    handleCollision() {
-        this.playSound(Config.sounds.launchingRamp.rolling);
-    }
-
+    /**
+     * Application de la force avec bride de sécurité absolue
+     */
     applyLaunchingRampForce(handle1, handle2, powerOverride = null) {
         if (!this.collider) return;
-
-        // Check if the ramp collider matches one of the handles
         if (this.collider.handle !== handle1 && this.collider.handle !== handle2) return;
 
         const otherHandle = this.collider.handle === handle1 ? handle2 : handle1;
@@ -88,19 +63,29 @@ export class LaunchingRamp extends Objects {
         const otherBody = otherCollider.parent();
         if (!otherBody || otherBody.isFixed()) return;
 
+        // Anti-répétition
         if (this.pushedBodyHandles.has(otherBody.handle)) return;
 
-        const launchPower = powerOverride ?? Config.launchingRamp.maximalPower;
-        const power = launchPower * Config.forceMultiplier;
-        otherBody.applyImpulse(
+        // --- LE PLAFOND VIRTUEL ---
+        const absoluteMax = Config.launchingRamp.maximalPower;
+        let targetSpeed = powerOverride;
+
+        if (targetSpeed > absoluteMax) targetSpeed = absoluteMax;
+
+        otherBody.setLinvel(
             {
-                x: this.rampDirection.x * power,
-                y: this.rampDirection.y * power,
-                z: this.rampDirection.z * power
+                x: this.rampDirection.x * targetSpeed,
+                y: this.rampDirection.y * targetSpeed,
+                z: this.rampDirection.z * targetSpeed
             },
             true
         );
+
         this.pushedBodyHandles.add(otherBody.handle);
         this.playSound(Config.sounds.launchingRamp.rolling); // Joue le son de lancement
+    }
+
+    resetLaunchImpulse() {
+        this.pushedBodyHandles.clear();
     }
 }

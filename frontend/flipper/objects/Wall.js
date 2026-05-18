@@ -11,9 +11,11 @@ export class Wall extends Objects {
      * @param {Object} position - The position object with x, y, z properties
      * @param {number} rotation - The rotation of the wall in radians (default is 0, which means no rotation)
      */
-    constructor(world, width = 500, height = 500, position = {x: 250, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}) {
-        super(world, null, width, height, position, rotation, null, [], null);
+    constructor(gamePhysics, width = 500, height = 500, position = {x: 250, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}, objectId = undefined) {
+        super(gamePhysics.world, null, width, height, position, rotation, null, [], null);
         this.objectType = 'wall';
+        this.objectId = objectId;
+        this.gamePhysics = gamePhysics;
 
         this.mesh = new THREE.Mesh(
             new THREE.PlaneGeometry(this.width, this.height),
@@ -36,12 +38,14 @@ export class Wall extends Objects {
 
         const wallColliderDesc = RAPIER.ColliderDesc.cuboid(this.width / 2, this.height / 2, 1)
             .setRestitution(Config.wall.restitution)
-            .setFriction(Config.wall.friction);
-
+            .setFriction(Config.wall.friction)
+            .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+            
         this.attachCollider(wallColliderDesc);
     }
     
     handleCollision() {
         this.playSound(Config.sounds.wall.collision);
+        console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

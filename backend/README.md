@@ -64,6 +64,7 @@ Variables utiles:
 | `score_update` | Serveur → Client | Nouveau score calculé avec delta et combo courant |
 | `boss_state_update` | Serveur → Client | État courant du boss (HP, activation, dégâts) |
 | `player_state_update` | Serveur → Client | État courant du joueur (HP, balles, game over) |
+| `quest_update` | Serveur → Client | État courant des quêtes actives |
 | `flipper_action` | Client → Serveur | Action sur les flippers (left/right) |
 | `impact` | Client → Serveur | Contact détecté côté frontend (bumper, palle, mur, rampe) |
 | `game_state` | Bidirectionnel | État actuel du jeu |
@@ -142,6 +143,7 @@ Topics utilisés:
 | `score.go` | Calcul de score, combo, multiplicateurs |
 | `boss.go` | Gestion de l'état du boss (HP, phases, dégâts) |
 | `player.go` | Gestion de l'état du joueur (HP, balles, game over) |
+| `quest.go` | Gestion des quêtes actives, progression et déclenchement boss |
 | `mqtt_bridge.go` | Pont vers Mosquitto, publication solénoïdes, souscription capteurs |
 | `mqtt_publisher.go` | Utilitaires de publication MQTT |
 
@@ -168,6 +170,7 @@ backend/
 │
 ├── boss.go                  # Gestion boss
 ├── player.go                # Gestion joueur
+├── quest.go                 # Gestion quêtes
 │
 ├── mqtt_bridge.go           # Pont MQTT + config
 ├── mqtt_bridge_test.go      # Tests du pont MQTT
@@ -203,6 +206,7 @@ Tous les tests passent via `go test ./...`:
 9. Broadcast `boss_state_update` vers tous les clients
 
 Au démarrage d'une partie, le backend réinitialise aussi l'état joueur et diffuse `player_state_update`.
+Il tire également `3 quêtes actives` et diffuse `quest_update`.
 
 ## Commandes utiles
 

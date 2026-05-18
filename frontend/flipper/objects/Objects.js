@@ -103,13 +103,48 @@ export class Objects {
 
     attachCollider(colliderDesc, rigidBody = this.rigidBody) {
         this.collider = this.world.createCollider(colliderDesc, rigidBody);
+
+        // If this object has a reference to the GamePhysics instance, register
+        // the collider handle so collision lookup works even when colliders are
+        // created asynchronously (e.g. after model load).
+        try {
+            if (this.gamePhysics && this.collider && typeof this.collider.handle !== 'undefined') {
+                const handle = this.collider.handle;
+                if (this.gamePhysics.colliderOwners && typeof this.gamePhysics.colliderOwners.set === 'function') {
+                    this.gamePhysics.colliderOwners.set(handle, this);
+                }
+                if (this.gamePhysics.colliderResponders && typeof this.gamePhysics.colliderResponders.set === 'function') {
+                    this.gamePhysics.colliderResponders.set(handle, this);
+                }
+            }
+        } catch (e) {
+            console.warn('[attachCollider] failed to register collider with gamePhysics', e);
+        }
+
         return this.collider;
     }
 
     replaceCollider(colliderDesc, rigidBody = this.rigidBody) {
-        if (this.collider && typeof this.world.removeCollider === 'function') {
-            this.world.removeCollider(this.collider, true);
-            this.collider = null;
+        // Clean up any existing collider and mappings
+        try {
+            if (this.collider) {
+                if (this.gamePhysics && typeof this.collider.handle !== 'undefined') {
+                    const oldHandle = this.collider.handle;
+                    try {
+                        this.gamePhysics.colliderOwners?.delete(oldHandle);
+                        this.gamePhysics.colliderResponders?.delete(oldHandle);
+                    } catch (e) {
+                        // ignore
+                    }
+                }
+
+                if (typeof this.world.removeCollider === 'function') {
+                    this.world.removeCollider(this.collider, true);
+                }
+                this.collider = null;
+            }
+        } catch (e) {
+            console.warn('[replaceCollider] error while removing old collider', e);
         }
 
         return this.attachCollider(colliderDesc, rigidBody);
