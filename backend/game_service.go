@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"time"
 )
 
 // GameService encapsule la logique métier des messages WebSocket
@@ -88,9 +89,24 @@ func (gs *GameService) handleImpact(payload json.RawMessage) {
 	if scoreUpdate, ok := gs.hub.scorer.ApplyImpact(impact); ok {
 		gs.hub.broadcast <- NewScoreUpdateMessage(scoreUpdate)
 
+		shouldStartBoss := false
+		if !gs.hub.boss.IsActive() {
+			questUpdate, ok := gs.hub.quests.UpdateAfterImpact(scoreUpdate, impact)
+			if ok {
+				gs.hub.broadcast <- NewQuestUpdateMessage(questUpdate)
+				if questUpdate.BossFightTriggered {
+					shouldStartBoss = true
+				}
+			}
+		}
+
 		// Appliquer les dégâts au boss
 		if bossUpdate, ok := gs.hub.boss.ApplyScoreDamage(scoreUpdate.Delta); ok {
 			gs.hub.broadcast <- NewBossStateUpdateMessage(bossUpdate)
+		}
+
+		if shouldStartBoss {
+			gs.hub.broadcast <- NewBossStateUpdateMessage(gs.hub.boss.StartBossFight())
 		}
 	}
 }
@@ -120,6 +136,9 @@ func (gs *GameService) handleStartGame() {
 
 	// Broadcaster reset joueur
 	gs.hub.broadcast <- NewPlayerStateUpdateMessage(gs.hub.player.ResetForGameStart())
+
+	// Broadcaster les quêtes tirées pour cette partie
+	gs.hub.broadcast <- NewQuestUpdateMessage(gs.hub.quests.ResetForGameStart(time.Now().UnixMilli()))
 }
 
 // handleBossFightStarted traite l'activation du combat de boss

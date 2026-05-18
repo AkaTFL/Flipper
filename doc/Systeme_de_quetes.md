@@ -198,10 +198,68 @@ Les éléments suivants existent déjà ou sont en bonne voie pour alimenter ce 
 
 ## Ce qu'il faudra encore ajouter
 
-Pour terminer le système de quêtes, il faudra ensuite :
+## État actuel d'intégration
 
-1. créer un `quest manager`
-2. tirer aléatoirement `3 quêtes actives`
-3. suivre leur progression
-4. envoyer un état type `quest_update`
-5. déclencher `boss_fight_started` quand les `3 quêtes` sont validées
+Une première version backend du système de quêtes est maintenant en place.
+
+Le backend :
+
+- possède un `QuestTracker` ;
+- utilise le pool initial de `9 quêtes` décrit dans ce document ;
+- tire `3 quêtes actives` au `start_game` ;
+- choisit `1 quête` par catégorie :
+  - `Score / progression`
+  - `Précision / maîtrise`
+  - `Exploration / survie`
+- envoie un message WebSocket `quest_update` ;
+- suit la progression des quêtes à partir des impacts et du score ;
+- déclenche automatiquement le boss fight quand les `3 quêtes actives` sont terminées.
+
+Le frontend affiche aussi les quêtes actives dans le HUD de test.
+
+### Message `quest_update`
+
+Exemple :
+
+```json
+{
+  "type": "quest_update",
+  "payload": {
+    "activeQuests": [
+      {
+        "id": "score_2000",
+        "category": "score",
+        "label": "Atteindre 2 000 points",
+        "target": 2000,
+        "progress": 500,
+        "completed": false
+      }
+    ],
+    "completedCount": 0,
+    "requiredCount": 3,
+    "allCompleted": false,
+    "bossFightTriggered": false,
+    "mode": "quest_progress"
+  }
+}
+```
+
+### Règle actuelle
+
+Les quêtes progressent uniquement tant que le boss fight n'est pas actif.
+
+Quand les `3 quêtes` sont terminées :
+
+1. le backend envoie un dernier `quest_update` avec `bossFightTriggered: true` ;
+2. le backend active le boss ;
+3. le backend envoie un `boss_state_update`.
+
+## Ce qu'il faudra encore améliorer
+
+Pour finaliser le système de quêtes, il faudra ensuite :
+
+1. améliorer l'affichage visuel des quêtes ;
+2. équilibrer les valeurs après des tests jouables ;
+3. relier les quêtes à la progression réelle des phases ;
+4. remplacer les éléments temporaires de test par les vrais événements gameplay ;
+5. gérer proprement le passage phase suivante / boss suivant.

@@ -203,10 +203,10 @@ func TestGameServiceHandleStartGame(t *testing.T) {
 		t.Fatal("expected nil response for start_game")
 	}
 
-	// Vérifier que 4 messages ont été broadcastés: game_started, score_update, boss_state_update, player_state_update
+	// Vérifier que 5 messages ont été broadcastés: game_started, score_update, boss_state_update, player_state_update, quest_update
 	messages := make([][]byte, 0)
 	timeout := time.Now().Add(500 * time.Millisecond)
-	for time.Now().Before(timeout) && len(messages) < 4 {
+	for time.Now().Before(timeout) && len(messages) < 5 {
 		select {
 		case broadcast := <-client.send:
 			messages = append(messages, broadcast)
@@ -214,12 +214,12 @@ func TestGameServiceHandleStartGame(t *testing.T) {
 		}
 	}
 
-	if len(messages) < 4 {
-		t.Fatalf("expected at least 4 broadcast messages, got %d", len(messages))
+	if len(messages) < 5 {
+		t.Fatalf("expected at least 5 broadcast messages, got %d", len(messages))
 	}
 
 	// Vérifier les types
-	expectedTypes := []string{"game_started", "score_update", "boss_state_update", "player_state_update"}
+	expectedTypes := []string{"game_started", "score_update", "boss_state_update", "player_state_update", "quest_update"}
 	for i, expected := range expectedTypes {
 		var msgResp Message
 		if err := json.Unmarshal(messages[i], &msgResp); err != nil {
