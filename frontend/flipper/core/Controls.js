@@ -13,6 +13,8 @@ export class Controls{
         this.right = right;
         this.launch = launch;
         this.bossDebug = bossDebug;
+        this.playerDamageDebug = 'h';
+        this.ballLostDebug = 'l';
 
         this.input = { left: false, right: false, launch: false, launchPower: 0 };
 
@@ -23,6 +25,8 @@ export class Controls{
         this.impulseUsed = false;
         this.startGameCallback = null;
         this.bossFightStartCallback = null;
+        this.playerDamageCallback = null;
+        this.ballLostCallback = null;
 
         this.initControls();
     }
@@ -68,6 +72,20 @@ export class Controls{
                 if (e.repeat) return;
                 if (typeof this.bossFightStartCallback === 'function') {
                     this.bossFightStartCallback();
+                }
+                return;
+            }
+            if (key === this.playerDamageDebug) {
+                if (e.repeat) return;
+                if (typeof this.playerDamageCallback === 'function') {
+                    this.playerDamageCallback();
+                }
+                return;
+            }
+            if (key === this.ballLostDebug) {
+                if (e.repeat) return;
+                if (typeof this.ballLostCallback === 'function') {
+                    this.ballLostCallback();
                 }
             }
         });
@@ -125,6 +143,14 @@ export class Controls{
 
     setBossFightStartCallback(callback) {
         this.bossFightStartCallback = callback;
+    }
+
+    setPlayerDamageCallback(callback) {
+        this.playerDamageCallback = callback;
+    }
+
+    setBallLostCallback(callback) {
+        this.ballLostCallback = callback;
     }
 
     getLaunchChargeCount() {
