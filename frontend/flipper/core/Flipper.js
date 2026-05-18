@@ -44,6 +44,12 @@ async function initFlipper() {
     controls.setBossFightStartCallback(() => {
         physics.sendMessage('boss_fight_toggled');
     });
+    controls.setPlayerDamageCallback(() => {
+        physics.sendMessage('boss_attack_test');
+    });
+    controls.setBallLostCallback(() => {
+        physics.sendMessage('ball_lost');
+    });
 
     const mesh = [];
 
