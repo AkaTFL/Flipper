@@ -68,26 +68,32 @@ async function initFlipper() {
       Config.launchingRamp.rotation,
       Config.launchingRamp.objectId
     );
-    controls.setLaunchingRampRef(launching);
-    mesh.push(launching);
+        // give the object a reference to the GamePhysics instance so it can
+        // register its collider when created asynchronously
+        launching.gamePhysics = physics;
+        controls.setLaunchingRampRef(launching);
+        mesh.push(launching);
 
     // // Ramps
     // const rampA = new RampA(physics.world, Config.ramps?.A);
     // mesh.push(rampA);
 
     const rampB = new RampB(physics.world, Config.ramps.B);
+    rampB.gamePhysics = physics;
     mesh.push(rampB);
 
     // Bumpers
     Config.bumpers = Config.bumper.instances;
     Config.bumpers.forEach((bumperConfig) => {
-        mesh.push(new Bumper(
+        const bumper = new Bumper(
             physics.world,
             bumperConfig.width,
             bumperConfig.position,
             bumperConfig.rotation,
             bumperConfig.objectId
-        ));
+        );
+        bumper.gamePhysics = physics;
+        mesh.push(bumper);
     });
 
     // Triangle Bumpers
@@ -96,18 +102,22 @@ async function initFlipper() {
             ? BumperTriangleRight
             : BumperTriangleLeft;
 
-        mesh.push(new TriangleClass(
+        const tri = new TriangleClass(
             physics.world,
             triangleConfig.width,
             triangleConfig.position,
             triangleConfig.rotation,
             triangleConfig.objectId
-        ));
+        );
+        tri.gamePhysics = physics;
+        mesh.push(tri);
     });
 
     // Palles
     Config.palles.instances.forEach(pnl => {
-        mesh.push(new Palles(physics.world, pnl.length, pnl.width, pnl.height, pnl.position, pnl.rotation, pnl.side));
+        const pal = new Palles(physics.world, pnl.length, pnl.width, pnl.height, pnl.position, pnl.rotation, pnl.side);
+        pal.gamePhysics = physics;
+        mesh.push(pal);
     });
 
     // Ball

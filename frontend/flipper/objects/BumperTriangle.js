@@ -28,11 +28,8 @@ class BumperTriangleBase extends Objects {
             
             const desc = this.buildTrimeshCollider(modelRoot)
                              .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
-            if (desc) {
-                this.replaceCollider(desc, this.rigidBody);
-            } else {
-                this.attachCollider(RAPIER.ColliderDesc.cuboid(this.width / 2, this.width / 2, this.width / 2));
-            }
+
+            this.attachCollider(desc);
         });
         }
     }

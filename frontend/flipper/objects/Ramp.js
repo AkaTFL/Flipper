@@ -32,15 +32,10 @@ class RampBase extends Objects {
         if (modelRelative) {
             const modelPath = new URL(modelRelative, import.meta.url).href;
             this.addMesh(modelPath, (modelRoot) => {
-                let desc = this.buildTrimeshCollider(modelRoot);
-                if (desc) {
-                    desc.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-                    this.replaceCollider(desc, this.rigidBody);
-                } else {
-                    desc = RAPIER.ColliderDesc.cuboid(this.length / 2, this.width / 2, this.height / 2)
-                                              .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-                    this.attachCollider(desc);
-                }
+                const desc = this.buildTrimeshCollider(modelRoot)
+                                 .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+                
+                this.attachCollider(desc);
             });
         }
     }

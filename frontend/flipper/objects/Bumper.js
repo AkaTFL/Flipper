@@ -33,10 +33,10 @@ export class Bumper extends Objects {
 
         const modelPath = new URL(bumperConfig.model, import.meta.url).href;
         this.addMesh(modelPath, (modelRoot) => {
-            let desc = this.buildTrimeshCollider(modelRoot)
+            const desc = this.buildTrimeshCollider(modelRoot)
                            .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-                           
-            this.replaceCollider(desc, this.rigidBody);
+
+            this.attachCollider(desc);
             });
     }
 

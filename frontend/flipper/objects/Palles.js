@@ -85,6 +85,7 @@ export class Palles extends Objects {
                 const desc = this.buildTrimeshCollider(modelRoot)
                                  .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
                 
+                this.attachCollider(desc);
             });
         }
     }
@@ -114,7 +115,7 @@ export class Palles extends Objects {
         if (this.audio) {
             this.playSound(Config.sounds.palles.collision); // Son de collision des palles
         }
-
+        
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }
