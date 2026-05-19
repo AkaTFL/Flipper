@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
         - name: mosquitto
-          image: ghcr.io/OWNER/REPO/iot:latest
-          imagePullPolicy: Always
+          image: flipper-iot:local
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 1883
           livenessProbe:
