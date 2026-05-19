@@ -259,7 +259,8 @@ export class GamePhysics {
 
     reportContactImpacts(collidingObjects, combo = null) {
         for (const obj of collidingObjects) {
-            this.sendImpact(obj, combo);
+            if (obj?.objectType === 'ball') {}
+            else this.sendImpact(obj, combo);
         }
     }
 

@@ -6,15 +6,17 @@ import { Bumper } from '../objects/Bumper.js';
 import { BumperTriangleLeft, BumperTriangleRight } from '../objects/BumperTriangle.js';
 import { LaunchingRamp } from '../objects/LaunchingRamp.js';
 import { Palles } from '../objects/Palles.js';
-import { RampA, RampB } from '../objects/Ramp.js';
 import { Controls } from './Controls.js';
+import { Ramp } from '../objects/Ramp.js';
+
+
 import { ScoreDisplay } from '../ui/ScoreDisplay.js';
 import { DmdDisplay } from '../ui/DmdDisplay.js';
 
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
 
-async function initFlipper() {
+export async function initFlipper() {
     const physics = new GamePhysics();
     await physics.init();
 
@@ -33,9 +35,10 @@ async function initFlipper() {
     scoreDisplay.mount(container);
     dmdDisplay.mount(container);
     container.appendChild(sceneManager.renderer.domElement);
+
     let startGameSent = false;
 
-    controls.setStartGameCallback(() => {
+    const startGame = () => {
         if (startGameSent) {
             return;
         }
@@ -43,7 +46,9 @@ async function initFlipper() {
         if (physics.sendMessage('start_game')) {
             startGameSent = true;
         }
-    });
+    };
+
+    controls.setStartGameCallback(startGame);
     controls.setBossFightStartCallback(() => {
         physics.sendMessage('boss_fight_toggled');
     });
@@ -71,17 +76,20 @@ async function initFlipper() {
       Config.launchingRamp.rotation,
       Config.launchingRamp.objectId
     );
-        // give the object a reference to the GamePhysics instance so it can
-        // register its collider when created asynchronously
-        launching.gamePhysics = physics;
-        controls.setLaunchingRampRef(launching);
-        mesh.push(launching);
+    
+    launching.gamePhysics = physics;
+    mesh.push(launching);
 
     // // Ramps
     // const rampA = new RampA(physics.world, Config.ramps?.A);
     // mesh.push(rampA);
 
-    const rampB = new RampB(physics.world, Config.ramps.B);
+    const rampB = new Ramp(
+        physics.world,
+        Config.ramps.B.model,
+        Config.ramps.B,
+        Config.ramps.B.objectId
+    );
     rampB.gamePhysics = physics;
     mesh.push(rampB);
 
@@ -152,5 +160,3 @@ async function initFlipper() {
         }
     });
 }
-
-initFlipper();
