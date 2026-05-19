@@ -1,5 +1,6 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import Config from '../physics/Config.js';
+import { AudioManager } from './Audio.js';
 
 export class GamePhysics {
     constructor() {
@@ -15,10 +16,11 @@ export class GamePhysics {
         this.activeScoreZones = new Set();
         this.activeRampZones = new Set();
         this.rampTraversal = null;
+        this.audioManager = new AudioManager();
     }
 
     async init() {
-        await RAPIER.init({});
+        await RAPIER.init();
 
         this.eventQueue = new RAPIER.EventQueue(true);
         const multiplier = Config.forceMultiplier;
@@ -34,8 +36,27 @@ export class GamePhysics {
 
     step() {
         this.world.step(this.eventQueue);
+        this.updateRollingBallSound();
         this.handleCollisionEvents();
         this.detectScoreZoneEntries();
+    }
+
+    updateRollingBallSound() {
+        const ball = this.objects.find(
+            (obj) =>
+                obj.objectType === 'ball' &&
+                obj.rigidBody
+        );
+        const velocity = ball.rigidBody.linvel();
+
+        const speed = Math.hypot(
+            velocity.x ?? 0,
+            velocity.y ?? 0,
+            velocity.z ?? 0
+        );
+        console.log('Vitesse de la balle :', speed);
+
+        this.audioManager.updateRollingBall(speed, Config.sounds.ball.metal);
     }
 
     //Register des objets

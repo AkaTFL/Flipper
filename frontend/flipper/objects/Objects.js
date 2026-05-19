@@ -61,10 +61,6 @@ export class Objects {
         return this.audioManager.playSound(sound);
     }
 
-    playBallSound(surface, speed) {
-        return this.audioManager.playBallSound(surface, speed);
-    }
-
     stopSound(sound) {
         return this.audioManager.stopSound(sound);
     }
@@ -180,8 +176,7 @@ export class Objects {
                 const x = transformedPosition.getX(i);
                 const y = transformedPosition.getY(i);
                 const z = transformedPosition.getZ(i);
-                
-                // ✅ VÉRIFICATION : rejeter les valeurs invalides
+
                 if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
                     console.warn(`[buildTrimeshCollider] Vertex invalide détecté: (${x}, ${y}, ${z})`);
                     geometry.dispose();

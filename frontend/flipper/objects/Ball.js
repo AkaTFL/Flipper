@@ -49,7 +49,6 @@ export class Ball extends Objects {
     }
 
     handleCollision() {
-        this.playBallSound('wood', 1);
     }
 }
     

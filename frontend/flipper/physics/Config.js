@@ -152,38 +152,43 @@ export default {
     sounds: {
         ball: {
             wood: {
-                sound: '../assets/sound/Ball/wood/rolling/1.mp3',
-                pitch: 1,
-                volume: 0.8
+                file: '../assets/sound/Ball/wood/rolling/1.mp3',
             },
 
             metal: {
-                sound: '../assets/sound/Ball/metal/rolling/1.mp3',
-                pitch: 1.3,
-                volume: 1
+                file: '../assets/sound/Ball/metal/rolling/1.mp3',
             },
+
+            param: {
+                minSpeed: 10,
+                maxSpeed: 2000,
+                minSound: 0,
+                maxSound: 1,
+                minPitch: 0.5,
+                maxPitch: 2.5
+            }
         },
         
         bumper: {
-            collision: { file: "../assets/sound/Bumpers_collision.mp3", volume: 0.5 },
+            collision: { file: "../assets/sound/Bumpers_collision.mp3", volume: 0.2 },
         },
 
         wall: {
-            collision: { file: "../assets/sound/Ball/wood/collision/1.mp3", volume: 0.5 }
+            collision: { file: "../assets/sound/Ball/wood/collision/1.mp3", volume: 0.2 }
         },
 
         launchingRamp: {  
             charging: {file: "../assets/sound/Ramp_reload_1.mp3"} , 
-            launch: {file: "../assets/sound/Ramp_launch.mp3", volume: 0.5}
+            launch: {file: "../assets/sound/Ramp_launch.mp3", volume: 0.2}
         },
 
         palles: {
-            collision: { file: "../assets/sound/Ball/wood/collision/1.mp3", volume: 0.6 },
-            movement: { file: "../assets/sound/Palles_move.mp3", volume: 0.5 }
+            collision: { file: "../assets/sound/Ball/wood/collision/1.mp3", volume: 0.2 },
+            movement: { file: "../assets/sound/Palles_move.mp3", volume: 0.2 }
         },
 
         ramp: {        
-            collision: { file: "../assets/sound/Ball/wood/collision/1.mp3", volume: 0.5 }
+            collision: { file: "../assets/sound/Ball/wood/collision/1.mp3", volume: 0.2 }
         },
 
         soundtrack: {
@@ -201,7 +206,6 @@ export default {
                 "../assets/sound/Boss 2/3.mp3",
                 "../assets/sound/Boss 2/4.mp3",
                 "../assets/sound/Boss 2/5.mp3",
-                "../assets/sound/Boss 2/6.mp3"
             ],
             "Boss 3": [
                 "../assets/sound/Boss 3/1.mp3",
@@ -209,7 +213,10 @@ export default {
                 "../assets/sound/Boss 3/3.mp3",
                 "../assets/sound/Boss 3/4.mp3",
                 "../assets/sound/Boss 3/5.mp3",
-                "../assets/sound/Boss 3/6.mp3"
+                "../assets/sound/Boss 3/6.mp3",
+                "../assets/sound/Boss 3/7.mp3",
+                "../assets/sound/Boss 3/8.mp3",
+                "../assets/sound/Boss 3/9.mp3",
             ],
             "Boss 4 (Final)": [
                 "../assets/sound/Boss 4 (Final)/1.mp3",
@@ -217,8 +224,11 @@ export default {
                 "../assets/sound/Boss 4 (Final)/3.mp3",
                 "../assets/sound/Boss 4 (Final)/4.mp3",
                 "../assets/sound/Boss 4 (Final)/5.mp3",
-                "../assets/sound/Boss 4 (Final)/6.mp3"
-            ]
+                "../assets/sound/Boss 4 (Final)/6.mp3",
+                "../assets/sound/Boss 4 (Final)/7.mp3",
+                "../assets/sound/Boss 4 (Final)/8.mp3"
+            ],
+            volume: 0.1
         }
     },
 

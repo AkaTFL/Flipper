@@ -125,7 +125,7 @@ export class Controls{
                         this.impulseUsed = true;
                         
                         const audioManager = new AudioManager();
-                        audioManager.playMusic("Boss 1");
+                        audioManager.playMusic("Boss 2", Config.sounds.soundtrack.volume);
                     }
                 }
             }

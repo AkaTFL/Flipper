@@ -4,86 +4,117 @@ export class AudioManager {
     constructor() {
         this.audio = null;
 
-        // Réglages des surfaces
-        this.surfaces = Config.sounds.ball
+        this.surfaces = Config.sounds.ball;
+
+        this.rollingAudio = null;
+        this.rollingInitialized = false;
     }
+
+    // =====================================================
+    // BASE AUDIO
+    // =====================================================
 
     initSound(sound) {
         if (!sound) return null;
-        
-        const soundConfig = typeof sound === 'string' ? { file: sound, volume: 1 } : sound;
+
+        const cfg = typeof sound === 'string'
+            ? { file: sound, volume: 1 }
+            : { file: sound.file, volume: sound.volume ?? 1 };
 
         let source;
+
         try {
-            source = new URL(soundConfig.file, import.meta.url).href;
-        } catch (e) {
-            console.warn('Le chemin du fichier son est invalide:', soundConfig.file);
+            source = new URL(cfg.file, import.meta.url).href;
+        } catch {
+            console.warn('Chemin audio invalide:', cfg.file);
             return null;
         }
-        this.audio = new Audio(source);
-        this.audio.preload = 'auto';
-        this.audio.volume = soundConfig.volume ?? 1;
-        this.audio.onerror = () => {
-            console.warn(`Le fichier son est manquant : ${soundConfig.file}`);
+
+        const audio = new Audio(source);
+
+        audio.preload = 'auto';
+        audio.volume = cfg.volume ?? 1;
+
+        audio.onerror = () => {
+            console.warn(`Fichier manquant : ${cfg.file}`);
         };
-        return this.audio;
+
+        this.audio = audio;
+
+        return audio;
     }
 
-    playSound(sound = this.sound) {
+    playSound(sound = this.sound, volume) {
         this.audio = this.initSound(sound);
-        if (this.audio === null) return;
 
-        this.audio.currentTime = 0;
-        this.audio.play().catch((error) => {
-            console.error('Impossible de lire le son:', error);
-        });
-    }
-    
-    playBallSound(surface = 'wood', speed = 1) {
-
-        const data = this.surfaces[surface];
-        if (!data) return;
-
-        this.audio = this.initSound(data.sound);
-
-        // Sécurité vitesse
-        const clampedSpeed = Math.max(0.5, Math.min(speed, 5));
-
-        // Fréquence / hauteur du son
-        this.audio.playbackRate = data.pitch * clampedSpeed;
-
-        // Volume dynamique
-        this.audio.volume = Math.min(
-            1,
-            data.volume * (clampedSpeed / 2)
-        );
+        if (!this.audio) return;
 
         this.audio.currentTime = 0;
 
-        this.audio.play().catch((error) => {
-            console.error('Erreur audio :', error);
-        });
-    }
-    
-    playMusic(folderName) {
-        // Récupère une liste de fichiers audio aléatoires du dossier
-        const files = Config.sounds.soundtrack[folderName];
-        
-        if (!files || files.length === 0) {
-            console.warn(`Aucun fichier audio trouvé pour le dossier: ${folderName}`);
-            return;
-        }
-        
-        // Choisir un fichier aléatoire
-        const randomIndex = Math.floor(Math.random() * files.length);
-        const randomFile = files[randomIndex];
-        
-        this.playSound(randomFile);
+        this.audio.play().catch(console.error);
+        this.audio.volume = volume ?? 0.2;
     }
 
     stopSound(sound = this.sound) {
+        if (sound && typeof sound.pause === 'function') {
+            try {
+                sound.pause();
+                sound.currentTime = 0;
+            } catch {}
+
+            return;
+        }
+
         if (!this.audio) return;
 
-        this.audio.pause();
+        try {
+            this.audio.pause();
+            this.audio.currentTime = 0;
+        } catch {}
+    }
+
+    // =====================================================
+    // ROLLING BALL
+    // =====================================================
+    updateRollingBall(speed = 0, ground) {
+        if (!this.rollingInitialized) {
+            if (this.initSound(ground) === null) {
+                console.warn(`Impossible d'initialiser le son de roulement pour : ${ground}`);
+                return;
+            }
+            this.rollingInitialized = true;
+            
+            this.audio.play().catch(console.error);
+            this.audio.loop = true;
+        }
+        
+        const { minSpeed, maxSpeed, minSound, maxSound, minPitch, maxPitch } = this.surfaces.param;
+
+        // Si la vitesse est en-dessous du seuil, couper le son
+        if (speed < minSpeed) {
+            this.audio.volume = 0;
+        } else {
+            this.audio.volume = Math.min(maxSound, ((speed / maxSpeed) + minSound));
+            this.audio.playbackRate = Math.min(maxPitch, Math.max(minPitch, (speed / maxSpeed)));
+        }
+    }
+
+    // =====================================================
+    // MUSIC
+    // =====================================================
+
+    playMusic(folderName, volume) {
+        const files = Config.sounds.soundtrack[folderName];
+
+        if (!files?.length) {
+            console.warn(`Aucun son dans : ${folderName}`);
+            return;
+        }
+
+        const file = files[
+            Math.floor(Math.random() * files.length)
+        ];
+
+        this.playSound(file, volume);
     }
 }
