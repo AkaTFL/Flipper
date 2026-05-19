@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
         - name: backend
-          image: ghcr.io/OWNER/REPO/backend:latest
-          imagePullPolicy: Always
+          image: flipper-backend:local
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           env:

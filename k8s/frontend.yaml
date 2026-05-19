@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: ghcr.io/OWNER/REPO/frontend:latest
-          imagePullPolicy: Always
+          image: flipper-frontend:local
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
 ---
@@ -34,4 +34,5 @@ spec:
     - port: 80
       targetPort: 80
       protocol: TCP
-  type: ClusterIP
+      nodePort: 30080
+  type: NodePort
