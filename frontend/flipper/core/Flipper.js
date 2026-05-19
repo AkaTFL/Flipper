@@ -6,9 +6,9 @@ import { Bumper } from '../objects/Bumper.js';
 import { BumperTriangleLeft, BumperTriangleRight } from '../objects/BumperTriangle.js';
 import { LaunchingRamp } from '../objects/LaunchingRamp.js';
 import { Palles } from '../objects/Palles.js';
-import { RampA, RampB } from '../objects/Ramp.js';
 import { Controls } from './Controls.js';
 import { ScoreDisplay } from '../../ui/ScoreDisplay.js';
+import { Ramp } from '../objects/Ramp.js';
 
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
@@ -79,7 +79,12 @@ export async function initFlipper() {
     // const rampA = new RampA(physics.world, Config.ramps?.A);
     // mesh.push(rampA);
 
-    const rampB = new RampB(physics.world, Config.ramps.B);
+    const rampB = new Ramp(
+        physics.world,
+        Config.ramps.B.model,
+        Config.ramps.B,
+        Config.ramps.B.objectId
+    );
     rampB.gamePhysics = physics;
     mesh.push(rampB);
 

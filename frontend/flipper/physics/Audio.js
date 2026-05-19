@@ -65,16 +65,20 @@ export class AudioManager {
         });
     }
     
-    playMusic(folder){
-        const fs = require('fs').promises;
-
-        async function readFolder() {
-            const files = await fs.readdir(folder);
-            files.forEach((file) => {
-                this.playSound(file);
-            });
+    playMusic(folderName) {
+        // Récupère une liste de fichiers audio aléatoires du dossier
+        const files = Config.sounds.soundtrack[folderName];
+        
+        if (!files || files.length === 0) {
+            console.warn(`Aucun fichier audio trouvé pour le dossier: ${folderName}`);
+            return;
         }
-        readFolder();
+        
+        // Choisir un fichier aléatoire
+        const randomIndex = Math.floor(Math.random() * files.length);
+        const randomFile = files[randomIndex];
+        
+        this.playSound(randomFile);
     }
 
     stopSound(sound = this.sound) {

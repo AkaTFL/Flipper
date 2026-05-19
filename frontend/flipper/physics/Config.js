@@ -152,13 +152,13 @@ export default {
     sounds: {
         ball: {
             wood: {
-                sound: '../assets/sound/Ball/wood/1.mp3',
+                sound: '../assets/sound/Ball/wood/rolling/1.mp3',
                 pitch: 1,
                 volume: 0.8
             },
 
             metal: {
-                sound: '../assets/sound/Ball/metal/1.mp3',
+                sound: '../assets/sound/Ball/metal/rolling/1.mp3',
                 pitch: 1.3,
                 volume: 1
             },
@@ -169,7 +169,7 @@ export default {
         },
 
         wall: {
-            collision: { file: "", volume: 0.5 }
+            collision: { file: "../assets/sound/Ball/wood/collision/1.mp3", volume: 0.5 }
         },
 
         launchingRamp: {  
@@ -178,12 +178,47 @@ export default {
         },
 
         palles: {
-            collision: { file: "", volume: 0.6 },
+            collision: { file: "../assets/sound/Ball/wood/collision/1.mp3", volume: 0.6 },
             movement: { file: "../assets/sound/Palles_move.mp3", volume: 0.5 }
         },
 
-        rail: {        
-            collision: { file: "", volume: 0.5 }
+        ramp: {        
+            collision: { file: "../assets/sound/Ball/wood/collision/1.mp3", volume: 0.5 }
+        },
+
+        soundtrack: {
+            "Boss 1": [
+                "../assets/sound/Boss 1/1.mp3",
+                "../assets/sound/Boss 1/2.mp3",
+                "../assets/sound/Boss 1/3.mp3",
+                "../assets/sound/Boss 1/4.mp3",
+                "../assets/sound/Boss 1/5.mp3",
+                "../assets/sound/Boss 1/6.mp3"
+            ],
+            "Boss 2": [
+                "../assets/sound/Boss 2/1.mp3",
+                "../assets/sound/Boss 2/2.mp3",
+                "../assets/sound/Boss 2/3.mp3",
+                "../assets/sound/Boss 2/4.mp3",
+                "../assets/sound/Boss 2/5.mp3",
+                "../assets/sound/Boss 2/6.mp3"
+            ],
+            "Boss 3": [
+                "../assets/sound/Boss 3/1.mp3",
+                "../assets/sound/Boss 3/2.mp3",
+                "../assets/sound/Boss 3/3.mp3",
+                "../assets/sound/Boss 3/4.mp3",
+                "../assets/sound/Boss 3/5.mp3",
+                "../assets/sound/Boss 3/6.mp3"
+            ],
+            "Boss 4 (Final)": [
+                "../assets/sound/Boss 4 (Final)/1.mp3",
+                "../assets/sound/Boss 4 (Final)/2.mp3",
+                "../assets/sound/Boss 4 (Final)/3.mp3",
+                "../assets/sound/Boss 4 (Final)/4.mp3",
+                "../assets/sound/Boss 4 (Final)/5.mp3",
+                "../assets/sound/Boss 4 (Final)/6.mp3"
+            ]
         }
     },
 
