@@ -15,7 +15,11 @@ const DEFAULT_STATE = {
     playerMaxBalls: 0,
     playerLastDamageTaken: 0,
     playerLastBallLost: false,
-    gameOver: false
+    gameOver: false,
+    quests: [],
+    questsCompleted: 0,
+    questsRequired: 0,
+    questsDone: false
 };
 
 export class ScoreDisplay {
@@ -33,6 +37,7 @@ export class ScoreDisplay {
         this.playerValue = null;
         this.playerBallsValue = null;
         this.playerDetailValue = null;
+        this.questValue = null;
         this.controlsContainer = null;
         this.boundHandler = (event) => this.handleBackendEvent(event?.detail);
     }
@@ -49,7 +54,9 @@ export class ScoreDisplay {
             top: '24px',
             left: '24px',
             zIndex: '20',
-            minWidth: '220px',
+            width: '260px',
+            maxHeight: '86vh',
+            overflow: 'hidden',
             padding: '16px 18px',
             borderRadius: '14px',
             border: '1px solid rgba(98, 255, 168, 0.22)',
@@ -143,6 +150,19 @@ export class ScoreDisplay {
             opacity: '0.94'
         });
 
+        this.questValue = this.documentRef.createElement('div');
+        Object.assign(this.questValue.style, {
+            fontSize: '11px',
+            marginTop: '10px',
+            paddingTop: '10px',
+            borderTop: '1px solid rgba(126, 255, 179, 0.14)',
+            color: '#e7ffd0',
+            whiteSpace: 'pre-line',
+            overflowWrap: 'break-word',
+            maxHeight: '180px',
+            overflowY: 'auto'
+        });
+
         this.container.appendChild(title);
         this.container.appendChild(this.scoreValue);
         this.container.appendChild(this.comboValue);
@@ -153,6 +173,7 @@ export class ScoreDisplay {
         this.container.appendChild(this.playerValue);
         this.container.appendChild(this.playerBallsValue);
         this.container.appendChild(this.playerDetailValue);
+        this.container.appendChild(this.questValue);
         container.appendChild(this.container);
         this.mountControlsHelp(container);
 
@@ -274,6 +295,14 @@ export class ScoreDisplay {
                 playerLastBallLost: Boolean(message.payload.lastBallLost),
                 gameOver: Boolean(message.payload.gameOver)
             };
+        } else if (message.type === 'quest_update') {
+            this.state = {
+                ...this.state,
+                quests: Array.isArray(message.payload.activeQuests) ? message.payload.activeQuests : [],
+                questsCompleted: Number(message.payload.completedCount ?? 0),
+                questsRequired: Number(message.payload.requiredCount ?? 0),
+                questsDone: Boolean(message.payload.allCompleted)
+            };
         } else {
             return false;
         }
@@ -298,6 +327,7 @@ export class ScoreDisplay {
         this.playerValue.textContent = this.formatPlayerLabel();
         this.playerBallsValue.textContent = this.formatPlayerBalls();
         this.playerDetailValue.textContent = this.formatPlayerDetail();
+        this.questValue.textContent = this.formatQuests();
     }
 
     formatScore(value) {
@@ -360,5 +390,23 @@ export class ScoreDisplay {
         }
 
         return `Balles: ${this.state.playerBalls}/${this.state.playerMaxBalls}`;
+    }
+
+    formatQuests() {
+        if (!Array.isArray(this.state.quests) || this.state.quests.length === 0) {
+            return 'Quêtes: en attente';
+        }
+
+        const lines = [`Quêtes: ${this.state.questsCompleted}/${this.state.questsRequired}`];
+        for (const quest of this.state.quests) {
+            const status = quest.completed ? '✓' : '-';
+            lines.push(`${status} ${quest.label}: ${quest.progress}/${quest.target}`);
+        }
+
+        if (this.state.questsDone) {
+            lines.push('Boss débloqué');
+        }
+
+        return lines.join('\n');
     }
 }
