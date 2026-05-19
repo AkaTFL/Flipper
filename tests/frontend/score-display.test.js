@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { ScoreDisplay } from '../../frontend/ui/ScoreDisplay.js';
+import { ScoreDisplay } from '../../frontend/flipper/ui/ScoreDisplay.js';
 
 function createFakeElement(tagName) {
   return {
@@ -39,13 +39,42 @@ test('ScoreDisplay mounts with default values', () => {
   const mounted = display.mount();
 
   assert.equal(mounted, display.container);
-  assert.equal(documentRef.body.children.length, 1);
+  assert.equal(documentRef.body.children.length, 2);
   assert.equal(display.scoreValue.textContent, '0');
   assert.equal(display.comboValue.textContent, 'Combo x1');
   assert.equal(display.deltaValue.textContent, '+0');
   assert.equal(display.detailValue.textContent, 'En attente des impacts');
   assert.equal(display.bossValue.textContent, 'Boss: en attente');
   assert.equal(display.bossDetailValue.textContent, 'Dégâts boss: --');
+  assert.equal(display.playerValue.textContent, 'Joueur: en attente');
+  assert.equal(display.playerBallsValue.textContent, 'Balles: --');
+  assert.equal(display.playerDetailValue.textContent, 'État joueur: --');
+  assert.equal(display.questValue.textContent, 'Quêtes: en attente');
+  assert.equal(display.controlsContainer.children[0].textContent, 'CONTRÔLES');
+});
+
+test('ScoreDisplay updates player state when receiving player_state_update', () => {
+  const documentRef = createFakeDocument();
+  const display = new ScoreDisplay({ documentRef, eventTarget: null });
+  display.mount();
+
+  const handled = display.handleBackendEvent({
+    type: 'player_state_update',
+    payload: {
+      hp: 80,
+      maxHp: 100,
+      balls: 3,
+      maxBalls: 3,
+      lastDamageTaken: 20,
+      lastBallLost: false,
+      gameOver: false
+    }
+  });
+
+  assert.equal(handled, true);
+  assert.equal(display.playerValue.textContent, 'Joueur: 80/100 HP');
+  assert.equal(display.playerBallsValue.textContent, 'Balles: 3/3');
+  assert.equal(display.playerDetailValue.textContent, 'Derniers dégâts joueur: -20');
 });
 
 test('ScoreDisplay updates its fields when receiving score_update', () => {
@@ -69,6 +98,34 @@ test('ScoreDisplay updates its fields when receiving score_update', () => {
   assert.equal(display.comboValue.textContent, 'Combo x3');
   assert.equal(display.deltaValue.textContent, '+225');
   assert.equal(display.detailValue.textContent, 'Dernier impact: launching_ramp_rail');
+});
+
+test('ScoreDisplay updates quest state when receiving quest_update', () => {
+  const documentRef = createFakeDocument();
+  const display = new ScoreDisplay({ documentRef, eventTarget: null });
+  display.mount();
+
+  const handled = display.handleBackendEvent({
+    type: 'quest_update',
+    payload: {
+      completedCount: 1,
+      requiredCount: 3,
+      allCompleted: false,
+      activeQuests: [
+        {
+          id: 'score_2000',
+          label: 'Atteindre 2 000 points',
+          target: 2000,
+          progress: 2000,
+          completed: true
+        }
+      ]
+    }
+  });
+
+  assert.equal(handled, true);
+  assert.equal(display.questValue.textContent.includes('Quêtes: 1/3'), true);
+  assert.equal(display.questValue.textContent.includes('✓ Atteindre 2 000 points: 2000/2000'), true);
 });
 
 test('ScoreDisplay updates boss state when receiving boss_state_update', () => {

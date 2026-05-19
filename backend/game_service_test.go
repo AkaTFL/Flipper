@@ -115,6 +115,7 @@ func TestGameServiceHandleImpactWithValidScoring(t *testing.T) {
 	hub := newHub()
 	hub.scorer = newScoreTracker(defaultScoreConfig)
 	hub.boss = newBossTracker(defaultBossConfig)
+	hub.player = newPlayerTracker(defaultPlayerConfig)
 	go hub.run()
 
 	client := &Client{send: make(chan []byte, 256)}
@@ -202,10 +203,10 @@ func TestGameServiceHandleStartGame(t *testing.T) {
 		t.Fatal("expected nil response for start_game")
 	}
 
-	// Vérifier que 3 messages ont été broadcastés: game_started, score_update (reset), boss_state_update (reset)
+	// Vérifier que 5 messages ont été broadcastés: game_started, score_update, boss_state_update, player_state_update, quest_update
 	messages := make([][]byte, 0)
 	timeout := time.Now().Add(500 * time.Millisecond)
-	for time.Now().Before(timeout) && len(messages) < 3 {
+	for time.Now().Before(timeout) && len(messages) < 5 {
 		select {
 		case broadcast := <-client.send:
 			messages = append(messages, broadcast)
@@ -213,12 +214,12 @@ func TestGameServiceHandleStartGame(t *testing.T) {
 		}
 	}
 
-	if len(messages) < 3 {
-		t.Fatalf("expected at least 3 broadcast messages, got %d", len(messages))
+	if len(messages) < 5 {
+		t.Fatalf("expected at least 5 broadcast messages, got %d", len(messages))
 	}
 
 	// Vérifier les types
-	expectedTypes := []string{"game_started", "score_update", "boss_state_update"}
+	expectedTypes := []string{"game_started", "score_update", "boss_state_update", "player_state_update", "quest_update"}
 	for i, expected := range expectedTypes {
 		var msgResp Message
 		if err := json.Unmarshal(messages[i], &msgResp); err != nil {
@@ -228,6 +229,51 @@ func TestGameServiceHandleStartGame(t *testing.T) {
 		if msgResp.Type != expected {
 			t.Fatalf("message %d: expected type %s, got %s", i, expected, msgResp.Type)
 		}
+	}
+}
+
+func TestGameServiceHandlePlayerDamageTest(t *testing.T) {
+	hub := newHub()
+	hub.player = newPlayerTracker(defaultPlayerConfig)
+	go hub.run()
+
+	client := &Client{send: make(chan []byte, 256)}
+	hub.register <- client
+
+	service := NewGameService(hub)
+
+	msg := Message{Type: "boss_attack_test"}
+	response, isDirectResponse := service.HandleMessage(msg, []byte(`{"type":"boss_attack_test"}`))
+
+	if isDirectResponse {
+		t.Fatal("expected boss_attack_test to not return a direct response")
+	}
+
+	if response != nil {
+		t.Fatal("expected nil response for boss_attack_test")
+	}
+
+	select {
+	case broadcast := <-client.send:
+		var msgResp Message
+		if err := json.Unmarshal(broadcast, &msgResp); err != nil {
+			t.Fatalf("failed to unmarshal response: %v", err)
+		}
+
+		if msgResp.Type != "player_state_update" {
+			t.Fatalf("expected 'player_state_update', got %s", msgResp.Type)
+		}
+
+		var payload PlayerStateUpdatePayload
+		if err := json.Unmarshal(msgResp.Payload, &payload); err != nil {
+			t.Fatalf("failed to unmarshal player payload: %v", err)
+		}
+
+		if payload.HP != 80 || payload.LastDamageTaken != 20 || payload.Balls != 3 {
+			t.Fatalf("unexpected player damage payload: %+v", payload)
+		}
+	case <-time.After(500 * time.Millisecond):
+		t.Fatal("expected broadcast message not received")
 	}
 }
 

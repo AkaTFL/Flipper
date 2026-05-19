@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"time"
 )
 
 // GameService encapsule la logique métier des messages WebSocket
@@ -46,6 +47,14 @@ func (gs *GameService) HandleMessage(msg Message, messageBytes []byte) ([]byte, 
 		gs.handleBossFightToggled()
 		return nil, false
 
+	case "boss_attack_test", "player_damage_test":
+		gs.handlePlayerDamageTest()
+		return nil, false
+
+	case "ball_lost":
+		gs.handleBallLost()
+		return nil, false
+
 	default:
 		log.Printf("Type de message inconnu: %s", msg.Type)
 		return nil, false
@@ -80,9 +89,24 @@ func (gs *GameService) handleImpact(payload json.RawMessage) {
 	if scoreUpdate, ok := gs.hub.scorer.ApplyImpact(impact); ok {
 		gs.hub.broadcast <- NewScoreUpdateMessage(scoreUpdate)
 
+		shouldStartBoss := false
+		if !gs.hub.boss.IsActive() {
+			questUpdate, ok := gs.hub.quests.UpdateAfterImpact(scoreUpdate, impact)
+			if ok {
+				gs.hub.broadcast <- NewQuestUpdateMessage(questUpdate)
+				if questUpdate.BossFightTriggered {
+					shouldStartBoss = true
+				}
+			}
+		}
+
 		// Appliquer les dégâts au boss
 		if bossUpdate, ok := gs.hub.boss.ApplyScoreDamage(scoreUpdate.Delta); ok {
 			gs.hub.broadcast <- NewBossStateUpdateMessage(bossUpdate)
+		}
+
+		if shouldStartBoss {
+			gs.hub.broadcast <- NewBossStateUpdateMessage(gs.hub.boss.StartBossFight())
 		}
 	}
 }
@@ -109,6 +133,12 @@ func (gs *GameService) handleStartGame() {
 
 	// Broadcaster reset boss
 	gs.hub.broadcast <- NewBossStateUpdateMessage(gs.hub.boss.ResetForGameStart())
+
+	// Broadcaster reset joueur
+	gs.hub.broadcast <- NewPlayerStateUpdateMessage(gs.hub.player.ResetForGameStart())
+
+	// Broadcaster les quêtes tirées pour cette partie
+	gs.hub.broadcast <- NewQuestUpdateMessage(gs.hub.quests.ResetForGameStart(time.Now().UnixMilli()))
 }
 
 // handleBossFightStarted traite l'activation du combat de boss
@@ -121,4 +151,16 @@ func (gs *GameService) handleBossFightStarted() {
 func (gs *GameService) handleBossFightToggled() {
 	log.Println("Boss fight toggle")
 	gs.hub.broadcast <- NewBossStateUpdateMessage(gs.hub.boss.ToggleBossFight())
+}
+
+// handlePlayerDamageTest simule une attaque du boss tant que les vraies attaques ne sont pas branchées
+func (gs *GameService) handlePlayerDamageTest() {
+	log.Println("Dégâts joueur test")
+	gs.hub.broadcast <- NewPlayerStateUpdateMessage(gs.hub.player.ApplyDamage(defaultBossAttackDamage))
+}
+
+// handleBallLost simule une perte de balle
+func (gs *GameService) handleBallLost() {
+	log.Println("Perte de balle")
+	gs.hub.broadcast <- NewPlayerStateUpdateMessage(gs.hub.player.LoseBall())
 }

@@ -26,14 +26,21 @@ class BumperTriangleBase extends Objects {
                 modelRoot.scale.x *= -1;
             }
             
-            const desc = this.buildTrimeshCollider(modelRoot);
-            if (desc) {
-                this.replaceCollider(desc, this.rigidBody);
-            } else {
-                this.attachCollider(RAPIER.ColliderDesc.cuboid(this.width / 2, this.width / 2, this.width / 2));
-            }
+            const desc = this.buildTrimeshCollider(modelRoot)
+                             .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
+
+            this.attachCollider(desc);
         });
         }
+    }
+
+    handleCollision() {
+            // Par défaut, joue le son s'il existe
+            if (this.audio) {
+                this.playSound(Config.sounds.bumperTriangle.collision); // Son de collision des palles
+            }
+    
+            console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }
 

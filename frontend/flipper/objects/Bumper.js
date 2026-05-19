@@ -33,13 +33,11 @@ export class Bumper extends Objects {
 
         const modelPath = new URL(bumperConfig.model, import.meta.url).href;
         this.addMesh(modelPath, (modelRoot) => {
-            const desc = this.buildTrimeshCollider(modelRoot);
-            if (desc) {
-                this.replaceCollider(desc, this.rigidBody);
-            } else {
-                this.attachCollider(RAPIER.ColliderDesc.ball(this.radius));
-            }
-        });
+            const desc = this.buildTrimeshCollider(modelRoot)
+                           .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+
+            this.attachCollider(desc);
+            });
     }
 
     
@@ -84,5 +82,7 @@ export class Bumper extends Objects {
         if (this.audio) {
             this.playSound(Config.sounds.bumper.collision); // Son de collision des palles
         }
+
+        console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

@@ -355,6 +355,34 @@ func TestWebSocketStartGameResetsScoreState(t *testing.T) {
 	if bossPayload.Active || bossPayload.HP != defaultBossMaxHP || bossPayload.DamageTaken != 0 {
 		t.Fatalf("expected inactive reset boss payload, got %+v", bossPayload)
 	}
+
+	playerUpdate := readMessageType(t, conn)
+	if playerUpdate.Type != "player_state_update" {
+		t.Fatalf("expected player_state_update after reset, got %s", playerUpdate.Type)
+	}
+
+	var playerPayload PlayerStateUpdatePayload
+	if err := json.Unmarshal(playerUpdate.Payload, &playerPayload); err != nil {
+		t.Fatalf("failed to unmarshal player payload: %v", err)
+	}
+
+	if playerPayload.HP != defaultPlayerMaxHP || playerPayload.Balls != defaultPlayerMaxBalls || playerPayload.GameOver {
+		t.Fatalf("expected reset player payload, got %+v", playerPayload)
+	}
+
+	questUpdate := readMessageType(t, conn)
+	if questUpdate.Type != "quest_update" {
+		t.Fatalf("expected quest_update after reset, got %s", questUpdate.Type)
+	}
+
+	var questPayload QuestUpdatePayload
+	if err := json.Unmarshal(questUpdate.Payload, &questPayload); err != nil {
+		t.Fatalf("failed to unmarshal quest payload: %v", err)
+	}
+
+	if len(questPayload.ActiveQuests) != 3 || questPayload.CompletedCount != 0 {
+		t.Fatalf("expected 3 fresh active quests, got %+v", questPayload)
+	}
 }
 
 func TestWebSocketBroadcastsBossStateUpdateAfterImpactWhileBossIsActive(t *testing.T) {
@@ -375,6 +403,8 @@ func TestWebSocketBroadcastsBossStateUpdateAfterImpactWhileBossIsActive(t *testi
 	_ = readMessageType(t, conn) // game_started
 	_ = readMessageType(t, conn) // score_update reset
 	_ = readMessageType(t, conn) // boss_state_update reset
+	_ = readMessageType(t, conn) // player_state_update reset
+	_ = readMessageType(t, conn) // quest_update reset
 
 	if err := conn.WriteJSON(Message{Type: "boss_fight_started"}); err != nil {
 		t.Fatalf("failed to send boss_fight_started: %v", err)
