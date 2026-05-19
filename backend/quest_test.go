@@ -88,3 +88,55 @@ func TestQuestTrackerProgressesLoopQuestWithBothSides(t *testing.T) {
 		t.Fatalf("expected loop quest completed, got %+v", state.ActiveQuests[0])
 	}
 }
+
+func TestQuestTrackerProgressesSurvivalQuestWithTime(t *testing.T) {
+	tracker := newQuestTracker()
+	tracker.activeQuests = []Quest{
+		{ID: "survive_20s", Category: "exploration", Label: "Survivre 20 secondes avec la même bille", Target: 20},
+	}
+	tracker.phaseStartedAt = 1_000
+
+	state, ok := tracker.UpdateAfterTime(9_500)
+	if !ok {
+		t.Fatal("expected survival quest time progress")
+	}
+
+	if state.ActiveQuests[0].Progress != 8 || state.ActiveQuests[0].Completed {
+		t.Fatalf("expected survival progress 8/20, got %+v", state.ActiveQuests[0])
+	}
+
+	state, ok = tracker.UpdateAfterTime(21_000)
+	if !ok {
+		t.Fatal("expected survival quest completion")
+	}
+
+	if state.ActiveQuests[0].Progress != 20 || !state.ActiveQuests[0].Completed || !state.BossFightTriggered {
+		t.Fatalf("expected survival quest completed and boss triggered, got %+v", state)
+	}
+}
+
+func TestQuestTrackerResetsSurvivalQuestAfterBallLost(t *testing.T) {
+	tracker := newQuestTracker()
+	tracker.activeQuests = []Quest{
+		{ID: "survive_20s", Category: "exploration", Label: "Survivre 20 secondes avec la même bille", Target: 20, Progress: 9},
+	}
+	tracker.phaseStartedAt = 1_000
+
+	state, ok := tracker.ResetSurvivalQuestForNewBall(12_000)
+	if !ok {
+		t.Fatal("expected survival quest reset after ball lost")
+	}
+
+	if state.ActiveQuests[0].Progress != 0 {
+		t.Fatalf("expected survival quest progress reset, got %+v", state.ActiveQuests[0])
+	}
+
+	state, ok = tracker.UpdateAfterTime(17_000)
+	if !ok {
+		t.Fatal("expected survival quest to progress from new ball time")
+	}
+
+	if state.ActiveQuests[0].Progress != 5 {
+		t.Fatalf("expected survival quest progress 5 after reset, got %+v", state.ActiveQuests[0])
+	}
+}
