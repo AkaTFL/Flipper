@@ -7,8 +7,11 @@ import { BumperTriangleLeft, BumperTriangleRight } from '../objects/BumperTriang
 import { LaunchingRamp } from '../objects/LaunchingRamp.js';
 import { Palles } from '../objects/Palles.js';
 import { Controls } from './Controls.js';
-import { ScoreDisplay } from '../../ui/ScoreDisplay.js';
 import { Ramp } from '../objects/Ramp.js';
+
+
+import { ScoreDisplay } from '../ui/ScoreDisplay.js';
+import { DmdDisplay } from '../ui/DmdDisplay.js';
 
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
@@ -28,7 +31,9 @@ export async function initFlipper() {
     const container = document.getElementById('three');
     const controls = new Controls('q', 'd', 'space');
     const scoreDisplay = new ScoreDisplay();
+    const dmdDisplay = new DmdDisplay();
     scoreDisplay.mount(container);
+    dmdDisplay.mount(container);
     container.appendChild(sceneManager.renderer.domElement);
 
     let startGameSent = false;

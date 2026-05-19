@@ -103,6 +103,70 @@ func (q *QuestTracker) UpdateAfterImpact(score ScoreUpdatePayload, impact Impact
 	return q.currentStateLocked("quest_progress"), true
 }
 
+func (q *QuestTracker) UpdateAfterTime(now int64) (QuestUpdatePayload, bool) {
+	q.mutex.Lock()
+	defer q.mutex.Unlock()
+
+	if len(q.activeQuests) == 0 || q.bossFightTriggered {
+		return QuestUpdatePayload{}, false
+	}
+
+	changed := false
+	for index := range q.activeQuests {
+		if q.activeQuests[index].ID != "survive_20s" || q.activeQuests[index].Completed {
+			continue
+		}
+
+		before := q.activeQuests[index]
+		q.updateSurvivalQuestLocked(&q.activeQuests[index], now)
+		if before.Progress != q.activeQuests[index].Progress || before.Completed != q.activeQuests[index].Completed {
+			changed = true
+		}
+	}
+
+	if !changed {
+		return QuestUpdatePayload{}, false
+	}
+
+	if q.allCompletedLocked() && !q.bossFightTriggered {
+		q.bossFightTriggered = true
+	}
+
+	return q.currentStateLocked("quest_time_progress"), true
+}
+
+func (q *QuestTracker) ResetSurvivalQuestForNewBall(now int64) (QuestUpdatePayload, bool) {
+	q.mutex.Lock()
+	defer q.mutex.Unlock()
+
+	if len(q.activeQuests) == 0 || q.bossFightTriggered {
+		return QuestUpdatePayload{}, false
+	}
+
+	if now <= 0 {
+		now = time.Now().UnixMilli()
+	}
+
+	changed := false
+	q.phaseStartedAt = now
+	for index := range q.activeQuests {
+		if q.activeQuests[index].ID != "survive_20s" || q.activeQuests[index].Completed {
+			continue
+		}
+
+		if q.activeQuests[index].Progress != 0 {
+			q.activeQuests[index].Progress = 0
+			changed = true
+		}
+	}
+
+	if !changed {
+		return QuestUpdatePayload{}, false
+	}
+
+	return q.currentStateLocked("quest_ball_reset"), true
+}
+
 func (q *QuestTracker) drawActiveQuestsLocked() []Quest {
 	categories := []string{"score", "precision", "exploration"}
 	active := make([]Quest, 0, len(categories))
@@ -176,13 +240,22 @@ func (q *QuestTracker) updateQuestLocked(quest *Quest, score ScoreUpdatePayload,
 		}
 
 	case "survive_20s":
-		if q.phaseStartedAt > 0 && impact.Timestamp > q.phaseStartedAt {
-			seconds := int((impact.Timestamp - q.phaseStartedAt) / 1000)
-			quest.Progress = clampQuestProgress(seconds, quest.Target)
-		}
+		q.updateSurvivalQuestLocked(quest, impact.Timestamp)
 	}
 
 	quest.Progress = clampQuestProgress(quest.Progress, quest.Target)
+	if quest.Progress >= quest.Target {
+		quest.Completed = true
+	}
+}
+
+func (q *QuestTracker) updateSurvivalQuestLocked(quest *Quest, now int64) {
+	if q.phaseStartedAt <= 0 || now <= q.phaseStartedAt {
+		return
+	}
+
+	seconds := int((now - q.phaseStartedAt) / 1000)
+	quest.Progress = clampQuestProgress(seconds, quest.Target)
 	if quest.Progress >= quest.Target {
 		quest.Completed = true
 	}
