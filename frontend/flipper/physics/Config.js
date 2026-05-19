@@ -152,13 +152,13 @@ export default {
     sounds: {
         ball: {
             wood: {
-                sound: 'sounds/wood.mp3',
+                sound: 'sounds/wood/1.mp3',
                 pitch: 1,
                 volume: 0.8
             },
 
             metal: {
-                sound: 'sounds/metal.mp3',
+                sound: 'sounds/metal/1.mp3',
                 pitch: 1.3,
                 volume: 1
             },

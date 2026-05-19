@@ -9,6 +9,7 @@ import { Palles } from '../objects/Palles.js';
 import { RampA, RampB } from '../objects/Ramp.js';
 import { Controls } from './Controls.js';
 import { ScoreDisplay } from '../../ui/ScoreDisplay.js';
+import { AudioManager } from '../physics/Audio.js';
 
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
@@ -68,11 +69,9 @@ async function initFlipper() {
       Config.launchingRamp.rotation,
       Config.launchingRamp.objectId
     );
-        // give the object a reference to the GamePhysics instance so it can
-        // register its collider when created asynchronously
-        launching.gamePhysics = physics;
-        controls.setLaunchingRampRef(launching);
-        mesh.push(launching);
+    
+    launching.gamePhysics = physics;
+    mesh.push(launching);
 
     // // Ramps
     // const rampA = new RampA(physics.world, Config.ramps?.A);
@@ -151,3 +150,7 @@ async function initFlipper() {
 }
 
 initFlipper();
+
+
+const audioManager = new AudioManager();
+audioManager.playMusic("../../assets/sound/Boss 1");

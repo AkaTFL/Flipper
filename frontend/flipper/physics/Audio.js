@@ -1,6 +1,6 @@
 import Config from "./Config.js";
 
-export default class AudioManager {
+export class AudioManager {
     constructor() {
         this.audio = null;
 
@@ -65,6 +65,17 @@ export default class AudioManager {
         });
     }
     
+    playMusic(folder){
+        const fs = require('fs').promises;
+
+        async function readFolder() {
+            const files = await fs.readdir(folder);
+            files.forEach((file) => {
+                this.playSound(file);
+            });
+        }
+        readFolder();
+    }
 
     stopSound(sound = this.sound) {
         if (!this.audio) return;

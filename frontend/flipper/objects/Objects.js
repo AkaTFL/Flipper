@@ -1,7 +1,7 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import AudioManager from '../physics/Audio.js';
+import { AudioManager } from '../physics/Audio.js';
 
 export class Objects {
     constructor(
