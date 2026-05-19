@@ -222,7 +222,6 @@ export class Objects {
 
         loader.loadAsync(modelPath)
             .then(({ scene: modelRoot }) => {
-                modelRoot.position.set(0, 0, 0);
                 modelRoot.updateMatrixWorld(true);
 
                 const box = new THREE.Box3().setFromObject(modelRoot);

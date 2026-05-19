@@ -29,13 +29,10 @@ export class LaunchingRamp extends Objects {
             if (!this.rigidBody) this.createFixedRigidBody(position, rotation);
             
             const desc = this.buildTrimeshCollider(modelRoot);
-            if (desc) {
-                this.replaceCollider(desc, this.rigidBody);
-            } else {
-                this.attachCollider(RAPIER.ColliderDesc.cuboid(this.length/2, this.width/2, this.height/2));
-            }
+            this.attachCollider(desc);
 
-            this.mesh.add(modelRoot); // si vous ne l'avez pas déjà ajouté ailleurs
+            this.mesh.add(modelRoot);
+            this.mesh.position.copy(position);
             });
     }
 
@@ -82,7 +79,6 @@ export class LaunchingRamp extends Objects {
         );
 
         this.pushedBodyHandles.add(otherBody.handle);
-        this.playSound(Config.sounds.launchingRamp.rolling); // Joue le son de lancement
     }
 
     resetLaunchImpulse() {

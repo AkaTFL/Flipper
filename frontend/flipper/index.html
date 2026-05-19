@@ -4,6 +4,57 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Flipper</title>
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: #000;
+      }
+
+      #three {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      #play-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      #play-button {
+        pointer-events: auto;
+        margin-bottom: 18px;
+        width: 54px;
+        height: 54px;
+        border: 0;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.92);
+        color: #111;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      #play-button:hover {
+        transform: scale(1.04);
+      }
+
+      #play-button:active {
+        transform: scale(0.98);
+      }
+    </style>
     <script type="importmap">
       {
         "imports": {
@@ -15,7 +66,23 @@
       }
     </script>
   </head>
-  <body id="three" style="width: 100vw; height: 100vh; margin: 0; padding: 0;">
-    <script type="module" src="./core/Flipper.js"></script>
+  <body id="three">
+    <div id="play-overlay" aria-hidden="false">
+      <button id="play-button" type="button" aria-label="Lancer le flipper">▶</button>
+    </div>
+    <script type="module">
+      const playButton = document.getElementById('play-button');
+      const playOverlay = document.getElementById('play-overlay');
+
+      playButton.addEventListener('click', async () => {
+        playButton.disabled = true;
+        playButton.textContent = '…';
+
+        const { initFlipper } = await import('./core/Flipper.js');
+        await initFlipper();
+
+        playOverlay?.remove();
+      }, { once: true });
+    </script>
   </body>
 </html>

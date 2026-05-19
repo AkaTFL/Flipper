@@ -1,5 +1,6 @@
 import Config from '../physics/Config.js';
 import {Objects} from '../objects/Objects.js';
+import { AudioManager } from '../physics/Audio.js';
 
 export class Controls{
     /**
@@ -122,6 +123,9 @@ export class Controls{
                         const chargedPower = Config.launchingRamp.maximalPower * Math.max(0.1, this.input.launchPower) * Config.forceMultiplier;
                         this.ballRef.rigidBody.applyImpulse({ x: 0, y: 0, z: chargedPower }, true);
                         this.impulseUsed = true;
+                        
+                        const audioManager = new AudioManager();
+                        audioManager.playMusic("../../assets/sound/Boss 1");
                     }
                 }
             }

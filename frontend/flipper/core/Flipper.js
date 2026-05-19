@@ -9,12 +9,11 @@ import { Palles } from '../objects/Palles.js';
 import { RampA, RampB } from '../objects/Ramp.js';
 import { Controls } from './Controls.js';
 import { ScoreDisplay } from '../../ui/ScoreDisplay.js';
-import { AudioManager } from '../physics/Audio.js';
 
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
 
-async function initFlipper() {
+export async function initFlipper() {
     const physics = new GamePhysics();
     await physics.init();
 
@@ -31,9 +30,10 @@ async function initFlipper() {
     const scoreDisplay = new ScoreDisplay();
     scoreDisplay.mount(container);
     container.appendChild(sceneManager.renderer.domElement);
+
     let startGameSent = false;
 
-    controls.setStartGameCallback(() => {
+    const startGame = () => {
         if (startGameSent) {
             return;
         }
@@ -41,7 +41,9 @@ async function initFlipper() {
         if (physics.sendMessage('start_game')) {
             startGameSent = true;
         }
-    });
+    };
+
+    controls.setStartGameCallback(startGame);
     controls.setBossFightStartCallback(() => {
         physics.sendMessage('boss_fight_toggled');
     });
@@ -148,9 +150,3 @@ async function initFlipper() {
         }
     });
 }
-
-initFlipper();
-
-
-const audioManager = new AudioManager();
-audioManager.playMusic("../../assets/sound/Boss 1");
