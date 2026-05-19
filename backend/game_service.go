@@ -139,6 +139,7 @@ func (gs *GameService) handleStartGame() {
 
 	// Broadcaster les quêtes tirées pour cette partie
 	gs.hub.broadcast <- NewQuestUpdateMessage(gs.hub.quests.ResetForGameStart(time.Now().UnixMilli()))
+	gs.hub.startQuestTimer()
 }
 
 // handleBossFightStarted traite l'activation du combat de boss
@@ -163,4 +164,7 @@ func (gs *GameService) handlePlayerDamageTest() {
 func (gs *GameService) handleBallLost() {
 	log.Println("Perte de balle")
 	gs.hub.broadcast <- NewPlayerStateUpdateMessage(gs.hub.player.LoseBall())
+	if questUpdate, ok := gs.hub.quests.ResetSurvivalQuestForNewBall(time.Now().UnixMilli()); ok {
+		gs.hub.broadcast <- NewQuestUpdateMessage(questUpdate)
+	}
 }

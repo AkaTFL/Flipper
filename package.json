@@ -1,10 +1,10 @@
-﻿{
+{
   "type": "module",
   "scripts": {
     "lint": "node ./scripts/lint.mjs",
     "test": "npm run test:frontend",
     "test:backend": "cd backend && go test ./...",
-    "test:frontend": "node --test tests/frontend/config.test.js tests/frontend/game-physics.test.js tests/frontend/objects.test.js tests/frontend/controls.test.js tests/frontend/score-display.test.js",
+    "test:frontend": "node --test tests/frontend/config.test.js tests/frontend/game-physics.test.js tests/frontend/objects.test.js tests/frontend/controls.test.js tests/frontend/score-display.test.js tests/frontend/dmd-display.test.js",
     "build": "node -e \"console.log('Frontend build placeholder: no bundler configured yet')\""
   },
   "dependencies": {

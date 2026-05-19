@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -19,6 +20,8 @@ type Hub struct {
 	player     *PlayerTracker
 	quests     *QuestTracker
 	mutex      sync.RWMutex
+	timerMutex sync.Mutex
+	timerStop  chan struct{}
 }
 
 var upgrader = websocket.Upgrader{
@@ -27,6 +30,44 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
+}
+
+func (h *Hub) startQuestTimer() {
+	h.timerMutex.Lock()
+	if h.timerStop != nil {
+		close(h.timerStop)
+	}
+
+	stop := make(chan struct{})
+	h.timerStop = stop
+	h.timerMutex.Unlock()
+
+	go func() {
+		ticker := time.NewTicker(1 * time.Second)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-stop:
+				return
+			case now := <-ticker.C:
+				if h.boss.IsActive() {
+					return
+				}
+
+				questUpdate, ok := h.quests.UpdateAfterTime(now.UnixMilli())
+				if !ok {
+					continue
+				}
+
+				h.broadcast <- NewQuestUpdateMessage(questUpdate)
+				if questUpdate.BossFightTriggered {
+					h.broadcast <- NewBossStateUpdateMessage(h.boss.StartBossFight())
+					return
+				}
+			}
+		}
+	}()
 }
 
 func newHub() *Hub {
