@@ -49,10 +49,7 @@ export class Ball extends Objects {
     }
 
     handleCollision() {
-        // Par défaut, joue le son s'il existe
-        if (this.audio) {
-            this.playSound();
-        }
+        this.playBallSound('wood', 1);
     }
 }
     

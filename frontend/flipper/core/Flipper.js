@@ -13,7 +13,7 @@ import { ScoreDisplay } from '../../ui/ScoreDisplay.js';
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
 
-async function initFlipper() {
+export async function initFlipper() {
     const physics = new GamePhysics();
     await physics.init();
 
@@ -30,9 +30,10 @@ async function initFlipper() {
     const scoreDisplay = new ScoreDisplay();
     scoreDisplay.mount(container);
     container.appendChild(sceneManager.renderer.domElement);
+
     let startGameSent = false;
 
-    controls.setStartGameCallback(() => {
+    const startGame = () => {
         if (startGameSent) {
             return;
         }
@@ -40,7 +41,9 @@ async function initFlipper() {
         if (physics.sendMessage('start_game')) {
             startGameSent = true;
         }
-    });
+    };
+
+    controls.setStartGameCallback(startGame);
     controls.setBossFightStartCallback(() => {
         physics.sendMessage('boss_fight_toggled');
     });
@@ -68,11 +71,9 @@ async function initFlipper() {
       Config.launchingRamp.rotation,
       Config.launchingRamp.objectId
     );
-        // give the object a reference to the GamePhysics instance so it can
-        // register its collider when created asynchronously
-        launching.gamePhysics = physics;
-        controls.setLaunchingRampRef(launching);
-        mesh.push(launching);
+    
+    launching.gamePhysics = physics;
+    mesh.push(launching);
 
     // // Ramps
     // const rampA = new RampA(physics.world, Config.ramps?.A);
@@ -149,5 +150,3 @@ async function initFlipper() {
         }
     });
 }
-
-initFlipper();

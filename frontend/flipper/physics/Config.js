@@ -17,7 +17,7 @@ export default {
         width: 60,
         length: 290,
         height: 1000,
-        position: { x: -78, y: 15, z: -70 },
+        position: { x: -315, y: 15, z: 200 },
         rotation: { x: Math.PI, y: 0, z: Math.PI },
         minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
         maximalPower: 50,
@@ -151,12 +151,21 @@ export default {
 
     sounds: {
         ball: {
-            collision: { file: "", volume: 0.5 },
-            movement: { file: "", volume: 0.5 }
+            wood: {
+                sound: '../assets/sound/Ball/wood/1.mp3',
+                pitch: 1,
+                volume: 0.8
+            },
+
+            metal: {
+                sound: '../assets/sound/Ball/metal/1.mp3',
+                pitch: 1.3,
+                volume: 1
+            },
         },
         
         bumper: {
-            collision: { file: "", volume: 0.5 },
+            collision: { file: "../assets/sound/Bumpers_collision.mp3", volume: 0.5 },
         },
 
         wall: {
@@ -164,14 +173,13 @@ export default {
         },
 
         launchingRamp: {  
-            charging: {file: "../assets/sound/Ramp_charging.mp3"} , 
-            launch: {file: "../assets/sound/Ramp_launch.mp3", volume: 0.5},       
-            rolling: { file: "../assets/sound/Ramp_rolling.mp3", volume: 0.5 }
+            charging: {file: "../assets/sound/Ramp_reload_1.mp3"} , 
+            launch: {file: "../assets/sound/Ramp_launch.mp3", volume: 0.5}
         },
 
         palles: {
             collision: { file: "", volume: 0.6 },
-            movement: { file: "", volume: 0.5 }
+            movement: { file: "../assets/sound/Palles_move.mp3", volume: 0.5 }
         },
 
         rail: {        

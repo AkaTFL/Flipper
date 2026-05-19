@@ -7,6 +7,7 @@ import Config from '../../frontend/flipper/physics/Config.js';
 import { Bumper } from '../../frontend/flipper/objects/Bumper.js';
 import { LaunchingRamp } from '../../frontend/flipper/objects/LaunchingRamp.js';
 import { Palles } from '../../frontend/flipper/objects/Palles.js';
+import { Wall } from '../../frontend/flipper/objects/Wall.js';
 
 if (typeof globalThis.Audio !== 'function') {
   globalThis.Audio = class {
@@ -148,4 +149,20 @@ test('Palles keeps rest-angle semantics when inactive', async () => {
   assert.equal(palles.restAngle, Math.abs(Config.palles.initialAngle ?? (Math.PI / 6)));
 
   assert.doesNotThrow(() => palles.setActive(false));
+});
+
+test('Wall creates a fixed rigid body and a collider', () => {
+  const { world, state } = createWorldStub();
+  const wall = new Wall(
+    world,
+    950,
+    100,
+    { x: 255, y: 0, z: 0 },
+    { x: 0, y: Math.PI / 2, z: 0 }
+  );
+
+  assert.equal(wall.objectType, 'wall');
+  assert.equal(state.rigidBodies.length, 1);
+  assert.equal(state.colliders.length, 1);
+  assert.ok(wall.collider);
 });

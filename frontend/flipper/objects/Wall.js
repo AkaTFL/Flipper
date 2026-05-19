@@ -45,10 +45,7 @@ export class Wall extends Objects {
     }
     
     handleCollision() {
-        // Par défaut, joue le son s'il existe
-        if (this.audio) {
-            this.playSound();
-        }
+        this.playSound(Config.sounds.wall.collision);
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }
