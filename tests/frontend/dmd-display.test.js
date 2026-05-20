@@ -331,7 +331,27 @@ test('DmdDisplay stops on boss screen when the boss is active', () => {
   });
 
   assert.equal(display.lines[0].textContent, 'SCORE 18 400');
-  assert.equal(display.lines[1].textContent, 'BOSS 750/1000');
-  assert.equal(display.lines[2].textContent, 'JOUEUR 80/100');
-  assert.equal(display.lines[3].textContent, 'BALLES 2/3');
+  assert.equal(display.lines[1].textContent, 'LE BOSS ARRIVE !');
+  assert.equal(display.lines[2].textContent, 'BOSS 750/1000');
+  assert.equal(display.lines[3].textContent, 'JOUEUR 80/100  BALLES 2/3');
+});
+
+test('DmdDisplay shows inflicted boss damage after arrival message', () => {
+  const documentRef = createFakeDocument();
+  const display = new DmdDisplay({ documentRef, eventTarget: null });
+  display.mount();
+
+  display.handleBackendEvent({
+    type: 'boss_state_update',
+    payload: { active: true, hp: 900, maxHp: 1000 }
+  });
+
+  display.bossArrivalUntil = 0;
+  display.handleBackendEvent({
+    type: 'boss_state_update',
+    payload: { active: true, hp: 850, maxHp: 1000, damageTaken: 50, mode: 'score_damage' }
+  });
+
+  assert.equal(display.lines[1].textContent, 'DÉGÂTS +50');
+  assert.equal(display.lines[2].textContent, 'BOSS 850/1000');
 });

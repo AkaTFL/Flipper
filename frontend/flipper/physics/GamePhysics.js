@@ -54,8 +54,6 @@ export class GamePhysics {
             velocity.y ?? 0,
             velocity.z ?? 0
         );
-        console.log('Vitesse de la balle :', speed);
-
         this.audioManager.updateRollingBall(speed, Config.sounds.ball.metal);
     }
 

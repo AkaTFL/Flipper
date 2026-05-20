@@ -30,13 +30,25 @@ services:
       start_period: 10s
     restart: unless-stopped
 
-  frontend:
+  frontend_flipper:
     build:
       context: ./frontend/flipper
       dockerfile: Dockerfile
-    container_name: flipper-frontend
+    container_name: frontend-flipper
     ports:
       - "${FRONTEND_PORT:-3001}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend_dmd:
+    build:
+      context: ./frontend/dmd
+      dockerfile: Dockerfile
+    container_name: frontend-dmd
+    ports:
+      - "${DMD_PORT:-3002}:80"
     depends_on:
       backend:
         condition: service_healthy

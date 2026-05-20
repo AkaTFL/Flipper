@@ -6,6 +6,7 @@ const DEFAULT_STATE = {
     bossActive: false,
     bossHp: 0,
     bossMaxHp: 0,
+    bossDamageTaken: 0,
     playerHp: 0,
     playerMaxHp: 0,
     playerBalls: 0,
@@ -49,6 +50,7 @@ export class DmdDisplay {
         this.survivalBaseProgress = 0;
         this.survivalStartedAt = 0;
         this.lastComboCount = 0;
+        this.bossArrivalUntil = 0;
         this.boundHandler = (event) => this.handleBackendEvent(event?.detail);
     }
 
@@ -156,11 +158,21 @@ export class DmdDisplay {
             this.state.questsCompleted = this.countCompletedQuests(this.state.quests);
             this.syncSurvivalTimer();
         } else if (message.type === 'boss_state_update') {
+            const wasBossActive = this.state.bossActive;
+            const bossIsActive = Boolean(message.payload.active);
+            const bossMode = String(message.payload.mode ?? '');
+            const bossJustArrived = bossIsActive && (!wasBossActive || bossMode === 'boss_fight_started' || bossMode === 'boss_fight_activated');
+
+            if (bossJustArrived) {
+                this.bossArrivalUntil = Date.now() + 3500;
+            }
+
             this.state = {
                 ...this.state,
-                bossActive: Boolean(message.payload.active),
+                bossActive: bossIsActive,
                 bossHp: Number(message.payload.hp ?? 0),
-                bossMaxHp: Number(message.payload.maxHp ?? 0)
+                bossMaxHp: Number(message.payload.maxHp ?? 0),
+                bossDamageTaken: Number(message.payload.damageTaken ?? 0)
             };
             if (this.state.bossActive) {
                 this.stopSurvivalTimer();
@@ -249,11 +261,16 @@ export class DmdDisplay {
             ];
         }
 
+        const showArrivalMessage = Date.now() <= this.bossArrivalUntil;
+        const secondLine = showArrivalMessage
+            ? 'LE BOSS ARRIVE !'
+            : `DÉGÂTS +${this.formatScore(this.state.bossDamageTaken)}`;
+
         return [
             `SCORE ${this.formatScore(this.state.score)}`,
+            secondLine,
             `BOSS ${this.formatBossHp()}`,
-            `JOUEUR ${this.formatPlayerHp()}`,
-            `BALLES ${this.formatBalls()}`
+            `JOUEUR ${this.formatPlayerHp()}  BALLES ${this.formatBalls()}`
         ];
     }
 
