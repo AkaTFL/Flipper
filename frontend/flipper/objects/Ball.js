@@ -24,6 +24,9 @@ export class Ball extends Objects {
             })
         );
 
+        this.mesh.castShadow = true;
+        this.mesh.receiveShadow = true;
+
         this.mesh.position.copy(position);
 
         // Physics properties - Dynamic rigid body with mass

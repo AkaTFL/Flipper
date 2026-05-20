@@ -157,10 +157,6 @@ export class Controls{
         this.ballLostCallback = callback;
     }
 
-    getLaunchChargeCount() {
-        return this.launchChargeCount;
-    }
-
     setLaunchChargeCount(value) {
         this.launchChargeCount = value;
     }

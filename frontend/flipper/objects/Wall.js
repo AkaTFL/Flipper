@@ -27,6 +27,9 @@ export class Wall extends Objects {
             })
         );
 
+        this.mesh.receiveShadow = true;
+        // this.mesh.castShadow = true;
+
         this.mesh.position.copy(position);
 
         this.mesh.rotation.x = rotation.x;

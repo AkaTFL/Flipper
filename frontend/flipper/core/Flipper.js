@@ -80,10 +80,6 @@ export async function initFlipper() {
     launching.gamePhysics = physics;
     mesh.push(launching);
 
-    // // Ramps
-    // const rampA = new RampA(physics.world, Config.ramps?.A);
-    // mesh.push(rampA);
-
     const rampB = new Ramp(
         physics.world,
         Config.ramps.B.model,

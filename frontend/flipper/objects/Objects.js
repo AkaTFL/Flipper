@@ -242,13 +242,15 @@ export class Objects {
                             });
                         }
                         child.material.side = THREE.DoubleSide;
+                        child.castShadow = true;
+                        child.receiveShadow = true;
                     }
                 });
 
                 if (onModelLoaded) {
                     onModelLoaded(modelRoot);
                 }
-
+                
                 this.mesh.add(modelRoot);
             })
             .catch((error) => {

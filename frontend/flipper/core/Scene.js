@@ -32,6 +32,7 @@ export class Scene {
     init(height, width, position, rotation) {
         // Renderer with anti-aliasing for smoother edges
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.shadowMap.enabled = true;
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.WIDTH, this.HEIGHT);
         this.renderer.outputEncoding = THREE.sRGBEncoding;
@@ -67,6 +68,8 @@ export class Scene {
             roughness: 1.0
         }));
 
+        planeMesh.receiveShadow = true;
+
         planeMesh.rotation.x = rotation.x;
         planeMesh.rotation.y = rotation.y;
         planeMesh.rotation.z = rotation.z;
@@ -75,6 +78,25 @@ export class Scene {
         // Soft ambient light
         const light = new THREE.AmbientLight(0xffffff, 0.5);
         this.scene.add(light);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(0, 1000, 1000);
+
+        directionalLight.castShadow = true;
+        
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
+
+        directionalLight.shadow.camera.left = -700;
+        directionalLight.shadow.camera.right = 700;
+        directionalLight.shadow.camera.top = 700;
+        directionalLight.shadow.camera.bottom = -700;
+        directionalLight.shadow.camera.near = 1;
+        directionalLight.shadow.camera.far = 3000;
+
+        directionalLight.target.position.set(0, 0, 0);
+        this.scene.add(directionalLight.target);
+        this.scene.add(directionalLight);
 
         // ==========================================
         // PARTIE PHYSIQUE (RAPIER)
