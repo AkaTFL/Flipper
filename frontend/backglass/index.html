@@ -5,50 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Backglass</title>
     <style>
+      :root {
+        color-scheme: dark;
+      }
+
       body {
         width: 100vw;
         height: 100vh;
         margin: 0;
         padding: 0;
         overflow: hidden;
-        background: #000;
+        background:
+          radial-gradient(circle at center, rgba(30, 44, 92, 0.18) 0%, rgba(0, 0, 0, 0) 42%),
+          linear-gradient(180deg, #05070c 0%, #000 100%);
       }
       #backglass {
         position: fixed;
-        bottom: 30px; /* distance du bas de l'écran */
-        left: 50%;
-        transform: translateX(-50%);
-
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 12px; /* espace entre combo et quêtes */
-
+        inset: 0;
+        display: grid;
+        place-items: center;
         width: 100%;
+        height: 100%;
         pointer-events: none;
       }
 
-      #combo {
-        color: #1948e4;
-        font-family: 'Courier New', Courier, monospace;
+      #score {
+        width: 100%;
         text-align: center;
-        font-size: 20px;
-        margin-bottom: 25px;
+        color: #f8ff6a;
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 900;
+        font-size: min(32vw, 36vh);
+        line-height: 0.88;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        text-shadow: 0 0 0 #000, 0 0 12px rgba(248, 255, 106, 0.35), 4px 4px 0 #000;
+        -webkit-font-smoothing: none;
+        font-smooth: never;
+        transform: translateY(-1vh) scale(1.02);
+        filter: contrast(1.15) saturate(1.05);
+        image-rendering: pixelated;
+        user-select: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: clip;
       }
 
-      #quests {
-        color: #a10b0b;
-        font-family: 'Courier New', Courier, monospace;
+      #score::before {
+        content: 'SCORE';
+        display: block;
         text-align: center;
-        font-size: 18px;
-        margin-bottom: 20px;
+        font-size: 0.16em;
+        letter-spacing: 0.35em;
+        margin-bottom: 0.2em;
+        color: rgba(248, 255, 106, 0.8);
       }
     </style>
   </head>
   <body>
     <div id="backglass">
-      <div id="combo"></div>
-      <div id="quests"></div>
+      <div id="score">0</div>
     </div>
     <script type="module">
       import { DmdDisplay } from './DmdDisplay.js';

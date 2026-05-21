@@ -5,54 +5,22 @@ export class DmdDisplay {
     } = {}) {
         this.documentRef = documentRef;
         this.backendUrl = backendUrl;
-        this.container = null;
+        this.scoreEl = null;
         this.socket = null;
-        this.lastMessage = null;
         this.score = 0;
         this.mount();
         this.connectBackend();
     }
 
-    mount(container = this.documentRef.getElementById('dmd')) {
-        if (!container || this.container) {
-            return this.container;
+    mount(scoreEl = this.documentRef.getElementById('score')) {
+        if (!scoreEl || this.scoreEl) {
+            return this.scoreEl;
         }
 
-        this.container = container;
-
-        this.scoreEl = this.documentRef.getElementById('score');
-        if (!this.scoreEl) {
-            this.scoreEl = this.documentRef.createElement('div');
-            this.scoreEl.id = 'score';
-            this.container.textContent = '';
-            this.container.appendChild(this.scoreEl);
-        }
-
-        Object.assign(this.container.style, {
-            width: '100vw',
-            height: '100vh',
-            display: 'grid',
-            placeItems: 'center',
-            overflow: 'hidden'
-        });
-
-        Object.assign(this.scoreEl.style, {
-            width: '100%',
-            textAlign: 'center',
-            color: '#f8ff6a',
-            fontFamily: '"Courier New", Courier, monospace',
-            fontWeight: '900',
-            fontSize: 'min(32vw, 36vh)',
-            lineHeight: '0.88',
-            letterSpacing: '0.05em',
-            textTransform: 'uppercase',
-            textShadow: '0 0 0 #000, 0 0 12px rgba(248, 255, 106, 0.35), 4px 4px 0 #000',
-            WebkitFontSmoothing: 'none',
-            fontSmooth: 'never'
-        });
+        this.scoreEl = scoreEl;
 
         this.render();
-        return this.container;
+        return this.scoreEl;
     }
 
     connectBackend() {
@@ -87,10 +55,7 @@ export class DmdDisplay {
     handleBackendMessage(rawData) {
         try {
             const message = JSON.parse(rawData);
-            this.lastMessage = message;
-
             this.updateScoreState(message);
-
             this.render();
             return message;
         } catch (error) {
@@ -109,17 +74,11 @@ export class DmdDisplay {
     }
 
     render() {
-        try {
-            if (!this.scoreEl) {
-                return;
-            }
-
-            this.scoreEl.textContent = this.formatScore(this.score);
-        } catch (err) {
-            if (this.scoreEl) {
-                this.scoreEl.textContent = '0';
-            }
+        if (!this.scoreEl) {
+            return;
         }
+
+        this.scoreEl.textContent = this.formatScore(this.score);
     }
 
     formatScore(value) {

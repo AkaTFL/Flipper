@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>DMD</title>
+
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background:
+          radial-gradient(
+            circle at center,
+            rgba(255, 255, 120, 0.08) 0%,
+            rgba(0, 0, 0, 0) 45%
+          ),
+          linear-gradient(180deg, #05070c 0%, #000 100%);
+      }
+
+#score {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+
+    /* CHIFFRE COLLÉ À DROITE */
+    justify-content: flex-end;
+
+    width: 100vw;
+    height: 100vh;
+
+    padding-right: 2vw;
+
+    overflow: hidden;
+
+    color: rgb(4, 190, 200);
+
+    font-family: "Press Start 2P", monospace;
+    font-weight: 400;
+
+    /* Taille de base */
+    font-size: 28vh;
+
+    /* ÉTIREMENT UNIQUEMENT VERTICAL */
+    transform: scaleY(2.6);
+    transform-origin: right center;
+
+    line-height: 1;
+    letter-spacing: -0.08em;
+
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-align: right;
+
+    /* PIXEL */
+    -webkit-font-smoothing: none;
+    text-rendering: geometricPrecision;
+    image-rendering: pixelated;
+
+    /* OUTLINE PIXEL */
+    text-shadow:
+        5px 0 #000,
+        -5px 0 #000,
+        0 5px #000,
+        0 -5px #000,
+
+        5px 5px #000,
+        -5px 5px #000,
+        5px -5px #000,
+        -5px -5px #000,
+
+        10px 10px rgba(0, 0, 0, 0.95),
+
+        0 0 10px rgba(4,190,200,0.35);
+
+    /* BLOOM */
+    filter:
+    brightness(1.15)
+    contrast(1.6)
+    drop-shadow(0 0 12px rgba(4,190,200,0.85))
+    drop-shadow(0 0 24px rgba(4,190,200,0.6))
+    drop-shadow(0 0 48px rgba(4,190,200,0.35));
+
+    user-select: none;
+    pointer-events: none;
+}
+      /* Scanlines CRT */
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+
+        background:
+          repeating-linear-gradient(
+            to bottom,
+            rgba(255,255,255,0.045) 0px,
+            rgba(255,255,255,0.045) 2px,
+            transparent 2px,
+            transparent 4px
+          );
+
+        opacity: 0.4;
+        mix-blend-mode: overlay;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="score"></div>
+
+    <script type="module">
+      import { DmdDisplay } from './DmdDisplay.js';
+
+      const dmdDisplay = new DmdDisplay();
+    </script>
+  </body>
+</html>

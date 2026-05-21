@@ -54,5 +54,17 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  frontend_dmd:
+    build:
+      context: ./frontend/dmd
+      dockerfile: Dockerfile
+    container_name: frontend-dmd
+    ports:
+      - "${DMD_PORT:-3003}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   mosquitto-data:
