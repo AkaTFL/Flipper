@@ -290,8 +290,8 @@ func TestWebSocketBroadcastsScoreUpdateAfterImpact(t *testing.T) {
 		t.Fatalf("failed to unmarshal score update payload: %v", err)
 	}
 
-	if payload.Score != 50 || payload.Delta != 50 {
-		t.Fatalf("expected score update to report 50 points, got score=%d delta=%d", payload.Score, payload.Delta)
+	if payload.Score != 25 || payload.Delta != 25 {
+		t.Fatalf("expected score update to report 25 points, got score=%d delta=%d", payload.Score, payload.Delta)
 	}
 	if payload.ComboCount != 1 || payload.ComboMultiplier != 1 {
 		t.Fatalf("expected first hit combo to be x1, got combo=%d multiplier=%d", payload.ComboCount, payload.ComboMultiplier)
@@ -431,8 +431,8 @@ func TestWebSocketBroadcastsBossStateUpdateAfterImpactWhileBossIsActive(t *testi
 		t.Fatalf("failed to unmarshal boss state payload: %v", err)
 	}
 
-	if payload.HP != 995 || payload.DamageTaken != 5 || !payload.Active {
-		t.Fatalf("expected 5 damage on active boss, got %+v", payload)
+	if payload.HP != 1499 || payload.DamageTaken != 1 || !payload.Active {
+		t.Fatalf("expected 1 damage on active boss, got %+v", payload)
 	}
 }
 

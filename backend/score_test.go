@@ -17,8 +17,8 @@ func TestScoreTrackerUsesNewBumperComboValues(t *testing.T) {
 		t.Fatal("expected first impact to generate score")
 	}
 
-	if first.BasePoints != 50 || first.Delta != 50 || first.Score != 50 {
-		t.Fatalf("expected first bumper hit to add 50 points, got %+v", first)
+	if first.BasePoints != 25 || first.Delta != 25 || first.Score != 25 {
+		t.Fatalf("expected first bumper hit to add 25 points, got %+v", first)
 	}
 	if first.ComboBonus != 0 || first.ComboMultiplier != 1 {
 		t.Fatalf("expected no combo bonus and x1 multiplier on first hit, got %+v", first)
@@ -33,14 +33,14 @@ func TestScoreTrackerUsesNewBumperComboValues(t *testing.T) {
 		t.Fatal("expected second impact to generate score")
 	}
 
-	if second.BasePoints != 75 {
-		t.Fatalf("expected combo bumper hit to use 75 base points, got %d", second.BasePoints)
+	if second.BasePoints != 40 {
+		t.Fatalf("expected combo bumper hit to use 40 base points, got %d", second.BasePoints)
 	}
-	if second.ComboBonus != 100 || second.ComboMultiplier != 1 {
-		t.Fatalf("expected second hit to get +100 combo bonus and x1 multiplier, got %+v", second)
+	if second.ComboBonus != 50 || second.ComboMultiplier != 1 {
+		t.Fatalf("expected second hit to get +50 combo bonus and x1 multiplier, got %+v", second)
 	}
-	if second.Delta != 175 || second.Score != 225 {
-		t.Fatalf("expected second hit to add 175 and total 225, got %+v", second)
+	if second.Delta != 90 || second.Score != 115 {
+		t.Fatalf("expected second hit to add 90 and total 115, got %+v", second)
 	}
 }
 
@@ -54,6 +54,12 @@ func TestScoreTrackerAppliesGlobalMultiplierThresholds(t *testing.T) {
 		{ObjectID: "target-right", ObjectType: "target", Timestamp: 2_500},
 		{ObjectID: "loop-left", ObjectType: "lane", Timestamp: 3_000},
 		{ObjectID: "loop-right", ObjectType: "lane", Timestamp: 3_500},
+		{ObjectID: "bumper-1", ObjectType: "bumper", Timestamp: 4_000},
+		{ObjectID: "bumper-2", ObjectType: "bumper", Timestamp: 4_500},
+		{ObjectID: "target-left", ObjectType: "target", Timestamp: 5_000},
+		{ObjectID: "target-right", ObjectType: "target", Timestamp: 5_500},
+		{ObjectID: "loop-left", ObjectType: "lane", Timestamp: 6_000},
+		{ObjectID: "loop-right", ObjectType: "lane", Timestamp: 6_500},
 	}
 
 	var last ScoreUpdatePayload
@@ -66,7 +72,7 @@ func TestScoreTrackerAppliesGlobalMultiplierThresholds(t *testing.T) {
 	}
 
 	if last.ComboMultiplier != 3 || last.GlobalMultiplier != 3 {
-		t.Fatalf("expected 6-hit streak to reach x3 multiplier, got %+v", last)
+		t.Fatalf("expected 12-hit streak to reach x3 multiplier, got %+v", last)
 	}
 }
 
@@ -112,8 +118,8 @@ func TestScoreTrackerSupportsLoopScalingAndSuperRampCombo(t *testing.T) {
 	if !ok {
 		t.Fatal("expected first loop to generate score")
 	}
-	if firstLoop.BasePoints != 300 {
-		t.Fatalf("expected first loop to start at 300, got %+v", firstLoop)
+	if firstLoop.BasePoints != 120 {
+		t.Fatalf("expected first loop to start at 120, got %+v", firstLoop)
 	}
 
 	secondLoop, ok := tracker.ApplyImpact(ImpactPayload{ObjectID: "loop-left", ObjectType: "lane", Timestamp: 1_500})
@@ -144,7 +150,7 @@ func TestScoreTrackerSupportsLoopScalingAndSuperRampCombo(t *testing.T) {
 	if !thirdRamp.SuperCombo {
 		t.Fatalf("expected third ramp hit to trigger super combo, got %+v", thirdRamp)
 	}
-	if thirdRamp.ComboBonus < 2300 {
+	if thirdRamp.ComboBonus < 820 {
 		t.Fatalf("expected third ramp hit to include standard combo bonus plus super combo bonus, got %+v", thirdRamp)
 	}
 }
@@ -154,6 +160,14 @@ func TestScoreTrackerIgnoresZeroPointImpacts(t *testing.T) {
 
 	if _, ok := tracker.ApplyImpact(ImpactPayload{ObjectID: "palle-left", ObjectType: "palle", Timestamp: 1_000}); ok {
 		t.Fatal("expected palle impact to be ignored for scoring")
+	}
+
+	if _, ok := tracker.ApplyImpact(ImpactPayload{ObjectID: "wall-1", ObjectType: "wall", Timestamp: 2_000}); ok {
+		t.Fatal("expected wall impact to be ignored for scoring")
+	}
+
+	if _, ok := tracker.ApplyImpact(ImpactPayload{ObjectID: "ground", ObjectType: "ground", Timestamp: 3_000}); ok {
+		t.Fatal("expected ground impact to be ignored for scoring")
 	}
 }
 

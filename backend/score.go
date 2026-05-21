@@ -9,9 +9,9 @@ import (
 const (
 	defaultComboWindow     = 2 * time.Second
 	defaultMultiplierReset = 3 * time.Second
-	loopBasePoints         = 300
-	loopMaxPoints          = 800
-	superRampComboBonus    = 2000
+	loopBasePoints         = 120
+	loopMaxPoints          = 350
+	superRampComboBonus    = 700
 )
 
 type ScoreUpdatePayload struct {
@@ -163,35 +163,35 @@ func (s *ScoreTracker) basePointsForImpact(objectType, objectID string) int {
 	switch objectType {
 	case "bumper":
 		if s.comboCount >= 2 {
+			return 40
+		}
+		return 25
+	case "target":
+		if containsAny(objectID, "center", "centre", "precise", "precision") {
 			return 75
 		}
 		return 50
-	case "target":
-		if containsAny(objectID, "center", "centre", "precise", "precision") {
-			return 150
-		}
-		return 100
 	case "launching_ramp", "ramp":
 		if containsAny(objectID, "perfect", "parfait", "clean", "sans-rebond") {
-			return 750
+			return 350
 		}
-		return 500
+		return 200
 	case "launching_ramp_rail", "rail", "loop", "lane":
 		return s.loopPoints(objectID)
 	case "star", "star_zone", "etoile", "étoile":
 		if containsAny(objectID, "center", "centre", "exact") {
-			return 1000
+			return 400
 		}
 		if containsAny(objectID, "outer", "edge", "ext") {
-			return 100
+			return 50
 		}
-		return 500
+		return 200
 	case "wall":
-		return 25
+		return 0
 	case "portal":
-		return 300
+		return 150
 	case "saucer":
-		return 500
+		return 200
 	case "palle", "ball", "":
 		return 0
 	default:
@@ -203,7 +203,7 @@ func (s *ScoreTracker) loopPoints(objectID string) int {
 	streak := s.loopStreakByID[objectID] + 1
 	s.loopStreakByID[objectID] = streak
 
-	scaled := loopBasePoints + ((streak - 1) * 250)
+	scaled := loopBasePoints + ((streak - 1) * 80)
 	if scaled > loopMaxPoints {
 		return loopMaxPoints
 	}
@@ -234,13 +234,13 @@ func (s *ScoreTracker) registerRecentType(objectType string) bool {
 func comboBonusForCount(comboCount int) int {
 	switch {
 	case comboCount >= 5:
-		return 1000
+		return 400
 	case comboCount == 4:
-		return 700
+		return 250
 	case comboCount == 3:
-		return 300
+		return 120
 	case comboCount == 2:
-		return 100
+		return 50
 	default:
 		return 0
 	}
@@ -248,11 +248,11 @@ func comboBonusForCount(comboCount int) int {
 
 func multiplierForHitStreak(hitStreak int) int {
 	switch {
-	case hitStreak >= 10:
+	case hitStreak >= 18:
 		return 4
-	case hitStreak >= 6:
+	case hitStreak >= 12:
 		return 3
-	case hitStreak >= 3:
+	case hitStreak >= 6:
 		return 2
 	default:
 		return 1

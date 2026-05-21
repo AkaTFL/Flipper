@@ -3,8 +3,8 @@ package main
 import "sync"
 
 const (
-	defaultBossMaxHP        = 1000
-	defaultBossDamageFactor = 0.10
+	defaultBossMaxHP        = 1500
+	defaultBossDamageFactor = 0.05
 )
 
 type BossStateUpdatePayload struct {

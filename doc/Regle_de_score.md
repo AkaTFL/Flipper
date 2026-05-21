@@ -20,36 +20,45 @@ Ordre de priorité gameplay :
 
 ### Bumpers (centraux)
 
-- hit simple : `+50 pts`
-- hit en combo : `+75 pts`
+- hit simple : `+25 pts`
+- hit en combo : `+40 pts`
 
 ### Cibles (targets basses gauche/droite)
 
-- hit simple : `+100 pts`
-- hit précis (centre) : `+150 pts`
+- hit simple : `+50 pts`
+- hit précis (centre) : `+75 pts`
 
 ### Rampes (gauche / droite)
 
-- passage simple : `+500 pts`
-- passage parfait (sans rebond) : `+750 pts`
+- passage simple : `+200 pts`
+- passage parfait (sans rebond) : `+350 pts`
 
 ### Zone étoiles (centre bas)
 
-- score variable : `100 → 1000 pts`
-- centre exact : `+1000 pts`
-- activation complète : `+3000 pts bonus`
+- score variable : `50 → 400 pts`
+- centre exact : `+400 pts`
+- activation complète : `+1200 pts bonus`
 
 ### Boucles / rails supérieurs
 
-- passage complet : `+300 pts`
-- enchaînement loop repeat : `+300 → 800 pts` avec scaling
+- passage complet : `+120 pts`
+- enchaînement loop repeat : `+120 → 350 pts` avec scaling
+
+### Éléments sans score
+
+- murs / bordures : `0 pt`
+- sol / ground : `0 pt`
+- balle : `0 pt`
+- palles : `0 pt`
+
+Ces éléments peuvent générer des collisions physiques, mais ils ne doivent pas augmenter le score.
 
 ## Multiplicateur global
 
 - base : `x1`
-- `3 hits` consécutifs : `x2`
-- `6 hits` : `x3`
-- `10 hits` : `x4` maximum
+- `6 hits` consécutifs : `x2`
+- `12 hits` : `x3`
+- `18 hits` : `x4` maximum
 
 ### Reset du multiplicateur
 
@@ -66,14 +75,14 @@ Ordre de priorité gameplay :
 
 | Combo | Bonus |
 |-------|-------|
-| x2 | `+100 pts` |
-| x3 | `+300 pts` |
-| x4 | `+700 pts` |
-| x5+ | `+1000 pts` |
+| x2 | `+50 pts` |
+| x3 | `+120 pts` |
+| x4 | `+250 pts` |
+| x5+ | `+400 pts` |
 
 ### Bonus spécial
 
-- `Rampe → Rampe → Rampe` : `+2000 pts` (`Super combo`)
+- `Rampe → Rampe → Rampe` : `+700 pts` (`Super combo`)
 
 ## Objectifs / progression
 
@@ -93,7 +102,7 @@ Ordre de priorité gameplay :
 ### Objectif cibles basses
 
 - toutes les cibles activées :
-  - bonus immédiat : `+1500 pts`
+  - bonus immédiat : `+750 pts`
   - réinitialisation des cibles
 
 ## Bonus dynamiques
@@ -106,7 +115,7 @@ Ordre de priorité gameplay :
 
 ### Skill Shot
 
-- tir précis au lancement : `+2000 pts`
+- tir précis au lancement : `+800 pts`
 
 ## État actuel du backend
 
@@ -133,15 +142,15 @@ Dégâts boss = Delta de score × coefficient
 
 ### Valeur temporaire utilisée
 
-- coefficient actuel : `0.10`
+- coefficient actuel : `0.05`
 - exemple :
-  - `+50 pts` => `5 dégâts boss`
-  - `+750 pts` => `75 dégâts boss`
+  - `+25 pts` => `1 dégât boss`
+  - `+350 pts` => `17 dégâts boss`
 
 ### État actuel d'intégration
 
 - le backend maintient un état minimal du boss ;
-- le boss possède `1000 HP` maximum ;
+- le boss possède `1500 HP` maximum ;
 - un message `boss_state_update` est renvoyé au frontend ;
 - au `start_game`, le boss est réinitialisé mais reste `inactif` ;
 - pour les tests, le boss peut être activé ou désactivé manuellement.
@@ -196,11 +205,11 @@ Pendant les tests, le frontend peut aussi envoyer :
 {
   "type": "score_update",
   "payload": {
-    "score": 225,
-    "delta": 175,
-    "basePoints": 75,
+    "score": 115,
+    "delta": 90,
+    "basePoints": 40,
     "comboCount": 2,
-    "comboBonus": 100,
+    "comboBonus": 50,
     "comboMultiplier": 1,
     "globalMultiplier": 1,
     "superCombo": false,
@@ -217,10 +226,10 @@ Pendant les tests, le frontend peut aussi envoyer :
   "type": "boss_state_update",
   "payload": {
     "active": true,
-    "hp": 925,
-    "maxHp": 1000,
-    "damageTaken": 75,
-    "coefficient": 0.1,
+    "hp": 1483,
+    "maxHp": 1500,
+    "damageTaken": 17,
+    "coefficient": 0.05,
     "defeated": false,
     "mode": "score_damage"
   }

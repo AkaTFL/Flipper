@@ -277,6 +277,76 @@ func TestGameServiceHandlePlayerDamageTest(t *testing.T) {
 	}
 }
 
+func TestGameServiceResetsSurvivalQuestWhenBossDamageLosesBall(t *testing.T) {
+	hub := newHub()
+	hub.player = newPlayerTracker(PlayerConfig{MaxHP: 20, MaxBalls: 3})
+	hub.quests.activeQuests = []Quest{
+		{ID: "survive_20s", Category: "exploration", Label: "Survivre 20 secondes avec la même bille", Target: 20, Progress: 8},
+	}
+	hub.quests.phaseStartedAt = time.Now().Add(-8 * time.Second).UnixMilli()
+	go hub.run()
+
+	client := &Client{send: make(chan []byte, 256)}
+	hub.register <- client
+
+	service := NewGameService(hub)
+
+	msg := Message{Type: "boss_attack_test"}
+	response, isDirectResponse := service.HandleMessage(msg, []byte(`{"type":"boss_attack_test"}`))
+
+	if isDirectResponse {
+		t.Fatal("expected boss_attack_test to not return a direct response")
+	}
+
+	if response != nil {
+		t.Fatal("expected nil response for boss_attack_test")
+	}
+
+	messages := make([]Message, 0)
+	timeout := time.Now().Add(500 * time.Millisecond)
+	for time.Now().Before(timeout) && len(messages) < 2 {
+		select {
+		case broadcast := <-client.send:
+			var msgResp Message
+			if err := json.Unmarshal(broadcast, &msgResp); err != nil {
+				t.Fatalf("failed to unmarshal broadcast: %v", err)
+			}
+			messages = append(messages, msgResp)
+		case <-time.After(10 * time.Millisecond):
+		}
+	}
+
+	if len(messages) < 2 {
+		t.Fatalf("expected player_state_update and quest_update, got %d messages", len(messages))
+	}
+
+	if messages[0].Type != "player_state_update" {
+		t.Fatalf("expected first message player_state_update, got %s", messages[0].Type)
+	}
+
+	var playerPayload PlayerStateUpdatePayload
+	if err := json.Unmarshal(messages[0].Payload, &playerPayload); err != nil {
+		t.Fatalf("failed to unmarshal player payload: %v", err)
+	}
+
+	if !playerPayload.LastBallLost || playerPayload.Balls != 2 {
+		t.Fatalf("expected ball lost after boss damage, got %+v", playerPayload)
+	}
+
+	if messages[1].Type != "quest_update" {
+		t.Fatalf("expected second message quest_update, got %s", messages[1].Type)
+	}
+
+	var questPayload QuestUpdatePayload
+	if err := json.Unmarshal(messages[1].Payload, &questPayload); err != nil {
+		t.Fatalf("failed to unmarshal quest payload: %v", err)
+	}
+
+	if len(questPayload.ActiveQuests) != 1 || questPayload.ActiveQuests[0].Progress != 0 {
+		t.Fatalf("expected survival quest reset, got %+v", questPayload)
+	}
+}
+
 func TestGameServiceHandleBossFightStarted(t *testing.T) {
 	hub := newHub()
 	hub.boss = newBossTracker(defaultBossConfig)
