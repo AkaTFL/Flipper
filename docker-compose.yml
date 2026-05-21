@@ -42,11 +42,11 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  frontend_dmd:
+  frontend_backglass:
     build:
-      context: ./frontend/dmd
+      context: ./frontend/backglass
       dockerfile: Dockerfile
-    container_name: frontend-dmd
+    container_name: frontend-backglass
     ports:
       - "${DMD_PORT:-3002}:80"
     depends_on:
