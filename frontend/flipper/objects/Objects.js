@@ -236,11 +236,6 @@ export class Objects {
 
                 modelRoot.traverse((child) => {
                     if (child.isMesh) {
-                        if (!child.material || Object.keys(child.material).length === 0) {
-                            child.material = new THREE.MeshStandardMaterial({
-                                color: 0xcccccc
-                            });
-                        }
                         child.material.side = THREE.DoubleSide;
                         child.castShadow = true;
                         child.receiveShadow = true;

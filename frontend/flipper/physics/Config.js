@@ -17,7 +17,7 @@ export default {
         width: 60,
         length: 290,
         height: 1000,
-        position: { x: -315, y: 15, z: 200 },
+        position: { x: -160, y: 25, z: 260 },
         rotation: { x: Math.PI, y: 0, z: Math.PI },
         minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
         maximalPower: 50,
