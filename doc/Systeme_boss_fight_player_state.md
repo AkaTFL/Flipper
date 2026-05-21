@@ -21,7 +21,7 @@ Le systeme doit permettre de :
 
 ### Boss
 
-- PV maximum du boss : `1000 HP`
+- PV maximum du boss : `1500 HP`
 - Le boss commence inactif au debut d'une partie.
 - Le boss devient actif quand le boss fight est declenche.
 - Pour les tests actuels, le boss peut etre active manuellement.
@@ -48,18 +48,18 @@ Degats boss = Delta de score x coefficient de degats
 Valeur recommandee pour le MVP :
 
 ```text
-coefficient de degats = 0.10
+coefficient de degats = 0.05
 ```
 
 Exemples :
 
 | Action | Delta de score | Degats boss |
 |--------|----------------|-------------|
-| Bumper simple | `+50 pts` | `5 degats` |
-| Cible simple | `+100 pts` | `10 degats` |
-| Rampe simple | `+500 pts` | `50 degats` |
-| Rampe parfaite | `+750 pts` | `75 degats` |
-| Super combo rampe | `+2000 pts` bonus | `200 degats` bonus |
+| Bumper simple | `+25 pts` | `1 degat` |
+| Cible simple | `+50 pts` | `2 degats` |
+| Rampe simple | `+200 pts` | `10 degats` |
+| Rampe parfaite | `+350 pts` | `17 degats` |
+| Super combo rampe | `+700 pts` bonus | `35 degats` bonus |
 
 Cette regle permet de recompenser directement les actions fortes du joueur : plus le joueur marque de points pendant le boss fight, plus il inflige de degats.
 
@@ -111,10 +111,10 @@ Message deja existant :
   "type": "boss_state_update",
   "payload": {
     "active": true,
-    "hp": 925,
-    "maxHp": 1000,
-    "damageTaken": 75,
-    "coefficient": 0.1,
+    "hp": 1483,
+    "maxHp": 1500,
+    "damageTaken": 17,
+    "coefficient": 0.05,
     "defeated": false,
     "mode": "score_damage"
   }
@@ -171,11 +171,11 @@ Ces touches sont temporaires et servent uniquement au debug gameplay.
 Le premier equilibrage recommande est :
 
 ```text
-Boss HP: 1000
+Boss HP: 1500
 Player HP: 100
 Balles / vies: 3
 Degats boss vers joueur: 20
-Degats joueur vers boss: score_delta x 0.10
+Degats joueur vers boss: score_delta x 0.05
 ```
 
 Ce reglage donne une base lisible :
@@ -190,7 +190,7 @@ Ce reglage donne une base lisible :
 Apres integration et tests, il faudra probablement ajuster :
 
 - les PV du boss selon la duree moyenne d'une phase ;
-- le coefficient de degats `0.10` si le boss tombe trop vite ou trop lentement ;
+- le coefficient de degats `0.05` si le boss tombe trop vite ou trop lentement ;
 - les degats du boss selon la frequence des attaques ;
 - le nombre de balles si le jeu devient trop facile ou trop punitif ;
 - les recompenses apres chaque boss de phase.

@@ -157,7 +157,14 @@ func (gs *GameService) handleBossFightToggled() {
 // handlePlayerDamageTest simule une attaque du boss tant que les vraies attaques ne sont pas branchées
 func (gs *GameService) handlePlayerDamageTest() {
 	log.Println("Dégâts joueur test")
-	gs.hub.broadcast <- NewPlayerStateUpdateMessage(gs.hub.player.ApplyDamage(defaultBossAttackDamage))
+	playerUpdate := gs.hub.player.ApplyDamage(defaultBossAttackDamage)
+	gs.hub.broadcast <- NewPlayerStateUpdateMessage(playerUpdate)
+
+	if playerUpdate.LastBallLost {
+		if questUpdate, ok := gs.hub.quests.ResetSurvivalQuestForNewBall(time.Now().UnixMilli()); ok {
+			gs.hub.broadcast <- NewQuestUpdateMessage(questUpdate)
+		}
+	}
 }
 
 // handleBallLost simule une perte de balle
