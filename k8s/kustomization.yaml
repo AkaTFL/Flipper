@@ -7,4 +7,5 @@ resources:
   - namespace.yaml
   - backend.yaml
   - frontend.yaml
+  - dmd.yaml
   - iot.yaml
