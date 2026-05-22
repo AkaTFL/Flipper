@@ -2,7 +2,7 @@ name: CI/CD Build & Deploy
 
 on:
   push:
-    branches: [develop]
+    branches: [develop, main]
   workflow_dispatch:
 
 permissions:
@@ -64,18 +64,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Restore kubeconfig
+        id: restore
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
         run: |
           if [ -z "$KUBE_CONFIG_DATA" ]; then
             echo "KUBE_CONFIG secret not provided - skipping deploy job"
+            echo "has_kubeconfig=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           echo "$KUBE_CONFIG_DATA" | base64 --decode > kubeconfig
           mkdir -p $HOME/.kube
           mv kubeconfig $HOME/.kube/config
+          echo "has_kubeconfig=true" >> "$GITHUB_OUTPUT"
 
       - name: Install kubectl
+        if: ${{ steps.restore.outputs.has_kubeconfig == 'true' }}
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
@@ -83,16 +87,19 @@ jobs:
           kubectl version --client
 
       - name: Install kustomize
+        if: ${{ steps.restore.outputs.has_kubeconfig == 'true' }}
         run: |
           curl -sLo kustomize.tar.gz https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.1.0/kustomize_v5.1.0_linux_amd64.tar.gz
           tar -xzf kustomize.tar.gz
           sudo mv kustomize /usr/local/bin/
 
       - name: Compute owner lowercase for deploy
+        if: ${{ steps.restore.outputs.has_kubeconfig == 'true' }}
         run: |
           echo "OWNER_LOWER=$(echo '${{ secrets.DOCKERHUB_USERNAME }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Update kustomize images
+        if: ${{ steps.restore.outputs.has_kubeconfig == 'true' }}
         run: |
           cd k8s || exit 1
           BACKEND_IMAGE=docker.io/${OWNER_LOWER}/flipper-backend:${GITHUB_SHA}
@@ -105,6 +112,7 @@ jobs:
           kustomize edit set image flipper-dmd=$DMD_IMAGE || true
 
       - name: Set images and deploy via kubectl
+        if: ${{ steps.restore.outputs.has_kubeconfig == 'true' }}
         run: |
           BACKEND_IMAGE=docker.io/${OWNER_LOWER}/flipper-backend:${GITHUB_SHA}
           FRONTEND_IMAGE=docker.io/${OWNER_LOWER}/flipper-frontend:${GITHUB_SHA}
