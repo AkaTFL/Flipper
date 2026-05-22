@@ -19,12 +19,12 @@ jobs:
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Login to GHCR
+      - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Compute owner lowercase
         run: |
@@ -33,28 +33,28 @@ jobs:
       - name: Build and push backend
         run: |
           docker build -t flipper-backend:tmp ./backend
-          IMAGE=ghcr.io/${OWNER_LOWER}/flipper-backend:${GITHUB_SHA}
+          IMAGE=docker.io/${OWNER_LOWER}/flipper-backend:${GITHUB_SHA}
           docker tag flipper-backend:tmp $IMAGE
           docker push $IMAGE
 
       - name: Build and push frontend
         run: |
           docker build -t flipper-frontend:tmp ./frontend/flipper
-          IMAGE=ghcr.io/${OWNER_LOWER}/flipper-frontend:${GITHUB_SHA}
+          IMAGE=docker.io/${OWNER_LOWER}/flipper-frontend:${GITHUB_SHA}
           docker tag flipper-frontend:tmp $IMAGE
           docker push $IMAGE
 
       - name: Build and push iot
         run: |
           docker build -t flipper-iot:tmp ./iot
-          IMAGE=ghcr.io/${OWNER_LOWER}/flipper-iot:${GITHUB_SHA}
+          IMAGE=docker.io/${OWNER_LOWER}/flipper-iot:${GITHUB_SHA}
           docker tag flipper-iot:tmp $IMAGE
           docker push $IMAGE
 
       - name: Build and push dmd
         run: |
           docker build -t flipper-dmd:tmp ./frontend/dmd
-          IMAGE=ghcr.io/${OWNER_LOWER}/flipper-dmd:${GITHUB_SHA}
+          IMAGE=docker.io/${OWNER_LOWER}/flipper-dmd:${GITHUB_SHA}
           docker tag flipper-dmd:tmp $IMAGE
           docker push $IMAGE
 
@@ -95,22 +95,21 @@ jobs:
       - name: Update kustomize images
         run: |
           cd k8s || exit 1
-          BACKEND_IMAGE=ghcr.io/${OWNER_LOWER}/flipper-backend:${GITHUB_SHA}
-          FRONTEND_IMAGE=ghcr.io/${OWNER_LOWER}/flipper-frontend:${GITHUB_SHA}
-          IOT_IMAGE=ghcr.io/${OWNER_LOWER}/flipper-iot:${GITHUB_SHA}
-          DMD_IMAGE=ghcr.io/${OWNER_LOWER}/flipper-dmd:${GITHUB_SHA}
+          BACKEND_IMAGE=docker.io/${OWNER_LOWER}/flipper-backend:${GITHUB_SHA}
+          FRONTEND_IMAGE=docker.io/${OWNER_LOWER}/flipper-frontend:${GITHUB_SHA}
+          IOT_IMAGE=docker.io/${OWNER_LOWER}/flipper-iot:${GITHUB_SHA}
+          DMD_IMAGE=docker.io/${OWNER_LOWER}/flipper-dmd:${GITHUB_SHA}
           kustomize edit set image flipper-backend=$BACKEND_IMAGE || true
           kustomize edit set image flipper-frontend=$FRONTEND_IMAGE || true
           kustomize edit set image flipper-iot=$IOT_IMAGE || true
           kustomize edit set image flipper-dmd=$DMD_IMAGE || true
 
       - name: Set images and deploy via kubectl
-        env:
-          BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-backend:${{ github.sha }}
-          FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-frontend:${{ github.sha }}
-          IOT_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-iot:${{ github.sha }}
-          DMD_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-dmd:${{ github.sha }}
         run: |
+          BACKEND_IMAGE=docker.io/${OWNER_LOWER}/flipper-backend:${GITHUB_SHA}
+          FRONTEND_IMAGE=docker.io/${OWNER_LOWER}/flipper-frontend:${GITHUB_SHA}
+          IOT_IMAGE=docker.io/${OWNER_LOWER}/flipper-iot:${GITHUB_SHA}
+          DMD_IMAGE=docker.io/${OWNER_LOWER}/flipper-dmd:${GITHUB_SHA}
           kubectl -n flipper set image deployment/backend-deployment backend=$BACKEND_IMAGE || true
           kubectl -n flipper set image deployment/frontend-deployment frontend=$FRONTEND_IMAGE || true
           kubectl -n flipper set image deployment/iot-deployment iot=$IOT_IMAGE || true
