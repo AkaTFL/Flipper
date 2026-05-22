@@ -14,6 +14,13 @@ Documenter l'état de la chaîne CI/CD et tracer les travaux de déploiement Kub
   - frontend (NodePort 30080 → 80)
   - iot (ClusterIP 1883)
 - **Images** : flipper-backend:local, flipper-frontend:local, flipper-iot:local
+ - **Déploiements** : backend, frontend, iot, dmd — tous en Running 1/1 Ready
+ - **Services** : 
+   - backend (ClusterIP 8080)
+   - frontend (NodePort 30080 → 80)
+   - iot (ClusterIP 1883)
+   - dmd (NodePort 30081 → 80)
+ - **Images** : flipper-backend:local, flipper-frontend:local, flipper-iot:local, flipper-dmd:local
 
 ### Capacités Kubernetes validées 
 1. **Auto-healing** : suppression de pod → recréation automatique en <5s
@@ -32,6 +39,7 @@ k8s/
 ├── frontend.yaml          # Frontend deployment + service NodePort
 ├── iot.yaml               # IoT deployment + service ClusterIP
 └── kustomization.yaml     # Point d'entrée Kustomize
+├── dmd.yaml               # DMD deployment + service NodePort
 ```
 
 ### Commandes clés de déploiement
@@ -40,11 +48,13 @@ k8s/
 docker build -t flipper-backend:local backend
 docker build -t flipper-frontend:local frontend/flipper
 docker build -t flipper-iot:local iot
+docker build -t flipper-dmd:local frontend/dmd
 
 # Chargement dans kind
 kind load docker-image flipper-backend:local --name flipper
 kind load docker-image flipper-frontend:local --name flipper
 kind load docker-image flipper-iot:local --name flipper
+kind load docker-image flipper-dmd:local --name flipper
 
 # Déploiement complet
 kubectl apply -k k8s

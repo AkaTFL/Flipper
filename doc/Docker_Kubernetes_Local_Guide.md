@@ -92,6 +92,7 @@ kind create cluster --name flipper --image kindest/node:v1.32.5
 docker build -t flipper-backend:local backend
 docker build -t flipper-frontend:local frontend/flipper
 docker build -t flipper-iot:local iot
+docker build -t flipper-dmd:local frontend/dmd
 ```
 
 #### 3. Charger les images dans kind
@@ -99,6 +100,7 @@ docker build -t flipper-iot:local iot
 kind load docker-image flipper-backend:local --name flipper
 kind load docker-image flipper-frontend:local --name flipper
 kind load docker-image flipper-iot:local --name flipper
+kind load docker-image flipper-dmd:local --name flipper
 ```
 
 #### 4. Déployer l'application complète
@@ -112,6 +114,8 @@ Cela crée :
 - **frontend deployment** (1 replica, exposed via NodePort 30080)
 - **iot deployment** (1 replica, Mosquitto MQTT)
 - **3 services** (backend, frontend, iot)
+ - **dmd deployment** (1 replica, affichage DMD)
+ - **4 services** (backend, frontend, iot, dmd)
 
 #### 5. Vérifier le statut
 ```bash
@@ -133,6 +137,19 @@ Option B (NodePort direct) :
 ```bash
 # Le service écoute sur localhost:30080
 # http://localhost:30080
+```
+
+#### Accéder au DMD
+Option A (port-forward) :
+```bash
+kubectl port-forward -n flipper svc/dmd-service 8089:80
+# Puis : http://localhost:8089
+```
+
+Option B (NodePort direct) :
+```bash
+# Le service DMD écoute sur localhost:30081
+# http://localhost:30081
 ```
 
 ### Capacités Kubernetes démontrées
@@ -191,6 +208,7 @@ k8s/
 ├── backend.yaml            # Backend deployment + service
 ├── frontend.yaml           # Frontend deployment + service NodePort
 ├── iot.yaml                # IoT deployment (Mosquitto) + service
+├── dmd.yaml                # DMD deployment + service NodePort
 └── kustomization.yaml      # Point d'entrée (orchestrateur)
 ```
 
