@@ -28,7 +28,7 @@ jobs:
 
       - name: Compute owner lowercase
         run: |
-          echo "OWNER_LOWER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "OWNER_LOWER=$(echo '${{ secrets.DOCKERHUB_USERNAME }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Build and push backend
         run: |
@@ -90,7 +90,7 @@ jobs:
 
       - name: Compute owner lowercase for deploy
         run: |
-          echo "OWNER_LOWER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "OWNER_LOWER=$(echo '${{ secrets.DOCKERHUB_USERNAME }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Update kustomize images
         run: |
