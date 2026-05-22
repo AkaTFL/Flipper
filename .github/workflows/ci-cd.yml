@@ -44,6 +44,13 @@ jobs:
           docker tag flipper-frontend:tmp $IMAGE
           docker push $IMAGE
 
+      - name: Build and push backglass
+        run: |
+          docker build -t flipper-backglass:tmp ./frontend/backglass
+          IMAGE=docker.io/${OWNER_LOWER}/flipper-backglass:${GITHUB_SHA}
+          docker tag flipper-backglass:tmp $IMAGE
+          docker push $IMAGE
+
       - name: Build and push iot
         run: |
           docker build -t flipper-iot:tmp ./iot
@@ -106,8 +113,10 @@ jobs:
           FRONTEND_IMAGE=docker.io/${OWNER_LOWER}/flipper-frontend:${GITHUB_SHA}
           IOT_IMAGE=docker.io/${OWNER_LOWER}/flipper-iot:${GITHUB_SHA}
           DMD_IMAGE=docker.io/${OWNER_LOWER}/flipper-dmd:${GITHUB_SHA}
+          BACKGLASS_IMAGE=docker.io/${OWNER_LOWER}/flipper-backglass:${GITHUB_SHA}
           kustomize edit set image flipper-backend=$BACKEND_IMAGE || true
           kustomize edit set image flipper-frontend=$FRONTEND_IMAGE || true
+          kustomize edit set image flipper-backglass=$BACKGLASS_IMAGE || true
           kustomize edit set image flipper-iot=$IOT_IMAGE || true
           kustomize edit set image flipper-dmd=$DMD_IMAGE || true
 
@@ -118,8 +127,10 @@ jobs:
           FRONTEND_IMAGE=docker.io/${OWNER_LOWER}/flipper-frontend:${GITHUB_SHA}
           IOT_IMAGE=docker.io/${OWNER_LOWER}/flipper-iot:${GITHUB_SHA}
           DMD_IMAGE=docker.io/${OWNER_LOWER}/flipper-dmd:${GITHUB_SHA}
+          BACKGLASS_IMAGE=docker.io/${OWNER_LOWER}/flipper-backglass:${GITHUB_SHA}
           kubectl -n flipper set image deployment/backend-deployment backend=$BACKEND_IMAGE || true
           kubectl -n flipper set image deployment/frontend-deployment frontend=$FRONTEND_IMAGE || true
+          kubectl -n flipper set image deployment/backglass-deployment backglass=$BACKGLASS_IMAGE || true
           kubectl -n flipper set image deployment/iot-deployment iot=$IOT_IMAGE || true
           kubectl -n flipper set image deployment/dmd-deployment dmd=$DMD_IMAGE || true
           kubectl apply -k k8s

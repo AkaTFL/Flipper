@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: mosquitto
-          image: flipper-iot:local
+          image: docker.io/hounga/flipper-iot:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 1883
@@ -31,6 +31,13 @@ spec:
               port: 1883
             initialDelaySeconds: 5
             periodSeconds: 5
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
 ---
 apiVersion: v1
 kind: Service

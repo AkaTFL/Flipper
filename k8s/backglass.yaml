@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-deployment
+  name: backglass-deployment
   namespace: flipper
   labels:
-    app: frontend
+    app: backglass
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: frontend
+      app: backglass
   template:
     metadata:
       labels:
-        app: frontend
+        app: backglass
     spec:
       containers:
-        - name: frontend
-          image: docker.io/hounga/flipper-frontend:latest
+        - name: backglass
+          image: docker.io/hounga/flipper-backglass:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
@@ -46,14 +46,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend-service
+  name: backglass-service
   namespace: flipper
 spec:
   selector:
-    app: frontend
+    app: backglass
   ports:
     - port: 80
       targetPort: 80
       protocol: TCP
-      nodePort: 30080
+      nodePort: 30082
   type: NodePort
