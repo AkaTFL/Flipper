@@ -31,32 +31,31 @@ jobs:
         with:
           context: ./backend
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/flipper-backend:${{ github.sha }}
+          tags: ghcr.io/${{ toLower(github.repository_owner) }}/flipper-backend:${{ github.sha }}
 
       - name: Build and push frontend
         uses: docker/build-push-action@v4
         with:
           context: ./frontend/flipper
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/flipper-frontend:${{ github.sha }}
+          tags: ghcr.io/${{ toLower(github.repository_owner) }}/flipper-frontend:${{ github.sha }}
 
       - name: Build and push iot
         uses: docker/build-push-action@v4
         with:
           context: ./iot
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/flipper-iot:${{ github.sha }}
+          tags: ghcr.io/${{ toLower(github.repository_owner) }}/flipper-iot:${{ github.sha }}
 
       - name: Build and push dmd
         uses: docker/build-push-action@v4
         with:
           context: ./frontend/dmd
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/flipper-dmd:${{ github.sha }}
+          tags: ghcr.io/${{ toLower(github.repository_owner) }}/flipper-dmd:${{ github.sha }}
 
   deploy:
     needs: build-and-push
-    if: ${{ secrets.KUBE_CONFIG != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,6 +63,10 @@ jobs:
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
         run: |
+          if [ -z "$KUBE_CONFIG_DATA" ]; then
+            echo "KUBE_CONFIG secret not provided - skipping deploy job"
+            exit 0
+          fi
           echo "$KUBE_CONFIG_DATA" | base64 --decode > kubeconfig
           mkdir -p $HOME/.kube
           mv kubeconfig $HOME/.kube/config
@@ -76,10 +79,10 @@ jobs:
 
       - name: Update kustomize images
         env:
-          BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-backend:${{ github.sha }}
-          FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-frontend:${{ github.sha }}
-          IOT_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-iot:${{ github.sha }}
-          DMD_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-dmd:${{ github.sha }}
+          BACKEND_IMAGE: ghcr.io/${{ toLower(github.repository_owner) }}/flipper-backend:${{ github.sha }}
+          FRONTEND_IMAGE: ghcr.io/${{ toLower(github.repository_owner) }}/flipper-frontend:${{ github.sha }}
+          IOT_IMAGE: ghcr.io/${{ toLower(github.repository_owner) }}/flipper-iot:${{ github.sha }}
+          DMD_IMAGE: ghcr.io/${{ toLower(github.repository_owner) }}/flipper-dmd:${{ github.sha }}
         run: |
           cd k8s || exit 1
           kustomize edit set image flipper-backend=$BACKEND_IMAGE || true
