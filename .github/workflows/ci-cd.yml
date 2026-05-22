@@ -68,6 +68,25 @@ jobs:
           mkdir -p $HOME/.kube
           mv kubeconfig $HOME/.kube/config
 
+      - name: Install kustomize
+        run: |
+          curl -sLo kustomize.tar.gz https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.1.0/kustomize_v5.1.0_linux_amd64.tar.gz
+          tar -xzf kustomize.tar.gz
+          sudo mv kustomize /usr/local/bin/
+
+      - name: Update kustomize images
+        env:
+          BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-backend:${{ github.sha }}
+          FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-frontend:${{ github.sha }}
+          IOT_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-iot:${{ github.sha }}
+          DMD_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-dmd:${{ github.sha }}
+        run: |
+          cd k8s || exit 1
+          kustomize edit set image flipper-backend=$BACKEND_IMAGE || true
+          kustomize edit set image flipper-frontend=$FRONTEND_IMAGE || true
+          kustomize edit set image flipper-iot=$IOT_IMAGE || true
+          kustomize edit set image flipper-dmd=$DMD_IMAGE || true
+
       - name: Set images and deploy via kubectl
         env:
           BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-backend:${{ github.sha }}
