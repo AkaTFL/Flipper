@@ -1,0 +1,82 @@
+name: CI/CD Build & Deploy
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/flipper-backend:${{ github.sha }}
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend/flipper
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/flipper-frontend:${{ github.sha }}
+
+      - name: Build and push iot
+        uses: docker/build-push-action@v4
+        with:
+          context: ./iot
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/flipper-iot:${{ github.sha }}
+
+      - name: Build and push dmd
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend/dmd
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/flipper-dmd:${{ github.sha }}
+
+  deploy:
+    needs: build-and-push
+    if: ${{ secrets.KUBE_CONFIG != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore kubeconfig
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
+        run: |
+          echo "$KUBE_CONFIG_DATA" | base64 --decode > kubeconfig
+          mkdir -p $HOME/.kube
+          mv kubeconfig $HOME/.kube/config
+
+      - name: Set images and deploy via kubectl
+        env:
+          BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-backend:${{ github.sha }}
+          FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-frontend:${{ github.sha }}
+          IOT_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-iot:${{ github.sha }}
+          DMD_IMAGE: ghcr.io/${{ github.repository_owner }}/flipper-dmd:${{ github.sha }}
+        run: |
+          kubectl -n flipper set image deployment/backend-deployment backend=$BACKEND_IMAGE || true
+          kubectl -n flipper set image deployment/frontend-deployment frontend=$FRONTEND_IMAGE || true
+          kubectl -n flipper set image deployment/iot-deployment iot=$IOT_IMAGE || true
+          kubectl -n flipper set image deployment/dmd-deployment dmd=$DMD_IMAGE || true
+          kubectl apply -k k8s
