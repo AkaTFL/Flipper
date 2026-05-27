@@ -7,6 +7,7 @@ import Config from '../../frontend/flipper/physics/Config.js';
 import { Bumper } from '../../frontend/flipper/objects/Bumper.js';
 import { LaunchingRamp } from '../../frontend/flipper/objects/LaunchingRamp.js';
 import { Palles } from '../../frontend/flipper/objects/Palles.js';
+import { StaticMesh } from '../../frontend/flipper/objects/StaticMesh.js';
 import { Wall } from '../../frontend/flipper/objects/Wall.js';
 
 if (typeof globalThis.Audio !== 'function') {
@@ -149,6 +150,34 @@ test('Palles keeps rest-angle semantics when inactive', async () => {
   assert.equal(palles.restAngle, Math.abs(Config.palles.initialAngle ?? (Math.PI / 6)));
 
   assert.doesNotThrow(() => palles.setActive(false));
+});
+
+test('StaticMesh creates a fixed rigid body and a trimesh collider after model load', async () => {
+  const { world, state } = createWorldStub();
+  const sm = new StaticMesh(world, '../assets/mesh/Mesh_final/murs_cible_left.glb', {
+    objectId: 'murs-cible-left',
+    objectType: 'wall',
+    position: { x: 0, y: 0, z: 0 },
+    rotation: { x: 0, y: 0, z: 0 }
+  });
+
+  assert.equal(state.rigidBodies.length, 1);
+  assert.equal(state.colliders.length, 0);
+
+  await flushAsyncLoads();
+
+  assert.equal(state.colliders.length, 1);
+  assert.equal(sm.objectId, 'murs-cible-left');
+  assert.equal(sm.objectType, 'wall');
+});
+
+test('StaticMesh defaults objectType to "static" when not provided', async () => {
+  const { world } = createWorldStub();
+  const sm = new StaticMesh(world, '../assets/mesh/Mesh_final/raque_side.glb', {
+    objectId: 'raque-side'
+  });
+
+  assert.equal(sm.objectType, 'static');
 });
 
 test('Wall creates a fixed rigid body and a collider', () => {
