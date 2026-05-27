@@ -182,8 +182,9 @@ test('StaticMesh defaults objectType to "static" when not provided', async () =>
 
 test('Wall creates a fixed rigid body and a collider', () => {
   const { world, state } = createWorldStub();
+  const gamePhysics = { world };  // Wall expects gamePhysics.world, not world directly
   const wall = new Wall(
-    world,
+    gamePhysics,
     950,
     100,
     { x: 255, y: 0, z: 0 },
