@@ -146,7 +146,9 @@ export default {
             { length: 70, width: 20, height: 30, position: { x: -100, y: 15, z: -400 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
         ],
         modelRight: '../assets/mesh/Mesh_final/Pales_Right_Big.glb',
-        modelLeft: '../assets/mesh/Mesh_final/Pales_Left_Big.glb'
+        modelLeft: '../assets/mesh/Mesh_final/Pales_Left_Big.glb',
+        modelRightDeath: '../assets/mesh/Mesh_final/ramp_pale_down_right_death.glb',
+        modelLeftDeath: '../assets/mesh/Mesh_final/ramp_pale_down_left_death.glb'
     },
 
     sounds: {
