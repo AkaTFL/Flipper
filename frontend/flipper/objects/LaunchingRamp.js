@@ -27,13 +27,12 @@ export class LaunchingRamp extends Objects {
 
         this.addMesh(modelPath, (modelRoot) => {
             if (!this.rigidBody) this.createFixedRigidBody(position, rotation);
-            
-            const desc = this.buildTrimeshCollider(modelRoot);
-            this.attachCollider(desc);
 
-            this.mesh.add(modelRoot);
+            const desc = this.buildTrimeshCollider(modelRoot);
+            if (desc) this.attachCollider(desc);
+
             this.mesh.position.copy(position);
-            });
+        });
     }
 
     computeRampDirection() {
