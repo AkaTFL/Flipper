@@ -24,3 +24,47 @@ test('gravity configuration is numeric on all axes', () => {
     assert.equal(typeof Config.gravity[axis], 'number');
   }
 });
+
+test('config.staticMeshes lists the Mesh_final assets to integrate', () => {
+  assert.ok(Array.isArray(Config.staticMeshes));
+  assert.ok(Config.staticMeshes.length > 0);
+
+  const ids = Config.staticMeshes.map((m) => m.objectId);
+  assert.ok(ids.includes('murs-cible-left'));
+  assert.ok(ids.includes('murs-cible-right'));
+  assert.ok(ids.includes('quadri-left-cible'));
+  assert.ok(ids.includes('quadri-right-cible'));
+  assert.ok(ids.includes('raque-side'));
+});
+
+test('config.staticMeshes entries each have required fields', () => {
+  for (const entry of Config.staticMeshes) {
+    assert.ok(entry.model,    `${entry.objectId} is missing model`);
+    assert.ok(entry.objectId, `entry is missing objectId`);
+    assert.ok(entry.position, `${entry.objectId} is missing position`);
+    assert.ok(entry.rotation, `${entry.objectId} is missing rotation`);
+  }
+});
+
+test('bumper, triangle, ramp and palles model paths reference Mesh_final', () => {
+  assert.ok(Config.bumper.instances.every((b) => b.model.includes('Mesh_final')));
+  assert.ok(Config.bumpers_triangle.every((t) => t.model.includes('Mesh_final')));
+  assert.ok(Config.ramps.B.model.includes('Mesh_final'));
+  assert.ok(Config.palles.modelLeft.includes('Mesh_final'));
+  assert.ok(Config.palles.modelRight.includes('Mesh_final'));
+});
+
+test('triangle bumpers use distinct left and right models', () => {
+  const left  = Config.bumpers_triangle.find((t) => t.variant === 'left');
+  const right = Config.bumpers_triangle.find((t) => t.variant === 'right');
+  assert.ok(left.model.includes('Left'));
+  assert.ok(right.model.toLowerCase().includes('right'));
+  assert.notEqual(left.model, right.model);
+});
+
+test('palles config includes death-state model paths', () => {
+  assert.ok(Config.palles.modelLeftDeath,  'modelLeftDeath is missing');
+  assert.ok(Config.palles.modelRightDeath, 'modelRightDeath is missing');
+  assert.ok(Config.palles.modelLeftDeath.includes('death'));
+  assert.ok(Config.palles.modelRightDeath.includes('death'));
+});

@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
+// Controls instantiates Objects which creates an AudioManager that calls new Audio()
+if (typeof globalThis.Audio !== 'function') {
+  globalThis.Audio = class {
+    constructor() { this.currentTime = 0; this.preload = 'auto'; this.volume = 1; }
+    play() { return Promise.resolve(); }
+  };
+}
+
 import { Controls } from '../../frontend/flipper/core/Controls.js';
 
 function createWindowStub() {

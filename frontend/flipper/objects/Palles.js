@@ -82,10 +82,12 @@ export class Palles extends Objects {
                     this.joint.setLimits(0, this.angle);
                 }
 
-                const desc = this.buildTrimeshCollider(modelRoot)
-                                 .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-                
-                this.attachCollider(desc);
+                const trimesh = this.buildTrimeshCollider(modelRoot);
+                if (trimesh) {
+                    this.attachCollider(
+                        trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
+                    );
+                }
             });
         }
     }

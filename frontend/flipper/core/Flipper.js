@@ -8,6 +8,7 @@ import { LaunchingRamp } from '../objects/LaunchingRamp.js';
 import { Palles } from '../objects/Palles.js';
 import { Controls } from './Controls.js';
 import { Ramp } from '../objects/Ramp.js';
+import { StaticMesh } from '../objects/StaticMesh.js';
 
 
 import { ScoreDisplay } from '../ui/ScoreDisplay.js';
@@ -78,6 +79,7 @@ export async function initFlipper() {
     );
     
     launching.gamePhysics = physics;
+    controls.setLaunchingRampRef(launching);
     mesh.push(launching);
 
     const rampB = new Ramp(
@@ -125,6 +127,64 @@ export async function initFlipper() {
         const pal = new Palles(physics.world, pnl.length, pnl.width, pnl.height, pnl.position, pnl.rotation, pnl.side);
         pal.gamePhysics = physics;
         mesh.push(pal);
+    });
+
+    // Etage (sol principal du flipper)
+    const etage = new StaticMesh(physics.world, Config.etage.model, {
+        length:    Config.etage.length,
+        width:     Config.etage.width,
+        height:    Config.etage.height,
+        radius:    Config.etage.radius,
+        side:      Config.etage.side,
+        position:  Config.etage.position,
+        rotation:  Config.etage.rotation,
+        objectId:  Config.etage.objectId,
+        objectType: Config.etage.objectType
+    });
+    etage.gamePhysics = physics;
+    mesh.push(etage);
+
+    // Body flipper (structure principale depuis Mesh_final)
+    const bodyFlipper = new StaticMesh(physics.world, Config.bodyFlipper.model, {
+        length:     Config.bodyFlipper.length,
+        width:      Config.bodyFlipper.width,
+        height:     Config.bodyFlipper.height,
+        radius:     Config.bodyFlipper.radius,
+        side:       Config.bodyFlipper.side,
+        color:      Config.bodyFlipper.color,
+        position:   Config.bodyFlipper.position,
+        rotation:   Config.bodyFlipper.rotation,
+        objectId:   Config.bodyFlipper.objectId,
+        objectType: Config.bodyFlipper.objectType
+    });
+    bodyFlipper.gamePhysics = physics;
+    mesh.push(bodyFlipper);
+
+    // Static meshes from Mesh_final (murs_cible, quadri_cible, raque_side)
+    (Config.staticMeshes || []).forEach((cfg) => {
+        const staticMesh = new StaticMesh(physics.world, cfg.model, {
+            position: cfg.position,
+            rotation: cfg.rotation,
+            objectId: cfg.objectId,
+            objectType: cfg.objectType
+        });
+        staticMesh.gamePhysics = physics;
+        mesh.push(staticMesh);
+    });
+
+    // Ramp pales (right, left, rightDeath, leftDeath)
+    Object.values(Config.rampPales).forEach(cfg => {
+        const rampPale = new StaticMesh(physics.world, cfg.model, {
+            length:     cfg.length,
+            width:      cfg.width,
+            height:     cfg.height,
+            position:   cfg.position,
+            rotation:   cfg.rotation,
+            objectId:   cfg.objectId,
+            objectType: cfg.objectType
+        });
+        rampPale.gamePhysics = physics;
+        mesh.push(rampPale);
     });
 
     // Ball

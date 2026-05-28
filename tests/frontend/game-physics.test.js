@@ -164,12 +164,12 @@ test('handleCollisionEvents notifies objects and forwards the contacted gameplay
 
   physics.handleCollisionEvents();
 
+  // reportContactImpacts skips balls intentionally — only non-ball objects trigger sendImpact
   assert.deepEqual(calls, [
     'bumper:collision',
     'ball:collision',
     'bumper:force:10-11',
-    'impact:bumper-1',
-    'impact:ball'
+    'impact:bumper-1'
   ]);
 });
 
@@ -220,11 +220,11 @@ test('handleCollisionEvents can report a ramp-side collision while delegating th
 
   physics.handleCollisionEvents();
 
+  // reportContactImpacts skips balls intentionally — only non-ball objects trigger sendImpact
   assert.deepEqual(calls, [
     'ramp:collision',
     'ramp:force:10-11',
-    'impact:launching-ramp-right-rail',
-    'impact:ball'
+    'impact:launching-ramp-right-rail'
   ]);
 });
 
@@ -243,6 +243,9 @@ test('step only verifies ramp traversal after a collision is detected', () => {
       callback(10, 11, true);
     }
   };
+
+  // updateRollingBallSound requires a live ball with rigidBody — stub it out
+  physics.updateRollingBallSound = function () {};
 
   physics.handleCollisionEvents = function () {
     calls.push('collision');
