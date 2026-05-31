@@ -20,6 +20,11 @@ type PlayerStateUpdatePayload struct {
 	Mode            string `json:"mode"`
 }
 
+type PlayerStateSnapshot struct {
+	HP    int `json:"hp"`
+	Balls int `json:"balls"`
+}
+
 type PlayerConfig struct {
 	MaxHP    int
 	MaxBalls int
@@ -60,6 +65,43 @@ func (p *PlayerTracker) ResetForGameStart() PlayerStateUpdatePayload {
 	p.balls = p.config.MaxBalls
 
 	return p.currentStateLocked(0, false, "game_started")
+}
+
+func (p *PlayerTracker) Snapshot() PlayerStateSnapshot {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
+	return PlayerStateSnapshot{
+		HP:    p.hp,
+		Balls: p.balls,
+	}
+}
+
+func (p *PlayerTracker) Restore(snapshot PlayerStateSnapshot) PlayerStateUpdatePayload {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
+	if snapshot.Balls < 0 {
+		snapshot.Balls = 0
+	}
+	if snapshot.Balls > p.config.MaxBalls {
+		snapshot.Balls = p.config.MaxBalls
+	}
+	if snapshot.HP < 0 {
+		snapshot.HP = 0
+	}
+	if snapshot.HP > p.config.MaxHP {
+		snapshot.HP = p.config.MaxHP
+	}
+
+	p.hp = snapshot.HP
+	p.balls = snapshot.Balls
+
+	if p.balls <= 0 {
+		p.hp = 0
+	}
+
+	return p.currentStateLocked(0, false, "game_loaded")
 }
 
 func (p *PlayerTracker) ApplyDamage(damage int) PlayerStateUpdatePayload {

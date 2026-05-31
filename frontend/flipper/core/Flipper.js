@@ -37,6 +37,14 @@ export async function initFlipper() {
     dmdDisplay.mount(container);
     container.appendChild(sceneManager.renderer.domElement);
 
+    scoreDisplay.setSaveSlotHandler((slot) => {
+        physics.sendMessage('save_game', { slot });
+    });
+
+    scoreDisplay.setLoadSlotHandler((slot) => {
+        physics.sendMessage('load_game', { slot });
+    });
+
     let startGameSent = false;
 
     const startGame = () => {
