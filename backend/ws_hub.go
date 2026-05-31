@@ -19,6 +19,7 @@ type Hub struct {
 	boss       *BossTracker
 	player     *PlayerTracker
 	quests     *QuestTracker
+	saveStore  *GameSaveStore
 	mutex      sync.RWMutex
 	timerMutex sync.Mutex
 	timerStop  chan struct{}
@@ -71,6 +72,10 @@ func (h *Hub) startQuestTimer() {
 }
 
 func newHub() *Hub {
+	return newHubWithSaveStore(newGameSaveStore("game_saves.json"))
+}
+
+func newHubWithSaveStore(saveStore *GameSaveStore) *Hub {
 	return &Hub{
 		clients:    make(map[*Client]bool),
 		broadcast:  make(chan []byte),
@@ -80,6 +85,7 @@ func newHub() *Hub {
 		boss:       newBossTracker(defaultBossConfig),
 		player:     newPlayerTracker(defaultPlayerConfig),
 		quests:     newQuestTracker(),
+		saveStore:   saveStore,
 	}
 }
 

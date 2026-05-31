@@ -89,3 +89,12 @@ func NewImpactMessage(payload json.RawMessage) []byte {
 func NewGameStateMessage(messageBytes []byte) []byte {
 	return messageBytes
 }
+
+
+// NewGameSaveStatusMessage crée le message de retour pour une sauvegarde ou un chargement
+func NewGameSaveStatusMessage(status any) []byte {
+	return mustMarshalMessage(Message{
+		Type:    "game_save_status",
+		Payload: mustMarshalJSON(status),
+	})
+}

@@ -39,6 +39,14 @@ func (gs *GameService) HandleMessage(msg Message, messageBytes []byte) ([]byte, 
 		gs.handleStartGame()
 		return nil, false
 
+	case "save_game":
+		gs.handleSaveGame(msg.Payload)
+		return nil, false
+
+	case "load_game":
+		gs.handleLoadGame(msg.Payload)
+		return nil, false
+
 	case "boss_fight_started":
 		gs.handleBossFightStarted()
 		return nil, false
@@ -142,6 +150,67 @@ func (gs *GameService) handleStartGame() {
 	gs.hub.startQuestTimer()
 }
 
+func (gs *GameService) handleSaveGame(payload json.RawMessage) {
+	slot, ok := parseGameSlot(payload)
+	if !ok {
+		gs.hub.broadcast <- NewGameSaveStatusMessage(GameSaveStatusPayload{
+			Slot:    0,
+			Action:  "error",
+			Message: "slot de sauvegarde invalide",
+		})
+		return
+	}
+
+	entry, err := gs.hub.saveStore.Save(slot, gs.hub.captureSnapshot())
+	if err != nil {
+		gs.hub.broadcast <- NewGameSaveStatusMessage(GameSaveStatusPayload{
+			Slot:    slot,
+			Action:  "error",
+			Message: err.Error(),
+		})
+		return
+	}
+
+	gs.hub.broadcast <- NewGameSaveStatusMessage(GameSaveStatusPayload{
+		Slot:    slot,
+		Action:  "saved",
+		SavedAt: entry.SavedAt,
+	})
+}
+
+func (gs *GameService) handleLoadGame(payload json.RawMessage) {
+	slot, ok := parseGameSlot(payload)
+	if !ok {
+		gs.hub.broadcast <- NewGameSaveStatusMessage(GameSaveStatusPayload{
+			Slot:    0,
+			Action:  "error",
+			Message: "slot de chargement invalide",
+		})
+		return
+	}
+
+	entry, found := gs.hub.saveStore.Load(slot)
+	if !found {
+		gs.hub.broadcast <- NewGameSaveStatusMessage(GameSaveStatusPayload{
+			Slot:    slot,
+			Action:  "error",
+			Message: "aucune sauvegarde sur ce slot",
+		})
+		return
+	}
+
+	restore := gs.hub.restoreSnapshot(entry.Snapshot)
+	gs.hub.broadcast <- NewScoreUpdateMessage(restore.Score)
+	gs.hub.broadcast <- NewBossStateUpdateMessage(restore.Boss)
+	gs.hub.broadcast <- NewPlayerStateUpdateMessage(restore.Player)
+	gs.hub.broadcast <- NewQuestUpdateMessage(restore.Quests)
+	gs.hub.broadcast <- NewGameSaveStatusMessage(GameSaveStatusPayload{
+		Slot:    slot,
+		Action:  "loaded",
+		SavedAt: entry.SavedAt,
+	})
+}
+
 // handleBossFightStarted traite l'activation du combat de boss
 func (gs *GameService) handleBossFightStarted() {
 	log.Println("Boss fight activé")
@@ -174,4 +243,21 @@ func (gs *GameService) handleBallLost() {
 	if questUpdate, ok := gs.hub.quests.ResetSurvivalQuestForNewBall(time.Now().UnixMilli()); ok {
 		gs.hub.broadcast <- NewQuestUpdateMessage(questUpdate)
 	}
+}
+
+func parseGameSlot(payload json.RawMessage) (int, bool) {
+	if len(payload) == 0 {
+		return 0, false
+	}
+
+	var request GameSlotRequestPayload
+	if err := json.Unmarshal(payload, &request); err != nil {
+		return 0, false
+	}
+
+	if request.Slot < 1 || request.Slot > maxSaveSlots {
+		return 0, false
+	}
+
+	return request.Slot, true
 }

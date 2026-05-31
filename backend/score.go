@@ -27,6 +27,15 @@ type ScoreUpdatePayload struct {
 	ObjectType       string `json:"objectType,omitempty"`
 }
 
+type ScoreStateSnapshot struct {
+	Score             int               `json:"score"`
+	ComboCount        int               `json:"comboCount"`
+	HitStreak         int               `json:"hitStreak"`
+	LastImpactAt      int64             `json:"lastImpactAt"`
+	RecentImpactTypes []string          `json:"recentImpactTypes"`
+	LoopStreakByID    map[string]int    `json:"loopStreakById"`
+}
+
 type ScoreConfig struct {
 	ComboWindow     time.Duration
 	MultiplierReset time.Duration
@@ -84,6 +93,61 @@ func (s *ScoreTracker) Reset() ScoreUpdatePayload {
 		ComboMultiplier:  1,
 		GlobalMultiplier: 1,
 		SuperCombo:       false,
+	}
+}
+
+func (s *ScoreTracker) Snapshot() ScoreStateSnapshot {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	snapshot := ScoreStateSnapshot{
+		Score:          s.score,
+		ComboCount:     s.comboCount,
+		HitStreak:      s.hitStreak,
+		RecentImpactTypes: append([]string(nil), s.recentImpactTypes...),
+		LastImpactAt:   s.lastImpactAt.UnixMilli(),
+		LoopStreakByID:  make(map[string]int, len(s.loopStreakByID)),
+	}
+
+	for key, value := range s.loopStreakByID {
+		snapshot.LoopStreakByID[key] = value
+	}
+
+	return snapshot
+}
+
+func (s *ScoreTracker) Restore(snapshot ScoreStateSnapshot) ScoreUpdatePayload {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	s.score = snapshot.Score
+	s.comboCount = snapshot.ComboCount
+	s.hitStreak = snapshot.HitStreak
+	if snapshot.LastImpactAt > 0 {
+		s.lastImpactAt = time.UnixMilli(snapshot.LastImpactAt)
+	} else {
+		s.lastImpactAt = time.Time{}
+	}
+	s.recentImpactTypes = append([]string(nil), snapshot.RecentImpactTypes...)
+	s.loopStreakByID = make(map[string]int, len(snapshot.LoopStreakByID))
+	for key, value := range snapshot.LoopStreakByID {
+		s.loopStreakByID[key] = value
+	}
+
+	return s.currentStateLocked(0, "game_loaded")
+}
+
+func (s *ScoreTracker) currentStateLocked(delta int, mode string) ScoreUpdatePayload {
+	return ScoreUpdatePayload{
+		Score:            s.score,
+		Delta:            delta,
+		BasePoints:       0,
+		ComboCount:       s.comboCount,
+		ComboBonus:       0,
+		ComboMultiplier:  multiplierForHitStreak(s.hitStreak),
+		GlobalMultiplier: multiplierForHitStreak(s.hitStreak),
+		SuperCombo:       false,
+		ObjectType:       "",
 	}
 }
 

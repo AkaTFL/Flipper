@@ -17,6 +17,11 @@ type BossStateUpdatePayload struct {
 	Mode        string  `json:"mode"`
 }
 
+type BossStateSnapshot struct {
+	Active bool `json:"active"`
+	HP     int  `json:"hp"`
+}
+
 type BossConfig struct {
 	MaxHP                   int
 	DamageCoefficient       float64
@@ -88,6 +93,33 @@ func (b *BossTracker) ToggleBossFight() BossStateUpdatePayload {
 	}
 
 	return b.currentStateLocked(0, mode)
+}
+
+func (b *BossTracker) Snapshot() BossStateSnapshot {
+	b.mutex.Lock()
+	defer b.mutex.Unlock()
+
+	return BossStateSnapshot{
+		Active: b.active,
+		HP:     b.hp,
+	}
+}
+
+func (b *BossTracker) Restore(snapshot BossStateSnapshot) BossStateUpdatePayload {
+	b.mutex.Lock()
+	defer b.mutex.Unlock()
+
+	b.active = snapshot.Active
+	if snapshot.HP <= 0 {
+		b.hp = 0
+		b.active = false
+	} else if snapshot.HP > b.config.MaxHP {
+		b.hp = b.config.MaxHP
+	} else {
+		b.hp = snapshot.HP
+	}
+
+	return b.currentStateLocked(0, "game_loaded")
 }
 
 func (b *BossTracker) ApplyScoreDamage(scoreDelta int) (BossStateUpdatePayload, bool) {

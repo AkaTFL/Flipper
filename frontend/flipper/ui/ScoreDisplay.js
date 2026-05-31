@@ -39,6 +39,11 @@ export class ScoreDisplay {
         this.playerDetailValue = null;
         this.questValue = null;
         this.controlsContainer = null;
+        this.saveContainer = null;
+        this.saveStatusValue = null;
+        this.saveSlotSelect = null;
+        this.onSaveSlot = null;
+        this.onLoadSlot = null;
         this.boundHandler = (event) => this.handleBackendEvent(event?.detail);
     }
 
@@ -176,6 +181,7 @@ export class ScoreDisplay {
         this.container.appendChild(this.questValue);
         container.appendChild(this.container);
         this.mountControlsHelp(container);
+        this.mountSaveControls(container);
 
         if (typeof this.eventTarget?.addEventListener === 'function') {
             this.eventTarget.addEventListener('flipper:backend-message', this.boundHandler);
@@ -229,6 +235,182 @@ export class ScoreDisplay {
         }
 
         container.appendChild(this.controlsContainer);
+    }
+
+    mountSaveControls(container) {
+        this.saveContainer = this.documentRef.createElement('aside');
+        this.saveContainer.setAttribute('aria-label', 'Flipper save slots');
+        Object.assign(this.saveContainer.style, {
+            position: 'fixed',
+            right: '24px',
+            top: '272px',
+            zIndex: '20',
+            width: '280px',
+            padding: '16px 18px',
+            borderRadius: '14px',
+            border: '1px solid rgba(255, 211, 122, 0.22)',
+            background: 'linear-gradient(180deg, rgba(11, 10, 18, 0.94) 0%, rgba(5, 7, 14, 0.9) 100%)',
+            boxShadow: '0 16px 40px rgba(0, 0, 0, 0.35)',
+            color: '#fff2d1',
+            fontFamily: 'monospace',
+            pointerEvents: 'auto'
+        });
+
+        const title = this.documentRef.createElement('div');
+        title.textContent = 'SAUVEGARDES';
+        Object.assign(title.style, {
+            fontSize: '13px',
+            letterSpacing: '0.22em',
+            opacity: '0.8',
+            marginBottom: '10px'
+        });
+
+        this.saveStatusValue = this.documentRef.createElement('div');
+        Object.assign(this.saveStatusValue.style, {
+            fontSize: '11px',
+            marginBottom: '12px',
+            minHeight: '1.4em',
+            color: '#ffd37a',
+            opacity: '0.95'
+        });
+
+        this.saveHelpValue = this.documentRef.createElement('div');
+        Object.assign(this.saveHelpValue.style, {
+            fontSize: '11px',
+            marginBottom: '12px',
+            color: '#c8d6ea',
+            opacity: '0.9',
+            lineHeight: '1.35'
+        });
+        this.saveHelpValue.textContent = 'Choisis un emplacement mémoire parmi 1 à 4 pour enregistrer ou reprendre la partie.';
+
+        this.saveContainer.appendChild(title);
+        this.saveContainer.appendChild(this.saveStatusValue);
+        this.saveContainer.appendChild(this.saveHelpValue);
+
+        this.saveContainer.appendChild(this.createSaveSlotSelector());
+        this.saveContainer.appendChild(this.createSaveActionsRow());
+
+        container.appendChild(this.saveContainer);
+        this.updateSaveStatus('Choisis un slot pour sauvegarder ou charger');
+    }
+
+    createSaveSlotSelector() {
+        const row = this.documentRef.createElement('div');
+        Object.assign(row.style, {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '12px'
+        });
+
+        const label = this.documentRef.createElement('span');
+        label.textContent = 'Emplacement';
+        Object.assign(label.style, {
+            minWidth: '72px',
+            fontSize: '12px',
+            color: '#fff2d1'
+        });
+
+        this.saveSlotSelect = this.documentRef.createElement('select');
+        this.saveSlotSelect.setAttribute('aria-label', 'Slot de sauvegarde');
+        Object.assign(this.saveSlotSelect.style, {
+            flex: '1',
+            padding: '6px 10px',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 211, 122, 0.28)',
+            background: '#0e0d14',
+            color: '#fff2d1',
+            fontFamily: 'inherit',
+            fontSize: '12px'
+        });
+
+        for (let slot = 1; slot <= 4; slot += 1) {
+            const option = this.documentRef.createElement('option');
+            option.value = String(slot);
+            option.textContent = `Emplacement ${slot}`;
+            this.saveSlotSelect.appendChild(option);
+        }
+
+        row.appendChild(label);
+        row.appendChild(this.saveSlotSelect);
+        return row;
+    }
+
+    createSaveActionsRow() {
+        const row = this.documentRef.createElement('div');
+        Object.assign(row.style, {
+            display: 'flex',
+            gap: '8px'
+        });
+
+        const saveButton = this.documentRef.createElement('button');
+        saveButton.type = 'button';
+        saveButton.textContent = 'Sauvegarder';
+        Object.assign(saveButton.style, this.createSlotButtonStyle('#7effb3', '#132116'));
+        this.bindButtonAction(saveButton, () => this.triggerSlotAction('save'));
+
+        const loadButton = this.documentRef.createElement('button');
+        loadButton.type = 'button';
+        loadButton.textContent = 'Charger';
+        Object.assign(loadButton.style, this.createSlotButtonStyle('#7ed7ff', '#10202a'));
+        this.bindButtonAction(loadButton, () => this.triggerSlotAction('load'));
+
+        row.appendChild(saveButton);
+        row.appendChild(loadButton);
+        return row;
+    }
+
+    createSlotButtonStyle(accentColor, backgroundColor) {
+        return {
+            flex: '1',
+            padding: '6px 10px',
+            borderRadius: '8px',
+            border: `1px solid ${accentColor}44`,
+            background: backgroundColor,
+            color: accentColor,
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+            fontSize: '12px'
+        };
+    }
+
+    bindButtonAction(button, handler) {
+        if (typeof button?.addEventListener === 'function') {
+            button.addEventListener('click', handler);
+            return;
+        }
+
+        button.onclick = handler;
+    }
+
+    updateSaveStatus(message) {
+        if (this.saveStatusValue) {
+            this.saveStatusValue.textContent = message;
+        }
+    }
+
+    getSelectedSaveSlot() {
+        const slot = Number(this.saveSlotSelect?.value ?? 1);
+        if (Number.isInteger(slot) && slot >= 1 && slot <= 4) {
+            return slot;
+        }
+
+        return 1;
+    }
+
+    triggerSlotAction(action) {
+        const slot = this.getSelectedSaveSlot();
+
+        if (action === 'save' && typeof this.onSaveSlot === 'function') {
+            this.onSaveSlot(slot);
+            this.updateSaveStatus(`Sauvegarde de l'emplacement ${slot} en cours...`);
+        }
+
+        if (action === 'load' && typeof this.onLoadSlot === 'function') {
+            this.onLoadSlot(slot);
+            this.updateSaveStatus(`Chargement de l'emplacement ${slot} en cours...`);
+        }
     }
 
     createControlLine(key, label) {
@@ -303,6 +485,19 @@ export class ScoreDisplay {
                 questsRequired: Number(message.payload.requiredCount ?? 0),
                 questsDone: Boolean(message.payload.allCompleted)
             };
+        } else if (message.type === 'game_save_status') {
+            const slot = Number(message.payload.slot ?? 0);
+            const action = String(message.payload.action ?? '');
+            const note = String(message.payload.message ?? '');
+            const label = action === 'saved'
+                ? `Emplacement ${slot}: sauvegardé`
+                : action === 'loaded'
+                    ? `Emplacement ${slot}: chargé`
+                    : note || 'Sauvegarde indisponible';
+
+            this.updateSaveStatus(label);
+        } else if (message.type === 'game_started') {
+            this.updateSaveStatus('Partie lancée');
         } else {
             return false;
         }
@@ -408,5 +603,13 @@ export class ScoreDisplay {
         }
 
         return lines.join('\n');
+    }
+
+    setSaveSlotHandler(handler) {
+        this.onSaveSlot = handler;
+    }
+
+    setLoadSlotHandler(handler) {
+        this.onLoadSlot = handler;
     }
 }
