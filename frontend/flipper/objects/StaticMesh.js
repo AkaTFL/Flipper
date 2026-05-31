@@ -38,5 +38,6 @@ export class StaticMesh extends Objects {
 
     handleCollision() {
         console.log(`Collision with ${this.objectType} (ID: ${this.objectId})`);
+        this.playSound(Config.sounds.staticMesh.collision);
     }
 }

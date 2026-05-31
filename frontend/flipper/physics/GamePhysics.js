@@ -17,6 +17,7 @@ export class GamePhysics {
         this.activeRampZones = new Set();
         this.rampTraversal = null;
         this.audioManager = new AudioManager();
+        this._ballLostReported = false;
     }
 
     async init() {
@@ -39,6 +40,7 @@ export class GamePhysics {
         this.updateRollingBallSound();
         this.handleCollisionEvents();
         this.detectScoreZoneEntries();
+        this.detectBallLost();
     }
 
     updateRollingBallSound() {
@@ -258,6 +260,34 @@ export class GamePhysics {
         return Math.abs((position.x ?? 0) - zone.center.x) <= halfX
             && Math.abs((position.y ?? 0) - zone.center.y) <= halfY
             && Math.abs((position.z ?? 0) - zone.center.z) <= halfZ;
+    }
+
+    detectBallLost() {
+        const ball = this.objects.find((obj) => obj?.objectType === 'ball' && obj?.rigidBody);
+        const position = ball.rigidBody.translation();
+
+        // Utilise Config.drainZone si présent, sinon fallback sur une fourchette par défaut
+        const drainZone = {
+            center: { x: 0, y: -100, z: -650 },
+            size: { x: 500, y: 200, z: 200 }
+        };
+
+        const isInside = this.isPositionInsideZone(position, { center: drainZone.center, size: drainZone.size });
+
+        if (isInside && !this._ballLostReported) {
+            this._ballLostReported = true;
+            this.sendMessage('ball_lost');
+            console.info('[backend] ball_lost envoyé (position)', position);
+            
+            ball.rigidBody.setTranslation(Config.ball.position, true);
+
+            return;
+        }
+
+        // reset du flag quand la balle sort de la zone
+        if (!isInside && this._ballLostReported) {
+            this._ballLostReported = false;
+        }
     }
 
     findCollidingObjects(handle1, handle2) {

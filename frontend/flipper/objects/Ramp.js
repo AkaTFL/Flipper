@@ -43,7 +43,7 @@ export class Ramp extends Objects {
     }
 
     handleCollision({ handle1, handle2 }) {
-        this.playSound(Config.sounds?.ramp?.collision);
+        this.playSound(Config.sounds.ramp.collision);
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }
