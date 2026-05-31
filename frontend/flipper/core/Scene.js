@@ -58,23 +58,6 @@ export class Scene {
         // PARTIE VISUELLE (THREE.JS)
         // ==========================================
 
-        // Simple ground plane
-        let plane = new THREE.PlaneGeometry(width, height);
-
-        let planeMesh = new THREE.Mesh(plane, new THREE.MeshStandardMaterial({
-            color: 0xaaaaaa,
-            side: THREE.DoubleSide,
-            metalness: 0.0,
-            roughness: 1.0
-        }));
-
-        planeMesh.receiveShadow = true;
-
-        planeMesh.rotation.x = rotation.x;
-        planeMesh.rotation.y = rotation.y;
-        planeMesh.rotation.z = rotation.z;
-        this.scene.add(planeMesh);
-
         // Soft ambient light
         const light = new THREE.AmbientLight(0xffffff, 0.5);
         this.scene.add(light);
@@ -106,16 +89,6 @@ export class Scene {
         let groundBodyDesc = RAPIER.RigidBodyDesc.fixed()
             .setRotation({ x: Math.sin(rotation.x / 2), y: Math.sin(rotation.y / 2), z: Math.sin(rotation.z / 2), w: Math.cos(rotation.x / 2) * Math.cos(rotation.y / 2) * Math.cos(rotation.z / 2) });
         let groundBody = this.world.createRigidBody(groundBodyDesc);
-
-        const groundVertices = Array.from(plane.attributes.position.array);
-        const groundIndices = Array.from(plane.index.array);
-
-        let groundColliderDesc = RAPIER.ColliderDesc.trimesh(groundVertices, groundIndices)
-            .setRestitution(Config.scene.restitution)
-            .setFriction(Config.scene.friction)
-
-            
-        this.world.createCollider(groundColliderDesc, groundBody);
 
         // Attach renderer to the page
         var container = document.getElementById('three');

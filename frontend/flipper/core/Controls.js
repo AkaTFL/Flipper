@@ -121,12 +121,7 @@ export class Controls{
                             this.startGameCallback();
                         }
                         const chargedPower = Config.launchingRamp.maximalPower * Math.max(0.1, this.input.launchPower) * Config.forceMultiplier;
-                        const dir = this.launchingRampRef?.rampDirection ?? { x: 0, y: 0, z: 1 };
-                        this.ballRef.rigidBody.applyImpulse({
-                            x: dir.x * chargedPower,
-                            y: dir.y * chargedPower,
-                            z: dir.z * chargedPower
-                        }, true);
+                        this.ballRef.rigidBody.applyImpulse({ x: 0, y: 0, z: chargedPower }, true);
                         this.impulseUsed = true;
                         
                         const audioManager = new AudioManager();

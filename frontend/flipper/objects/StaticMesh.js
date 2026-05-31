@@ -7,9 +7,7 @@ export class StaticMesh extends Objects {
             length   = null,
             width    = null,
             height   = null,
-            radius   = null,
             side     = null,
-            color    = null,
             position = { x: 0, y: 0, z: 0 },
             rotation = { x: 0, y: 0, z: 0 },
             objectId   = 'static-mesh',
@@ -18,7 +16,7 @@ export class StaticMesh extends Objects {
 
         // On passe null pour length/width/height afin d'éviter le BoxGeometry de debug
         // Les valeurs sont réassignées ensuite pour que addMesh() puisse s'en servir pour le scale
-        super(world, null, null, null, position, rotation, radius, side);
+        super(world, null, null, null, position, rotation, side);
         this.length = length;
         this.width  = width;
         this.height = height;
@@ -29,11 +27,6 @@ export class StaticMesh extends Objects {
 
         const modelPath = new URL(model, import.meta.url).href;
         this.addMesh(modelPath, (modelRoot) => {
-            if (color !== null) {
-                modelRoot.traverse(child => {
-                    if (child.isMesh) child.material.color.set(color);
-                });
-            }
             const trimesh = this.buildTrimeshCollider(modelRoot);
             if (trimesh) {
                 this.attachCollider(

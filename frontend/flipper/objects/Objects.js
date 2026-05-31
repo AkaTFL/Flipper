@@ -24,6 +24,8 @@ export class Objects {
         this.side = side;
 
         this.mesh = new THREE.Group();
+        this.modelRoot = null;
+        this.debugColliderBuilder = null;
 
         const hasBoxDimensions = this.length != null && this.width != null && this.height != null;
         this.TreeMesh = null;
@@ -217,6 +219,7 @@ export class Objects {
 
         loader.loadAsync(modelPath)
             .then(({ scene: modelRoot }) => {
+                this.modelRoot = modelRoot;
                 modelRoot.updateMatrixWorld(true);
 
                 const box = new THREE.Box3().setFromObject(modelRoot);
@@ -261,6 +264,63 @@ export class Objects {
         const center = box.getCenter(new THREE.Vector3());
 
         return { box, size, center, halfLengthX: size.x / 2 };
+    }
+
+    getDebugState() {
+        return {
+            position: this.mesh.position.clone(),
+            rotation: this.mesh.rotation.clone(),
+            scale: this.mesh.scale.clone(),
+        };
+    }
+
+    setDebugColliderBuilder(builder) {
+        this.debugColliderBuilder = builder;
+        return this.debugColliderBuilder;
+    }
+
+    refreshDebugCollider() {
+        let colliderDesc = null;
+
+        if (typeof this.debugColliderBuilder === 'function') {
+            colliderDesc = this.debugColliderBuilder();
+        } else if (this.modelRoot && typeof this.buildTrimeshCollider === 'function') {
+            colliderDesc = this.buildTrimeshCollider(this.modelRoot);
+        }
+
+        if (!colliderDesc) {
+            return null;
+        }
+
+        return this.replaceCollider(colliderDesc);
+    }
+
+    setDebugTransform({ position, rotation, scale } = {}) {
+        if (position) {
+            this.mesh.position.set(position.x, position.y, position.z);
+            if (this.rigidBody && typeof this.rigidBody.setTranslation === 'function') {
+                this.rigidBody.setTranslation(position, true);
+            }
+            this.position = { ...position };
+        }
+
+        if (rotation) {
+            this.mesh.rotation.set(rotation.x, rotation.y, rotation.z);
+            if (this.rigidBody && typeof this.rigidBody.setRotation === 'function') {
+                this.rigidBody.setRotation(this.toRotationQuaternion(rotation), true);
+            }
+            this.rotation = { ...rotation };
+        }
+
+        if (scale) {
+            this.mesh.scale.set(scale.x, scale.y, scale.z);
+        }
+
+        if (scale && typeof this.debugColliderBuilder === 'function') {
+            this.refreshDebugCollider();
+        }
+
+        return this.getDebugState();
     }
 
     syncObjects() {
