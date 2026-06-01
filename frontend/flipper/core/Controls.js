@@ -160,4 +160,8 @@ export class Controls{
     setLaunchChargeCount(value) {
         this.launchChargeCount = value;
     }
+
+    setImpulseUsed(value) {
+        this.impulseUsed = value;
+    }
 }

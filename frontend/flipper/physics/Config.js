@@ -47,7 +47,7 @@ export default {
                 position: { x: 10, y: 10, z: 105 },
                 rotation: { x: 0, y: 0, z: 0 },
                 objectId: 'bumper-1',
-                model: '../assets/mesh/Mesh_final/Bumper_big_.glb'
+                model: '../assets/mesh/Bumper_big_.glb'
             },
             {
                 width: 40,
@@ -101,6 +101,20 @@ export default {
                 objectId: 'bumper-8',
                 model: '../assets/mesh/Bumper_little_.glb'
             },
+            {
+                width: 70,
+                position: { x: -105.5, y: 20, z: -441 },
+                rotation: { x: 0, y: -(Math.PI / 3), z: 0 },
+                objectId: 'bumper-triangle-left',
+                model: '../assets/mesh/Bumper_triangle_Left.glb'
+            },
+            {
+                width: 70,
+                position: { x: 92.5, y: 20, z: -441 },
+                rotation: { x: 0, y: (Math.PI / 3), z: 0 },
+                objectId: 'bumper-triangle-right',
+                model: '../assets/mesh/bumper_triangle_right.glb'
+            },
         ],
     },
 
@@ -128,29 +142,6 @@ export default {
         
         timeoutMs: 4000
     },
-
-    bumpers_triangle: [
-        {
-            variant: 'left',
-            length: 70,
-            width: 40,
-            height: 70,
-            position: { x: -105.5, y: 20, z: -441 },
-            rotation: { x: 0, y: -(Math.PI / 3), z: 0 },
-            objectId: 'bumper-triangle-left',
-            model: '../assets/mesh/Bumper_triangle_Left.glb'
-        },
-        {
-            variant: 'right',
-            length: 70,
-            width: 40,
-            height: 70,
-            position: { x: 92.5, y: 20, z: -441 },
-            rotation: { x: 0, y: (Math.PI / 3), z: 0 },
-            objectId: 'bumper-triangle-right',
-            model: '../assets/mesh/Bumper_triangle_right.glb'
-        }
-    ],
 
     scoreZones: {
         instances: []
@@ -256,7 +247,7 @@ export default {
     },
 
     bodyFlipper: {
-        model: '../assets/mesh/body_flipper.glb',
+        model: '../assets/mesh/Body_flipper.glb',
         objectId: 'body-flipper',
         objectType: 'wall',
         length: 627,
