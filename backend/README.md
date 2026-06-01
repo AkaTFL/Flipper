@@ -60,11 +60,14 @@ Variables utiles:
 | `boss_attack_test` | Client → Serveur | Simuler une attaque moyenne du boss sur le joueur |
 | `player_damage_test` | Client → Serveur | Simuler des dégâts joueur pour les tests |
 | `ball_lost` | Client → Serveur | Simuler une perte de balle |
+| `save_game` | Client → Serveur | Sauvegarder l'état courant dans un slot (1 à 4) |
+| `load_game` | Client → Serveur | Recharger l'état d'un slot sauvegardé |
 | `game_started` | Serveur → Client | Confirmation du démarrage |
 | `score_update` | Serveur → Client | Nouveau score calculé avec delta et combo courant |
 | `boss_state_update` | Serveur → Client | État courant du boss (HP, activation, dégâts) |
 | `player_state_update` | Serveur → Client | État courant du joueur (HP, balles, game over) |
 | `quest_update` | Serveur → Client | État courant des quêtes actives |
+| `game_save_status` | Serveur → Client | Confirmation ou erreur liée à un slot de sauvegarde |
 | `flipper_action` | Client → Serveur | Action sur les flippers (left/right) |
 | `impact` | Client → Serveur | Contact détecté côté frontend (bumper, palle, mur, rampe) |
 | `game_state` | Bidirectionnel | État actuel du jeu |

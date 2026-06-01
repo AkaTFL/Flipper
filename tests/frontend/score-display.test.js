@@ -39,7 +39,7 @@ test('ScoreDisplay mounts with default values', () => {
   const mounted = display.mount();
 
   assert.equal(mounted, display.container);
-  assert.equal(documentRef.body.children.length, 2);
+  assert.equal(documentRef.body.children.length, 3);
   assert.equal(display.scoreValue.textContent, '0');
   assert.equal(display.comboValue.textContent, 'Combo x1');
   assert.equal(display.deltaValue.textContent, '+0');
@@ -51,6 +51,7 @@ test('ScoreDisplay mounts with default values', () => {
   assert.equal(display.playerDetailValue.textContent, 'État joueur: --');
   assert.equal(display.questValue.textContent, 'Quêtes: en attente');
   assert.equal(display.controlsContainer.children[0].textContent, 'CONTRÔLES');
+  assert.equal(display.saveContainer.children[0].textContent, 'SAUVEGARDES');
 });
 
 test('ScoreDisplay updates player state when receiving player_state_update', () => {

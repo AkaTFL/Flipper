@@ -35,6 +35,7 @@ Documenter l'état de la chaîne CI/CD et tracer les travaux de déploiement Kub
 ```
 k8s/
 ├── namespace.yaml         # Namespace flipper
+├── backglass.yaml         # backglass deployment + service NodePort
 ├── backend.yaml           # Backend deployment + service ClusterIP
 ├── frontend.yaml          # Frontend deployment + service NodePort
 ├── iot.yaml               # IoT deployment + service ClusterIP
@@ -49,12 +50,14 @@ docker build -t flipper-backend:local backend
 docker build -t flipper-frontend:local frontend/flipper
 docker build -t flipper-iot:local iot
 docker build -t flipper-dmd:local frontend/dmd
+docker build -t flipper-backglass:local frontend/backglass
 
 # Chargement dans kind
 kind load docker-image flipper-backend:local --name flipper
 kind load docker-image flipper-frontend:local --name flipper
 kind load docker-image flipper-iot:local --name flipper
 kind load docker-image flipper-dmd:local --name flipper
+kind load docker-image flipper-backglass:local --name flipper
 
 # Déploiement complet
 kubectl apply -k k8s
@@ -85,6 +88,8 @@ La branche technique `chore/ci-cd-hardening` couvrait :
 ## Sécurité et secrets requis pour CI/CD distant
 Secrets GitHub à configurer pour déploiement en production :
 - `GITHUB_TOKEN` (fourni automatiquement)
+- `DOCKERHUB_USERNAME` (login docker)
+- `DOCKERHUB_TOKEN`
 - `KUBE_CONFIG` (kubeconfig du cluster distant)
 
 ## Prochaines étapes (post-fusion sur develop)

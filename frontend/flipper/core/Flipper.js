@@ -37,6 +37,14 @@ export async function initFlipper() {
     dmdDisplay.mount(container);
     container.appendChild(sceneManager.renderer.domElement);
 
+    scoreDisplay.setSaveSlotHandler((slot) => {
+        physics.sendMessage('save_game', { slot });
+    });
+
+    scoreDisplay.setLoadSlotHandler((slot) => {
+        physics.sendMessage('load_game', { slot });
+    });
+
     let startGameSent = false;
 
     const startGame = () => {
@@ -61,11 +69,6 @@ export async function initFlipper() {
     });
 
     const mesh = [];
-
-    // Walls
-    Config.wall.instances.forEach(wall => {
-        mesh.push(new Wall(physics, wall.length, wall.height, wall.position, wall.rotation, wall.objectId));
-    });
 
     // Launching Ramp
     const launching = new LaunchingRamp(
@@ -113,7 +116,9 @@ export async function initFlipper() {
 
         const tri = new TriangleClass(
             physics.world,
+            triangleConfig.length,
             triangleConfig.width,
+            triangleConfig.height,
             triangleConfig.position,
             triangleConfig.rotation,
             triangleConfig.objectId
@@ -151,7 +156,6 @@ export async function initFlipper() {
         height:     Config.bodyFlipper.height,
         radius:     Config.bodyFlipper.radius,
         side:       Config.bodyFlipper.side,
-        color:      Config.bodyFlipper.color,
         position:   Config.bodyFlipper.position,
         rotation:   Config.bodyFlipper.rotation,
         objectId:   Config.bodyFlipper.objectId,
@@ -163,6 +167,9 @@ export async function initFlipper() {
     // Static meshes from Mesh_final (murs_cible, quadri_cible, raque_side)
     (Config.staticMeshes || []).forEach((cfg) => {
         const staticMesh = new StaticMesh(physics.world, cfg.model, {
+            length: cfg.length,
+            width: cfg.width,
+            height: cfg.height,
             position: cfg.position,
             rotation: cfg.rotation,
             objectId: cfg.objectId,

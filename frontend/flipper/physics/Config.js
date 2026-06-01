@@ -7,17 +7,16 @@ export default {
         mass: 80,           // Masse
         restitution: 0.7,   // Bounciness (0 = pas de rebond, 1 = rebond total)
         friction: 0.1,      // Glissement 
-        position: { x: -230, y: 35, z: -400 },
+        position: { x: -250, y: 105, z: -600 },
         model: '../assets/mesh/Body_flipper.glb', // Position de départ
         objectId: 'ball'
     },
     
-
     launchingRamp: {
         width: 60,
         length: 230,
-        height: 930,
-        position: { x: -140, y: 70, z: 160 },
+        height: 1000,
+        position: { x: -180, y: 100, z: 20 },
         rotation: { x: Math.PI, y: 0, z: Math.PI },
         minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
         maximalPower: 50,
@@ -27,24 +26,13 @@ export default {
         objectId: 'launching-ramp'
     },
 
-    wall: {
-        restitution: 0.3,
-        friction: 0.5,
-        instances: [
-            { length: 950, height: 100, position: { x: 255, y: 0, z: 0 }, rotation: { x: 0, y: (Math.PI / 2), z: 0 }, objectId: 'wall-1' },
-            { length: 950, height: 100, position: { x: -255, y: 0, z: 0 }, rotation: { x: 0, y: (-Math.PI / 2), z: 0 }, objectId: 'wall-2' },
-            { length: 540, height: 100, position: { x: 0, y: 0, z: -471 }, rotation: { x: 0, y: 0, z: 0 }, objectId: 'wall-3' },
-            { length: 540, height: 100, position: { x: 0, y: 0, z: 471 }, rotation: { x: 0, y: 0, z: 0 }, objectId: 'wall-4' }
-        ]
-    },
-
     scene: {
         restitution: 0,
         friction: 0,
         manager: {
             width: 950,
             height: 540,
-            position: { x: 0, y: 500, z: 0 },
+            position: { x: 10, y: 500, z: 20 },
             rotation: { x: (-Math.PI / 2), y: 0, z: 0 }
         }
     },
@@ -56,25 +44,63 @@ export default {
         instances: [
             {
                 width: 40,
-                position: { x: 0, y: 10, z: 100 },
+                position: { x: 10, y: 10, z: 108 },
                 rotation: { x: 0, y: 0, z: 0 },
                 objectId: 'bumper-1',
                 model: '../assets/mesh/Mesh_final/Bumper_big_.glb'
             },
             {
                 width: 40,
-                position: { x: 100, y: 10, z: 180 },
+                position: { x: 120, y: 10, z: 196 },
                 rotation: { x: 0, y: 0, z: 0 },
                 objectId: 'bumper-2',
                 model: '../assets/mesh/Mesh_final/Bumper_big_.glb'
             },
             {
                 width: 40,
-                position: { x: -100, y: 10, z: 180 },
+                position: { x: -100, y: 10, z: 196 },
                 rotation: { x: 0, y: 0, z: 0 },
                 objectId: 'bumper-3',
+                model: '../assets/mesh/Mesh_final/Bumper_big_.glb'
+            },
+
+
+
+            {
+                width: 25,
+                position: { x: 240, y: 60, z: 320 },
+                rotation: { x: 0, y: 0, z: 0 },
+                objectId: 'bumper-4',
                 model: '../assets/mesh/Mesh_final/Bumper_little_.glb'
-            }
+            },
+            {
+                width: 25,
+                position: { x: 120, y: 60, z: 320 },
+                rotation: { x: 0, y: 0, z: 0 },
+                objectId: 'bumper-5',
+                model: '../assets/mesh/Mesh_final/Bumper_little_.glb'
+            },
+            {
+                width: 25,
+                position: { x: 180, y: 60, z: 220 },
+                rotation: { x: 0, y: 0, z: 0 },
+                objectId: 'bumper-6',
+                model: '../assets/mesh/Mesh_final/Bumper_little_.glb'
+            },
+            {
+                width: 25,
+                position: { x: 195, y: 60, z: 120 },
+                rotation: { x: 0, y: 0, z: 0 },
+                objectId: 'bumper-7',
+                model: '../assets/mesh/Mesh_final/Bumper_little_.glb'
+            },
+            {
+                width: 25,
+                position: { x: 250, y: 60, z: 160 },
+                rotation: { x: 0, y: 0, z: 0 },
+                objectId: 'bumper-8',
+                model: '../assets/mesh/Mesh_final/Bumper_little_.glb'
+            },
         ],
     },
 
@@ -83,19 +109,19 @@ export default {
             length: 200,
             width: 80,
             height: 400,
-            position: { x: -92, y: 50, z: 260 },
+            position: { x: -46.1, y: 44, z: 130 },
             rotation: { x: 0, y: Math.PI, z: 0 },
             objectId: 'ramp-b',
             model: '../assets/mesh/Mesh_final/ramp.glb',
 
             entryZone: {
                 id: 'ramp-main-entry',
-                center: { x: -10, y: 0, z: -160 },
+                center: { x: -1, y: 0, z: -156 },
                 size: { x: 80, y: 90, z: 130 }
             },
             exitZone: {
                 id: 'ramp-main-exit',
-                center: { x: -10, y: 0, z: -160 },
+                center: { x: -1, y: 0, z: -156 },
                 size: { x: 80, y: 90, z: 140 }
             },
         },                     
@@ -106,33 +132,28 @@ export default {
     bumpers_triangle: [
         {
             variant: 'left',
-            width: 60,
-            height: 60,
-            position: { x: -90, y: 40, z: -330 },
-            rotation: { x: 0, y: -(Math.PI / 3.5), z: 0 },
+            length: 70,
+            width: 40,
+            height: 70,
+            position: { x: -105.5, y: 20, z: -441 },
+            rotation: { x: 0, y: -(Math.PI / 3), z: 0 },
             objectId: 'bumper-triangle-left',
             model: '../assets/mesh/Mesh_final/Bumper_triangle_Left.glb'
         },
         {
             variant: 'right',
-            width: 60,
-            height: 60,
-            position: { x: 90, y: 40, z: -330 },
-            rotation: { x: 0, y: (Math.PI / 3.5), z: 0 },
+            length: 70,
+            width: 40,
+            height: 70,
+            position: { x: 92.5, y: 20, z: -441 },
+            rotation: { x: 0, y: (Math.PI / 3), z: 0 },
             objectId: 'bumper-triangle-right',
             model: '../assets/mesh/Mesh_final/Bumper_triangle_right.glb'
         }
     ],
 
     scoreZones: {
-        instances: [
-            // {
-            //     id: 'loop-left',
-            //     type: 'lane',
-            //     center: { x: 205, y: 0, z: 170 },
-            //     size: { x: 95, y: 80, z: 130 }
-            // }
-        ]
+        instances: []
     },
 
     palles: {
@@ -142,13 +163,13 @@ export default {
         rotationAngle: 50 * (Math.PI / 180),
         initialAngle: 30 * (Math.PI / 180),
         instances: [
-            { length: 70, width: 20, height: 30, position: { x: 100, y: 15, z: -400 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
-            { length: 70, width: 20, height: 30, position: { x: -100, y: 15, z: -400 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
+            { length: 60, width: 20, height: 30, position: { x: 53, y: 15, z: -530 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+            { length: 60, width: 20, height: 30, position: { x: -63, y: 15, z: -530 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
+            { length: 40, width: 13, height: 20, position: { x: -100, y: 15, z: 0 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+            { length: 40, width: 13, height: 20, position: { x: -200, y: 15, z: 0 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
         ],
-        modelRight: '../assets/mesh/Mesh_final/Pales_Right_Big.glb',
-        modelLeft: '../assets/mesh/Mesh_final/Pales_Left_Big.glb',
-        modelRightDeath: '../assets/mesh/Mesh_final/ramp_pale_down_right_death.glb',
-        modelLeftDeath: '../assets/mesh/Mesh_final/ramp_pale_down_left_death.glb'
+        modelRight: '../assets/mesh/Right_flipper.glb',
+        modelLeft: '../assets/mesh/Left_flipper.glb'
     },
 
     sounds: {
@@ -238,12 +259,11 @@ export default {
         model: '../assets/mesh/Mesh_final/body_flipper.glb',
         objectId: 'body-flipper',
         objectType: 'wall',
-        length: 950,
+        length: 627,
         width: null,
-        height: 540,
-        color: 0xff0000,
+        height: 1100,
         position: { x: 0, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0 }
+        rotation: { x: 0, y: Math.PI, z: 0 }
     },
 
     etage: {
@@ -255,7 +275,7 @@ export default {
         height: 400,
         radius: null,
         side: null,
-        position: { x: 40, y: -40, z: 300},
+        position: { x: 70.5, y: -60, z: 185},
         rotation: { x: 0, y: 0, z:0  }
     },
 
@@ -265,37 +285,84 @@ export default {
             model: '../assets/mesh/Mesh_final/murs_cible_left.glb',
             objectId: 'murs-cible-left',
             objectType: 'wall',
-            position: { x: 0, y: 0, z: 0 },
+            length: 50,
+            width: 50,
+            height: 50,
+            position: { x: 241.55, y: 20.50, z: -55.24 },
+            rotation: { x: 0, y: 0, z: 0 }
+
+        },
+        {
+            model: '../assets/mesh/Mesh_final/murs_cible_left.glb',
+            objectId: 'murs-cible-left',
+            objectType: 'wall',
+            length: 50,
+            width: 50,
+            height: 50,
+            position: { x: 241.55, y: 20.50, z: -132.24 },
+            rotation: { x: 0, y: 0, z: 0 }
+
+        },
+        {
+            model: '../assets/mesh/Mesh_final/murs_cible_right.glb',
+            objectId: 'murs-cible-right',
+            objectType: 'wall',
+            length: 50,
+            width: 50,
+            height: 50,
+            position: { x: -270, y: 20.50, z: -132.24 },
             rotation: { x: 0, y: 0, z: 0 }
         },
         {
             model: '../assets/mesh/Mesh_final/murs_cible_right.glb',
             objectId: 'murs-cible-right',
             objectType: 'wall',
-            position: { x: 0, y: 0, z: 0 },
+            length: 50,
+            width: 50,
+            height: 50,
+            position: { x: -270, y: 20.50, z: -55.24 },
             rotation: { x: 0, y: 0, z: 0 }
         },
         {
             model: '../assets/mesh/Mesh_final/quadri_left_cible.glb',
             objectId: 'quadri-left-cible',
             objectType: 'bumper',
-            position: { x: 0, y: 0, z: 0 },
-            rotation: { x: 0, y: 0, z: 0 }
+            length: 50,
+            width: 50,
+            height: 50,
+            position: { x: 241.55, y: 20.50, z: -212.24 },
+            rotation: { x: 0, y: 0, z: Math.PI }
         },
         {
             model: '../assets/mesh/Mesh_final/quadri_right_cible.glb',
             objectId: 'quadri-right-cible',
             objectType: 'bumper',
-            position: { x: 0, y: 0, z: 0 },
-            rotation: { x: 0, y: 0, z: 0 }
+            length: 50,
+            width: 50,
+            height: 50,
+            position: { x: -270, y: 20.50, z: -212.24 },
+            rotation: { x: 0, y: 0, z: Math.PI }
         },
         {
             model: '../assets/mesh/Mesh_final/raque_side.glb',
-            objectId: 'raque-side',
+            objectId: 'raque-side-left',
             objectType: 'wall',
-            position: { x: 0, y: 0, z: 0 },
-            rotation: { x: 0, y: 0, z: 0 }
+            length: 5,
+            width: 50,
+            height: 160,
+            position: { x: 208, y: 7, z: -600 },
+            rotation: { x: 0, y: -3.14, z: (Math.PI) }
         },
+        {
+            model: '../assets/mesh/Mesh_final/raque_side.glb',
+            objectId: 'raque-side-right',
+            objectType: 'wall',
+            length: 5,
+            width: 50,
+            height: 160,
+            position: { x: -230, y: 7, z: -600 },
+            rotation: { x: 0, y: -3.14, z: 0 }
+        }
     ],
 
     rampPales: {
@@ -303,41 +370,41 @@ export default {
             model: '../assets/mesh/Mesh_final/ramp_pale_down_right.glb',
             objectId: 'ramp-pale-down-right',
             objectType: 'wall',
-            length: null,
-            width: null,
-            height: null,
-            position: { x: 0, y: 0, z: 0 },
-            rotation: { x: 0, y: 0, z: 0 }
+            length: 90,
+            width: 90,
+            height: 90,
+            position: { x: -144, y: 0, z: -473 },
+            rotation: { x: 0, y: 3.14, z: 0 }
         },
         left: {
             model: '../assets/mesh/Mesh_final/ramp_pale_down_left.glb',
             objectId: 'ramp-pale-down-left',
             objectType: 'wall',
-            length: null,
-            width: null,
-            height: null,
-            position: { x: 0, y: 0, z: 0 },
-            rotation: { x: 0, y: 0, z: 0 }
+            length: 90,
+            width: 90,
+            height: 90,
+            position: { x: 164, y: 0, z: -473 },
+            rotation: { x: 0, y: 3.14, z: 0 }
         },
         rightDeath: {
             model: '../assets/mesh/Mesh_final/ramp_pale_down_right_death.glb',
             objectId: 'ramp-pale-down-right-death',
             objectType: 'wall',
-            length: null,
-            width: null,
-            height: null,
-            position: { x: 0, y: 0, z: 0 },
-            rotation: { x: 0, y: 0, z: 0 }
+            length: 90,
+            width: 90,
+            height: 90,
+            position: { x: -232, y: 0, z: -495 },
+            rotation: { x: 0, y: 3.14, z: 0 }
         },
         leftDeath: {
             model: '../assets/mesh/Mesh_final/ramp_pale_down_left_death.glb',
             objectId: 'ramp-pale-down-left-death',
             objectType: 'wall',
-            length: null,
-            width: null,
-            height: null,
-            position: { x: 0, y: 0, z: 0 },
-            rotation: { x: 0, y: 0, z: 0 }
+            length: 90,
+            width: 90,
+            height: 90,
+            position: { x: 169.5, y: 0, z: -495 },
+            rotation: { x: 0, y: 3.14, z: 0 }
         }
     },
 

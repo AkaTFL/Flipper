@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -99,7 +100,7 @@ func TestHubBroadcastsMessagesToRegisteredClients(t *testing.T) {
 func newTestServer(t *testing.T) (*Hub, *httptest.Server, string) {
 	t.Helper()
 
-	hub := newHub()
+	hub := newHubWithSaveStore(newGameSaveStore(filepath.Join(t.TempDir(), "game_saves.json")))
 	go hub.run()
 
 	mux := http.NewServeMux()

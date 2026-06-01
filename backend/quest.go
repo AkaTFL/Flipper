@@ -25,6 +25,14 @@ type QuestUpdatePayload struct {
 	Mode               string  `json:"mode"`
 }
 
+type QuestStateSnapshot struct {
+	ActiveQuests       []Quest `json:"activeQuests"`
+	LoopLeftDone       bool    `json:"loopLeftDone"`
+	LoopRightDone      bool    `json:"loopRightDone"`
+	PhaseStartedAt     int64   `json:"phaseStartedAt"`
+	BossFightTriggered bool    `json:"bossFightTriggered"`
+}
+
 type QuestTracker struct {
 	mutex              sync.Mutex
 	pool               []Quest
@@ -72,6 +80,32 @@ func (q *QuestTracker) ResetForGameStart(startedAt int64) QuestUpdatePayload {
 	q.activeQuests = q.drawActiveQuestsLocked()
 
 	return q.currentStateLocked("quests_started")
+}
+
+func (q *QuestTracker) Snapshot() QuestStateSnapshot {
+	q.mutex.Lock()
+	defer q.mutex.Unlock()
+
+	return QuestStateSnapshot{
+		ActiveQuests:       append([]Quest(nil), q.activeQuests...),
+		LoopLeftDone:       q.loopLeftDone,
+		LoopRightDone:      q.loopRightDone,
+		PhaseStartedAt:     q.phaseStartedAt,
+		BossFightTriggered: q.bossFightTriggered,
+	}
+}
+
+func (q *QuestTracker) Restore(snapshot QuestStateSnapshot) QuestUpdatePayload {
+	q.mutex.Lock()
+	defer q.mutex.Unlock()
+
+	q.activeQuests = append([]Quest(nil), snapshot.ActiveQuests...)
+	q.loopLeftDone = snapshot.LoopLeftDone
+	q.loopRightDone = snapshot.LoopRightDone
+	q.phaseStartedAt = snapshot.PhaseStartedAt
+	q.bossFightTriggered = snapshot.BossFightTriggered
+
+	return q.currentStateLocked("game_loaded")
 }
 
 func (q *QuestTracker) UpdateAfterImpact(score ScoreUpdatePayload, impact ImpactPayload) (QuestUpdatePayload, bool) {

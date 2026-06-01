@@ -4,8 +4,8 @@ import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
 
 class BumperTriangleBase extends Objects {
-    constructor(world, variant = 'right', width = 70, position = { x: 0, y: 0, z: 0 }, rotation = { x: 0, y: 0, z: 0 }, objectId = null) {
-        super(world, width, width, width, position, rotation, null, null);
+    constructor(world, variant = 'right', length = 70, width = 70, height = 40, position = { x: 0, y: 0, z: 0 }, rotation = { x: 0, y: 0, z: 0 }, objectId = null) {
+        super(world, length, width, height, position, rotation, null, null);
         this.objectId = objectId ?? `bumper-triangle-${variant}`;
         this.objectType = 'bumper_triangle';
 
@@ -21,16 +21,18 @@ class BumperTriangleBase extends Objects {
         const modelRelative = triangleCfg?.model || '../assets/mesh/bumper_triangle_right.glb';
         if (modelRelative) {
             const modelPath = new URL(modelRelative, import.meta.url).href;
+            // Only mirror when using a right-oriented model for a left variant.
+            const shouldMirror = variant === 'left' && typeof modelRelative === 'string' && modelRelative.toLowerCase().includes('right');
             this.addMesh(modelPath, (modelRoot) => {
-            if (variant === 'left') {
-                modelRoot.scale.x *= -1;
-            }
-            
-            const desc = this.buildTrimeshCollider(modelRoot)
+                if (shouldMirror) {
+                    modelRoot.scale.x *= -1;
+                }
+
+                const desc = this.buildTrimeshCollider(modelRoot)
                              .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
 
-            this.attachCollider(desc);
-        });
+                this.attachCollider(desc);
+            });
         }
     }
 
@@ -41,13 +43,13 @@ class BumperTriangleBase extends Objects {
 }
 
 export class BumperTriangleRight extends BumperTriangleBase {
-    constructor(world, width, position, rotation, objectId) {
-        super(world, 'right', width, position, rotation, objectId);
+    constructor(world, length, width, height, position, rotation, objectId) {
+        super(world, 'right', length, width, height, position, rotation, objectId);
     }
 }
 
 export class BumperTriangleLeft extends BumperTriangleBase {
-    constructor(world, width, position, rotation, objectId) {
-        super(world, 'left', width, position, rotation, objectId);
+    constructor(world, length, width, height, position, rotation, objectId) {
+        super(world, 'left', length, width, height, position, rotation, objectId);
     }
 }

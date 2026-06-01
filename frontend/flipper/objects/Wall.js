@@ -16,6 +16,8 @@ export class Wall extends Objects {
         this.objectType = 'wall';
         this.objectId = objectId;
         this.gamePhysics = gamePhysics;
+        const restitution = Config.wall?.restitution ?? Config.scene?.restitution ?? 0;
+        const friction = Config.wall?.friction ?? Config.scene?.friction ?? 0;
 
         this.mesh = new THREE.Mesh(
             new THREE.PlaneGeometry(this.width, this.height),
@@ -38,10 +40,22 @@ export class Wall extends Objects {
 
         // Physics properties - Fixed (Static)
         this.createFixedRigidBody(position, rotation);
+        
+            this.setDebugColliderBuilder(() => {
+                const scale = this.getDebugState().scale;
+                const width = Math.max(0.01, this.width * scale.x);
+                const height = Math.max(0.01, this.height * scale.y);
+                const depth = Math.max(0.01, scale.z);
+
+                return RAPIER.ColliderDesc.cuboid(width / 2, height / 2, depth)
+                    .setRestitution(restitution)
+                    .setFriction(friction)
+                    .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+            });
 
         const wallColliderDesc = RAPIER.ColliderDesc.cuboid(this.width / 2, this.height / 2, 1)
-            .setRestitution(Config.wall.restitution)
-            .setFriction(Config.wall.friction)
+            .setRestitution(restitution)
+            .setFriction(friction)
             .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
             
         this.attachCollider(wallColliderDesc);
