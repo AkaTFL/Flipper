@@ -3,12 +3,12 @@ import { Scene } from './Scene.js';
 import { Ball } from '../objects/Ball.js';
 import { Wall } from '../objects/Wall.js';
 import { Bumper } from '../objects/Bumper.js';
-import { BumperTriangleLeft, BumperTriangleRight } from '../objects/BumperTriangle.js';
 import { LaunchingRamp } from '../objects/LaunchingRamp.js';
 import { Palles } from '../objects/Palles.js';
 import { Controls } from './Controls.js';
 import { Ramp } from '../objects/Ramp.js';
 import { StaticMesh } from '../objects/StaticMesh.js';
+import { Repulse } from '../objects/Repulse.js';
 
 
 import { ScoreDisplay } from '../ui/ScoreDisplay.js';
@@ -31,19 +31,32 @@ export async function initFlipper() {
 
     const container = document.getElementById('three');
     const controls = new Controls('q', 'd', 'space');
+    physics.controls = controls;
     const scoreDisplay = new ScoreDisplay();
     const dmdDisplay = new DmdDisplay();
     scoreDisplay.mount(container);
     dmdDisplay.mount(container);
     container.appendChild(sceneManager.renderer.domElement);
 
-    scoreDisplay.setSaveSlotHandler((slot) => {
+    const saveSlotHandler = (slot) => {
         physics.sendMessage('save_game', { slot });
-    });
+    };
 
-    scoreDisplay.setLoadSlotHandler((slot) => {
+    const loadSlotHandler = (slot) => {
         physics.sendMessage('load_game', { slot });
-    });
+    };
+
+    if (typeof scoreDisplay.setSaveSlotHandler === 'function') {
+        scoreDisplay.setSaveSlotHandler(saveSlotHandler);
+    } else {
+        scoreDisplay.onSaveSlot = saveSlotHandler;
+    }
+
+    if (typeof scoreDisplay.setLoadSlotHandler === 'function') {
+        scoreDisplay.setLoadSlotHandler(loadSlotHandler);
+    } else {
+        scoreDisplay.onLoadSlot = loadSlotHandler;
+    }
 
     let startGameSent = false;
 
@@ -108,23 +121,20 @@ export async function initFlipper() {
         mesh.push(bumper);
     });
 
-    // Triangle Bumpers
-    (Config.bumpers_triangle || []).forEach((triangleConfig) => {
-        const TriangleClass = triangleConfig.variant === 'right'
-            ? BumperTriangleRight
-            : BumperTriangleLeft;
-
-        const tri = new TriangleClass(
+    // Repulse
+    Config.repulse = Config.repulse.instances;
+    Config.repulse.forEach((repulseConfig) => {
+        const repulse = new Repulse(
             physics.world,
-            triangleConfig.length,
-            triangleConfig.width,
-            triangleConfig.height,
-            triangleConfig.position,
-            triangleConfig.rotation,
-            triangleConfig.objectId
+            repulseConfig.length,
+            repulseConfig.width,
+            repulseConfig.height,
+            repulseConfig.position,
+            repulseConfig.rotation,
+            repulseConfig.objectId
         );
-        tri.gamePhysics = physics;
-        mesh.push(tri);
+        repulse.gamePhysics = physics;
+        mesh.push(repulse);
     });
 
     // Palles

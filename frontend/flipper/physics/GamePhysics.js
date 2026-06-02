@@ -9,6 +9,7 @@ export class GamePhysics {
         this.launchingRamp = null;
         this.backendSocket = null;
         this.objects = [];
+        this.ball = null;
         this.colliderOwners = new Map();
         this.colliderResponders = new Map();
         this.lastBackendMessage = null;
@@ -17,6 +18,11 @@ export class GamePhysics {
         this.activeRampZones = new Set();
         this.rampTraversal = null;
         this.audioManager = new AudioManager();
+        this.controls = null;
+        this.gameOver = false;
+        this._ballLostReported = false;
+        this.launchingRampVisible = true;
+        this._launchingRampHideScheduled = false;
     }
 
     async init() {
@@ -32,6 +38,12 @@ export class GamePhysics {
 
         this.world = new RAPIER.World(gravity);
         this.connectBackend();
+
+        this.ball = this.objects.find(
+            (obj) =>
+                obj.objectType === 'ball' &&
+                obj.rigidBody
+        );
     }
 
     step() {
@@ -39,14 +51,16 @@ export class GamePhysics {
         this.updateRollingBallSound();
         this.handleCollisionEvents();
         this.detectScoreZoneEntries();
+        this.detectBallLost();
+        this.checkLaunchingRampHeight();
     }
 
     updateRollingBallSound() {
-        const ball = this.objects.find(
-            (obj) =>
-                obj.objectType === 'ball' &&
-                obj.rigidBody
-        );
+        const ball = this.ball;
+        if (!ball?.rigidBody || typeof ball.rigidBody.linvel !== 'function') {
+            return;
+        }
+
         const velocity = ball.rigidBody.linvel();
 
         const speed = Math.hypot(
@@ -64,6 +78,9 @@ export class GamePhysics {
             if (!obj) continue;
 
             this.objects.push(obj);
+            if (obj.objectType === 'ball') {
+                this.ball = obj;
+            }
             this.registerObjectColliders(obj);
         }
     }
@@ -123,6 +140,8 @@ export class GamePhysics {
             this.lastBackendMessage = message;
             if (message?.type === 'score_update') {
                 this.lastScoreUpdate = message.payload ?? null;
+            } else if (message?.type === 'player_state_update') {
+                this.gameOver = Boolean(message.payload?.gameOver);
             }
 
             if (typeof globalThis.dispatchEvent === 'function' && typeof globalThis.CustomEvent === 'function') {
@@ -174,12 +193,7 @@ export class GamePhysics {
             return;
         }
 
-        const ball = this.objects.find((obj) => obj?.objectType === 'ball' && obj?.rigidBody);
-        if (!ball?.rigidBody || typeof ball.rigidBody.translation !== 'function') {
-            return;
-        }
-
-        const position = ball.rigidBody.translation();
+        const position = this.ball.rigidBody.translation();
         const nextActiveZones = new Set();
 
         for (const zone of scoreZones) {
@@ -207,9 +221,7 @@ export class GamePhysics {
 
     detectRampTraversal() {
         const rampScoring = Config.ramps;
-        const ball = this.objects.find((obj) => obj?.objectType === 'ball' && obj?.rigidBody);
-
-        const position = ball.rigidBody.translation();
+        const position = this.ball.rigidBody.translation();
         const nextActiveRampZones = new Set();
         const now = Date.now();
 
@@ -240,7 +252,7 @@ export class GamePhysics {
 
                     this.sendImpact({
                         objectId,
-                        objectType: 'launching_ramp'
+                        objectType: 'launching-ramp'
                     });
                     this.rampTraversal = null;
                 }
@@ -258,6 +270,51 @@ export class GamePhysics {
         return Math.abs((position.x ?? 0) - zone.center.x) <= halfX
             && Math.abs((position.y ?? 0) - zone.center.y) <= halfY
             && Math.abs((position.z ?? 0) - zone.center.z) <= halfZ;
+    }
+
+    detectBallLost() {
+        const position = this.ball.rigidBody.translation();
+
+        // Utilise Config.drainZone si présent, sinon fallback sur une fourchette par défaut
+        const drainZone = {
+            center: { x: 0, y: 0, z: -620 },
+            size: { x: 100, y: 20, z: 80 }
+        };
+
+        const isInside = this.isPositionInsideZone(position, { center: drainZone.center, size: drainZone.size });
+
+        if (isInside && !this._ballLostReported) {
+            this._ballLostReported = true;
+            this.setLaunchingRampVisible(true);
+            this._launchingRampHideScheduled = false;
+            this.sendMessage('ball_lost');
+            console.info('[backend] ball_lost envoyé (position)', position);
+
+            // Respawn the ball after a short delay and clear the launch lock
+            setTimeout(() => {
+                if (this.gameOver) {
+                    return;
+                }
+
+                this.ball.rigidBody.setTranslation(Config.ball.position, true);
+                this.ball.rigidBody.setLinvel({ x: 0, y: 0, z: 0 }, true);
+
+                this._ballLostReported = false;
+                try {
+                    this.controls.setImpulseUsed(false);
+                } catch (e) {
+                    console.warn('Unable to reset controls impulse flag after respawn', e);
+                }
+            }, 1500);
+
+            return;
+        }
+
+        // reset du flag quand la balle sort de la zone
+        if (!isInside && this._ballLostReported) {
+            this._ballLostReported = false;
+            this.controls.setImpulseUsed(false);
+        }
     }
 
     findCollidingObjects(handle1, handle2) {
@@ -285,7 +342,11 @@ export class GamePhysics {
 
     handleCollisionEvents(comboS) {
         this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
-            if (!started) return;
+            const responders = this.findCollisionResponders(handle1, handle2);
+
+            if (!started) {
+                return;
+            }
 
             const combo = comboS || null;
             const collidingObjects = this.findCollidingObjects(handle1, handle2);
@@ -298,8 +359,13 @@ export class GamePhysics {
             }
 
             for (const obj of collisionResponders) {
-                if (obj.objectType === 'bumper' && typeof obj.applyBumperForce === 'function') {
+                if (obj.objectType === 'bumper'  && typeof obj.applyBumperForce === 'function')
+                {
                     obj.applyBumperForce(handle1, handle2);
+                }
+
+                if (obj.objectType === 'repulse'  && typeof obj.applyRepulseForce === 'function') {
+                    obj.applyRepulseForce(handle1, handle2);
                 }
 
                 if (obj.objectType === 'launching_ramp' && typeof obj.applyLaunchingRampForce === 'function') {
@@ -308,7 +374,6 @@ export class GamePhysics {
 
                 if (obj.objectType === 'ramp') {
                     this.detectRampTraversal();
-                    this.markRampBounce(collidingObjects);
                 }
             }
 
@@ -316,10 +381,39 @@ export class GamePhysics {
         });
     }
 
-    markRampBounce(collidingObjects) {
-        const hitWall = collidingObjects.some((obj) => obj?.objectType === 'wall');
-        if (hitWall) {
-            this.rampTraversal.hasWallBounce = true;
+    setLaunchingRampVisible(visible) {
+        const ramp = this.objects.find(
+            (obj) => obj.objectType === 'launching_ramp'
+        );
+
+        if (!ramp?.mesh) {
+            return;
+        }
+
+        ramp.mesh.visible = visible;
+        this.launchingRampVisible = visible;
+    }
+
+    checkLaunchingRampHeight() {
+        if (
+            !this.ball?.rigidBody ||
+            !this.launchingRampVisible ||
+            this._launchingRampHideScheduled
+        ) {
+            return;
+        }
+
+        const position = this.ball.rigidBody.translation();
+
+        // Valeur à ajuster
+        const triggerY = 10;
+
+        if (position.y >= triggerY) {
+            this._launchingRampHideScheduled = true;
+
+            setTimeout(() => {
+                this.setLaunchingRampVisible(false);
+            }, 500);
         }
     }
 }
