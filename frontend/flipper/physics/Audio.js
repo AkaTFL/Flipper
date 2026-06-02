@@ -90,6 +90,10 @@ export class AudioManager {
         
         const { minSpeed, maxSpeed, minSound, maxSound, minPitch, maxPitch } = this.surfaces.param;
 
+        if (!Number.isFinite(speed)) {
+            this.audio.volume = 0;
+            return;
+        }
         // Si la vitesse est en-dessous du seuil, couper le son
         if (speed < minSpeed) {
             this.audio.volume = 0;

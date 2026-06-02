@@ -8,6 +8,7 @@ import { Palles } from '../objects/Palles.js';
 import { Controls } from './Controls.js';
 import { Ramp } from '../objects/Ramp.js';
 import { StaticMesh } from '../objects/StaticMesh.js';
+import { Repulse } from '../objects/Repulse.js';
 
 
 import { ScoreDisplay } from '../ui/ScoreDisplay.js';
@@ -118,6 +119,22 @@ export async function initFlipper() {
         );
         bumper.gamePhysics = physics;
         mesh.push(bumper);
+    });
+
+    // Repulse
+    Config.repulse = Config.repulse.instances;
+    Config.repulse.forEach((repulseConfig) => {
+        const repulse = new Repulse(
+            physics.world,
+            repulseConfig.length,
+            repulseConfig.width,
+            repulseConfig.height,
+            repulseConfig.position,
+            repulseConfig.rotation,
+            repulseConfig.objectId
+        );
+        repulse.gamePhysics = physics;
+        mesh.push(repulse);
     });
 
     // Palles

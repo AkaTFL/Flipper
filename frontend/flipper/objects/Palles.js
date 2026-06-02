@@ -62,6 +62,7 @@ export class Palles extends Objects {
                 modelRoot.position.x += targetX - currentX;
                 modelRoot.position.y = -center.y;
                 modelRoot.position.z = -center.z;
+                
                 const anchorBody = this.isLeft
                     ? { x: halfLengthX, y: 0, z: 0 }
                     : { x: -halfLengthX, y: 0, z: 0 };

@@ -21,6 +21,8 @@ export class GamePhysics {
         this.controls = null;
         this.gameOver = false;
         this._ballLostReported = false;
+        this.launchingRampVisible = true;
+        this._launchingRampHideScheduled = false;
     }
 
     async init() {
@@ -50,6 +52,7 @@ export class GamePhysics {
         this.handleCollisionEvents();
         this.detectScoreZoneEntries();
         this.detectBallLost();
+        this.checkLaunchingRampHeight();
     }
 
     updateRollingBallSound() {
@@ -249,7 +252,7 @@ export class GamePhysics {
 
                     this.sendImpact({
                         objectId,
-                        objectType: 'launching_ramp'
+                        objectType: 'launching-ramp'
                     });
                     this.rampTraversal = null;
                 }
@@ -282,6 +285,8 @@ export class GamePhysics {
 
         if (isInside && !this._ballLostReported) {
             this._ballLostReported = true;
+            this.setLaunchingRampVisible(true);
+            this._launchingRampHideScheduled = false;
             this.sendMessage('ball_lost');
             console.info('[backend] ball_lost envoyé (position)', position);
 
@@ -337,7 +342,11 @@ export class GamePhysics {
 
     handleCollisionEvents(comboS) {
         this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
-            if (!started) return;
+            const responders = this.findCollisionResponders(handle1, handle2);
+
+            if (!started) {
+                return;
+            }
 
             const combo = comboS || null;
             const collidingObjects = this.findCollidingObjects(handle1, handle2);
@@ -350,8 +359,13 @@ export class GamePhysics {
             }
 
             for (const obj of collisionResponders) {
-                if (obj.objectType === 'bumper' && typeof obj.applyBumperForce === 'function') {
+                if (obj.objectType === 'bumper'  && typeof obj.applyBumperForce === 'function')
+                {
                     obj.applyBumperForce(handle1, handle2);
+                }
+
+                if (obj.objectType === 'repulse'  && typeof obj.applyRepulseForce === 'function') {
+                    obj.applyRepulseForce(handle1, handle2);
                 }
 
                 if (obj.objectType === 'launching_ramp' && typeof obj.applyLaunchingRampForce === 'function') {
@@ -365,5 +379,41 @@ export class GamePhysics {
 
             this.reportContactImpacts(collidingObjects);
         });
+    }
+
+    setLaunchingRampVisible(visible) {
+        const ramp = this.objects.find(
+            (obj) => obj.objectType === 'launching_ramp'
+        );
+
+        if (!ramp?.mesh) {
+            return;
+        }
+
+        ramp.mesh.visible = visible;
+        this.launchingRampVisible = visible;
+    }
+
+    checkLaunchingRampHeight() {
+        if (
+            !this.ball?.rigidBody ||
+            !this.launchingRampVisible ||
+            this._launchingRampHideScheduled
+        ) {
+            return;
+        }
+
+        const position = this.ball.rigidBody.translation();
+
+        // Valeur à ajuster
+        const triggerY = 10;
+
+        if (position.y >= triggerY) {
+            this._launchingRampHideScheduled = true;
+
+            setTimeout(() => {
+                this.setLaunchingRampVisible(false);
+            }, 500);
+        }
     }
 }

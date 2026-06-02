@@ -14,8 +14,6 @@ export class StaticMesh extends Objects {
             objectType = 'static'
         } = options;
 
-        // On passe null pour length/width/height afin d'éviter le BoxGeometry de debug
-        // Les valeurs sont réassignées ensuite pour que addMesh() puisse s'en servir pour le scale
         super(world, null, null, null, position, rotation, side);
         this.length = length;
         this.width  = width;

@@ -40,7 +40,7 @@ export default {
     bumper: {
         restitution: 0.9,
         friction: 0.5,
-        power: 130,
+        power: 150,
         instances: [
             {
                 width: 40,
@@ -103,17 +103,43 @@ export default {
             },
             {
                 width: 70,
-                position: { x: -105.5, y: 20, z: -441 },
+                position: { x: -115.5, y: 20, z: -441 },
                 rotation: { x: 0, y: -(Math.PI / 3), z: 0 },
                 objectId: 'bumper-triangle-left',
                 model: '../assets/mesh/Bumper_triangle_Left.glb'
             },
             {
                 width: 70,
-                position: { x: 92.5, y: 20, z: -441 },
+                position: { x: 102.5, y: 20, z: -441 },
                 rotation: { x: 0, y: (Math.PI / 3), z: 0 },
                 objectId: 'bumper-triangle-right',
                 model: '../assets/mesh/bumper_triangle_right.glb'
+            },
+        ],
+    },
+
+    repulse: {
+        restitution: 1,
+        friction: 0,
+        power: 200,
+        instances: [
+            {
+                width: 5,
+                height: 60,
+                length: 30,
+                position: { x: 245, y: 10, z: -670 },
+                rotation: { x: 0, y: (Math.PI / 2), z: (Math.PI / 2) },
+                objectId: 'repulse-zone',
+                model: '../assets/mesh/Repulse.glb'
+            },
+            {
+                width: 5,
+                height: 60,
+                length: 30,
+                position: { x: -272, y: 10, z: -670 },
+                rotation: { x: 0, y: (Math.PI / 2), z: (Math.PI / 2) },
+                objectId: 'repulse-zone-2',
+                model: '../assets/mesh/Repulse.glb'
             },
         ],
     },
@@ -154,8 +180,8 @@ export default {
         rotationAngle: 50 * (Math.PI / 180),
         initialAngle: 30 * (Math.PI / 180),
         instances: [
-            { length: 60, width: 20, height: 30, position: { x: 53, y: 15, z: -530 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
-            { length: 60, width: 20, height: 30, position: { x: -63, y: 15, z: -530 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
+            { length: 60, width: 20, height: 30, position: { x: 58, y: 15, z: -537 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+            { length: 60, width: 20, height: 30, position: { x: -68, y: 15, z: -537 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
             { length: 40, width: 13, height: 20, position: { x: -100, y: 15, z: 0 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
             { length: 40, width: 13, height: 20, position: { x: -200, y: 15, z: 0 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
         ],
@@ -341,7 +367,7 @@ export default {
             length: 5,
             width: 50,
             height: 160,
-            position: { x: 208, y: 7, z: -600 },
+            position: { x: 218, y: 7, z: -600 },
             rotation: { x: 0, y: -3.14, z: (Math.PI) }
         },
         {
@@ -351,7 +377,7 @@ export default {
             length: 5,
             width: 50,
             height: 160,
-            position: { x: -230, y: 7, z: -600 },
+            position: { x: -240, y: 7, z: -600 },
             rotation: { x: 0, y: -3.14, z: 0 }
         }
     ],
@@ -361,20 +387,20 @@ export default {
             model: '../assets/mesh/ramp_pale_down_right.glb',
             objectId: 'ramp-pale-down-right',
             objectType: 'wall',
-            length: 90,
+            length: 100,
             width: 90,
             height: 90,
-            position: { x: -144, y: 0, z: -473 },
+            position: { x: -154, y: 0, z: -473 },
             rotation: { x: 0, y: 3.14, z: 0 }
         },
         left: {
             model: '../assets/mesh/ramp_pale_down_left.glb',
             objectId: 'ramp-pale-down-left',
             objectType: 'wall',
-            length: 90,
+            length: 100,
             width: 90,
             height: 90,
-            position: { x: 164, y: 0, z: -473 },
+            position: { x: 174, y: 0, z: -473 },
             rotation: { x: 0, y: 3.14, z: 0 }
         },
         rightDeath: {
@@ -384,7 +410,7 @@ export default {
             length: 90,
             width: 90,
             height: 90,
-            position: { x: -232, y: 0, z: -495 },
+            position: { x: -242, y: 0, z: -495 },
             rotation: { x: 0, y: 3.14, z: 0 }
         },
         leftDeath: {
@@ -394,7 +420,7 @@ export default {
             length: 90,
             width: 90,
             height: 90,
-            position: { x: 169.5, y: 0, z: -495 },
+            position: { x: 179.5, y: 0, z: -495 },
             rotation: { x: 0, y: 3.14, z: 0 }
         }
     },
