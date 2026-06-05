@@ -7,6 +7,7 @@ export class GamePhysics {
         this.world = null;
         this.bumpers = [];
         this.launchingRamp = null;
+        this.rampB = null;
         this.backendSocket = null;
         this.objects = [];
         this.ball = null;
@@ -19,10 +20,14 @@ export class GamePhysics {
         this.rampTraversal = null;
         this.audioManager = new AudioManager();
         this.controls = null;
+        this.scene = null;
         this.gameOver = false;
         this._ballLostReported = false;
         this.launchingRampVisible = true;
-        this._launchingRampHideScheduled = false;
+        this.holdLaunchingRampVisibleAfterBallLost = false;
+        this.ballRespawnedAfterBallLost = false;
+        this.ballPassedAboveTriggerAfterRespawn = false;
+        this.launchingRampHideTimeout = null;
     }
 
     async init() {
@@ -44,6 +49,8 @@ export class GamePhysics {
                 obj.objectType === 'ball' &&
                 obj.rigidBody
         );
+
+        this.audioManager.playMusic("Boss 2", Config.sounds.soundtrack.volume);
     }
 
     step() {
@@ -80,6 +87,10 @@ export class GamePhysics {
             this.objects.push(obj);
             if (obj.objectType === 'ball') {
                 this.ball = obj;
+            } else if (obj.objectType === 'launching-ramp') {
+                this.launchingRamp = obj;
+            } else if (obj.objectType === 'ramp' && obj.objectId === 'ramp-b') {
+                this.rampB = obj;
             }
             this.registerObjectColliders(obj);
         }
@@ -275,7 +286,6 @@ export class GamePhysics {
     detectBallLost() {
         const position = this.ball.rigidBody.translation();
 
-        // Utilise Config.drainZone si présent, sinon fallback sur une fourchette par défaut
         const drainZone = {
             center: { x: 0, y: 0, z: -620 },
             size: { x: 100, y: 20, z: 80 }
@@ -285,21 +295,28 @@ export class GamePhysics {
 
         if (isInside && !this._ballLostReported) {
             this._ballLostReported = true;
+            this.holdLaunchingRampVisibleAfterBallLost = true;
             this.setLaunchingRampVisible(true);
-            this._launchingRampHideScheduled = false;
             this.sendMessage('ball_lost');
             console.info('[backend] ball_lost envoyé (position)', position);
 
-            // Respawn the ball after a short delay and clear the launch lock
             setTimeout(() => {
                 if (this.gameOver) {
                     return;
                 }
 
-                this.ball.rigidBody.setTranslation(Config.ball.position, true);
+                this.ball.mesh.position.set(config.ball.position.x, config.ball.position.y, config.ball.position.z);
                 this.ball.rigidBody.setLinvel({ x: 0, y: 0, z: 0 }, true);
+                if (typeof this.ball.rigidBody.setAngvel === 'function') {
+                    this.ball.rigidBody.setAngvel({ x: 0, y: 0, z: 0 }, true);
+                }
+                if (this.ball?.mesh?.position && typeof this.ball.mesh.position.copy === 'function') {
+                    this.ball.mesh.position.copy(Config.ball.position);
+                }
 
                 this._ballLostReported = false;
+                this.ballRespawnedAfterBallLost = true;
+                this.ballPassedAboveTriggerAfterRespawn = false;
                 try {
                     this.controls.setImpulseUsed(false);
                 } catch (e) {
@@ -368,9 +385,9 @@ export class GamePhysics {
                     obj.applyRepulseForce(handle1, handle2);
                 }
 
-                if (obj.objectType === 'launching_ramp' && typeof obj.applyLaunchingRampForce === 'function') {
-                    obj.applyLaunchingRampForce(handle1, handle2);
-                }
+                // if (obj.objectType === 'launching-ramp' && typeof obj.applyLaunchingRampForce === 'function') {
+                //     obj.applyLaunchingRampForce(handle1, handle2);
+                // }
 
                 if (obj.objectType === 'ramp') {
                     this.detectRampTraversal();
@@ -382,37 +399,91 @@ export class GamePhysics {
     }
 
     setLaunchingRampVisible(visible) {
-        const ramp = this.objects.find(
-            (obj) => obj.objectType === 'launching_ramp'
-        );
-
-        if (!ramp?.mesh) {
+        if (!this.launchingRamp?.mesh) {
             return;
         }
 
-        ramp.mesh.visible = visible;
+        if (visible && this.launchingRampHideTimeout) {
+            clearTimeout(this.launchingRampHideTimeout);
+            this.launchingRampHideTimeout = null;
+        }
+
         this.launchingRampVisible = visible;
+
+        const rampBPosition = Config.ramps.B.position;
+        const launchingPosition = Config.launchingRamp.position;
+
+        if (visible) {
+            if (this.launchingRamp?.rigidBody?.setTranslation) {
+                this.launchingRamp.rigidBody.setTranslation(launchingPosition, true);
+            }
+            if (this.launchingRamp?.mesh?.position) {
+                this.launchingRamp.mesh.position.set(launchingPosition.x, launchingPosition.y, launchingPosition.z);
+            }
+
+            if (this.rampB?.rigidBody?.setTranslation) {
+                this.rampB.rigidBody.setTranslation({ x: rampBPosition.x, y: -800, z: rampBPosition.z }, true);
+            }
+            if (this.rampB?.mesh?.position) {
+                this.rampB.mesh.position.set(rampBPosition.x, -800, rampBPosition.z);
+            }
+        } else {
+            if (this.launchingRamp?.rigidBody?.setTranslation) {
+                this.launchingRamp.rigidBody.setTranslation({ x: launchingPosition.x, y: -800, z: launchingPosition.z }, true);
+            }
+            if (this.launchingRamp?.mesh?.position) {
+                this.launchingRamp.mesh.position.set(launchingPosition.x, -800, launchingPosition.z);
+            }
+
+            if (this.rampB?.rigidBody?.setTranslation) {
+                this.rampB.rigidBody.setTranslation(rampBPosition, true);
+            }
+            if (this.rampB?.mesh?.position) {
+                this.rampB.mesh.position.set(rampBPosition.x, rampBPosition.y, rampBPosition.z);
+            }
+        }
     }
 
     checkLaunchingRampHeight() {
-        if (
-            !this.ball?.rigidBody ||
-            !this.launchingRampVisible ||
-            this._launchingRampHideScheduled
-        ) {
+        const position = this.ball.rigidBody.translation();
+        const triggerY = 15;
+
+        if (this.holdLaunchingRampVisibleAfterBallLost) {
+            if (!this.ballRespawnedAfterBallLost || !this.controls?.impulseUsed) {
+                return;
+            }
+
+            if (!this.ballPassedAboveTriggerAfterRespawn && position.y > triggerY) {
+                this.ballPassedAboveTriggerAfterRespawn = true;
+                return;
+            }
+
+            if (this.ballPassedAboveTriggerAfterRespawn && position.y <= triggerY) {
+                this.holdLaunchingRampVisibleAfterBallLost = false;
+                this.ballPassedAboveTriggerAfterRespawn = false;
+                this.setLaunchingRampVisible(false);
+            }
             return;
         }
 
-        const position = this.ball.rigidBody.translation();
+        if (this.controls?.impulseUsed && this.launchingRampVisible) {
+            if (!this.launchingRampHideTimeout) {
+                this.launchingRampHideTimeout = setTimeout(() => {
+                    this.setLaunchingRampVisible(false);
+                    this.launchingRampHideTimeout = null;
+                }, 3000);
+            }
+            return;
+        }
 
-        // Valeur à ajuster
-        const triggerY = 10;
+        if (position.y <= triggerY) {
+            if (this.launchingRampHideTimeout) {
+                clearTimeout(this.launchingRampHideTimeout);
+            }
 
-        if (position.y >= triggerY) {
-            this._launchingRampHideScheduled = true;
-
-            setTimeout(() => {
+            this.launchingRampHideTimeout = setTimeout(() => {
                 this.setLaunchingRampVisible(false);
+                this.launchingRampHideTimeout = null;
             }, 500);
         }
     }

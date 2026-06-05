@@ -40,41 +40,79 @@ export class Bumper extends Objects {
             });
     }
 
-    
     applyBumperForce(handle1, handle2) {
-        const otherHandle = this.collider.handle === handle1 ? handle2 : handle1
-        const otherCollider = typeof this.world.getCollider === 'function'
-            ? this.world.getCollider(otherHandle)
-            : this.world.colliders?.get(otherHandle)
 
-        if (!otherCollider) return
+        const otherHandle =
+            this.collider.handle === handle1
+                ? handle2
+                : handle1;
 
-        const otherBody = otherCollider.parent()
-        if (!otherBody || otherBody.isFixed && otherBody.isFixed()) return
+        const otherCollider =
+            this.world.getCollider?.(otherHandle)
+            ?? this.world.colliders?.get(otherHandle);
 
-        const bumperPos = this.rigidBody.translation()
-        const ballPos = otherBody.translation()
+        if (!otherCollider) return;
 
-        const dirX = ballPos.x - bumperPos.x
-        const dirY = ballPos.y - bumperPos.y
-        const dirZ = ballPos.z - bumperPos.z
+        const otherBody = otherCollider.parent();
 
-        // Normaliser
-        const length = Math.sqrt(dirX * dirX + dirY * dirY + dirZ * dirZ)
-        if (length === 0) return
+        if (!otherBody || otherBody.isFixed?.()) return;
 
-        const X = dirX / length
-        const Y = dirY / length
-        const Z = dirZ / length
+        const power =
+            Config.bumper.power *
+            Config.forceMultiplier;
 
-        // Appliquer force
-        const power = Config.bumper.power * Config.forceMultiplier
-        otherBody.applyImpulse(
-            { x: X * power, y: Y * power, z: Z * power },
-            true
-        )
+        console.log(this.colliderObject?.name?.includes('ramp'));
 
-        this.playSound(Config.sounds.bumper.move) // Joue le son du bumper
+        // Launching ramp
+        if (this.objectId?.includes('launching-ramp')) {
+
+            // N'appliquer la force que sur la partie "ramp"
+            if (!this.colliderObject?.name?.includes('ramp')) {
+                return;
+            }
+
+            otherBody.applyImpulse({
+                x: 0,
+                y: 0,
+                z: power
+            }, true);
+
+            this.playSound(Config.sounds.bumper.move);
+            return;
+        }
+
+        // Bumper triangulaire
+        if (this.objectId?.includes('bumper-triangle')) {
+
+            otherBody.applyImpulse({
+                x: normal.x * power,
+                y: 0,
+                z: normal.z * power
+            }, true);
+
+            this.playSound(Config.sounds.bumper.move);
+            return;
+        }
+
+        // Bumper classique
+        const bumperPos = this.rigidBody.translation();
+        const ballPos = otherBody.translation();
+
+        const dx = ballPos.x - bumperPos.x;
+        const dy = ballPos.y - bumperPos.y;
+        const dz = ballPos.z - bumperPos.z;
+
+        const length = Math.hypot(dx, dy, dz);
+
+        if (!length) return;
+
+        otherBody.applyImpulse({
+            x: (dx / length) * power,
+            y: (dy / length) * power,
+            z: (dz / length) * power
+        }, true);
+
+        this.playSound(Config.sounds.bumper.move);
     }
 
     handleCollision() {

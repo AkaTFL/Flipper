@@ -53,9 +53,9 @@ export class Palles extends Objects {
             this.addMesh(modelPath, (modelRoot) => {
                 modelRoot.rotation.y = this.isLeft ? -Math.PI / 5 : Math.PI / 5;
 
-                const { box, center, halfLengthX } = this.getMeshMetrics(modelRoot);
+                const { box, center, halfLengthX, size } = this.getMeshMetrics(modelRoot);
 
-                // Align on X (pivot point) and center on Y/Z
+                // Align on X (pivot point), center vertically, and center on Z
                 const targetX = this.isLeft ? halfLengthX : -halfLengthX;
                 const currentX = this.isLeft ? box.max.x : box.min.x;
 
@@ -77,11 +77,7 @@ export class Palles extends Objects {
                 const pivot = RAPIER.JointData.revolute({ x: 0, y: 0, z: 0 }, anchorBody, { x: 0, y: 1, z: 0 });
                 this.joint = this.world.createImpulseJoint(pivot, pivotBody, this.rigidBody, true);
 
-                if (this.isLeft) {
-                    this.joint.setLimits(-this.angle, 0);
-                } else {
-                    this.joint.setLimits(0, this.angle);
-                }
+                this.joint.setLimits(-this.angle, this.angle);
 
                 const trimesh = this.buildTrimeshCollider(modelRoot);
                 if (trimesh) {
@@ -98,12 +94,12 @@ export class Palles extends Objects {
 
         const targetAngle = active
             ? (this.isLeft ? this.angle : -this.angle)
-            : this.restAngle;
+            : 0;
     
         this.joint.configureMotorPosition(targetAngle, this.rotationSpeed, 8.0);
         
         if (active && !this.wasActive) {
-            this.playSound(Config.sounds.palles.movement); //Son de mouvement des palles
+            this.playSound(Config.sounds.palles.movement); // Son de mouvement des palles
         }
         this.wasActive = active;
     }

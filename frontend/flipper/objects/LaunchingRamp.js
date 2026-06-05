@@ -20,6 +20,8 @@ export class LaunchingRamp extends Objects {
         }
 
         this.rampDirection = this.computeRampDirection();
+        this.objectType = 'launching-ramp';
+        this.objectId = Config.launchingRamp.objectId;
         this.pushedBodyHandles = new Set();
 
         // Load the 3D model (use `model` from Config.launchingRamp when present)

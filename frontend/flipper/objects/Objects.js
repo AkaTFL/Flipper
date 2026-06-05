@@ -256,6 +256,68 @@ export class Objects {
             });
     }
 
+    addTexture(textureOrMaps, target = this.mesh) {
+        if (!textureOrMaps) {
+            console.warn('[addTexture] textureOrMaps manquant');
+            return null;
+        }
+
+        const loadTexture = (value) => {
+            if (!value) return null;
+            if (typeof value === 'string') return new THREE.TextureLoader().load(value);
+            if (value.isTexture) return value;
+            return null;
+        };
+
+        const maps = typeof textureOrMaps === 'string'
+            ? { map: textureOrMaps }
+            : textureOrMaps;
+
+        const supportedMaps = [
+            'map',
+            'aoMap',
+            'bumpMap',
+            'normalMap',
+            'roughnessMap',
+            'metalnessMap',
+            'displacementMap',
+            'alphaMap',
+            'emissiveMap',
+            'specularMap'
+        ];
+
+        const loadedMaps = {};
+        supportedMaps.forEach((key) => {
+            if (maps[key] != null) {
+                loadedMaps[key] = loadTexture(maps[key]);
+            }
+        });
+
+        if (Object.keys(loadedMaps).length === 0) {
+            console.warn('[addTexture] aucun map supporté fourni');
+            return null;
+        }
+
+        const applyMaps = (mesh) => {
+            if (!mesh.isMesh || !mesh.material) return;
+            const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+            materials.forEach((material) => {
+                Object.entries(loadedMaps).forEach(([key, texture]) => {
+                    material[key] = texture;
+                });
+                material.needsUpdate = true;
+            });
+        };
+
+        if (target && target.isMesh) {
+            applyMaps(target);
+        } else if (target && target.isObject3D) {
+            target.traverse(applyMaps);
+        }
+
+        return loadedMaps;
+    }
+
     getMeshMetrics(modelRoot) {
         modelRoot.updateMatrixWorld(true);
         
@@ -277,50 +339,6 @@ export class Objects {
     setDebugColliderBuilder(builder) {
         this.debugColliderBuilder = builder;
         return this.debugColliderBuilder;
-    }
-
-    refreshDebugCollider() {
-        let colliderDesc = null;
-
-        if (typeof this.debugColliderBuilder === 'function') {
-            colliderDesc = this.debugColliderBuilder();
-        } else if (this.modelRoot && typeof this.buildTrimeshCollider === 'function') {
-            colliderDesc = this.buildTrimeshCollider(this.modelRoot);
-        }
-
-        if (!colliderDesc) {
-            return null;
-        }
-
-        return this.replaceCollider(colliderDesc);
-    }
-
-    setDebugTransform({ position, rotation, scale } = {}) {
-        if (position) {
-            this.mesh.position.set(position.x, position.y, position.z);
-            if (this.rigidBody && typeof this.rigidBody.setTranslation === 'function') {
-                this.rigidBody.setTranslation(position, true);
-            }
-            this.position = { ...position };
-        }
-
-        if (rotation) {
-            this.mesh.rotation.set(rotation.x, rotation.y, rotation.z);
-            if (this.rigidBody && typeof this.rigidBody.setRotation === 'function') {
-                this.rigidBody.setRotation(this.toRotationQuaternion(rotation), true);
-            }
-            this.rotation = { ...rotation };
-        }
-
-        if (scale) {
-            this.mesh.scale.set(scale.x, scale.y, scale.z);
-        }
-
-        if (scale && typeof this.debugColliderBuilder === 'function') {
-            this.refreshDebugCollider();
-        }
-
-        return this.getDebugState();
     }
 
     syncObjects() {

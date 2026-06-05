@@ -101,16 +101,17 @@ export default {
                 objectId: 'bumper-8',
                 model: '../assets/mesh/Bumper_little_.glb'
             },
+
             {
                 width: 70,
-                position: { x: -115.5, y: 20, z: -441 },
+                position: { x: -120.5, y: 20, z: -441 },
                 rotation: { x: 0, y: -(Math.PI / 3), z: 0 },
                 objectId: 'bumper-triangle-left',
                 model: '../assets/mesh/Bumper_triangle_Left.glb'
             },
             {
                 width: 70,
-                position: { x: 102.5, y: 20, z: -441 },
+                position: { x: 110.5, y: 20, z: -441 },
                 rotation: { x: 0, y: (Math.PI / 3), z: 0 },
                 objectId: 'bumper-triangle-right',
                 model: '../assets/mesh/bumper_triangle_right.glb'
@@ -149,7 +150,7 @@ export default {
             length: 200,
             width: 80,
             height: 400,
-            position: { x: -46.1, y: 44, z: 130 },
+            position: { x: -160, y: 45, z: 150 },
             rotation: { x: 0, y: Math.PI, z: 0 },
             objectId: 'ramp-b',
             model: '../assets/mesh/ramp.glb',
@@ -177,13 +178,13 @@ export default {
         restitution: 0.5,
         friction: 0.5,
         rotationSpeed: 400,
-        rotationAngle: 50 * (Math.PI / 180),
+        rotationAngle: 30 * (Math.PI / 180),
         initialAngle: 30 * (Math.PI / 180),
         instances: [
-            { length: 60, width: 20, height: 30, position: { x: 58, y: 15, z: -537 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
-            { length: 60, width: 20, height: 30, position: { x: -68, y: 15, z: -537 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
-            { length: 40, width: 13, height: 20, position: { x: -100, y: 15, z: 0 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
-            { length: 40, width: 13, height: 20, position: { x: -200, y: 15, z: 0 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
+            { length: 60, width: 20, height: 30, position: { x: 54, y: 15, z: -545 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+            { length: 60, width: 20, height: 30, position: { x: -72, y: 15, z: -545 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
+            { length: 40, width: 13, height: 20, position: { x: 40, y: 5, z: 47 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+            { length: 40, width: 13, height: 20, position: { x: -40, y: 5, z: 47 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
         ],
         modelRight: '../assets/mesh/Right_flipper.glb',
         modelLeft: '../assets/mesh/Left_flipper.glb'
@@ -292,8 +293,8 @@ export default {
         height: 400,
         radius: null,
         side: null,
-        position: { x: 70.5, y: -60, z: 185},
-        rotation: { x: 0, y: 0, z:0  }
+        position: { x: 180.5, y: 20, z: 195},
+        rotation: { x: 0, y: Math.PI, z:0 }
     },
 
     staticMeshes: [
@@ -379,6 +380,16 @@ export default {
             height: 160,
             position: { x: -240, y: 7, z: -600 },
             rotation: { x: 0, y: -3.14, z: 0 }
+        },
+        {
+            model: '../assets/mesh/wall_up_right.glb',
+            objectId: 'wall-up-right',
+            objectType: 'wall',
+            length: 230,
+            width: 50,
+            height: 100,
+            position: { x: 270, y: 7, z: 164 },
+            rotation: { x: 0, y: -3.14, z: 0 }
         }
     ],
 
@@ -390,7 +401,7 @@ export default {
             length: 100,
             width: 90,
             height: 90,
-            position: { x: -154, y: 0, z: -473 },
+            position: { x: -160, y: 0, z: -471 },
             rotation: { x: 0, y: 3.14, z: 0 }
         },
         left: {

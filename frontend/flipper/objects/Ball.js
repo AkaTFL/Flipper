@@ -17,10 +17,10 @@ export class Ball extends Objects {
         
         this.mesh = new THREE.Mesh(
             new THREE.SphereGeometry(this.radius, 32, 32),
-            new THREE.MeshStandardMaterial({ 
-                color: 0xff0000,
-                roughness: 0.7,
-                metalness: 0.2 
+            new THREE.MeshStandardMaterial({
+                color: 0xffffff,
+                metalness: 0.8,
+                roughness: 0.3,
             })
         );
 
@@ -36,6 +36,10 @@ export class Ball extends Objects {
             .setCcdEnabled(true); // Continuous Collision Detection (essentiel pour balles rapides)
 
         this.rigidBody = this.world.createRigidBody(rigidBodyDesc);
+
+        this.addTexture({
+            map: './assets/textures/ball/metal.png',
+        });
         
         // Physique précise : friction, restitution, densité
         const colliderDesc = RAPIER.ColliderDesc.ball(this.radius)

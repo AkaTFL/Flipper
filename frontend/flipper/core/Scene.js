@@ -37,6 +37,9 @@ export class Scene {
         this.renderer.setSize(this.WIDTH, this.HEIGHT);
         this.renderer.outputEncoding = THREE.sRGBEncoding;
 
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        this.renderer.toneMappingExposure = 1.0;
+
         // Main scene container
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0x0);

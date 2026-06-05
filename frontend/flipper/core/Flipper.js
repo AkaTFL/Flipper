@@ -32,6 +32,7 @@ export async function initFlipper() {
     const container = document.getElementById('three');
     const controls = new Controls('q', 'd', 'space');
     physics.controls = controls;
+    physics.scene = sceneManager.scene;
     const scoreDisplay = new ScoreDisplay();
     const dmdDisplay = new DmdDisplay();
     scoreDisplay.mount(container);
@@ -212,6 +213,7 @@ export async function initFlipper() {
     physics.registerObjects(mesh);
 
     sceneManager.scene.add(...mesh.map(obj => obj.mesh));
+    physics.setLaunchingRampVisible(true);
 
     sceneManager.startRender(physics, () => {
         controls.setLaunchChargeCount(0);
