@@ -230,6 +230,11 @@ func (s *ScoreTracker) basePointsForImpact(objectType, objectID string) int {
 			return 40
 		}
 		return 25
+	case "repulse":
+		if s.comboCount >= 2 {
+			return 60
+		}
+		return 40
 	case "target":
 		if containsAny(objectID, "center", "centre", "precise", "precision") {
 			return 75

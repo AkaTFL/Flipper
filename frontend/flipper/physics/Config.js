@@ -142,6 +142,44 @@ export default {
                 objectId: 'repulse-zone-2',
                 model: '../assets/mesh/Repulse.glb'
             },
+
+
+            {
+                width: 5,
+                height: 60,
+                length: 30,
+                position: { x: 262, y: 10, z: -85 },
+                rotation: { x: 0, y: 0, z: (Math.PI / 2) },
+                objectId: 'target-left-top',
+                model: '../assets/mesh/Repulse.glb'
+            },
+            {
+                width: 5,
+                height: 60,
+                length: 30,
+                position: { x: -282, y: 10, z: -85 },
+                rotation: { x: 0, y: 0, z: (Math.PI / 2) },
+                objectId: 'target-right-top',
+                model: '../assets/mesh/Repulse.glb'
+            },
+            {
+                width: 5,
+                height: 60,
+                length: 30,
+                position: { x: 262, y: 10, z: -158 },
+                rotation: { x: 0, y: 0, z: (Math.PI / 2) },
+                objectId: 'target-left-bottom',
+                model: '../assets/mesh/Repulse.glb'
+            },
+            {
+                width: 5,
+                height: 60,
+                length: 30,
+                position: { x: -282, y: 10, z: -158 },
+                rotation: { x: 0, y: 0, z: (Math.PI / 2) },
+                objectId: 'target-right-bottom',
+                model: '../assets/mesh/Repulse.glb'
+            },
         ],
     },
 
@@ -177,14 +215,14 @@ export default {
     palles: {
         restitution: 0.5,
         friction: 0.5,
-        rotationSpeed: 400,
-        rotationAngle: 30 * (Math.PI / 180),
+        rotationSpeed: 700,
+        rotationAngle: 40 * (Math.PI / 180),
         initialAngle: 30 * (Math.PI / 180),
         instances: [
             { length: 60, width: 20, height: 30, position: { x: 54, y: 15, z: -545 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
             { length: 60, width: 20, height: 30, position: { x: -72, y: 15, z: -545 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
-            { length: 40, width: 13, height: 20, position: { x: 40, y: 5, z: 47 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
-            { length: 40, width: 13, height: 20, position: { x: -40, y: 5, z: 47 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
+            { length: 40, width: 13, height: 20, position: { x: 40, y: 5, z: 20 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+            { length: 40, width: 13, height: 20, position: { x: -56, y: 5, z: 20 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
         ],
         modelRight: '../assets/mesh/Right_flipper.glb',
         modelLeft: '../assets/mesh/Left_flipper.glb'
@@ -290,10 +328,10 @@ export default {
         objectType: 'floor',
         length: 200,
         width: 80,
-        height: 400,
+        height: 450,
         radius: null,
         side: null,
-        position: { x: 180.5, y: 20, z: 195},
+        position: { x: 180.5, y: 20, z: 170},
         rotation: { x: 0, y: Math.PI, z:0 }
     },
 
@@ -381,14 +419,16 @@ export default {
             position: { x: -240, y: 7, z: -600 },
             rotation: { x: 0, y: -3.14, z: 0 }
         },
+
+
         {
             model: '../assets/mesh/wall_up_right.glb',
             objectId: 'wall-up-right',
             objectType: 'wall',
-            length: 230,
+            length: 200,
             width: 50,
             height: 100,
-            position: { x: 270, y: 7, z: 164 },
+            position: { x: 210, y: 7, z: 137 },
             rotation: { x: 0, y: -3.14, z: 0 }
         }
     ],

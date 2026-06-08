@@ -304,15 +304,17 @@ export class GamePhysics {
                 if (this.gameOver) {
                     return;
                 }
+                const spawnPos = {x: Config.ball.position.x, y: Config.ball.position.y, z: Config.ball.position.z};
 
-                this.ball.mesh.position.set(config.ball.position.x, config.ball.position.y, config.ball.position.z);
+                this.ball.rigidBody.setTranslation(spawnPos, true);
                 this.ball.rigidBody.setLinvel({ x: 0, y: 0, z: 0 }, true);
+
                 if (typeof this.ball.rigidBody.setAngvel === 'function') {
                     this.ball.rigidBody.setAngvel({ x: 0, y: 0, z: 0 }, true);
                 }
-                if (this.ball?.mesh?.position && typeof this.ball.mesh.position.copy === 'function') {
-                    this.ball.mesh.position.copy(Config.ball.position);
-                }
+
+                // Synchronisation visuelle Three.js
+                this.ball.mesh.position.set(spawnPos.x, spawnPos.y, spawnPos.z);
 
                 this._ballLostReported = false;
                 this.ballRespawnedAfterBallLost = true;

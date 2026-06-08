@@ -57,12 +57,19 @@ export class Repulse extends Objects {
 
         const velocity = otherBody.linvel();
 
-        // Renvoie la balle dans le sens opposé
-        otherBody.setLinvel({
-            x: velocity.x/2,
-            y: velocity.y/2,
-            z: 1000
-        }, true);
+        if (this.mesh.rotation.y == Math.PI / 2) {
+            otherBody.setLinvel({
+                x: velocity.x/2,
+                y: velocity.y/2,
+                z: 1000
+            }, true);
+        } else {
+            otherBody.setLinvel({
+                x: -300,
+                y: velocity.y/2,
+                z: -300
+            }, true);
+        }
 
         this.playSound(Config.sounds.bumper.collision) // Joue le son du bumper
     }
