@@ -140,3 +140,25 @@ func TestQuestTrackerResetsSurvivalQuestAfterBallLost(t *testing.T) {
 		t.Fatalf("expected survival quest progress 5 after reset, got %+v", state.ActiveQuests[0])
 	}
 }
+
+func TestQuestTrackerAdvancesToNextPhaseAfterBossDefeat(t *testing.T) {
+	tracker := newQuestTracker()
+	state := tracker.ResetForGameStart(1000)
+
+	if state.Phase != 1 {
+		t.Fatalf("expected phase 1 at game start, got %d", state.Phase)
+	}
+
+	nextState, ok := tracker.AdvanceToNextPhase(2000)
+	if !ok {
+		t.Fatal("expected next phase to be available")
+	}
+
+	if nextState.Phase != 2 {
+		t.Fatalf("expected phase 2 after advancing, got %d", nextState.Phase)
+	}
+
+	if nextState.BossFightTriggered {
+		t.Fatalf("expected boss fight to remain inactive for the next phase, got %+v", nextState)
+	}
+}

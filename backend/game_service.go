@@ -111,6 +111,12 @@ func (gs *GameService) handleImpact(payload json.RawMessage) {
 		// Appliquer les dégâts au boss
 		if bossUpdate, ok := gs.hub.boss.ApplyScoreDamage(scoreUpdate.Delta); ok {
 			gs.hub.broadcast <- NewBossStateUpdateMessage(bossUpdate)
+			if bossUpdate.Defeated {
+				if questUpdate, ok := gs.hub.quests.AdvanceToNextPhase(time.Now().UnixMilli()); ok {
+					gs.hub.broadcast <- NewQuestUpdateMessage(questUpdate)
+				}
+				gs.hub.broadcast <- NewBossStateUpdateMessage(gs.hub.boss.ResetForGameStart())
+			}
 		}
 
 		if shouldStartBoss {

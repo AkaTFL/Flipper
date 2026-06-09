@@ -28,11 +28,39 @@ export class Ramp extends Objects {
         if (modelFile) {
             const modelPath = new URL(modelFile, import.meta.url).href;
             this.addMesh(modelPath, (modelRoot) => {
-                const trimesh = this.buildTrimeshCollider(modelRoot);
-                const desc = (trimesh ?? RAPIER.ColliderDesc.cuboid(this.length / 2, this.width / 2, this.height / 2))
-                    .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-                
-                this.attachCollider(desc);
+                this.rampCollider = null;
+
+                modelRoot.traverse((child) => {
+
+                    if (!child.isMesh) {
+                        return;
+                    }
+
+                    const trimesh = this.buildTrimeshCollider(child);
+
+                    if (!trimesh) {
+                        return;
+                    }
+
+                    const collider = this.attachCollider(
+                        trimesh.setActiveEvents(
+                            RAPIER.ActiveEvents.COLLISION_EVENTS
+                        )
+                    );
+
+                    console.log(
+                        'Collider créé pour',
+                        child.name,
+                        collider.handle
+                    );
+
+                    if (
+                        child.name &&
+                        child.name.toLowerCase().includes('ramp')
+                    ) {
+                        this.rampCollider = collider;
+                    }
+                });
             });
             return;
         }

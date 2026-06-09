@@ -99,27 +99,37 @@ export class Objects {
         return this.rigidBody;
     }
 
-    attachCollider(colliderDesc, rigidBody = this.rigidBody) {
-        this.collider = this.world.createCollider(colliderDesc, rigidBody);
 
-        // If this object has a reference to the GamePhysics instance, register
-        // the collider handle so collision lookup works even when colliders are
-        // created asynchronously (e.g. after model load).
+    attachCollider(colliderDesc, rigidBody = this.rigidBody) {
+
+        const collider = this.world.createCollider( colliderDesc, rigidBody);
+
+        if (!this.colliders) {
+            this.colliders = [];
+        }
+
+        this.colliders.push(collider);
+
+        if (!this.collider) {
+            this.collider = collider;
+        }
+
         try {
-            if (this.gamePhysics && this.collider && typeof this.collider.handle !== 'undefined') {
-                const handle = this.collider.handle;
-                if (this.gamePhysics.colliderOwners && typeof this.gamePhysics.colliderOwners.set === 'function') {
+            if (collider && typeof collider.handle !== 'undefined') {
+                const handle = collider.handle;
+
+                if (this.gamePhysics.colliderOwners) {
                     this.gamePhysics.colliderOwners.set(handle, this);
                 }
-                if (this.gamePhysics.colliderResponders && typeof this.gamePhysics.colliderResponders.set === 'function') {
+
+                if (this.gamePhysics.colliderResponders) {
                     this.gamePhysics.colliderResponders.set(handle, this);
                 }
             }
         } catch (e) {
-            console.warn('[attachCollider] failed to register collider with gamePhysics', e);
+            console.warn('[attachCollider] failed to register collider', e);
         }
-
-        return this.collider;
+        return collider;
     }
 
     replaceCollider(colliderDesc, rigidBody = this.rigidBody) {
@@ -149,19 +159,19 @@ export class Objects {
     }
 
     buildTrimeshCollider(modelRoot) {
-        if (!modelRoot) return null;
+        if (!modelRoot || !modelRoot.isObject3D) return null;
 
         modelRoot.updateMatrixWorld(true);
 
         const vertices = [];
         const indices = [];
-        let vertexOffset = 0;
 
         modelRoot.traverse((child) => {
             if (!child.isMesh || !child.geometry) return;
 
             const geometry = child.geometry.clone();
             const positionAttribute = geometry.getAttribute('position');
+
             if (!positionAttribute) {
                 geometry.dispose();
                 return;
@@ -174,39 +184,31 @@ export class Objects {
             geometry.applyMatrix4(child.matrixWorld);
 
             const transformedPosition = geometry.getAttribute('position');
-            for (let i = 0; i < transformedPosition.count; i += 1) {
-                const x = transformedPosition.getX(i);
-                const y = transformedPosition.getY(i);
-                const z = transformedPosition.getZ(i);
+            const baseIndexOffset = vertices.length / 3;
 
-                if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
-                    console.warn(`[buildTrimeshCollider] Vertex invalide détecté: (${x}, ${y}, ${z})`);
-                    geometry.dispose();
-                    return;
-                }
-                
-                vertices.push(x, y, z);
+            for (let i = 0; i < transformedPosition.count; i++) {
+                vertices.push(
+                    transformedPosition.getX(i),
+                    transformedPosition.getY(i),
+                    transformedPosition.getZ(i)
+                );
             }
 
-            const geometryIndices = geometry.index?.array;
-            if (geometryIndices && geometryIndices.length >= 3) {
-                for (let i = 0; i < geometryIndices.length; i += 1) {
-                    indices.push(geometryIndices[i] + vertexOffset);
+            if (geometry.index) {
+                for (let i = 0; i < geometry.index.count; i++) {
+                    indices.push(geometry.index.getX(i) + baseIndexOffset);
+                }
+            } else {
+                for (let i = 0; i < transformedPosition.count; i++) {
+                    indices.push(baseIndexOffset + i);
                 }
             }
 
-            vertexOffset += transformedPosition.count;
             geometry.dispose();
         });
 
-        // ✅ VÉRIFICATION : émettre un avertissement si trimesh vide
         if (vertices.length === 0 || indices.length === 0) {
             console.warn(`[buildTrimeshCollider] Pas de géométrie valide trouvée (vertices: ${vertices.length}, indices: ${indices.length})`);
-            return null;
-        }
-
-        if (vertices.length < 9 || indices.length < 3) {
-            console.warn(`[buildTrimeshCollider] Géométrie insuffisante (vertices: ${vertices.length}, indices: ${indices.length})`);
             return null;
         }
 

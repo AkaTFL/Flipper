@@ -22,6 +22,7 @@ type QuestUpdatePayload struct {
 	RequiredCount      int     `json:"requiredCount"`
 	AllCompleted       bool    `json:"allCompleted"`
 	BossFightTriggered bool    `json:"bossFightTriggered"`
+	Phase              int     `json:"phase"`
 	Mode               string  `json:"mode"`
 }
 
@@ -31,6 +32,7 @@ type QuestStateSnapshot struct {
 	LoopRightDone      bool    `json:"loopRightDone"`
 	PhaseStartedAt     int64   `json:"phaseStartedAt"`
 	BossFightTriggered bool    `json:"bossFightTriggered"`
+	CurrentPhase       int     `json:"currentPhase"`
 }
 
 type QuestTracker struct {
@@ -41,6 +43,7 @@ type QuestTracker struct {
 	loopRightDone      bool
 	phaseStartedAt     int64
 	bossFightTriggered bool
+	currentPhase       int
 	random             *rand.Rand
 }
 
@@ -77,6 +80,7 @@ func (q *QuestTracker) ResetForGameStart(startedAt int64) QuestUpdatePayload {
 	q.loopLeftDone = false
 	q.loopRightDone = false
 	q.bossFightTriggered = false
+	q.currentPhase = 1
 	q.activeQuests = q.drawActiveQuestsLocked()
 
 	return q.currentStateLocked("quests_started")
@@ -92,6 +96,7 @@ func (q *QuestTracker) Snapshot() QuestStateSnapshot {
 		LoopRightDone:      q.loopRightDone,
 		PhaseStartedAt:     q.phaseStartedAt,
 		BossFightTriggered: q.bossFightTriggered,
+		CurrentPhase:       q.currentPhase,
 	}
 }
 
@@ -104,6 +109,10 @@ func (q *QuestTracker) Restore(snapshot QuestStateSnapshot) QuestUpdatePayload {
 	q.loopRightDone = snapshot.LoopRightDone
 	q.phaseStartedAt = snapshot.PhaseStartedAt
 	q.bossFightTriggered = snapshot.BossFightTriggered
+	q.currentPhase = snapshot.CurrentPhase
+	if q.currentPhase <= 0 {
+		q.currentPhase = 1
+	}
 
 	return q.currentStateLocked("game_loaded")
 }
@@ -199,6 +208,28 @@ func (q *QuestTracker) ResetSurvivalQuestForNewBall(now int64) (QuestUpdatePaylo
 	}
 
 	return q.currentStateLocked("quest_ball_reset"), true
+}
+
+func (q *QuestTracker) AdvanceToNextPhase(startedAt int64) (QuestUpdatePayload, bool) {
+	q.mutex.Lock()
+	defer q.mutex.Unlock()
+
+	if q.currentPhase >= 3 {
+		return QuestUpdatePayload{}, false
+	}
+
+	if startedAt <= 0 {
+		startedAt = time.Now().UnixMilli()
+	}
+
+	q.currentPhase++
+	q.phaseStartedAt = startedAt
+	q.loopLeftDone = false
+	q.loopRightDone = false
+	q.bossFightTriggered = false
+	q.activeQuests = q.drawActiveQuestsLocked()
+
+	return q.currentStateLocked("phase_transition"), true
 }
 
 func (q *QuestTracker) drawActiveQuestsLocked() []Quest {
@@ -309,6 +340,7 @@ func (q *QuestTracker) currentStateLocked(mode string) QuestUpdatePayload {
 		RequiredCount:      len(q.activeQuests),
 		AllCompleted:       len(q.activeQuests) > 0 && completed == len(q.activeQuests),
 		BossFightTriggered: q.bossFightTriggered,
+		Phase:              q.currentPhase,
 		Mode:               mode,
 	}
 }
