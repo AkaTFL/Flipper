@@ -16,8 +16,8 @@ export class Wall extends Objects {
         this.objectType = 'wall';
         this.objectId = objectId;
         this.gamePhysics = gamePhysics;
-        const restitution = Config.wall?.restitution ?? Config.scene?.restitution ?? 0;
-        const friction = Config.wall?.friction ?? Config.scene?.friction ?? 0;
+        const restitution = Config.global.positioning.wall?.restitution ?? Config.global.positioning.scene?.restitution ?? 0;
+        const friction = Config.global.positioning.wall?.friction ?? Config.global.positioning.scene?.friction ?? 0;
 
         this.mesh = new THREE.Mesh(
             new THREE.PlaneGeometry(this.width, this.height),
@@ -62,7 +62,7 @@ export class Wall extends Objects {
     }
     
     handleCollision() {
-        this.playSound(Config.sounds.wall.collision);
+        this.playSound(Config.global.sounds.wall.collision);
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

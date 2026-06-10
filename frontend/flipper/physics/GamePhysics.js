@@ -36,9 +36,9 @@ export class GamePhysics {
         this.eventQueue = new RAPIER.EventQueue(true);
         const multiplier = Config.forceMultiplier;
         const gravity = {
-            x: Config.gravity.x * multiplier,
-            y: Config.gravity.y * multiplier,
-            z: Config.gravity.z * multiplier
+            x: Config[Config.currentLevel].gravity.x * multiplier,
+            y: Config[Config.currentLevel].gravity.y * multiplier,
+            z: Config[Config.currentLevel].gravity.z * multiplier
         };
 
         this.world = new RAPIER.World(gravity);
@@ -50,7 +50,7 @@ export class GamePhysics {
                 obj.rigidBody
         );
 
-        this.audioManager.playMusic("Boss 2", Config.sounds.soundtrack.volume);
+        this.applyLevelConfig();
     }
 
     step() {
@@ -75,7 +75,7 @@ export class GamePhysics {
             velocity.y ?? 0,
             velocity.z ?? 0
         );
-        this.audioManager.updateRollingBall(speed, Config.sounds.ball.metal);
+        this.audioManager.updateRollingBall(speed, Config.global.sounds.ball.metal);
     }
 
     //Register des objets
@@ -151,8 +151,28 @@ export class GamePhysics {
             this.lastBackendMessage = message;
             if (message?.type === 'score_update') {
                 this.lastScoreUpdate = message.payload ?? null;
-            } else if (message?.type === 'player_state_update') {
+            } 
+            
+            else if (message?.type === 'player_state_update') {
                 this.gameOver = Boolean(message.payload?.gameOver);
+            }
+
+            else if (message?.type === 'boss_state_update') {
+                if ((message.payload?.hp ?? 1) <= 0) {
+                    const previousLevel = Config.currentLevel;
+
+                    const current = Number(Config.currentLevel.split('_')[1]);
+
+                    if (current < 4) {
+                        Config.currentLevel = `lvl_${current + 1}`;
+                    } else {
+                        Config.currentLevel = 'post_lvl';
+                    }
+
+                    if (previousLevel !== Config.currentLevel) {
+                        this.applyLevelConfig();
+                    }
+                }
             }
 
             if (typeof globalThis.dispatchEvent === 'function' && typeof globalThis.CustomEvent === 'function') {
@@ -199,7 +219,7 @@ export class GamePhysics {
     }
 
     detectScoreZoneEntries() {
-        const scoreZones = Config.scoreZones?.instances;
+        const scoreZones = Config.global.positioning.scoreZones?.instances;
         if (!Array.isArray(scoreZones) || scoreZones.length === 0) {
             return;
         }
@@ -231,7 +251,7 @@ export class GamePhysics {
     }
 
     detectRampTraversal() {
-        const rampScoring = Config.ramps;
+        const rampScoring = Config.global.positioning.ramps;
         const position = this.ball.rigidBody.translation();
         const nextActiveRampZones = new Set();
         const now = Date.now();
@@ -304,7 +324,7 @@ export class GamePhysics {
                 if (this.gameOver) {
                     return;
                 }
-                const spawnPos = {x: Config.ball.position.x, y: Config.ball.position.y, z: Config.ball.position.z};
+                const spawnPos = {x: Config.global.positioning.ball.position.x, y: Config.global.positioning.ball.position.y, z: Config.global.positioning.ball.position.z};
 
                 this.ball.rigidBody.setTranslation(spawnPos, true);
                 this.ball.rigidBody.setLinvel({ x: 0, y: 0, z: 0 }, true);
@@ -412,8 +432,8 @@ export class GamePhysics {
 
         this.launchingRampVisible = visible;
 
-        const rampBPosition = Config.ramps.B.position;
-        const launchingPosition = Config.launchingRamp.position;
+        const rampBPosition = Config.global.positioning.ramps.B.position;
+        const launchingPosition = Config.global.positioning.launchingRamp.position;
 
         if (visible) {
             if (this.launchingRamp?.rigidBody?.setTranslation) {
@@ -488,5 +508,26 @@ export class GamePhysics {
                 this.launchingRampHideTimeout = null;
             }, 500);
         }
+    }
+
+    applyLevelConfig() {
+        const levelConfig = Config[Config.currentLevel];
+
+        if (!levelConfig) {
+            return;
+        }
+
+        const multiplier = Config.forceMultiplier;
+
+        this.world.gravity = {
+            x: levelConfig.gravity.x * multiplier,
+            y: levelConfig.gravity.y * multiplier,
+            z: levelConfig.gravity.z * multiplier
+        };
+
+        this.audioManager.stopMusic?.();
+        this.audioManager.playMusic(levelConfig.soundtrack, 0.2);
+
+        console.info(`Niveau actif : ${Config.currentLevel}`);
     }
 }

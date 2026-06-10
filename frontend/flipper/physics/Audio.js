@@ -4,7 +4,7 @@ export class AudioManager {
     constructor() {
         this.audio = null;
 
-        this.surfaces = Config.sounds.ball;
+        this.surfaces = Config.global.sounds.ball;
 
         this.rollingAudio = null;
         this.rollingInitialized = false;
@@ -108,7 +108,7 @@ export class AudioManager {
     // =====================================================
 
     playMusic(folderName, volume) {
-        const files = Config.sounds.soundtrack[folderName];
+        const files = Config[Config.currentLevel].soundtrack[folderName];
 
         if (!files?.length) {
             console.warn(`Aucun son dans : ${folderName}`);

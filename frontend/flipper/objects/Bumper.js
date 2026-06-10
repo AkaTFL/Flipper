@@ -32,7 +32,7 @@ export class Bumper extends Objects {
         this.mesh.rotation.y = rotation.y;
         this.mesh.rotation.z = rotation.z;
 
-        const bumperConfig = Config.bumper.instances.find((entry) => entry.objectId === this.objectId) || null;
+        const bumperConfig = Config.global.positioning.bumper.instances.find((entry) => entry.objectId === this.objectId) || null;
 
         const modelPath = new URL(bumperConfig.model, import.meta.url).href;
 
@@ -79,7 +79,7 @@ export class Bumper extends Objects {
         if (!otherBody || otherBody.isFixed?.()) return;
 
         const power =
-            Config.bumper.power *
+            Config.global.positioning.bumper.power *
             Config.forceMultiplier;
 
         console.log(this.colliderObject?.name?.includes('ramp'));
@@ -98,7 +98,7 @@ export class Bumper extends Objects {
                 z: power
             }, true);
 
-            this.playSound(Config.sounds.bumper.move);
+            this.playSound(Config.global.sounds.bumper.move);
             return;
         }
 
@@ -115,7 +115,7 @@ export class Bumper extends Objects {
                 }
             });
 
-            this.playSound(Config.sounds.bumper.move);
+            this.playSound(Config.global.sounds.bumper.move);
 
             return;
         }
@@ -138,11 +138,11 @@ export class Bumper extends Objects {
             z: (dz / length) * power
         }, true);
 
-        this.playSound(Config.sounds.bumper.move);
+        this.playSound(Config.global.sounds.bumper.move);
     }
 
     handleCollision() {
-        this.playSound(Config.sounds.bumper.collision);
+        this.playSound(Config.global.sounds.bumper.collision);
 
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }

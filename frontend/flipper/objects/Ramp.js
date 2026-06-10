@@ -1,5 +1,4 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
-import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
 
 export class Ramp extends Objects {
@@ -71,7 +70,6 @@ export class Ramp extends Objects {
     }
 
     handleCollision({ handle1, handle2 }) {
-        this.playSound(Config.sounds.ramp.collision);
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }
