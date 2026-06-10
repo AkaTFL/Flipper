@@ -20,12 +20,12 @@ export class Repulse extends Objects {
         this.length = length;
         this.width = width;
         this.height = height;
-        this.power = Config.repulse.power;
+        this.power = Config.global.positioning.repulse.power;
 
         // Physics properties - Fixed (Static)
         this.createFixedRigidBody(position, rotation);
 
-        const repulseConfig = Config.repulse.find((entry) => entry.objectId === this.objectId) || null;
+        const repulseConfig = Config.global.positioning.repulse.find((entry) => entry.objectId === this.objectId) || null;
 
         // Keep group from Objects; add either GLB model or procedural sphere
         this.mesh.position.copy(position);
@@ -57,18 +57,25 @@ export class Repulse extends Objects {
 
         const velocity = otherBody.linvel();
 
-        // Renvoie la balle dans le sens opposé
-        otherBody.setLinvel({
-            x: velocity.x/2,
-            y: velocity.y/2,
-            z: 1000
-        }, true);
+        if (this.mesh.rotation.y == Math.PI / 2) {
+            otherBody.setLinvel({
+                x: velocity.x/2,
+                y: velocity.y/2,
+                z: 1000
+            }, true);
+        } else {
+            otherBody.setLinvel({
+                x: -300,
+                y: velocity.y/2,
+                z: -300
+            }, true);
+        }
 
-        this.playSound(Config.sounds.bumper.collision) // Joue le son du bumper
+        this.playSound(Config.global.sounds.bumper.collision) // Joue le son du bumper
     }
 
     handleCollision() {
-        this.playSound(Config.sounds.bumper.collision); // Son de collision des palles
+        this.playSound(Config.global.sounds.bumper.collision); // Son de collision des palles
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

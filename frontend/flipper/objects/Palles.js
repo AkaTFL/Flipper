@@ -26,10 +26,10 @@ export class Palles extends Objects {
         this.isLeft = side === 'left';
         this.wasActive = false;
 
-        this.angle = Math.abs(Config.palles.rotationAngle);
-        this.initialAngle = Math.abs(Config.palles.initialAngle);
+        this.angle = Math.abs(Config.global.positioning.palles.rotationAngle);
+        this.initialAngle = Math.abs(Config.global.positioning.palles.initialAngle);
         this.restAngle = this.isLeft ? -this.initialAngle : this.initialAngle;
-        this.rotationSpeed = Config.palles.rotationSpeed;
+        this.rotationSpeed = Config.global.positioning.palles.rotationSpeed;
 
         this.mesh.rotation.z = rotation.z + this.restAngle;
         this.joint = null;
@@ -46,7 +46,7 @@ export class Palles extends Objects {
 
         this.rigidBody = this.world.createRigidBody(pallesDesc);
 
-        const modelRelative = this.isLeft ? (Config.palles.modelLeft) : (Config.palles.modelRight);
+        const modelRelative = this.isLeft ? (Config.global.positioning.palles.modelLeft) : (Config.global.positioning.palles.modelRight);
         const modelPath = new URL(modelRelative, import.meta.url).href;
 
         if (modelPath) {
@@ -99,7 +99,7 @@ export class Palles extends Objects {
         this.joint.configureMotorPosition(targetAngle, this.rotationSpeed, 8.0);
         
         if (active && !this.wasActive) {
-            this.playSound(Config.sounds.palles.movement); // Son de mouvement des palles
+            this.playSound(Config.global.sounds.palles.movement); // Son de mouvement des palles
         }
         this.wasActive = active;
     }
@@ -110,7 +110,7 @@ export class Palles extends Objects {
 
     
     handleCollision() {
-        this.playSound(Config.sounds.palles.collision); // Son de collision des palles
+        this.playSound(Config.global.sounds.palles.collision); // Son de collision des palles
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

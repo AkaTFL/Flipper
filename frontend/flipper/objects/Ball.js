@@ -9,11 +9,11 @@ export class Ball extends Objects {
      * @param {Object} position - The position object with x, y, z properties
      */
     constructor(world, position = {x: 0, y: 500, z: 0}) {
-        super(world, null, null, null, position, { x: 0, y: 0, z: 0 }, Config.ball.radius, [], null);
+        super(world, null, null, null, position, { x: 0, y: 0, z: 0 }, Config.global.positioning.ball.radius, [], null);
         this.objectId = 'ball';
         this.objectType = 'ball';
 
-        this.radius = Config.ball.radius;
+        this.radius = Config.global.positioning.ball.radius;
         
         this.mesh = new THREE.Mesh(
             new THREE.SphereGeometry(this.radius, 32, 32),
@@ -43,10 +43,10 @@ export class Ball extends Objects {
         
         // Physique précise : friction, restitution, densité
         const colliderDesc = RAPIER.ColliderDesc.ball(this.radius)
-            .setDensity(Config.ball.density)               // Densité élevée (acier)
-            .setMass(Config.ball.mass)                     // Masse explicite pour un launch cohérent
-            .setRestitution(Config.ball.restitution)       // Rebond
-            .setFriction(Config.ball.friction);            // Glissement
+            .setDensity(Config.global.positioning.ball.density)               // Densité élevée (acier)
+            .setMass(Config.global.positioning.ball.mass)                     // Masse explicite pour un launch cohérent
+            .setRestitution(Config.global.positioning.ball.restitution)       // Rebond
+            .setFriction(Config.global.positioning.ball.friction);            // Glissement
 
         this.attachCollider(colliderDesc);
     }

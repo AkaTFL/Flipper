@@ -11,14 +11,17 @@ export class Bumper extends Objects {
      * @param {Object} position - The position object with x, y, z properties
      * @param {number} rotation - The rotation of the bumper in radians
      */
-    constructor(world, width = 50, position = {x: 0, y: 300, z: 0}, rotation = {x: 0, y: 0, z: 0}, objectId = null) {
+    constructor(world, width = 50, position = { x: 0, y: 300, z: 0 }, rotation = { x: 0, y: 0, z: 0 }, objectId = null) {
         super(world, null, null, null, position, rotation, width / 2, [], null);
+
         this.objectId = objectId ?? 'bumper';
         this.objectType = 'bumper';
         this.radius = width / 2;
         this.length = width;
         this.width = width;
         this.height = width;
+
+        this.rampCollider = null;
 
         // Physics properties - Fixed (Static)
         this.createFixedRigidBody(position, rotation);
@@ -29,19 +32,37 @@ export class Bumper extends Objects {
         this.mesh.rotation.y = rotation.y;
         this.mesh.rotation.z = rotation.z;
 
-        const bumperConfig = Config.bumper.instances.find((entry) => entry.objectId === this.objectId) || null;
+        const bumperConfig = Config.global.positioning.bumper.instances.find((entry) => entry.objectId === this.objectId) || null;
 
         const modelPath = new URL(bumperConfig.model, import.meta.url).href;
-        this.addMesh(modelPath, (modelRoot) => {
-            const desc = this.buildTrimeshCollider(modelRoot)
-                           .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
 
-            this.attachCollider(desc);
+        this.addMesh(modelPath, (modelRoot) => {
+
+            modelRoot.traverse((child) => {
+
+                console.log('name:', child.name, 'isMesh:', child.isMesh);
+
+                if (!child.isMesh) {
+                    return;
+                }
+
+                const desc = this.buildTrimeshCollider(child)
+                    .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+
+                const collider = this.attachCollider(desc);
+
+                if (child.name && child.name.toLowerCase().includes('bump')) {
+                    this.rampCollider = collider;
+
+                    console.log('BUMPER COLLIDER FOUND', collider.handle);
+                }
             });
+
+        });
     }
 
     applyBumperForce(handle1, handle2) {
-
+        
         const otherHandle =
             this.collider.handle === handle1
                 ? handle2
@@ -58,7 +79,7 @@ export class Bumper extends Objects {
         if (!otherBody || otherBody.isFixed?.()) return;
 
         const power =
-            Config.bumper.power *
+            Config.global.positioning.bumper.power *
             Config.forceMultiplier;
 
         console.log(this.colliderObject?.name?.includes('ramp'));
@@ -77,20 +98,25 @@ export class Bumper extends Objects {
                 z: power
             }, true);
 
-            this.playSound(Config.sounds.bumper.move);
+            this.playSound(Config.global.sounds.bumper.move);
             return;
         }
 
         // Bumper triangulaire
         if (this.objectId?.includes('bumper-triangle')) {
+            this.mesh.children.forEach((child) => {
+                if (child.name && child.name.toLowerCase().includes('ramp')) {
+                    const normal = new THREE.Vector3(1, 0, 1).applyEuler(child.rotation);
+                    otherBody.applyImpulse({
+                        x: normal.x * power,
+                        y: 0,
+                        z: normal.z * power
+                    }, true);
+                }
+            });
 
-            otherBody.applyImpulse({
-                x: normal.x * power,
-                y: 0,
-                z: normal.z * power
-            }, true);
+            this.playSound(Config.global.sounds.bumper.move);
 
-            this.playSound(Config.sounds.bumper.move);
             return;
         }
 
@@ -112,11 +138,12 @@ export class Bumper extends Objects {
             z: (dz / length) * power
         }, true);
 
-        this.playSound(Config.sounds.bumper.move);
+        this.playSound(Config.global.sounds.bumper.move);
     }
 
     handleCollision() {
-        this.playSound(Config.sounds.bumper.collision); // Son de collision des palles
+        this.playSound(Config.global.sounds.bumper.collision);
+
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

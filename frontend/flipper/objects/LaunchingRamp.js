@@ -6,11 +6,11 @@ import { Objects } from './Objects.js';
 export class LaunchingRamp extends Objects {
     constructor(
         world,
-        length = Config.launchingRamp.length,
-        width = Config.launchingRamp.width,
-        height = Config.launchingRamp.height,
-        position = Config.launchingRamp.position,
-        rotation = Config.launchingRamp.rotation
+        length = Config.global.positioning.launchingRamp.length,
+        width = Config.global.positioning.launchingRamp.width,
+        height = Config.global.positioning.launchingRamp.height,
+        position = Config.global.positioning.launchingRamp.position,
+        rotation = Config.global.positioning.launchingRamp.rotation
     ) {
         super(world, length, width, height, position, rotation, null, null);
 
@@ -21,11 +21,11 @@ export class LaunchingRamp extends Objects {
 
         this.rampDirection = this.computeRampDirection();
         this.objectType = 'launching-ramp';
-        this.objectId = Config.launchingRamp.objectId;
+        this.objectId = Config.global.positioning.launchingRamp.objectId;
         this.pushedBodyHandles = new Set();
 
-        // Load the 3D model (use `model` from Config.launchingRamp when present)
-        const modelPath = new URL(Config.launchingRamp.model, import.meta.url).href;
+        // Load the 3D model (use `model` from Config.global.positioning.launchingRamp when present)
+        const modelPath = new URL(Config.global.positioning.launchingRamp.model, import.meta.url).href;
 
         this.addMesh(modelPath, (modelRoot) => {
             if (!this.rigidBody) this.createFixedRigidBody(position, rotation);
@@ -65,7 +65,7 @@ export class LaunchingRamp extends Objects {
         if (this.pushedBodyHandles.has(otherBody.handle)) return;
 
         // --- LE PLAFOND VIRTUEL ---
-        const absoluteMax = Config.launchingRamp.maximalPower;
+        const absoluteMax = Config.global.positioning.launchingRamp.maximalPower;
         let targetSpeed = powerOverride;
 
         if (targetSpeed > absoluteMax) targetSpeed = absoluteMax;

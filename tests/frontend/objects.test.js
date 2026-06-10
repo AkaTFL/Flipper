@@ -7,6 +7,7 @@ import Config from '../../frontend/flipper/physics/Config.js';
 import { Bumper } from '../../frontend/flipper/objects/Bumper.js';
 import { LaunchingRamp } from '../../frontend/flipper/objects/LaunchingRamp.js';
 import { Palles } from '../../frontend/flipper/objects/Palles.js';
+import { Repulse } from '../../frontend/flipper/objects/Repulse.js';
 import { StaticMesh } from '../../frontend/flipper/objects/StaticMesh.js';
 import { Wall } from '../../frontend/flipper/objects/Wall.js';
 
@@ -178,6 +179,22 @@ test('StaticMesh defaults objectType to "static" when not provided', async () =>
   });
 
   assert.equal(sm.objectType, 'static');
+});
+
+test('Repulse does not throw when a loaded model has no usable geometry', async () => {
+  const { world } = createWorldStub();
+
+  const emptyRoot = new THREE.Group();
+  const emptyMesh = new THREE.Mesh(new THREE.BufferGeometry());
+  emptyRoot.add(emptyMesh);
+
+  mock.method(GLTFLoader.prototype, 'loadAsync', async () => ({
+    scene: emptyRoot
+  }));
+
+  assert.doesNotThrow(() => new Repulse(world, 80, 40, 40, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, 'repulse-zone'));
+
+  await flushAsyncLoads();
 });
 
 test('Wall creates a fixed rigid body and a collider', () => {

@@ -102,6 +102,45 @@ test('sendImpact emits a structured impact payload when the backend socket is re
   }
 });
 
+test('high-level game event helpers send the documented backend message types', () => {
+  const physics = new GamePhysics(Config);
+  const sentPayloads = [];
+  const previousWebSocket = globalThis.WebSocket;
+
+  class FakeWebSocket {}
+  FakeWebSocket.OPEN = 1;
+
+  globalThis.WebSocket = FakeWebSocket;
+  physics.backendSocket = {
+    readyState: 1,
+    send(payload) {
+      sentPayloads.push(JSON.parse(payload));
+    }
+  };
+
+  assert.equal(physics.startGame(), true);
+  assert.equal(physics.toggleBossFight(), true);
+  assert.equal(physics.triggerPlayerDamageTest(), true);
+  assert.equal(physics.triggerBallLost(), true);
+  assert.equal(physics.saveGame(1), true);
+  assert.equal(physics.loadGame(2), true);
+
+  assert.deepEqual(sentPayloads.map((message) => message.type), [
+    'start_game',
+    'boss_fight_toggled',
+    'player_damage_test',
+    'ball_lost',
+    'save_game',
+    'load_game'
+  ]);
+
+  if (previousWebSocket === undefined) {
+    delete globalThis.WebSocket;
+  } else {
+    globalThis.WebSocket = previousWebSocket;
+  }
+});
+
 test('handleBackendMessage stores score_update payload for later UI consumption', () => {
   const physics = new GamePhysics(Config);
 
