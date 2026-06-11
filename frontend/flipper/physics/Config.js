@@ -444,6 +444,7 @@ export default {
        textures: {
             ball: {
                 map: '../assets/textures/lvl1/ball/metal.png',
+                repeat: [4, 4],
             },
 
             bumper: {
@@ -452,15 +453,20 @@ export default {
                 roughnessMap: '../assets/textures/lvl1/bumper/mossy_rock_arm_1k.png',
                 metalnessMap: '../assets/textures/lvl1/bumper/mossy_rock_arm_1k.png',
                 normalMap: '../assets/textures/lvl1/bumper/mossy_rock_nor_gl_1k.png',
+                repeat: [4, 4]
             },
 
             body: {
+                repeat: [4, 4]
             },
 
             bumper_triangle: {
+
+                repeat: [4, 4]
             },
 
             etage: {
+                repeat: [4, 4]
             },
 
             ramps: {
@@ -470,6 +476,7 @@ export default {
                     roughnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
                     metalnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
                     normalMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_nor_gl_1k.png',
+                    repeat: [4, 4]
                 },
 
                 rail: {
@@ -478,10 +485,12 @@ export default {
                     metalnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Metalness.png',
                     normalMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_NormalGL.png',
                     roughnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Roughness.png',
+                    repeat: [4, 4]
                 },
             },
 
             palles: {
+                repeat: [4, 4]
             },
 
             launching_ramp: {
@@ -490,12 +499,15 @@ export default {
                 roughnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
                 metalnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
                 normalMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_nor_gl_1k.png',
+                repeat: [4, 4]
             },
 
             repulse: {
+                repeat: [4, 4]
             },
 
             wall: {
+                repeat: [4, 4]
             },
         },
         

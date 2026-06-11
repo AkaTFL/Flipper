@@ -228,21 +228,38 @@ export class Objects {
     }
 
     addTexture(textureOrMaps, target = this.mesh) {
-        
+
         if (!textureOrMaps) return null;
 
         const maps = typeof textureOrMaps === 'string'
             ? { map: textureOrMaps }
             : textureOrMaps;
 
+        const repeat = maps.repeat ?? [1, 1];
+
         const loader = new THREE.TextureLoader();
 
         const loadedMaps = Object.fromEntries(
             Object.entries(maps)
-                .filter(([, value]) => value)
-                .map(([key, value]) => [ key, value.isTexture ? value : loader.load(value)])
+                .filter(([key, value]) => key !== 'repeat' && value)
+                .map(([key, value]) => {
+
+                    const texture = value.isTexture
+                        ? value
+                        : loader.load(value);
+
+                    texture.wrapS = THREE.RepeatWrapping;
+                    texture.wrapT = THREE.RepeatWrapping;
+                    texture.repeat.set(repeat[0], repeat[1]);
+
+                    if (key === 'map') {
+                        texture.colorSpace = THREE.SRGBColorSpace;
+                    }
+
+                    return [key, texture];
+                })
         );
-        
+
         console.log("OBJECT TYPE =", this.objectType);
         console.log("maps =", maps);
 
