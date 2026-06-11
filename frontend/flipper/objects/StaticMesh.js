@@ -26,14 +26,24 @@ export class StaticMesh extends Objects {
 
         const modelPath = new URL(model, import.meta.url).href;
         this.addMesh(modelPath, (modelRoot) => {
-            this.addTexture(Config[Config.currentLevel].textures[this.objectType], modelRoot);
+            modelRoot.traverse((child) => {
 
-            const trimesh = this.buildTrimeshCollider(modelRoot);
-            if (trimesh) {
-                this.attachCollider(
-                    trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
-                );
-            }
+                if (!child.isMesh) return;
+
+                if (child.name === 'table') {
+                    this.addTexture(
+                        Config[Config.currentLevel].textures.body.table,
+                        child
+                    );
+                }
+
+                if (child.name === 'walls') {
+                    this.addTexture(
+                        Config[Config.currentLevel].textures.body.walls,
+                        child
+                    );
+                }
+            });
         });
     }
 

@@ -27,39 +27,34 @@ export class Ramp extends Objects {
 
         if (modelFile) {
             const modelPath = new URL(modelFile, import.meta.url).href;
-            
+
             this.addMesh(modelPath, (modelRoot) => {
+
                 this.rampCollider = null;
 
                 modelRoot.traverse((child) => {
-                    if (child.name.includes("rail")) {
-                        this.addTexture(Config[Config.currentLevel].textures.rail, child);
-                    }
 
-                    if (child.name.includes("entrance")) {
-                        this.addTexture(Config[Config.currentLevel].textures.entrance, child);
-                    }
+                    if (!child.isMesh) return;
 
-                    if (!child.isMesh) {
-                        return;
+                    const texture = Config[Config.currentLevel].textures.ramps?.[child.name];
+
+                    if (texture) {
+                        this.addTexture(texture, child);
                     }
 
                     const trimesh = this.buildTrimeshCollider(child);
 
-                    if (!trimesh) {
-                        return;
-                    }
+                    if (!trimesh) return;
 
-                    const collider = this.attachCollider(trimesh.setActiveEvents( RAPIER.ActiveEvents.COLLISION_EVENTS));
+                    const collider = this.attachCollider(
+                        trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
+                    );
 
-                    console.log('Collider créé pour', child.name, collider.handle);
-
-                    if (child.name && child.name.toLowerCase().includes('ramp')) {
+                    if (child.name.toLowerCase().includes('ramp')) {
                         this.rampCollider = collider;
                     }
                 });
             });
-            return;
         } else {
             console.error('No model file provided for Ramp. Please provide a valid model file path.');
         }

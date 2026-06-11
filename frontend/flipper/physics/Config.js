@@ -457,15 +457,39 @@ export default {
             },
 
             body: {
-                repeat: [4, 4]
+                table: {
+                    map: '../assets/textures/lvl1/body/table/image.png',
+                    aoMap: '../assets/textures/lvl1/body/table/jungle_dark_ao_map.png',
+                    roughnessMap: '../assets/textures/lvl1/body/table/jungle_dark_roughness_map.png',
+                    normalMap: '../assets/textures/lvl1/body/table/jungle_dark_normal_map.png',
+                    repeat: [1, 1]
+                },
+
+                walls: {
+                    map: '../assets/textures/lvl1/body/walls/jolcham_oak_bark_01_diff_1k.png',               
+                    aoMap: '../assets/textures/lvl1/body/walls/jolcham_oak_bark_01_arm_1k.png',
+                    roughnessMap: '../assets/textures/lvl1/body/walls/jolcham_oak_bark_01_arm_1k.png',
+                    metalnessMap: '../assets/textures/lvl1/body/walls/jolcham_oak_bark_01_arm_1k.png',
+                    normalMap: '../assets/textures/lvl1/body/walls/jolcham_oak_bark_01_nor_gl_1k.png',
+                    repeat: [4, 4]
+                },
             },
 
             bumper_triangle: {
-
+                map: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_diffuse_1k.png',
+                aoMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
+                metalnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
+                normalMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_nor_gl_1k.png',
                 repeat: [4, 4]
             },
 
             etage: {
+                map: '../assets/textures/lvl1/body/etage/jolcham_oak_bark_01_diff_1k.png',               
+                aoMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
+                metalnessMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
+                normalMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_nor_gl_1k.png',
                 repeat: [4, 4]
             },
 
@@ -503,10 +527,20 @@ export default {
             },
 
             repulse: {
+                map: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_diff_1k.png',
+                aoMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_arm_1k.png',
+                metalnessMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_arm_1k.png',
+                normalMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_nor_gl_1k.png',
                 repeat: [4, 4]
             },
 
             wall: {
+                map: '../assets/textures/lvl1/wall/jolcham_oak_bark_01_diff_1k.png',
+                aoMap: '../assets/textures/lvl1/wall/jolcham_oak_bark_01_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl1/wall/jolcham_oak_bark_01_arm_1k.png',
+                metalnessMap: '../assets/textures/lvl1/wall/jolcham_oak_bark_01_arm_1k.png',
+                normalMap: '../assets/textures/lvl1/wall/jolcham_oak_bark_01_nor_gl_1k.png',
                 repeat: [4, 4]
             },
         },
