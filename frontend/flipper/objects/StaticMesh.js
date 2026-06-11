@@ -1,5 +1,6 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import { Objects } from './Objects.js';
+import Config from '../physics/Config.js';
 
 export class StaticMesh extends Objects {
     constructor(world, model, options = {}) {
@@ -25,6 +26,8 @@ export class StaticMesh extends Objects {
 
         const modelPath = new URL(model, import.meta.url).href;
         this.addMesh(modelPath, (modelRoot) => {
+            this.addTexture(Config[Config.currentLevel].textures[this.objectType], modelRoot);
+
             const trimesh = this.buildTrimeshCollider(modelRoot);
             if (trimesh) {
                 this.attachCollider(

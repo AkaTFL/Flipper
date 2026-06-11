@@ -301,7 +301,7 @@ export default {
                 {
                     model: '../assets/mesh/quadri_left_cible.glb',
                     objectId: 'quadri-left-cible',
-                    objectType: 'bumper',
+                    objectType: 'wall',
                     length: 50,
                     width: 50,
                     height: 50,
@@ -311,7 +311,7 @@ export default {
                 {
                     model: '../assets/mesh/quadri_right_cible.glb',
                     objectId: 'quadri-right-cible',
-                    objectType: 'bumper',
+                    objectType: 'wall',
                     length: 50,
                     width: 50,
                     height: 50,
@@ -441,6 +441,64 @@ export default {
     },
 
     lvl_1: {
+       textures: {
+            ball: {
+                map: '../assets/textures/lvl1/ball/metal.png',
+            },
+
+            bumper: {
+                map: '../assets/textures/lvl1/bumper/mossy_rock_diff_1k.png',
+                aoMap: '../assets/textures/lvl1/bumper/mossy_rock_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl1/bumper/mossy_rock_arm_1k.png',
+                metalnessMap: '../assets/textures/lvl1/bumper/mossy_rock_arm_1k.png',
+                normalMap: '../assets/textures/lvl1/bumper/mossy_rock_nor_gl_1k.png',
+            },
+
+            body: {
+            },
+
+            bumper_triangle: {
+            },
+
+            etage: {
+            },
+
+            ramps: {
+                entrance: {
+                    map: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_diff_1k.png',
+                    aoMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    roughnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    metalnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    normalMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_nor_gl_1k.png',
+                },
+
+                rail: {
+                    map: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Color.png',
+                    displacementMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Displacement.png',
+                    metalnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Metalness.png',
+                    normalMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_NormalGL.png',
+                    roughnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Roughness.png',
+                },
+            },
+
+            palles: {
+            },
+
+            launching_ramp: {
+                map: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_diff_1k.png',
+                aoMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
+                metalnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
+                normalMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_nor_gl_1k.png',
+            },
+
+            repulse: {
+            },
+
+            wall: {
+            },
+        },
+        
         soundtrack: {
             "Boss 1": [
                 "../assets/sound/Boss 1/1.mp3",
@@ -455,6 +513,46 @@ export default {
     },
     
     lvl_2: {
+        textures: {
+            ball: {
+                map: '../assets/textures/lvl1/ball/metal.png',
+            },
+            
+            bumper: {
+            },
+
+            body: {
+            },
+
+            bumper_triangle: {
+            },
+
+            etage: {
+
+            },
+
+            launching_ramp: {
+                entrance: {
+
+                },
+                rail: {
+                
+                },
+            },
+
+            palles: {
+
+            },
+
+            ramp: {
+                map: '../assets/textures/lvl1/ramp_basecolor.png'
+            },
+
+            repulse: {
+
+            }
+        },
+
         soundtrack: {
             "Boss 2": [
                     "../assets/sound/Boss 2/1.mp3",
@@ -468,6 +566,46 @@ export default {
     },
 
     lvl_3: {
+        textures: {
+            ball: {
+                map: '../assets/textures/lvl1/metal.png',
+            },
+            
+            bumper: {
+            },
+
+            body: {
+            },
+
+            bumper_triangle: {
+            },
+
+            etage: {
+
+            },
+
+            launching_ramp: {
+                entrance: {
+
+                },
+                rail: {
+                
+                },
+            },
+
+            palles: {
+
+            },
+
+            ramp: {
+                map: '../assets/textures/lvl1/ramp_basecolor.png'
+            },
+
+            repulse: {
+
+            }
+        },
+
         soundtrack: {
             "Boss 3": [
                 "../assets/sound/Boss 3/1.mp3",
@@ -485,6 +623,46 @@ export default {
     },
 
     lvl_4: {
+        textures: {
+            ball: {
+                map: '../assets/textures/lvl1/metal.png',
+            },
+            
+            bumper: {
+            },
+
+            body: {
+            },
+
+            bumper_triangle: {
+            },
+
+            etage: {
+
+            },
+
+            launching_ramp: {
+                entrance: {
+
+                },
+                rail: {
+                
+                },
+            },
+
+            palles: {
+
+            },
+
+            ramp: {
+                map: '../assets/textures/lvl1/ramp_basecolor.png'
+            },
+
+            repulse: {
+
+            }
+        },
+
         soundtrack: {
         "Boss 4 (Final)": [
                 "../assets/sound/Boss 4 (Final)/1.mp3",
@@ -501,6 +679,46 @@ export default {
     },
 
     post_lvl: {
+        textures: {
+            ball: {
+                map: '../assets/textures/lvl1/metal.png',
+            },
+            
+            bumper: {
+            },
+
+            body: {
+            },
+
+            bumper_triangle: {
+            },
+
+            etage: {
+
+            },
+
+            launching_ramp: {
+                entrance: {
+
+                },
+                rail: {
+                
+                },
+            },
+
+            palles: {
+
+            },
+
+            ramp: {
+                map: '../assets/textures/lvl1/ramp_basecolor.png'
+            },
+
+            repulse: {
+
+            }
+        },
+        
         soundtrack: {
             "Boss 4 (Final)": [
                     "../assets/sound/Boss 4 (Final)/1.mp3",

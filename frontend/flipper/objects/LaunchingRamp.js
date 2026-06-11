@@ -28,6 +28,8 @@ export class LaunchingRamp extends Objects {
         const modelPath = new URL(Config.global.positioning.launchingRamp.model, import.meta.url).href;
 
         this.addMesh(modelPath, (modelRoot) => {
+            this.addTexture(Config[Config.currentLevel].textures.launching_ramp, modelRoot);
+
             if (!this.rigidBody) this.createFixedRigidBody(position, rotation);
 
             const desc = this.buildTrimeshCollider(modelRoot);

@@ -33,11 +33,6 @@ export class Objects {
         if (hasBoxDimensions) {
             this.TreeMesh = new THREE.Mesh(
                 new THREE.BoxGeometry(this.length, this.width, this.height),
-                new THREE.MeshStandardMaterial({
-                    color: 0x606060,
-                    metalness: 0.5,
-                    roughness: 0.5
-                })
             );
             this.mesh.add(this.TreeMesh);
         }
@@ -130,32 +125,6 @@ export class Objects {
             console.warn('[attachCollider] failed to register collider', e);
         }
         return collider;
-    }
-
-    replaceCollider(colliderDesc, rigidBody = this.rigidBody) {
-        // Clean up any existing collider and mappings
-        try {
-            if (this.collider) {
-                if (this.gamePhysics && typeof this.collider.handle !== 'undefined') {
-                    const oldHandle = this.collider.handle;
-                    try {
-                        this.gamePhysics.colliderOwners?.delete(oldHandle);
-                        this.gamePhysics.colliderResponders?.delete(oldHandle);
-                    } catch (e) {
-                        // ignore
-                    }
-                }
-
-                if (typeof this.world.removeCollider === 'function') {
-                    this.world.removeCollider(this.collider, true);
-                }
-                this.collider = null;
-            }
-        } catch (e) {
-            console.warn('[replaceCollider] error while removing old collider', e);
-        }
-
-        return this.attachCollider(colliderDesc, rigidBody);
     }
 
     buildTrimeshCollider(modelRoot) {
@@ -259,63 +228,47 @@ export class Objects {
     }
 
     addTexture(textureOrMaps, target = this.mesh) {
-        if (!textureOrMaps) {
-            console.warn('[addTexture] textureOrMaps manquant');
-            return null;
-        }
-
-        const loadTexture = (value) => {
-            if (!value) return null;
-            if (typeof value === 'string') return new THREE.TextureLoader().load(value);
-            if (value.isTexture) return value;
-            return null;
-        };
+        
+        if (!textureOrMaps) return null;
 
         const maps = typeof textureOrMaps === 'string'
             ? { map: textureOrMaps }
             : textureOrMaps;
 
-        const supportedMaps = [
-            'map',
-            'aoMap',
-            'bumpMap',
-            'normalMap',
-            'roughnessMap',
-            'metalnessMap',
-            'displacementMap',
-            'alphaMap',
-            'emissiveMap',
-            'specularMap'
-        ];
+        const loader = new THREE.TextureLoader();
 
-        const loadedMaps = {};
-        supportedMaps.forEach((key) => {
-            if (maps[key] != null) {
-                loadedMaps[key] = loadTexture(maps[key]);
-            }
-        });
-
-        if (Object.keys(loadedMaps).length === 0) {
-            console.warn('[addTexture] aucun map supporté fourni');
-            return null;
-        }
+        const loadedMaps = Object.fromEntries(
+            Object.entries(maps)
+                .filter(([, value]) => value)
+                .map(([key, value]) => [ key, value.isTexture ? value : loader.load(value)])
+        );
+        
+        console.log("OBJECT TYPE =", this.objectType);
+        console.log("maps =", maps);
 
         const applyMaps = (mesh) => {
+
             if (!mesh.isMesh || !mesh.material) return;
-            const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+
+            const materials = Array.isArray(mesh.material)
+                ? mesh.material
+                : [mesh.material];
+
             materials.forEach((material) => {
-                Object.entries(loadedMaps).forEach(([key, texture]) => {
-                    material[key] = texture;
-                });
+
+                Object.assign(material, loadedMaps);
+
+                if (material.aoMap && mesh.geometry.attributes.uv && !mesh.geometry.attributes.uv2) {
+                    mesh.geometry.setAttribute('uv2', mesh.geometry.attributes.uv.clone());
+                }
+
                 material.needsUpdate = true;
             });
         };
 
-        if (target && target.isMesh) {
-            applyMaps(target);
-        } else if (target && target.isObject3D) {
-            target.traverse(applyMaps);
-        }
+        target?.isMesh
+            ? applyMaps(target)
+            : target?.traverse(applyMaps);
 
         return loadedMaps;
     }
@@ -328,19 +281,6 @@ export class Objects {
         const center = box.getCenter(new THREE.Vector3());
 
         return { box, size, center, halfLengthX: size.x / 2 };
-    }
-
-    getDebugState() {
-        return {
-            position: this.mesh.position.clone(),
-            rotation: this.mesh.rotation.clone(),
-            scale: this.mesh.scale.clone(),
-        };
-    }
-
-    setDebugColliderBuilder(builder) {
-        this.debugColliderBuilder = builder;
-        return this.debugColliderBuilder;
     }
 
     syncObjects() {

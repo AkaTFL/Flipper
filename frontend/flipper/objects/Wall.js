@@ -40,18 +40,6 @@ export class Wall extends Objects {
 
         // Physics properties - Fixed (Static)
         this.createFixedRigidBody(position, rotation);
-        
-            this.setDebugColliderBuilder(() => {
-                const scale = this.getDebugState().scale;
-                const width = Math.max(0.01, this.width * scale.x);
-                const height = Math.max(0.01, this.height * scale.y);
-                const depth = Math.max(0.01, scale.z);
-
-                return RAPIER.ColliderDesc.cuboid(width / 2, height / 2, depth)
-                    .setRestitution(restitution)
-                    .setFriction(friction)
-                    .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-            });
 
         const wallColliderDesc = RAPIER.ColliderDesc.cuboid(this.width / 2, this.height / 2, 1)
             .setRestitution(restitution)
@@ -59,6 +47,10 @@ export class Wall extends Objects {
             .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
             
         this.attachCollider(wallColliderDesc);
+
+        this.addTexture(
+            Config[Config.currentLevel].textures.wall
+        );
     }
     
     handleCollision() {
