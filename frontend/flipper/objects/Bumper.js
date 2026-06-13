@@ -96,8 +96,6 @@ export class Bumper extends Objects {
             Config.global.positioning.bumper.power *
             Config.forceMultiplier;
 
-        console.log(this.colliderObject?.name?.includes('ramp'));
-
         // Launching ramp
         if (this.objectId?.includes('launching-ramp')) {
 
@@ -118,16 +116,13 @@ export class Bumper extends Objects {
 
         // Bumper triangulaire
         if (this.objectId?.includes('bumper-triangle')) {
-            this.mesh.children.forEach((child) => {
-                if (child.name && child.name.toLowerCase().includes('ramp')) {
-                    const normal = new THREE.Vector3(1, 0, 1).applyEuler(child.rotation);
-                    otherBody.applyImpulse({
-                        x: normal.x * power,
-                        y: 0,
-                        z: normal.z * power
-                    }, true);
-                }
-            });
+            const normal = this.getTriangleBumperNormal();
+
+            otherBody.applyImpulse({
+                x: normal.x * power,
+                y: 0,
+                z: normal.z * power
+            }, true);
 
             this.playSound(Config.global.sounds.bumper.move);
 
@@ -153,6 +148,39 @@ export class Bumper extends Objects {
         }, true);
 
         this.playSound(Config.global.sounds.bumper.move);
+    }
+
+    getTriangleBumperNormal() {
+        if (this.modelRoot) {
+            let normal = null;
+            this.modelRoot.traverse((child) => {
+                if (normal || !child.isMesh) return;
+                if (child.name && child.name.toLowerCase().includes('ramp')) {
+                    child.updateWorldMatrix(true, false);
+                    const quaternion = child.getWorldQuaternion(new THREE.Quaternion());
+                    normal = new THREE.Vector3(0, 0, 1)
+                        .applyQuaternion(quaternion)
+                        .setY(0);
+                    if (normal.lengthSq() > 0.000001) {
+                        normal.normalize();
+                    } else {
+                        normal = null;
+                    }
+                }
+            });
+
+            if (normal) {
+                return normal;
+            }
+        }
+
+        const fallback = new THREE.Vector3(0, 0, 1)
+            .applyEuler(this.mesh.rotation)
+            .setY(0);
+
+        return fallback.lengthSq() > 0.000001
+            ? fallback.normalize()
+            : new THREE.Vector3(0, 0, 1);
     }
 
     handleCollision() {

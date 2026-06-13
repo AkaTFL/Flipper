@@ -71,6 +71,9 @@ function createWorldStub() {
       state.colliders.push(collider);
       return collider;
     },
+    getCollider(handle) {
+      return state.colliders.find((collider) => collider.handle === handle) ?? null;
+    },
     createImpulseJoint(joint, pivotBody, rigidBody, wakeUp) {
       const record = {
         joint,
@@ -106,6 +109,47 @@ test('Bumper registers a collider and uses the expected radius', async () => {
   assert.equal(bumper.mesh.position.x, 10);
   assert.equal(bumper.mesh.position.y, 20);
   assert.equal(bumper.mesh.position.z, 30);
+});
+
+test('Bumper triangle applies an impulse using ramp mesh orientation', async () => {
+  const { world, state } = createWorldStub();
+  let applied = null;
+
+  const rampRoot = new THREE.Group();
+  const rampMesh = new THREE.Mesh(
+    new THREE.BoxGeometry(1, 1, 1),
+    new THREE.MeshStandardMaterial({ color: 0xffffff })
+  );
+  rampMesh.name = 'ramp';
+  rampRoot.add(rampMesh);
+
+  mock.method(GLTFLoader.prototype, 'loadAsync', async () => ({
+    scene: rampRoot
+  }));
+
+  const bumper = new Bumper(
+    world,
+    70,
+    { x: 0, y: 0, z: 0 },
+    { x: 0, y: 0, z: 0 },
+    'bumper-triangle-left'
+  );
+
+  await flushAsyncLoads();
+
+  const otherBody = {
+    translation: () => ({ x: 0, y: 0, z: 1 }),
+    applyImpulse: (impulse) => { applied = impulse; }
+  };
+  const otherCollider = { handle: 99, parent: () => otherBody };
+  state.colliders.push(otherCollider);
+
+  bumper.applyBumperForce(1, 99);
+
+  assert.ok(applied, 'Expected triangle bumper to apply an impulse');
+  assert.equal(applied.y, 0);
+  assert.ok(Number.isFinite(applied.x));
+  assert.ok(Number.isFinite(applied.z));
 });
 
 test('Palles constructor creates physics body/collider and defers joint setup until model load', async () => {
