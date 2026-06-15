@@ -49,21 +49,21 @@ export default {
                         position: { x: 10, y: 10, z: 105 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-1',
-                        model: '../assets/mesh/bumper_lvl_1.glb'
+                        model: '../assets/mesh/bumpers/bumper_lvl_1.glb'
                     },
                     {
                         width: 40,
                         position: { x: 120, y: 10, z: 193 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-2',
-                        model: '../assets/mesh/bumper_lvl_1.glb'
+                        model: '../assets/mesh/bumpers/bumper_lvl_1.glb'
                     },
                     {
                         width: 40,
                         position: { x: -100, y: 10, z: 193 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-3',
-                        model: '../assets/mesh/bumper_lvl_1.glb'
+                        model: '../assets/mesh/bumpers/bumper_lvl_1.glb'
                     },
 
 
@@ -73,35 +73,35 @@ export default {
                         position: { x: 240, y: 60, z: 317 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-4',
-                        model: '../assets/mesh/bumper_lvl_1.glb'
+                        model: '../assets/mesh/bumpers/bumper_lvl_1.glb'
                     },
                     {
                         width: 25,
                         position: { x: 120, y: 60, z: 317 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-5',
-                        model: '../assets/mesh/bumper_lvl_1.glb'
+                        model: '../assets/mesh/bumpers/bumper_lvl_1.glb'
                     },
                     {
                         width: 25,
                         position: { x: 180, y: 60, z: 217 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-6',
-                        model: '../assets/mesh/bumper_lvl_1.glb'
+                        model: '../assets/mesh/bumpers/bumper_lvl_1.glb'
                     },
                     {
                         width: 25,
                         position: { x: 195, y: 60, z: 117 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-7',
-                        model: '../assets/mesh/bumper_lvl_1.glb'
+                        model: '../assets/mesh/bumpers/bumper_lvl_1.glb'
                     },
                     {
                         width: 25,
                         position: { x: 250, y: 60, z: 157 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-8',
-                        model: '../assets/mesh/bumper_lvl_1.glb'
+                        model: '../assets/mesh/bumpers/bumper_lvl_1.glb'
                     },
 
                     {
@@ -226,8 +226,8 @@ export default {
                     { length: 40, width: 13, height: 20, position: { x: 40, y: 5, z: 20 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
                     { length: 40, width: 13, height: 20, position: { x: -76, y: 5, z: 20 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
                 ],
-                modelRight: '../assets/mesh/Right_flipper.glb',
-                modelLeft: '../assets/mesh/Left_flipper.glb'
+                modelRight: '../assets/mesh/palles/Right_flipper_lvl_1.glb',
+                modelLeft: '../assets/mesh/palles/Left_flipper_lvl_1.glb'
             },
 
             bodyFlipper: {
