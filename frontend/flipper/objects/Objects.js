@@ -235,9 +235,9 @@ export class Objects {
             : textureOrMaps;
 
         const repeat = maps.repeat ?? [1, 1];
-        const displacementScale = maps.displacementScale ?? 1;
-
+        const displacementScale = maps.displacementScale;
         const loader = new THREE.TextureLoader();
+
         const loadedMaps = {};
 
         Object.entries(maps).forEach(([key, value]) => {
@@ -245,9 +245,7 @@ export class Objects {
                 key === 'repeat' ||
                 key === 'displacementScale' ||
                 !value
-            ) {
-                return;
-            }
+            ) return;
 
             const texture = value.isTexture
                 ? value
@@ -264,6 +262,9 @@ export class Objects {
             loadedMaps[key] = texture;
         });
 
+        console.log('OBJECT TYPE =', this.objectType);
+        console.log('maps =', maps);
+
         const applyMaps = (mesh) => {
             if (!mesh.isMesh || !mesh.material) return;
 
@@ -274,8 +275,7 @@ export class Objects {
             materials.forEach((material) => {
                 Object.assign(material, loadedMaps);
 
-                // Applique l'intensité du displacement
-                if (loadedMaps.displacementMap) {
+                if (displacementScale !== undefined) {
                     material.displacementScale = displacementScale;
                 }
 
