@@ -448,11 +448,13 @@ export default {
             },
 
             bumper: {
-                map: '../assets/textures/lvl1/bumper/mossy_rock_diff_1k.png',
-                aoMap: '../assets/textures/lvl1/bumper/mossy_rock_arm_1k.png',
-                roughnessMap: '../assets/textures/lvl1/bumper/mossy_rock_arm_1k.png',
-                metalnessMap: '../assets/textures/lvl1/bumper/mossy_rock_arm_1k.png',
-                normalMap: '../assets/textures/lvl1/bumper/mossy_rock_nor_gl_1k.png',
+                map: '../assets/textures/lvl1/bumper/bush_photo_albedo_tileable.png',
+                aoMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+                roughnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+                metalnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+                normalMap: '../assets/textures/lvl1/bumper/bush_photo_normal_tileable.png',
+                displacementMap: '../assets/textures/lvl1/bumper/bush_photo_displacement_tileable.png',
+                displacementScale: 0.005,
                 repeat: [4, 4]
             },
 
@@ -466,12 +468,11 @@ export default {
                 },
 
                 walls: {
-                    map: '../assets/textures/lvl1/body/walls/jolcham_oak_bark_01_diff_1k.png',               
-                    aoMap: '../assets/textures/lvl1/body/walls/jolcham_oak_bark_01_arm_1k.png',
-                    roughnessMap: '../assets/textures/lvl1/body/walls/jolcham_oak_bark_01_arm_1k.png',
-                    metalnessMap: '../assets/textures/lvl1/body/walls/jolcham_oak_bark_01_arm_1k.png',
-                    normalMap: '../assets/textures/lvl1/body/walls/jolcham_oak_bark_01_nor_gl_1k.png',
-                    repeat: [4, 4]
+                    map: '../assets/textures/lvl1/body/walls/elfic_wall_map_clean_1k.png',               
+                    aoMap: '../assets/textures/lvl1/body/walls/elfic_wall_ao_clean_1k.png',
+                    roughnessMap: '../assets/textures/lvl1/body/walls/elfic_wall_roughness_clean_1k.png',
+                    normalMap: '../assets/textures/lvl1/body/walls/elfic_wall_normal_clean_1k.png',
+                    repeat: [10, 10]
                 },
             },
 
@@ -536,11 +537,11 @@ export default {
             },
 
             wall: {
-                map: '../assets/textures/lvl1/wall/jolcham_oak_bark_01_diff_1k.png',
-                aoMap: '../assets/textures/lvl1/wall/jolcham_oak_bark_01_arm_1k.png',
-                roughnessMap: '../assets/textures/lvl1/wall/jolcham_oak_bark_01_arm_1k.png',
-                metalnessMap: '../assets/textures/lvl1/wall/jolcham_oak_bark_01_arm_1k.png',
-                normalMap: '../assets/textures/lvl1/wall/jolcham_oak_bark_01_nor_gl_1k.png',
+                map: '../assets/textures/lvl1/wall/emerald_albedo_tileable.png',
+                aoMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
+                roughnessMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
+                metalnessMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
+                normalMap: '../assets/textures/lvl1/wall/emerald_normal_tileable.png',
                 repeat: [4, 4]
             },
         },

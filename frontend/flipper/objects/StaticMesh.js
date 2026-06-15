@@ -28,18 +28,44 @@ export class StaticMesh extends Objects {
         this.addMesh(modelPath, (modelRoot) => {
             modelRoot.traverse((child) => {
 
-                if (!child.isMesh) return;
+                 if (child.isMesh) {
+                    console.log(
+                        child.name,
+                        child.geometry.uuid
+                    )};
 
-                if (child.name === 'table') {
-                    this.addTexture(
-                        Config[Config.currentLevel].textures.body.table,
-                        child
+                    console.log(
+                        child.name,
+                        child.material,
+                        child.material?.uuid
+                    )
+
+                const trimesh = this.buildTrimeshCollider(modelRoot);
+                if (trimesh) {
+                    this.attachCollider(
+                        trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
                     );
                 }
 
-                if (child.name === 'walls') {
+                if (child.isMesh) {
+                    switch (child.name) {
+                        case 'table':
+                            this.addTexture(
+                                Config[Config.currentLevel].textures.body.table,
+                                child
+                            );
+                            break;
+
+                        case 'walls':
+                            this.addTexture(
+                                Config[Config.currentLevel].textures.body.walls,
+                                child
+                            );
+                            break;
+                    }
+                } else {
                     this.addTexture(
-                        Config[Config.currentLevel].textures.body.walls,
+                        Config[Config.currentLevel].textures[objectType],
                         child
                     );
                 }

@@ -228,7 +228,6 @@ export class Objects {
     }
 
     addTexture(textureOrMaps, target = this.mesh) {
-
         if (!textureOrMaps) return null;
 
         const maps = typeof textureOrMaps === 'string'
@@ -236,51 +235,67 @@ export class Objects {
             : textureOrMaps;
 
         const repeat = maps.repeat ?? [1, 1];
+        const displacementScale = maps.displacementScale ?? 1;
 
         const loader = new THREE.TextureLoader();
+        const loadedMaps = {};
 
-        const loadedMaps = Object.fromEntries(
-            Object.entries(maps)
-                .filter(([key, value]) => key !== 'repeat' && value)
-                .map(([key, value]) => {
+        Object.entries(maps).forEach(([key, value]) => {
+            if (
+                key === 'repeat' ||
+                key === 'displacementScale' ||
+                !value
+            ) {
+                return;
+            }
 
-                    const texture = value.isTexture
-                        ? value
-                        : loader.load(value);
+            const texture = value.isTexture
+                ? value
+                : loader.load(value);
 
-                    texture.wrapS = THREE.RepeatWrapping;
-                    texture.wrapT = THREE.RepeatWrapping;
-                    texture.repeat.set(repeat[0], repeat[1]);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(repeat[0], repeat[1]);
 
-                    if (key === 'map') {
-                        texture.colorSpace = THREE.SRGBColorSpace;
-                    }
+            if (key === 'map') {
+                texture.colorSpace = THREE.SRGBColorSpace;
+            }
 
-                    return [key, texture];
-                })
-        );
-
-        console.log("OBJECT TYPE =", this.objectType);
-        console.log("maps =", maps);
+            loadedMaps[key] = texture;
+        });
 
         const applyMaps = (mesh) => {
-
             if (!mesh.isMesh || !mesh.material) return;
 
             const materials = Array.isArray(mesh.material)
-                ? mesh.material
-                : [mesh.material];
+                ? mesh.material.map((material) => material.clone())
+                : [mesh.material.clone()];
 
             materials.forEach((material) => {
-
                 Object.assign(material, loadedMaps);
 
-                if (material.aoMap && mesh.geometry.attributes.uv && !mesh.geometry.attributes.uv2) {
-                    mesh.geometry.setAttribute('uv2', mesh.geometry.attributes.uv.clone());
+                // Applique l'intensité du displacement
+                if (loadedMaps.displacementMap) {
+                    material.displacementScale = displacementScale;
                 }
 
                 material.needsUpdate = true;
             });
+
+            if (
+                loadedMaps.aoMap &&
+                mesh.geometry.attributes.uv &&
+                !mesh.geometry.attributes.uv2
+            ) {
+                mesh.geometry.setAttribute(
+                    'uv2',
+                    mesh.geometry.attributes.uv.clone()
+                );
+            }
+
+            mesh.material = Array.isArray(mesh.material)
+                ? materials
+                : materials[0];
         };
 
         target?.isMesh
