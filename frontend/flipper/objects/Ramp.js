@@ -34,17 +34,30 @@ export class Ramp extends Objects {
 
                 modelRoot.traverse((child) => {
 
-                    if (!child.isMesh) return;
+                    if (child.isMesh) {
+                        switch (child.name) {
+                            case 'rail':
+                                this.addTexture(
+                                    Config[Config.currentLevel].textures.ramps.rail,
+                                    child
+                                );
+                                break;
 
-                    const texture = Config[Config.currentLevel].textures.ramps?.[child.name];
-
-                    if (texture) {
-                        this.addTexture(texture, child);
+                            case 'entrance':
+                                this.addTexture(
+                                    Config[Config.currentLevel].textures.ramps.entrance,
+                                    child
+                                );
+                                break;
+                        }
+                    } else {
+                        this.addTexture(
+                            Config[Config.currentLevel].textures[this.objectType],
+                            child
+                        );
                     }
 
                     const trimesh = this.buildTrimeshCollider(child);
-
-                    if (!trimesh) return;
 
                     const collider = this.attachCollider(
                         trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)

@@ -244,7 +244,7 @@ export default {
             etage: {
                 model: '../assets/mesh/etage.glb',
                 objectId: 'etage',
-                objectType: 'floor',
+                objectType: 'etage',
                 length: 200,
                 width: 80,
                 height: 450,
@@ -454,7 +454,7 @@ export default {
                 metalnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
                 normalMap: '../assets/textures/lvl1/bumper/bush_photo_normal_tileable.png',
                 displacementMap: '../assets/textures/lvl1/bumper/bush_photo_displacement_tileable.png',
-                displacementScale: 0.005,
+                displacementScale: 0.05,
                 repeat: [4, 4]
             },
 
@@ -464,7 +464,7 @@ export default {
                     aoMap: '../assets/textures/lvl1/body/table/jungle_dark_ao_map.png',
                     roughnessMap: '../assets/textures/lvl1/body/table/jungle_dark_roughness_map.png',
                     normalMap: '../assets/textures/lvl1/body/table/jungle_dark_normal_map.png',
-                    repeat: [1, 1]
+                    repeat: [2, 1]
                 },
 
                 walls: {
@@ -486,7 +486,7 @@ export default {
             },
 
             etage: {
-                map: '../assets/textures/lvl1/body/etage/jolcham_oak_bark_01_diff_1k.png',               
+                map: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_diff_1k.png',               
                 aoMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
                 roughnessMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
                 metalnessMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
@@ -501,20 +501,28 @@ export default {
                     roughnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
                     metalnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
                     normalMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_nor_gl_1k.png',
-                    repeat: [4, 4]
+                    repeat: [1, 1]
                 },
 
                 rail: {
                     map: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Color.png',
-                    displacementMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Displacement.png',
                     metalnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Metalness.png',
                     normalMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_NormalGL.png',
                     roughnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Roughness.png',
-                    repeat: [4, 4]
+                    displacementMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Displacement.png',
+                    displacementScale: 0.005,
+                    repeat: [1, 1]
                 },
             },
 
             palles: {
+                map: '../assets/textures/lvl1/palles/bush_photo_albedo_tileable.png',
+                aoMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
+                roughnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
+                metalnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
+                normalMap: '../assets/textures/lvl1/palles/bush_photo_normal_tileable.png',
+                displacementMap: '../assets/textures/lvl1/palles/bush_photo_displacement_tileable.png',
+                displacementScale: 0.05,
                 repeat: [4, 4]
             },
 
@@ -528,11 +536,11 @@ export default {
             },
 
             repulse: {
-                map: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_diff_1k.png',
-                aoMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_arm_1k.png',
-                roughnessMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_arm_1k.png',
-                metalnessMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_arm_1k.png',
-                normalMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_nor_gl_1k.png',
+                map: '../assets/textures/lvl1/repulse/ChatGPT.png',
+                aoMap: '../assets/textures/lvl1/repulse/ao_map(1).png',
+                roughnessMap: '../assets/textures/lvl1/repulse/arm_map.png',
+                metalnessMap: '../assets/textures/lvl1/repulse/arm_map.png',
+                normalMap: '../assets/textures/lvl1/repulse/stone_texture_normal_opengl_1k.png',
                 repeat: [4, 4]
             },
 
