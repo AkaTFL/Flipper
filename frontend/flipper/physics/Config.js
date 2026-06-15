@@ -109,14 +109,14 @@ export default {
                         position: { x: -120.5, y: 20, z: -441 },
                         rotation: { x: 0, y: -(Math.PI / 3), z: 0 },
                         objectId: 'bumper-triangle-left',
-                        model: '../assets/mesh/Bumper_triangle_Left.glb'
+                        model: '../assets/mesh/bumpers_triangle/Bumper_triangle_left_lvl_1.glb'
                     },
                     {
                         width: 70,
                         position: { x: 110.5, y: 20, z: -441 },
                         rotation: { x: 0, y: (Math.PI / 3), z: 0 },
                         objectId: 'bumper-triangle-right',
-                        model: '../assets/mesh/bumper_triangle_right.glb'
+                        model: '../assets/mesh/bumpers_triangle/bumper_triangle_right_lvl_1.glb'
                     },
                 ],
             },
@@ -447,16 +447,16 @@ export default {
                 repeat: [4, 4],
             },
 
-            // bumper: {
-            //     map: '../assets/textures/lvl1/bumper/bush_photo_albedo_tileable.png',
-            //     aoMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
-            //     roughnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
-            //     metalnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
-            //     normalMap: '../assets/textures/lvl1/bumper/bush_photo_normal_tileable.png',
-            //     displacementMap: '../assets/textures/lvl1/bumper/bush_photo_displacement_tileable.png',
-            //     displacementScale: 0.05,
-            //     repeat: [4, 4]
-            // },
+            bumper: {
+                // map: '../assets/textures/lvl1/bumper/bush_photo_albedo_tileable.png',
+                // aoMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+                // roughnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+                // metalnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+                // normalMap: '../assets/textures/lvl1/bumper/bush_photo_normal_tileable.png',
+                // displacementMap: '../assets/textures/lvl1/bumper/bush_photo_displacement_tileable.png',
+                // displacementScale: 0.05,
+                // repeat: [4, 4]
+            },
 
             body: {
                 table: {
@@ -477,12 +477,12 @@ export default {
             },
 
             bumper_triangle: {
-                map: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_diffuse_1k.png',
-                aoMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
-                roughnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
-                metalnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
-                normalMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_nor_gl_1k.png',
-                repeat: [4, 4]
+                // map: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_diffuse_1k.png',
+                // aoMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
+                // roughnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
+                // metalnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
+                // normalMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_nor_gl_1k.png',
+                // repeat: [4, 4]
             },
 
             etage: {
@@ -516,14 +516,14 @@ export default {
             },
 
             palles: {
-                map: '../assets/textures/lvl1/palles/bush_photo_albedo_tileable.png',
-                aoMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
-                roughnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
-                metalnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
-                normalMap: '../assets/textures/lvl1/palles/bush_photo_normal_tileable.png',
-                displacementMap: '../assets/textures/lvl1/palles/bush_photo_displacement_tileable.png',
-                displacementScale: 0.05,
-                repeat: [4, 4]
+                // map: '../assets/textures/lvl1/palles/bush_photo_albedo_tileable.png',
+                // aoMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
+                // roughnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
+                // metalnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
+                // normalMap: '../assets/textures/lvl1/palles/bush_photo_normal_tileable.png',
+                // displacementMap: '../assets/textures/lvl1/palles/bush_photo_displacement_tileable.png',
+                // displacementScale: 0.05,
+                // repeat: [4, 4]
             },
 
             launching_ramp: {
