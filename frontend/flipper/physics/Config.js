@@ -566,9 +566,24 @@ export default {
             },
             
             bumper: {
+                
             },
 
             body: {
+                table: {
+                    map: '../assets/textures/lvl2/body/table/image.png',
+                    aoMap: '../assets/textures/lvl2/body/table/sea_ao_map.png',
+                    roughnessMap: '../assets/textures/lvl2/body/table/sea_roughness_map.png',
+                    normalMap: '../assets/textures/lvl2/body/table/sea_normal_map.png',
+                    repeat: [1, 1]
+                },
+                walls: {
+                    map: '../assets/textures/lvl2/body/walls/sea_wall_map.png',               
+                    aoMap: '../assets/textures/lvl2/body/walls/sea_wall_ao_map.png',
+                    roughnessMap: '../assets/textures/lvl2/body/walls/sea_wall_roughness_map.png',
+                    normalMap: '../assets/textures/lvl2/body/walls/sea_wall_normal_map.png',
+                    repeat: [10, 10]
+                },
             },
 
             bumper_triangle: {
