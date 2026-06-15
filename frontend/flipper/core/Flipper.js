@@ -12,7 +12,6 @@ import { Repulse } from '../objects/Repulse.js';
 
 
 import { ScoreDisplay } from '../ui/ScoreDisplay.js';
-import { DmdDisplay } from '../ui/DmdDisplay.js';
 
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
@@ -34,9 +33,7 @@ export async function initFlipper() {
     physics.controls = controls;
     physics.scene = sceneManager.scene;
     const scoreDisplay = new ScoreDisplay();
-    const dmdDisplay = new DmdDisplay();
     scoreDisplay.mount(container);
-    dmdDisplay.mount(container);
     container.appendChild(sceneManager.renderer.domElement);
 
     const saveSlotHandler = (slot) => {
