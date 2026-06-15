@@ -30,7 +30,7 @@ test('Controls triggers start_game callback on first launch impulse', () => {
   let now = 1000;
   Date.now = () => now;
 
-  const controls = new Controls('q', 'd', 'space');
+  const controls = new Controls('x', 'c', 'd');
   let startGameCalls = 0;
   let impulses = 0;
 
@@ -45,9 +45,9 @@ test('Controls triggers start_game callback on first launch impulse', () => {
     }
   });
 
-  windowStub.listeners.get('keydown')({ key: ' ', preventDefault() {}, repeat: false });
+  windowStub.listeners.get('keydown')({ key: 'd', preventDefault() {}, repeat: false });
   now = 1200;
-  windowStub.listeners.get('keyup')({ key: ' ', preventDefault() {} });
+  windowStub.listeners.get('keyup')({ key: 'd', preventDefault() {} });
 
   assert.equal(startGameCalls, 1);
   assert.equal(impulses, 1);
@@ -61,7 +61,7 @@ test('Controls triggers boss_fight_started callback on debug key press', () => {
   const windowStub = createWindowStub();
   globalThis.window = windowStub;
 
-  const controls = new Controls('q', 'd', 'space', 'b');
+  const controls = new Controls('x', 'c', 'd', 'b');
   let bossFightCalls = 0;
 
   controls.setBossFightStartCallback(() => {
@@ -80,7 +80,7 @@ test('Controls triggers player damage and ball lost callbacks on debug keys', ()
   const windowStub = createWindowStub();
   globalThis.window = windowStub;
 
-  const controls = new Controls('q', 'd', 'space', 'b');
+  const controls = new Controls('x', 'c', 'd', 'b');
   let damageCalls = 0;
   let ballLostCalls = 0;
 

@@ -48,7 +48,7 @@ export async function initFlipper() {
     );
 
     const container = document.getElementById('three');
-    const controls = new Controls('q', 'd', 'space');
+    const controls = new Controls('x', 'c', 'd');
     physics.controls = controls;
     physics.scene = sceneManager.scene;
     const scoreDisplay = new ScoreDisplay();

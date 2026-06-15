@@ -222,9 +222,11 @@ export class ScoreDisplay {
         this.controlsContainer.appendChild(title);
 
         const controls = [
-            ['Q', 'Flipper gauche'],
-            ['D', 'Flipper droit'],
-            ['Espace', 'Lancer la bille / démarrer'],
+            ['X', 'Flipper gauche'],
+            ['C', 'Flipper droit'],
+            ['D', 'Plunger / lancer la bille'],
+            ['F', 'Crédit / jeton'],
+            ['G', 'Bouton vert'],
             ['B', 'Activer / désactiver le boss'],
             ['H', 'Test attaque boss: -20 HP'],
             ['L', 'Test perte de balle']
