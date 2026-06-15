@@ -301,7 +301,7 @@ export default {
                 {
                     model: '../assets/mesh/quadri_left_cible.glb',
                     objectId: 'quadri-left-cible',
-                    objectType: 'bumper',
+                    objectType: 'wall',
                     length: 50,
                     width: 50,
                     height: 50,
@@ -311,7 +311,7 @@ export default {
                 {
                     model: '../assets/mesh/quadri_right_cible.glb',
                     objectId: 'quadri-right-cible',
-                    objectType: 'bumper',
+                    objectType: 'wall',
                     length: 50,
                     width: 50,
                     height: 50,
@@ -441,6 +441,111 @@ export default {
     },
 
     lvl_1: {
+       textures: {
+            ball: {
+                map: '../assets/textures/lvl1/ball/metal.png',
+                repeat: [4, 4],
+            },
+
+            bumper: {
+                map: '../assets/textures/lvl1/bumper/bush_photo_albedo_tileable.png',
+                aoMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+                roughnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+                metalnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+                normalMap: '../assets/textures/lvl1/bumper/bush_photo_normal_tileable.png',
+                displacementMap: '../assets/textures/lvl1/bumper/bush_photo_displacement_tileable.png',
+                displacementScale: 0.005,
+                repeat: [4, 4]
+            },
+
+            body: {
+                table: {
+                    map: '../assets/textures/lvl1/body/table/image.png',
+                    aoMap: '../assets/textures/lvl1/body/table/jungle_dark_ao_map.png',
+                    roughnessMap: '../assets/textures/lvl1/body/table/jungle_dark_roughness_map.png',
+                    normalMap: '../assets/textures/lvl1/body/table/jungle_dark_normal_map.png',
+                    repeat: [1, 1]
+                },
+
+                walls: {
+                    map: '../assets/textures/lvl1/body/walls/elfic_wall_map_clean_1k.png',               
+                    aoMap: '../assets/textures/lvl1/body/walls/elfic_wall_ao_clean_1k.png',
+                    roughnessMap: '../assets/textures/lvl1/body/walls/elfic_wall_roughness_clean_1k.png',
+                    normalMap: '../assets/textures/lvl1/body/walls/elfic_wall_normal_clean_1k.png',
+                    repeat: [10, 10]
+                },
+            },
+
+            bumper_triangle: {
+                map: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_diffuse_1k.png',
+                aoMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
+                metalnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
+                normalMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_nor_gl_1k.png',
+                repeat: [4, 4]
+            },
+
+            etage: {
+                map: '../assets/textures/lvl1/body/etage/jolcham_oak_bark_01_diff_1k.png',               
+                aoMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
+                metalnessMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
+                normalMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_nor_gl_1k.png',
+                repeat: [4, 4]
+            },
+
+            ramps: {
+                entrance: {
+                    map: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_diff_1k.png',
+                    aoMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    roughnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    metalnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    normalMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_nor_gl_1k.png',
+                    repeat: [4, 4]
+                },
+
+                rail: {
+                    map: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Color.png',
+                    displacementMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Displacement.png',
+                    metalnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Metalness.png',
+                    normalMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_NormalGL.png',
+                    roughnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Roughness.png',
+                    repeat: [4, 4]
+                },
+            },
+
+            palles: {
+                repeat: [4, 4]
+            },
+
+            launching_ramp: {
+                map: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_diff_1k.png',
+                aoMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
+                metalnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
+                normalMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_nor_gl_1k.png',
+                repeat: [4, 4]
+            },
+
+            repulse: {
+                map: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_diff_1k.png',
+                aoMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_arm_1k.png',
+                metalnessMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_arm_1k.png',
+                normalMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_nor_gl_1k.png',
+                repeat: [4, 4]
+            },
+
+            wall: {
+                map: '../assets/textures/lvl1/wall/emerald_albedo_tileable.png',
+                aoMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
+                roughnessMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
+                metalnessMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
+                normalMap: '../assets/textures/lvl1/wall/emerald_normal_tileable.png',
+                repeat: [4, 4]
+            },
+        },
+        
         soundtrack: {
             "Boss 1": [
                 "../assets/sound/Boss 1/1.mp3",
@@ -455,6 +560,46 @@ export default {
     },
     
     lvl_2: {
+        textures: {
+            ball: {
+                map: '../assets/textures/lvl1/ball/metal.png',
+            },
+            
+            bumper: {
+            },
+
+            body: {
+            },
+
+            bumper_triangle: {
+            },
+
+            etage: {
+
+            },
+
+            launching_ramp: {
+                entrance: {
+
+                },
+                rail: {
+                
+                },
+            },
+
+            palles: {
+
+            },
+
+            ramp: {
+                map: '../assets/textures/lvl1/ramp_basecolor.png'
+            },
+
+            repulse: {
+
+            }
+        },
+
         soundtrack: {
             "Boss 2": [
                     "../assets/sound/Boss 2/1.mp3",
@@ -468,6 +613,46 @@ export default {
     },
 
     lvl_3: {
+        textures: {
+            ball: {
+                map: '../assets/textures/lvl1/metal.png',
+            },
+            
+            bumper: {
+            },
+
+            body: {
+            },
+
+            bumper_triangle: {
+            },
+
+            etage: {
+
+            },
+
+            launching_ramp: {
+                entrance: {
+
+                },
+                rail: {
+                
+                },
+            },
+
+            palles: {
+
+            },
+
+            ramp: {
+                map: '../assets/textures/lvl1/ramp_basecolor.png'
+            },
+
+            repulse: {
+
+            }
+        },
+
         soundtrack: {
             "Boss 3": [
                 "../assets/sound/Boss 3/1.mp3",
@@ -485,6 +670,46 @@ export default {
     },
 
     lvl_4: {
+        textures: {
+            ball: {
+                map: '../assets/textures/lvl1/metal.png',
+            },
+            
+            bumper: {
+            },
+
+            body: {
+            },
+
+            bumper_triangle: {
+            },
+
+            etage: {
+
+            },
+
+            launching_ramp: {
+                entrance: {
+
+                },
+                rail: {
+                
+                },
+            },
+
+            palles: {
+
+            },
+
+            ramp: {
+                map: '../assets/textures/lvl1/ramp_basecolor.png'
+            },
+
+            repulse: {
+
+            }
+        },
+
         soundtrack: {
         "Boss 4 (Final)": [
                 "../assets/sound/Boss 4 (Final)/1.mp3",
@@ -501,6 +726,46 @@ export default {
     },
 
     post_lvl: {
+        textures: {
+            ball: {
+                map: '../assets/textures/lvl1/metal.png',
+            },
+            
+            bumper: {
+            },
+
+            body: {
+            },
+
+            bumper_triangle: {
+            },
+
+            etage: {
+
+            },
+
+            launching_ramp: {
+                entrance: {
+
+                },
+                rail: {
+                
+                },
+            },
+
+            palles: {
+
+            },
+
+            ramp: {
+                map: '../assets/textures/lvl1/ramp_basecolor.png'
+            },
+
+            repulse: {
+
+            }
+        },
+        
         soundtrack: {
             "Boss 4 (Final)": [
                     "../assets/sound/Boss 4 (Final)/1.mp3",

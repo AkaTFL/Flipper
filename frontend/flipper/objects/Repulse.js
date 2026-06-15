@@ -35,6 +35,8 @@ export class Repulse extends Objects {
 
         const modelPath = new URL(repulseConfig.model, import.meta.url).href;
         this.addMesh(modelPath, (modelRoot) => {
+            this.addTexture(Config[Config.currentLevel].textures.repulse, modelRoot);
+
             const desc = this.buildTrimeshCollider(modelRoot)
                         .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
             this.attachCollider(desc);

@@ -1,5 +1,6 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import { Objects } from './Objects.js';
+import Config from '../physics/Config.js';
 
 export class StaticMesh extends Objects {
     constructor(world, model, options = {}) {
@@ -25,12 +26,50 @@ export class StaticMesh extends Objects {
 
         const modelPath = new URL(model, import.meta.url).href;
         this.addMesh(modelPath, (modelRoot) => {
-            const trimesh = this.buildTrimeshCollider(modelRoot);
-            if (trimesh) {
-                this.attachCollider(
-                    trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
-                );
-            }
+            modelRoot.traverse((child) => {
+
+                 if (child.isMesh) {
+                    console.log(
+                        child.name,
+                        child.geometry.uuid
+                    )};
+
+                    console.log(
+                        child.name,
+                        child.material,
+                        child.material?.uuid
+                    )
+
+                const trimesh = this.buildTrimeshCollider(modelRoot);
+                if (trimesh) {
+                    this.attachCollider(
+                        trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
+                    );
+                }
+
+                if (child.isMesh) {
+                    switch (child.name) {
+                        case 'table':
+                            this.addTexture(
+                                Config[Config.currentLevel].textures.body.table,
+                                child
+                            );
+                            break;
+
+                        case 'walls':
+                            this.addTexture(
+                                Config[Config.currentLevel].textures.body.walls,
+                                child
+                            );
+                            break;
+                    }
+                } else {
+                    this.addTexture(
+                        Config[Config.currentLevel].textures[objectType],
+                        child
+                    );
+                }
+            });
         });
     }
 

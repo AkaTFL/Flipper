@@ -37,9 +37,9 @@ export class Ball extends Objects {
 
         this.rigidBody = this.world.createRigidBody(rigidBodyDesc);
 
-        this.addTexture({
-            map: './assets/textures/ball/metal.png',
-        });
+        this.addTexture(
+            Config[Config.currentLevel].textures.ball
+        );
         
         // Physique précise : friction, restitution, densité
         const colliderDesc = RAPIER.ColliderDesc.ball(this.radius)

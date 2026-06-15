@@ -1,5 +1,6 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import { Objects } from './Objects.js';
+import Config from '../physics/Config.js';
 
 export class Ramp extends Objects {
     constructor(world, modelFile, options = {}, fallbackObjectId = 'ramp') {
@@ -26,47 +27,37 @@ export class Ramp extends Objects {
 
         if (modelFile) {
             const modelPath = new URL(modelFile, import.meta.url).href;
+
             this.addMesh(modelPath, (modelRoot) => {
+
                 this.rampCollider = null;
 
                 modelRoot.traverse((child) => {
 
-                    if (!child.isMesh) {
-                        return;
+                    if (!child.isMesh) return;
+
+                    const texture = Config[Config.currentLevel].textures.ramps?.[child.name];
+
+                    if (texture) {
+                        this.addTexture(texture, child);
                     }
 
                     const trimesh = this.buildTrimeshCollider(child);
 
-                    if (!trimesh) {
-                        return;
-                    }
+                    if (!trimesh) return;
 
                     const collider = this.attachCollider(
-                        trimesh.setActiveEvents(
-                            RAPIER.ActiveEvents.COLLISION_EVENTS
-                        )
+                        trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
                     );
 
-                    console.log(
-                        'Collider créé pour',
-                        child.name,
-                        collider.handle
-                    );
-
-                    if (
-                        child.name &&
-                        child.name.toLowerCase().includes('ramp')
-                    ) {
+                    if (child.name.toLowerCase().includes('ramp')) {
                         this.rampCollider = collider;
                     }
                 });
             });
-            return;
+        } else {
+            console.error('No model file provided for Ramp. Please provide a valid model file path.');
         }
-
-        const desc = RAPIER.ColliderDesc.cuboid(this.length / 2, this.width / 2, this.height / 2)
-            .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-        this.attachCollider(desc);
     }
 
     handleCollision({ handle1, handle2 }) {

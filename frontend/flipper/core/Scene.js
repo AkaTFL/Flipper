@@ -61,27 +61,73 @@ export class Scene {
         // ==========================================
 
         // Soft ambient light
-        const light = new THREE.AmbientLight(0xffffff, 0.5);
-        this.scene.add(light);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+        this.scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(0, 1000, 1000);
+        const createShadowLight = (x, y, z, intensity = 0.5, shadowSize = 1024) => {
 
-        directionalLight.castShadow = true;
-        
-        directionalLight.shadow.mapSize.width = 2048;
-        directionalLight.shadow.mapSize.height = 2048;
+            const light = new THREE.DirectionalLight(0xffffff, intensity);
 
-        directionalLight.shadow.camera.left = -700;
-        directionalLight.shadow.camera.right = 700;
-        directionalLight.shadow.camera.top = 700;
-        directionalLight.shadow.camera.bottom = -700;
-        directionalLight.shadow.camera.near = 1;
-        directionalLight.shadow.camera.far = 3000;
+            light.position.set(x, y, z);
+            light.castShadow = true;
 
-        directionalLight.target.position.set(0, 0, 0);
-        this.scene.add(directionalLight.target);
-        this.scene.add(directionalLight);
+            light.shadow.mapSize.width = shadowSize;
+            light.shadow.mapSize.height = shadowSize;
+
+            light.shadow.camera.left = -700;
+            light.shadow.camera.right = 700;
+            light.shadow.camera.top = 700;
+            light.shadow.camera.bottom = -700;
+
+            light.shadow.camera.near = 1;
+            light.shadow.camera.far = 3000;
+
+            light.shadow.bias = -0.0001;
+            light.shadow.normalBias = 0.02;
+
+            light.target.position.set(0, 0, 0);
+
+            this.scene.add(light.target);
+            this.scene.add(light);
+
+            return light;
+        };
+
+        // Lumière principale
+        createShadowLight(
+            0,
+            1200,
+            1000,
+            1.2,
+            2048
+        );
+
+        // Haut gauche
+        createShadowLight(
+            -800,
+            800,
+            -800,
+            0.5,
+            1024
+        );
+
+        // Haut droit
+        createShadowLight(
+            800,
+            800,
+            -800,
+            0.5,
+            1024
+        );
+
+        // Bas centre
+        createShadowLight(
+            0,
+            800,
+            1200,
+            0.4,
+            1024
+        );
 
         // ==========================================
         // PARTIE PHYSIQUE (RAPIER)

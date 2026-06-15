@@ -38,13 +38,27 @@ export class Bumper extends Objects {
 
         this.addMesh(modelPath, (modelRoot) => {
 
+            this.addTexture(Config[Config.currentLevel].textures.bumper, modelRoot);
+
             modelRoot.traverse((child) => {
 
-                console.log('name:', child.name, 'isMesh:', child.isMesh);
+                 console.log(
+                    "name:",
+                    child.name,
+                    "isMesh:",
+                    child.isMesh
+                );
 
                 if (!child.isMesh) {
                     return;
                 }
+                
+                console.log(
+                    "material:",
+                    child.material?.type,
+                    "uv:",
+                    child.geometry?.attributes?.uv
+                );
 
                 const desc = this.buildTrimeshCollider(child)
                     .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);

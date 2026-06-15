@@ -51,6 +51,8 @@ export class Palles extends Objects {
 
         if (modelPath) {
             this.addMesh(modelPath, (modelRoot) => {
+                this.addTexture(Config[Config.currentLevel].textures.palles, modelRoot);
+
                 modelRoot.rotation.y = this.isLeft ? -Math.PI / 5 : Math.PI / 5;
 
                 const { box, center, halfLengthX, size } = this.getMeshMetrics(modelRoot);
