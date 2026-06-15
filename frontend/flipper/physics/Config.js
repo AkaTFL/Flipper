@@ -49,21 +49,21 @@ export default {
                         position: { x: 10, y: 10, z: 105 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-1',
-                        model: '../assets/mesh/Bumper_big_.glb'
+                        model: '../assets/mesh/bumper_lvl_1.glb'
                     },
                     {
                         width: 40,
                         position: { x: 120, y: 10, z: 193 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-2',
-                        model: '../assets/mesh/Bumper_big_.glb'
+                        model: '../assets/mesh/bumper_lvl_1.glb'
                     },
                     {
                         width: 40,
                         position: { x: -100, y: 10, z: 193 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-3',
-                        model: '../assets/mesh/Bumper_big_.glb'
+                        model: '../assets/mesh/bumper_lvl_1.glb'
                     },
 
 
@@ -73,35 +73,35 @@ export default {
                         position: { x: 240, y: 60, z: 317 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-4',
-                        model: '../assets/mesh/Bumper_little_.glb'
+                        model: '../assets/mesh/bumper_lvl_1.glb'
                     },
                     {
                         width: 25,
                         position: { x: 120, y: 60, z: 317 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-5',
-                        model: '../assets/mesh/Bumper_little_.glb'
+                        model: '../assets/mesh/bumper_lvl_1.glb'
                     },
                     {
                         width: 25,
                         position: { x: 180, y: 60, z: 217 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-6',
-                        model: '../assets/mesh/Bumper_little_.glb'
+                        model: '../assets/mesh/bumper_lvl_1.glb'
                     },
                     {
                         width: 25,
                         position: { x: 195, y: 60, z: 117 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-7',
-                        model: '../assets/mesh/Bumper_little_.glb'
+                        model: '../assets/mesh/bumper_lvl_1.glb'
                     },
                     {
                         width: 25,
                         position: { x: 250, y: 60, z: 157 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-8',
-                        model: '../assets/mesh/Bumper_little_.glb'
+                        model: '../assets/mesh/bumper_lvl_1.glb'
                     },
 
                     {
@@ -447,16 +447,16 @@ export default {
                 repeat: [4, 4],
             },
 
-            bumper: {
-                map: '../assets/textures/lvl1/bumper/bush_photo_albedo_tileable.png',
-                aoMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
-                roughnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
-                metalnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
-                normalMap: '../assets/textures/lvl1/bumper/bush_photo_normal_tileable.png',
-                displacementMap: '../assets/textures/lvl1/bumper/bush_photo_displacement_tileable.png',
-                displacementScale: 0.05,
-                repeat: [4, 4]
-            },
+            // bumper: {
+            //     map: '../assets/textures/lvl1/bumper/bush_photo_albedo_tileable.png',
+            //     aoMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+            //     roughnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+            //     metalnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+            //     normalMap: '../assets/textures/lvl1/bumper/bush_photo_normal_tileable.png',
+            //     displacementMap: '../assets/textures/lvl1/bumper/bush_photo_displacement_tileable.png',
+            //     displacementScale: 0.05,
+            //     repeat: [4, 4]
+            // },
 
             body: {
                 table: {
