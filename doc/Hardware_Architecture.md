@@ -14,7 +14,7 @@
 | IoT | Rôle | Matériel |
 |-----|------|----------|
 | **IoT 1** | Retour haptique (solénoïdes) | 2× ESP32 + 2× modules relais + 10 solénoïdes |
-| **IoT 2** | Contrôleur joueur + Tilt | 1× ESP32 + 8 boutons + 1 tirette analogique + 1× MPU-6050 |
+| **IoT 2** | Contrôleur joueur + Tilt | 1× ESP32 + 8 boutons + 1 plunger bouton + 1× MPU-6050 |
 
 **Flux de données :**
 
@@ -194,12 +194,12 @@ L'ESP32 Contrôleur est connecté au PC du Playfield par **câble USB** et trans
                     ┌──────────────────────────────┐
                     │         FACE AVANT            │
                     │                               │
-                    │   [Bouton 5]  [Bouton 6]  [Bouton 7]   ← 3 boutons face
-                    │    (Start)   (à définir) (à définir)     (usage futur)
+                    │ [Green] [Yellow] [Red] [White] ← boutons face
+                    │ (Green) (Face 2) (Face 3) (Jeton)
                     │                               │
                     │                         ║═══║ │
-                    │                         ║ T ║ ← Tirette (plunger)
-                    │                         ║ I ║   analogique 0→1
+                    │                         ║ T ║ ← Plunger
+                    │                         ║ I ║   bouton de lancement
                     │                         ║ R ║
   CÔTÉ GAUCHE       │                         ║═══║ │       CÔTÉ DROIT
   ┌────────┐        │                               │        ┌────────┐
@@ -221,24 +221,22 @@ L'ESP32 Contrôleur est connecté au PC du Playfield par **câble USB** et trans
 
 | # | Position | Bouton | Touche simulée | Type |
 |---|----------|--------|----------------|------|
-| 1 | Côté gauche | Flipper Gauche | `X` | Digital |
-| 2 | Côté gauche | Bouton Gauche 2 | à définir | Digital |
-| 3 | Côté droit | Flipper Droit | `C` | Digital |
-| 4 | Côté droit | Bouton Droit 2 | à définir | Digital |
-| 5 | Face avant | Start | `D` | Digital |
-| 6 | Face avant | Bouton Face 2 | à définir | Digital |
-| 7 | Face avant | Bouton Face 3 | à définir | Digital |
-| 8 | Mécanisme | Jeton / Pièce | `F` | Digital |
+| 1 | Côté gauche | button white left | `X` | Digital |
+| 2 | Côté gauche | button black left | `A` | Digital |
+| 3 | Côté droit | button white right | `C` | Digital |
+| 4 | Côté droit | button black right | `E` | Digital |
+| 5 | Face avant | button front left green | `G` | Digital |
+| 6 | Face avant | button front left yellow | `B` | Digital |
+| 7 | Face avant | button front left red | `H` | Digital |
+| 8 | Face avant | button front white | `F` | Digital |
 
-**1 entrée analogique (0.0 → 1.0) :**
+**1 entrée plunger :**
 
 | # | Position | Composant | Valeur | Type |
 |---|----------|-----------|--------|------|
-| 9 | Côté droit | Tirette (plunger) | 0.0 (repos) → 1.0 (tiré à fond) | Analogique |
+| 9 | Côté droit | plunger | appui maintenu → force de lancement, touche `D` simulée | Digital |
 
-La tirette utilise un **potentiomètre linéaire** qui renvoie une tension proportionnelle à la course de tirage. L'ESP32 lit cette tension via son convertisseur **ADC (Analog-to-Digital)**.
-
-**Contrainte technique ADC :** Le module ADC2 de l'ESP32 **ne fonctionne pas quand le Wi-Fi est actif**. La tirette doit obligatoirement être branchée sur un pin **ADC1** (GPIO 32, 33, 34, 35, 36 ou 39).
+Le plunger est lu comme un bouton. Plus l'appui dure longtemps, plus le jeu augmente la force de lancement de la bille.
 
 ### Capteur Tilt — MPU-6050
 
@@ -354,26 +352,21 @@ Le MPU-6050 communique en **I2C** avec l'ESP32 (2 fils seulement). Les événeme
   │        (Contrôleur)           │
   │                               │
   │  ── BOUTONS CÔTÉ GAUCHE ──   │
-  │  GPIO 12 ─────────────────────┼──── Bouton 1 : Flipper Gauche ──── GND
-  │  GPIO 14 ─────────────────────┼──── Bouton 2 : Gauche 2       ──── GND
+  │  GPIO 4  ─────────────────────┼──── button white left  ─────── GND
+  │  GPIO 16 ─────────────────────┼──── button black left  ─────── GND
   │                               │
   │  ── BOUTONS CÔTÉ DROIT ────  │
-  │  GPIO 13 ─────────────────────┼──── Bouton 3 : Flipper Droit  ──── GND
-  │  GPIO 15 ─────────────────────┼──── Bouton 4 : Droit 2        ──── GND
+  │  GPIO 25 ─────────────────────┼──── button white right ─────── GND
+  │  GPIO 13 ─────────────────────┼──── button black right ─────── GND
   │                               │
   │  ── BOUTONS FACE AVANT ────  │
-  │  GPIO 16 ─────────────────────┼──── Bouton 5 : Start          ──── GND
-  │  GPIO 17 ─────────────────────┼──── Bouton 6 : Face 2         ──── GND
-  │  GPIO 18 ─────────────────────┼──── Bouton 7 : Face 3         ──── GND
+  │  GPIO 17 ─────────────────────┼──── button front left green ── GND
+  │  GPIO 18 ─────────────────────┼──── button front left yellow ─ GND
+  │  GPIO 19 ─────────────────────┼──── button front left red ──── GND
+  │  GPIO 33 ─────────────────────┼──── button front white ─────── GND
   │                               │
-  │  ── JETON ─────────────────  │
-  │  GPIO 19 ─────────────────────┼──── Bouton 8 : Jeton/Pièce    ──── GND
-  │                               │
-  │  ── TIRETTE (ANALOGIQUE) ──  │
-  │  GPIO 32 (ADC1) ─────────────┼──── Potentiomètre linéaire ──── 3.3V
-  │  GND ─────────────────────────┼──── (autre borne)         ──── GND
-  │                               │     Curseur → GPIO 32
-  │                               │     0V = repos, 3.3V = tiré à fond
+  │  ── PLUNGER ──────────────── │
+  │  GPIO 32 ────────────────────┼──── plunger ─────────────── GND
   │                               │
   │  ── CAPTEUR TILT ──────────  │
   │                               │         ┌──────────────┐
@@ -394,7 +387,7 @@ Le MPU-6050 communique en **I2C** avec l'ESP32 (2 fils seulement). Les événeme
   └───────────────────────────────┘
 
   Boutons : pull-up interne (INPUT_PULLUP). Appui = LOW → envoi USB série.
-  Tirette : lecture analogique (analogRead). Valeur 0-4095 → normalisée 0.0-1.0.
+  Plunger : pull-up interne (INPUT_PULLUP). Appui = LOW → envoi USB série.
   Le câble USB sert à la fois d'alimentation ET de communication.
 ```
 
@@ -402,19 +395,21 @@ Le MPU-6050 communique en **I2C** avec l'ESP32 (2 fils seulement). Les événeme
 
 | GPIO | Composant | Position | Touche / Fonction | Communication |
 |------|-----------|----------|-------------------|---------------|
-| 12 | Bouton 1 — Flipper Gauche | Côté gauche | `X` | USB série → PC |
-| 14 | Bouton 2 — Gauche 2 | Côté gauche | à définir | USB série → PC |
-| 13 | Bouton 3 — Flipper Droit | Côté droit | `C` | USB série → PC |
-| 15 | Bouton 4 — Droit 2 | Côté droit | à définir | USB série → PC |
-| 16 | Bouton 5 — Start | Face avant | `D` | USB série → PC |
-| 17 | Bouton 6 — Face 2 | Face avant | à définir | USB série → PC |
-| 18 | Bouton 7 — Face 3 | Face avant | à définir | USB série → PC |
-| 19 | Bouton 8 — Jeton/Pièce | Mécanisme | `F` | USB série → PC |
-| **32** | **Tirette (plunger)** | **Côté droit** | **Analogique 0.0→1.0** | **USB série → PC** |
+| 16 | button black left | Côté gauche | `A` | USB série → PC |
+| 4 | button white left | Côté gauche | `X` | USB série → PC |
+| 17 | button front left green | Face avant | `G` | USB série → PC |
+| 18 | button front left yellow | Face avant | `B` | USB série → PC |
+| 19 | button front left red | Face avant | `H` | USB série → PC |
+| 13 | button black right | Côté droit | `E` | USB série → PC |
+| 25 | button white right | Côté droit | `C` | USB série → PC |
+| 33 | button front white | Face avant | `F` | USB série → PC |
+| **32** | **plunger** | **Côté droit** | **Appui maintenu, simule `D`** | **USB série → PC** |
 | 21 | MPU-6050 SDA | Meuble | Données accéléromètre | I2C |
 | 22 | MPU-6050 SCL | Meuble | Horloge accéléromètre | I2C |
 
-**Note ADC :** GPIO 32 fait partie du groupe **ADC1**, le seul utilisable quand le Wi-Fi est actif. Ne jamais brancher la tirette sur un pin ADC2 (GPIO 0, 2, 4, 12-15, 25-27).
+**Note plunger :** le firmware transforme le plunger en `APPUI plunger` / `RELACHE plunger`, puis le daemon envoie la touche `D` au jeu.
+
+**Note mapping boutons :** ce mapping reprend la machine physique fournie à l'école. Le firmware de référence se trouve dans `iot/firmware/esp32_button_controller/esp32_button_controller.ino`.
 
 ---
 
@@ -536,10 +531,13 @@ Le serveur publie sur ces topics quand un événement de jeu nécessite un retou
 **NE PAS UTILISER :**
 - GPIO 0 (boot mode)
 - GPIO 2 (LED interne, peut interférer)
+- GPIO 5, 12, 15 (pins sensibles au démarrage selon le câblage)
 - GPIO 6-11 (Flash SPI interne)
 - GPIO 34-39 (input-only, pas de pull-up interne)
 
-**GPIO sûrs pour ce projet :** 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23
+**GPIO retenus pour le contrôleur boutons école :** 4, 13, 16, 17, 18, 19, 25, 33.  
+**GPIO retenus pour le tilt :** 21, 22.  
+**GPIO retenu pour le plunger :** 32.
 
 ### Alimentation
 
