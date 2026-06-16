@@ -58,7 +58,6 @@ export class GamePhysics {
         this.updateRollingBallSound();
         this.handleCollisionEvents();
         this.detectScoreZoneEntries();
-        this.detectBallLost();
         this.checkLaunchingRampHeight();
     }
 
@@ -303,57 +302,49 @@ export class GamePhysics {
             && Math.abs((position.z ?? 0) - zone.center.z) <= halfZ;
     }
 
-    detectBallLost() {
-        const position = this.ball.rigidBody.translation();
-
-        const drainZone = {
-            center: { x: 0, y: 0, z: -620 },
-            size: { x: 100, y: 20, z: 80 }
-        };
-
-        const isInside = this.isPositionInsideZone(position, { center: drainZone.center, size: drainZone.size });
-
-        if (isInside && !this._ballLostReported) {
-            this._ballLostReported = true;
-            this.holdLaunchingRampVisibleAfterBallLost = true;
-            this.setLaunchingRampVisible(true);
-            this.sendMessage('ball_lost');
-            console.info('[backend] ball_lost envoyé (position)', position);
-
-            setTimeout(() => {
-                if (this.gameOver) {
-                    return;
-                }
-                const spawnPos = {x: Config.global.positioning.ball.position.x, y: Config.global.positioning.ball.position.y, z: Config.global.positioning.ball.position.z};
-
-                this.ball.rigidBody.setTranslation(spawnPos, true);
-                this.ball.rigidBody.setLinvel({ x: 0, y: 0, z: 0 }, true);
-
-                if (typeof this.ball.rigidBody.setAngvel === 'function') {
-                    this.ball.rigidBody.setAngvel({ x: 0, y: 0, z: 0 }, true);
-                }
-
-                // Synchronisation visuelle Three.js
-                this.ball.mesh.position.set(spawnPos.x, spawnPos.y, spawnPos.z);
-
-                this._ballLostReported = false;
-                this.ballRespawnedAfterBallLost = true;
-                this.ballPassedAboveTriggerAfterRespawn = false;
-                try {
-                    this.controls.setImpulseUsed(false);
-                } catch (e) {
-                    console.warn('Unable to reset controls impulse flag after respawn', e);
-                }
-            }, 1500);
-
-            return;
+    triggerBallLost(source = 'collision') {
+        if (!this.ball?.rigidBody || this._ballLostReported || this.gameOver) {
+            return false;
         }
 
-        // reset du flag quand la balle sort de la zone
-        if (!isInside && this._ballLostReported) {
+        this._ballLostReported = true;
+        this.holdLaunchingRampVisibleAfterBallLost = true;
+        this.setLaunchingRampVisible(true);
+        this.sendMessage('ball_lost');
+        console.info(`[backend] ball_lost envoyé (${source})`);
+
+        setTimeout(() => {
+            if (this.gameOver) {
+                return;
+            }
+
+            const spawnPos = {
+                x: Config.global.positioning.ball.position.x,
+                y: Config.global.positioning.ball.position.y,
+                z: Config.global.positioning.ball.position.z
+            };
+
+            this.ball.rigidBody.setTranslation(spawnPos, true);
+            this.ball.rigidBody.setLinvel({ x: 0, y: 0, z: 0 }, true);
+
+            if (typeof this.ball.rigidBody.setAngvel === 'function') {
+                this.ball.rigidBody.setAngvel({ x: 0, y: 0, z: 0 }, true);
+            }
+
+            this.ball.mesh.position.set(spawnPos.x, spawnPos.y, spawnPos.z);
+
             this._ballLostReported = false;
-            this.controls.setImpulseUsed(false);
-        }
+            this.ballRespawnedAfterBallLost = true;
+            this.ballPassedAboveTriggerAfterRespawn = false;
+
+            try {
+                this.controls.setImpulseUsed(false);
+            } catch (error) {
+                console.warn('Unable to reset controls impulse flag after respawn', error);
+            }
+        }, 1500);
+
+        return true;
     }
 
     findCollidingObjects(handle1, handle2) {
@@ -374,9 +365,19 @@ export class GamePhysics {
 
     reportContactImpacts(collidingObjects, combo = null) {
         for (const obj of collidingObjects) {
-            if (obj?.objectType === 'ball') {}
-            else this.sendImpact(obj, combo);
+            if (obj?.objectType === 'ball' || obj?.objectType === 'drain') {
+                continue;
+            }
+
+            this.sendImpact(obj, combo);
         }
+    }
+
+    isBallDrainCollision(collidingObjects) {
+        const hasBall = collidingObjects.some((obj) => obj?.objectType === 'ball');
+        const hitDrain = collidingObjects.some((obj) => obj?.objectType === 'drain');
+
+        return hasBall && hitDrain;
     }
 
     handleCollisionEvents(comboS) {
@@ -390,6 +391,10 @@ export class GamePhysics {
             const combo = comboS || null;
             const collidingObjects = this.findCollidingObjects(handle1, handle2);
             const collisionResponders = this.findCollisionResponders(handle1, handle2);
+
+            if (this.isBallDrainCollision(collidingObjects)) {
+                this.triggerBallLost('body-bottom-wall');
+            }
 
             for (const obj of collisionResponders) {
                 if (typeof obj.handleCollision === 'function') {

@@ -76,7 +76,7 @@ export async function initFlipper() {
         physics.sendMessage('boss_attack_test');
     });
     controls.setBallLostCallback(() => {
-        physics.sendMessage('ball_lost');
+        physics.triggerBallLost('manual');
     });
 
     const mesh = [];

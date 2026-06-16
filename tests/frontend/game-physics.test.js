@@ -165,6 +165,47 @@ test('handleBackendMessage stores score_update payload for later UI consumption'
   });
 });
 
+test('handleCollisionEvents triggers ball_lost when the ball hits the bottom wall drain', () => {
+  const physics = new GamePhysics(Config);
+  const sent = [];
+
+  const ball = {
+    objectId: 'ball',
+    objectType: 'ball',
+    collider: { handle: 11 },
+    rigidBody: {
+      setTranslation() {},
+      setLinvel() {},
+      setAngvel() {}
+    },
+    mesh: { position: { set() {} } }
+  };
+
+  const drain = {
+    objectId: 'body-bottom-wall',
+    objectType: 'drain',
+    collider: { handle: 12 }
+  };
+
+  physics.ball = ball;
+  physics.registerObjects([ball, drain]);
+  physics.sendMessage = (type) => {
+    sent.push(type);
+    return true;
+  };
+  physics.setLaunchingRampVisible = () => {};
+  physics.eventQueue = {
+    drainCollisionEvents(callback) {
+      callback(11, 12, true);
+    }
+  };
+
+  physics.handleCollisionEvents();
+
+  assert.deepEqual(sent, ['ball_lost']);
+  assert.equal(physics._ballLostReported, true);
+});
+
 test('handleCollisionEvents notifies objects and forwards the contacted gameplay object to the backend', () => {
   const physics = new GamePhysics(Config);
   const calls = [];
