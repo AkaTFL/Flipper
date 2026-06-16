@@ -20,6 +20,25 @@ export async function initFlipper() {
     const physics = new GamePhysics();
     await physics.init();
 
+    const waitForMesh = (obj) => {
+        return new Promise((resolve) => {
+            if (obj?.mesh) {
+                resolve();
+                return;
+            }
+
+            const interval = setInterval(() => {
+                if (obj?.mesh) {
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, 8);
+        });
+    };
+
+    const mesh = [];
+    const loadingPromises = [];
+
     const sceneManager = new Scene(
         physics.world, 
         Config.global.positioning.scene.manager.width, 
@@ -79,8 +98,6 @@ export async function initFlipper() {
         physics.triggerBallLost('manual');
     });
 
-    const mesh = [];
-
     // Launching Ramp
     const launching = new LaunchingRamp(
       physics.world,
@@ -95,6 +112,7 @@ export async function initFlipper() {
     launching.gamePhysics = physics;
     controls.setLaunchingRampRef(launching);
     mesh.push(launching);
+    loadingPromises.push(waitForMesh(launching));
 
     const rampB = new Ramp(
         physics.world,
@@ -104,7 +122,7 @@ export async function initFlipper() {
     );
     rampB.gamePhysics = physics;
     mesh.push(rampB);
-
+    loadingPromises.push(waitForMesh(rampB));
     // Bumpers
     Config.global.positioning.bumpers = Config.global.positioning.bumper.instances;
     Config.global.positioning.bumpers.forEach((bumperConfig) => {
@@ -117,6 +135,7 @@ export async function initFlipper() {
         );
         bumper.gamePhysics = physics;
         mesh.push(bumper);
+        loadingPromises.push(waitForMesh(bumper));
     });
 
     // Repulse
@@ -133,6 +152,7 @@ export async function initFlipper() {
         );
         repulse.gamePhysics = physics;
         mesh.push(repulse);
+        loadingPromises.push(waitForMesh(repulse));
     });
 
     // Palles
@@ -140,6 +160,7 @@ export async function initFlipper() {
         const pal = new Palles(physics.world, pnl.length, pnl.width, pnl.height, pnl.position, pnl.rotation, pnl.side);
         pal.gamePhysics = physics;
         mesh.push(pal);
+        loadingPromises.push(waitForMesh(pal));
     });
 
     // Etage (sol principal du flipper)
@@ -156,6 +177,7 @@ export async function initFlipper() {
     });
     etage.gamePhysics = physics;
     mesh.push(etage);
+    loadingPromises.push(waitForMesh(etage));
 
     // Body flipper (structure principale depuis Mesh_final)
     const bodyFlipper = new StaticMesh(physics.world, Config.global.positioning.bodyFlipper.model, {
@@ -171,6 +193,7 @@ export async function initFlipper() {
     });
     bodyFlipper.gamePhysics = physics;
     mesh.push(bodyFlipper);
+    loadingPromises.push(waitForMesh(bodyFlipper));
 
     // Static meshes from Mesh_final (murs_cible, quadri_cible, raque_side)
     (Config.global.positioning.staticMeshes || []).forEach((cfg) => {
@@ -185,6 +208,7 @@ export async function initFlipper() {
         });
         staticMesh.gamePhysics = physics;
         mesh.push(staticMesh);
+        loadingPromises.push(waitForMesh(staticMesh));
     });
 
     // Ramp pales (right, left, rightDeath, leftDeath)
@@ -200,11 +224,13 @@ export async function initFlipper() {
         });
         rampPale.gamePhysics = physics;
         mesh.push(rampPale);
+        loadingPromises.push(waitForMesh(rampPale));
     });
 
     // Ball
     const ball = new Ball(physics.world, Config.global.positioning.ball.position);
     mesh.push(ball);
+    loadingPromises.push(waitForMesh(ball));
     controls.setBallRef(ball);
 
     physics.registerObjects(mesh);

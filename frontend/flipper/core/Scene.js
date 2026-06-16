@@ -149,19 +149,36 @@ export class Scene {
      * Lance la boucle de rendu
      */
     startRender(physics, onUpdate) {
+        this.fixedTimeStep = 1 / 120;
+        this.accumulator = 0;
+        this.lastTime = performance.now();
+
         requestAnimationFrame(() => this.render(physics, onUpdate));
     }
 
     render(physics, onUpdate) {
-        physics.step();
+        const now = performance.now();
+        let delta = (now - this.lastTime) / 1000;
+        this.lastTime = now;
+
+        // Évite un énorme rattrapage après un changement d'onglet
+        delta = Math.min(delta, 0.1);
+
+        this.accumulator += delta;
+
+        while (this.accumulator >= this.fixedTimeStep) {
+            physics.step();
+            this.accumulator -= this.fixedTimeStep;
+        }
 
         if (this.controls) {
             this.controls.update();
         }
+
         if (onUpdate) {
             onUpdate();
         }
-        
+
         this.renderer.render(this.scene, this.camera);
         requestAnimationFrame(() => this.render(physics, onUpdate));
     }

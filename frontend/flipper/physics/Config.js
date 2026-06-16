@@ -1,3 +1,5 @@
+export var currentLevel = 1;
+
 export default {
     currentLevel: 'lvl_1',
     
@@ -9,22 +11,22 @@ export default {
                 mass: 80,           // Masse
                 restitution: 0.7,   // Bounciness (0 = pas de rebond, 1 = rebond total)
                 friction: 0.1,      // Glissement 
-                position: { x: -250, y: 105, z: -600 },
-                model: '../assets/mesh/Body_flipper.glb', // Position de départ
+                position: { x: -250, y: 210, z: -600 },
+                model: `../assets/mesh/Body_flipper.glb`, // Position de départ
                 objectId: 'ball'
             },
         
             launchingRamp: {
-                width: 60,
+                width: 200,
                 length: 230,
                 height: 1000,
-                position: { x: -180, y: 100, z: 20 },
+                position: { x: -190, y: 200, z: 10 },
                 rotation: { x: Math.PI, y: 0, z: Math.PI },
                 minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
                 maximalPower: 50,
                 powerBuild: 0.25,  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
                 power: 10,
-                model: '../assets/mesh/ramp_lanch.glb',
+                model: `../assets/mesh/ramp_launch/ramp_launch_lvl_${currentLevel}.glb`,
                 objectId: 'launching-ramp'
             },
 
@@ -49,21 +51,21 @@ export default {
                         position: { x: 10, y: 10, z: 105 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-1',
-                        model: '../assets/mesh/Bumper_big_.glb'
+                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
                     },
                     {
                         width: 40,
                         position: { x: 120, y: 10, z: 193 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-2',
-                        model: '../assets/mesh/Bumper_big_.glb'
+                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
                     },
                     {
                         width: 40,
                         position: { x: -100, y: 10, z: 193 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-3',
-                        model: '../assets/mesh/Bumper_big_.glb'
+                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
                     },
 
 
@@ -73,35 +75,35 @@ export default {
                         position: { x: 240, y: 60, z: 317 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-4',
-                        model: '../assets/mesh/Bumper_little_.glb'
+                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
                     },
                     {
                         width: 25,
                         position: { x: 120, y: 60, z: 317 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-5',
-                        model: '../assets/mesh/Bumper_little_.glb'
+                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
                     },
                     {
                         width: 25,
                         position: { x: 180, y: 60, z: 217 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-6',
-                        model: '../assets/mesh/Bumper_little_.glb'
+                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
                     },
                     {
                         width: 25,
                         position: { x: 195, y: 60, z: 117 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-7',
-                        model: '../assets/mesh/Bumper_little_.glb'
+                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
                     },
                     {
                         width: 25,
                         position: { x: 250, y: 60, z: 157 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-8',
-                        model: '../assets/mesh/Bumper_little_.glb'
+                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
                     },
 
                     {
@@ -109,14 +111,14 @@ export default {
                         position: { x: -120.5, y: 20, z: -441 },
                         rotation: { x: 0, y: -(Math.PI / 3), z: 0 },
                         objectId: 'bumper-triangle-left',
-                        model: '../assets/mesh/Bumper_triangle_Left.glb'
+                        model: `../assets/mesh/bumpers_triangle/Bumper_triangle_left_lvl_${currentLevel}.glb`
                     },
                     {
                         width: 70,
                         position: { x: 110.5, y: 20, z: -441 },
                         rotation: { x: 0, y: (Math.PI / 3), z: 0 },
                         objectId: 'bumper-triangle-right',
-                        model: '../assets/mesh/bumper_triangle_right.glb'
+                        model: `../assets/mesh/bumpers_triangle/Bumper_triangle_right_lvl_${currentLevel}.glb`
                     },
                 ],
             },
@@ -226,8 +228,8 @@ export default {
                     { length: 40, width: 13, height: 20, position: { x: 40, y: 5, z: 20 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
                     { length: 40, width: 13, height: 20, position: { x: -76, y: 5, z: 20 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
                 ],
-                modelRight: '../assets/mesh/Right_flipper.glb',
-                modelLeft: '../assets/mesh/Left_flipper.glb'
+                modelRight: `../assets/mesh/palles/Right_flipper_lvl_${currentLevel}.glb`,
+                modelLeft: `../assets/mesh/palles/Left_flipper_lvl_${currentLevel}.glb`
             },
 
             bodyFlipper: {
@@ -242,7 +244,7 @@ export default {
             },
 
             etage: {
-                model: '../assets/mesh/etage.glb',
+                model: `../assets/mesh/etage/etage_lvl_${currentLevel}.glb`,
                 objectId: 'etage',
                 objectType: 'etage',
                 length: 200,
@@ -257,7 +259,7 @@ export default {
             staticMeshes: [
 
                 {
-                    model: '../assets/mesh/murs_cible_left.glb',
+                    model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${currentLevel}.glb`,
                     objectId: 'murs-cible-left',
                     objectType: 'wall',
                     length: 50,
@@ -268,7 +270,7 @@ export default {
 
                 },
                 {
-                    model: '../assets/mesh/murs_cible_left.glb',
+                    model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${currentLevel}.glb`,
                     objectId: 'murs-cible-left',
                     objectType: 'wall',
                     length: 50,
@@ -279,7 +281,7 @@ export default {
 
                 },
                 {
-                    model: '../assets/mesh/murs_cible_right.glb',
+                    model: `../assets/mesh/murs_cible_right/murs_cible_right_lvl_${currentLevel}.glb`,
                     objectId: 'murs-cible-right',
                     objectType: 'wall',
                     length: 50,
@@ -289,7 +291,7 @@ export default {
                     rotation: { x: 0, y: 0, z: 0 }
                 },
                 {
-                    model: '../assets/mesh/murs_cible_right.glb',
+                    model: `../assets/mesh/murs_cible_right/murs_cible_right_lvl_${currentLevel}.glb`,
                     objectId: 'murs-cible-right',
                     objectType: 'wall',
                     length: 50,
@@ -299,7 +301,7 @@ export default {
                     rotation: { x: 0, y: 0, z: 0 }
                 },
                 {
-                    model: '../assets/mesh/quadri_left_cible.glb',
+                    model: `../assets/mesh/quadri/quadri_left_cible_lvl_${currentLevel}.glb`,
                     objectId: 'quadri-left-cible',
                     objectType: 'wall',
                     length: 50,
@@ -309,7 +311,7 @@ export default {
                     rotation: { x: 0, y: 0, z: Math.PI }
                 },
                 {
-                    model: '../assets/mesh/quadri_right_cible.glb',
+                    model: `../assets/mesh/quadri/quadri_right_cible_lvl_${currentLevel}.glb`,
                     objectId: 'quadri-right-cible',
                     objectType: 'wall',
                     length: 50,
@@ -319,7 +321,7 @@ export default {
                     rotation: { x: 0, y: 0, z: Math.PI }
                 },
                 {
-                    model: '../assets/mesh/raque_side.glb',
+                    model: `../assets/mesh/raque_side/raque_side_lvl_${currentLevel}.glb`,
                     objectId: 'raque-side-left',
                     objectType: 'wall',
                     length: 5,
@@ -329,7 +331,7 @@ export default {
                     rotation: { x: 0, y: -3.14, z: (Math.PI) }
                 },
                 {
-                    model: '../assets/mesh/raque_side.glb',
+                    model: `../assets/mesh/raque_side/raque_side_lvl_${currentLevel}.glb`,
                     objectId: 'raque-side-right',
                     objectType: 'wall',
                     length: 5,
@@ -341,7 +343,7 @@ export default {
 
 
                 {
-                    model: '../assets/mesh/wall_up_right.glb',
+                    model: `../assets/mesh/wall_up_right/wall_up_right_lvl_${currentLevel}.glb`,
                     objectId: 'wall-up-right',
                     objectType: 'wall',
                     length: 160,
@@ -354,7 +356,7 @@ export default {
 
             rampPales: {
                 right: {
-                    model: '../assets/mesh/ramp_pale_down_right.glb',
+                    model: `../assets/mesh/ramp_pale_down_right/ramp_pale_down_right_lvl_${currentLevel}.glb`,
                     objectId: 'ramp-pale-down-right',
                     objectType: 'wall',
                     length: 100,
@@ -364,7 +366,7 @@ export default {
                     rotation: { x: 0, y: 3.14, z: 0 }
                 },
                 left: {
-                    model: '../assets/mesh/ramp_pale_down_left.glb',
+                    model: `../assets/mesh/ramp_pale_down_left/ramp_pale_down_left_lvl_${currentLevel}.glb`,
                     objectId: 'ramp-pale-down-left',
                     objectType: 'wall',
                     length: 100,
@@ -374,7 +376,7 @@ export default {
                     rotation: { x: 0, y: 3.14, z: 0 }
                 },
                 rightDeath: {
-                    model: '../assets/mesh/ramp_pale_down_right_death.glb',
+                    model: `../assets/mesh/ramp_pale_down_right_death/ramp_pale_down_right_death_lvl_${currentLevel}.glb`,
                     objectId: 'ramp-pale-down-right-death',
                     objectType: 'wall',
                     length: 90,
@@ -384,7 +386,7 @@ export default {
                     rotation: { x: 0, y: 3.14, z: 0 }
                 },
                 leftDeath: {
-                    model: '../assets/mesh/ramp_pale_down_left_death.glb',
+                    model: `../assets/mesh/ramp_pale_down_left_death/ramp_pale_down_left_death_lvl_${currentLevel}.glb`,
                     objectId: 'ramp-pale-down-left-death',
                     objectType: 'wall',
                     length: 90,
@@ -448,14 +450,14 @@ export default {
             },
 
             bumper: {
-                map: '../assets/textures/lvl1/bumper/bush_photo_albedo_tileable.png',
-                aoMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
-                roughnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
-                metalnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
-                normalMap: '../assets/textures/lvl1/bumper/bush_photo_normal_tileable.png',
-                displacementMap: '../assets/textures/lvl1/bumper/bush_photo_displacement_tileable.png',
-                displacementScale: 0.05,
-                repeat: [4, 4]
+                // map: '../assets/textures/lvl1/bumper/bush_photo_albedo_tileable.png',
+                // aoMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+                // roughnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+                // metalnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+                // normalMap: '../assets/textures/lvl1/bumper/bush_photo_normal_tileable.png',
+                // displacementMap: '../assets/textures/lvl1/bumper/bush_photo_displacement_tileable.png',
+                // displacementScale: 0.05,
+                // repeat: [4, 4]
             },
 
             body: {
@@ -477,21 +479,21 @@ export default {
             },
 
             bumper_triangle: {
-                map: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_diffuse_1k.png',
-                aoMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
-                roughnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
-                metalnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
-                normalMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_nor_gl_1k.png',
-                repeat: [4, 4]
+                // map: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_diffuse_1k.png',
+                // aoMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
+                // roughnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
+                // metalnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
+                // normalMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_nor_gl_1k.png',
+                // repeat: [4, 4]
             },
 
             etage: {
-                map: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_diff_1k.png',               
-                aoMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
-                roughnessMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
-                metalnessMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
-                normalMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_nor_gl_1k.png',
-                repeat: [4, 4]
+                // map: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_diff_1k.png',               
+                // aoMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
+                // roughnessMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
+                // metalnessMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
+                // normalMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_nor_gl_1k.png',
+                // repeat: [4, 4]
             },
 
             ramps: {
@@ -516,23 +518,23 @@ export default {
             },
 
             palles: {
-                map: '../assets/textures/lvl1/palles/bush_photo_albedo_tileable.png',
-                aoMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
-                roughnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
-                metalnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
-                normalMap: '../assets/textures/lvl1/palles/bush_photo_normal_tileable.png',
-                displacementMap: '../assets/textures/lvl1/palles/bush_photo_displacement_tileable.png',
-                displacementScale: 0.05,
-                repeat: [4, 4]
+                // map: '../assets/textures/lvl1/palles/bush_photo_albedo_tileable.png',
+                // aoMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
+                // roughnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
+                // metalnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
+                // normalMap: '../assets/textures/lvl1/palles/bush_photo_normal_tileable.png',
+                // displacementMap: '../assets/textures/lvl1/palles/bush_photo_displacement_tileable.png',
+                // displacementScale: 0.05,
+                // repeat: [4, 4]
             },
 
             launching_ramp: {
-                map: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_diff_1k.png',
-                aoMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
-                roughnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
-                metalnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
-                normalMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_nor_gl_1k.png',
-                repeat: [4, 4]
+                // map: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_diff_1k.png',
+                // aoMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
+                // roughnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
+                // metalnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
+                // normalMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_nor_gl_1k.png',
+                // repeat: [4, 4]
             },
 
             repulse: {
@@ -545,12 +547,12 @@ export default {
             },
 
             wall: {
-                map: '../assets/textures/lvl1/wall/emerald_albedo_tileable.png',
-                aoMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
-                roughnessMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
-                metalnessMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
-                normalMap: '../assets/textures/lvl1/wall/emerald_normal_tileable.png',
-                repeat: [4, 4]
+                // map: '../assets/textures/lvl1/wall/emerald_albedo_tileable.png',
+                // aoMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
+                // roughnessMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
+                // metalnessMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
+                // normalMap: '../assets/textures/lvl1/wall/emerald_normal_tileable.png',
+                // repeat: [4, 4]
             },
         },
         
