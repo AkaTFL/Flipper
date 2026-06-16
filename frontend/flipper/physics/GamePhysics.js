@@ -1,6 +1,7 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import Config from '../physics/Config.js';
 import { AudioManager } from './Audio.js';
+import currentLevel from '../physics/Config.js';
 
 export class GamePhysics {
     constructor() {
@@ -165,8 +166,10 @@ export class GamePhysics {
 
                     if (current < 4) {
                         Config.currentLevel = `lvl_${current + 1}`;
+                        currentLevel += 1;
                     } else {
                         Config.currentLevel = 'post_lvl';
+                        currentLevel = currentLevel;
                     }
 
                     if (previousLevel !== Config.currentLevel) {
