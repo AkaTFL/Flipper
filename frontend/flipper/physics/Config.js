@@ -9,22 +9,22 @@ export default {
                 mass: 80,           // Masse
                 restitution: 0.7,   // Bounciness (0 = pas de rebond, 1 = rebond total)
                 friction: 0.1,      // Glissement 
-                position: { x: -250, y: 105, z: -600 },
+                position: { x: -250, y: 210, z: -600 },
                 model: '../assets/mesh/Body_flipper.glb', // Position de départ
                 objectId: 'ball'
             },
         
             launchingRamp: {
-                width: 60,
+                width: 200,
                 length: 230,
                 height: 1000,
-                position: { x: -180, y: 100, z: 20 },
+                position: { x: -190, y: 200, z: 10 },
                 rotation: { x: Math.PI, y: 0, z: Math.PI },
                 minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
                 maximalPower: 50,
                 powerBuild: 0.25,  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
                 power: 10,
-                model: '../assets/mesh/ramp_lanch.glb',
+                model: '../assets/mesh/ramp_launch/ramp_launch_lvl_1.glb',
                 objectId: 'launching-ramp'
             },
 
@@ -527,12 +527,12 @@ export default {
             },
 
             launching_ramp: {
-                map: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_diff_1k.png',
-                aoMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
-                roughnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
-                metalnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
-                normalMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_nor_gl_1k.png',
-                repeat: [4, 4]
+                // map: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_diff_1k.png',
+                // aoMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
+                // roughnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
+                // metalnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
+                // normalMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_nor_gl_1k.png',
+                // repeat: [4, 4]
             },
 
             repulse: {
