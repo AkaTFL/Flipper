@@ -26,39 +26,35 @@ sceneManager.greenBloomEffect.updateParams({
 
 export function configureGreenBloom(sceneManager, preset = 'default') {
     const presets = {
-        // Subtil - effet léger
         subtle: {
-            greenThreshold: 0.4,
-            greenRange: 0.35,
-            bloomIntensity: 0.8
+            threshold: 0.8,
+            softKnee: 0.65,
+            intensity: 0.8,
+            levels: 2
         },
-        
-        // Normal - équilibré (par défaut)
         default: {
-            greenThreshold: 0.3,
-            greenRange: 0.3,
-            bloomIntensity: 1.5
+            threshold: 0.7,
+            softKnee: 0.5,
+            intensity: 1.25,
+            levels: 3
         },
-        
-        // Intense - très visible
         intense: {
-            greenThreshold: 0.2,
-            greenRange: 0.25,
-            bloomIntensity: 2.5
+            threshold: 0.5,
+            softKnee: 0.35,
+            intensity: 2.5,
+            levels: 4
         },
-        
-        // Extreme - maximum
         extreme: {
-            greenThreshold: 0.15,
-            greenRange: 0.2,
-            bloomIntensity: 3.0
+            threshold: 0.4,
+            softKnee: 0.25,
+            intensity: 3.0,
+            levels: 4
         },
-        
-        // Strict - seulement les verts purs
         strict: {
-            greenThreshold: 0.5,
-            greenRange: 0.45,
-            bloomIntensity: 1.2
+            threshold: 0.9,
+            softKnee: 0.25,
+            intensity: 1.2,
+            levels: 2
         }
     };
 
@@ -100,21 +96,21 @@ export function createBloomAdjustmentPanel(sceneManager) {
     thresholdSlider.value = '0.3';
     thresholdSlider.addEventListener('input', (e) => {
         sceneManager.greenBloomEffect.updateParams({
-            greenThreshold: parseFloat(e.target.value)
+            threshold: parseFloat(e.target.value)
         });
         valueDisplay.textContent = `Threshold: ${parseFloat(e.target.value).toFixed(2)}`;
     });
 
-    // Slider pour bloomIntensity
+    // Slider pour bloom intensity
     const intensitySlider = document.createElement('input');
     intensitySlider.type = 'range';
     intensitySlider.min = '0';
     intensitySlider.max = '3';
     intensitySlider.step = '0.1';
-    intensitySlider.value = '1.5';
+    intensitySlider.value = '1.25';
     intensitySlider.addEventListener('input', (e) => {
         sceneManager.greenBloomEffect.updateParams({
-            bloomIntensity: parseFloat(e.target.value)
+            intensity: parseFloat(e.target.value)
         });
         intensityDisplay.textContent = `Intensity: ${parseFloat(e.target.value).toFixed(2)}`;
     });

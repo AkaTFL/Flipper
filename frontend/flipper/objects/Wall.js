@@ -21,11 +21,11 @@ export class Wall extends Objects {
 
         this.mesh = new THREE.Mesh(
             new THREE.PlaneGeometry(this.width, this.height),
-            new THREE.MeshStandardMaterial({
+            new THREE.MeshPhongMaterial({
                 color: 0xa0a0a0,
                 side: THREE.DoubleSide,
-                metalness: 0.0,
-                roughness: 1.0
+                specular: 0x444444,
+                shininess: 10
             })
         );
 

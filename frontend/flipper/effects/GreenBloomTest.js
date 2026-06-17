@@ -35,15 +35,16 @@ export async function testGreenBloomEffect() {
     // TEST 3: Vérifier les paramètres par défaut
     test('Les paramètres par défaut sont corrects', () => {
         const defaultParams = {
-            greenThreshold: 0.3,
-            greenRange: 0.3,
-            bloomIntensity: 1.5
+            threshold: 0.7,
+            softKnee: 0.5,
+            intensity: 1.25,
+            levels: 3
         };
         
-        // Vérifier que les valeurs existent
-        if (!defaultParams.greenThreshold || 
-            !defaultParams.greenRange || 
-            !defaultParams.bloomIntensity) {
+        if (defaultParams.threshold === undefined ||
+            defaultParams.softKnee === undefined ||
+            defaultParams.intensity === undefined ||
+            defaultParams.levels === undefined) {
             throw new Error('Paramètres par défaut incomplets');
         }
     });
@@ -51,14 +52,13 @@ export async function testGreenBloomEffect() {
     // TEST 4: Vérifier que updateParams fonctionne
     test('updateParams modifie les paramètres', () => {
         const testParams = {
-            greenThreshold: 0.5,
-            greenRange: 0.4,
-            bloomIntensity: 2.0
+            threshold: 0.5,
+            softKnee: 0.4,
+            intensity: 2.0
         };
         
-        // Vérifier que les paramètres sont valides
         Object.values(testParams).forEach(value => {
-            if (typeof value !== 'number' || value < 0 || value > 3) {
+            if (typeof value !== 'number' || value < 0 || value > 4) {
                 throw new Error(`Paramètre invalide: ${value}`);
             }
         });
@@ -67,15 +67,16 @@ export async function testGreenBloomEffect() {
     // TEST 5: Vérifier que getParams retourne les bons paramètres
     test('getParams retourne les paramètres actuels', () => {
         const params = {
-            greenThreshold: 0.3,
-            greenRange: 0.3,
-            bloomIntensity: 1.5
+            threshold: 0.7,
+            softKnee: 0.5,
+            intensity: 1.25,
+            levels: 3
         };
         
-        // Vérifier que tous les champs sont présents
-        if (!params.hasOwnProperty('greenThreshold') ||
-            !params.hasOwnProperty('greenRange') ||
-            !params.hasOwnProperty('bloomIntensity')) {
+        if (!params.hasOwnProperty('threshold') ||
+            !params.hasOwnProperty('softKnee') ||
+            !params.hasOwnProperty('intensity') ||
+            !params.hasOwnProperty('levels')) {
             throw new Error('Champs manquants dans getParams()');
         }
     });
@@ -83,9 +84,9 @@ export async function testGreenBloomEffect() {
     // TEST 6: Vérifier les presets
     test('Les presets de configuration sont valides', () => {
         const presets = {
-            subtle: { greenThreshold: 0.4, greenRange: 0.35, bloomIntensity: 0.8 },
-            default: { greenThreshold: 0.3, greenRange: 0.3, bloomIntensity: 1.5 },
-            intense: { greenThreshold: 0.2, greenRange: 0.25, bloomIntensity: 2.5 },
+            subtle: { threshold: 0.8, softKnee: 0.65, intensity: 0.8 },
+            default: { threshold: 0.7, softKnee: 0.5, intensity: 1.25 },
+            intense: { threshold: 0.5, softKnee: 0.35, intensity: 2.5 },
         };
         
         Object.entries(presets).forEach(([name, params]) => {
@@ -100,9 +101,9 @@ export async function testGreenBloomEffect() {
     // TEST 7: Vérifier la structure du shader
     test('Structure du shader est valide', () => {
         const shaderStructure = {
-            uniforms: ['tDiffuse', 'greenThreshold', 'greenRange', 'bloomIntensity'],
+            uniforms: ['u_texture', 'u_threshold', 'u_softKnee', 'u_intensity'],
             vertexShader: 'varying vec2 vUv;',
-            fragmentShader: 'uniform sampler2D tDiffuse;'
+            fragmentShader: 'uniform sampler2D u_texture;'
         };
         
         if (!shaderStructure.uniforms || shaderStructure.uniforms.length < 3) {

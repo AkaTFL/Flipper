@@ -220,9 +220,47 @@ export class GamePhysics {
         });
     }
 
+    startGame() {
+        return this.sendMessage('start_game');
+    }
+
+    toggleBossFight() {
+        return this.sendMessage('boss_fight_toggled');
+    }
+
+    triggerPlayerDamageTest() {
+        return this.sendMessage('player_damage_test');
+    }
+
+    saveGame(slot) {
+        return this.sendMessage('save_game', { slot });
+    }
+
+    loadGame(slot) {
+        return this.sendMessage('load_game', { slot });
+    }
+
+    markRampBounce(collidingObjects) {
+        if (!Array.isArray(collidingObjects) || collidingObjects.length === 0) {
+            return false;
+        }
+
+        const touchedWall = collidingObjects.some((object) => object?.objectType === 'wall');
+        if (touchedWall && this.rampTraversal) {
+            this.rampTraversal.hasWallBounce = true;
+            return true;
+        }
+
+        return false;
+    }
+
     detectScoreZoneEntries() {
-        const scoreZones = Config.global.positioning.scoreZones?.instances;
+        const scoreZones = Config.global?.positioning?.scoreZones?.instances ?? Config.scoreZones?.instances;
         if (!Array.isArray(scoreZones) || scoreZones.length === 0) {
+            return;
+        }
+
+        if (!this.ball?.rigidBody || typeof this.ball.rigidBody.translation !== 'function') {
             return;
         }
 
@@ -253,17 +291,34 @@ export class GamePhysics {
     }
 
     detectRampTraversal() {
-        const rampScoring = Config.global.positioning.ramps;
+        const rampScoring = Config.global?.positioning?.ramps ?? Config.ramps;
+        if (!rampScoring) {
+            return;
+        }
+
+        const instances = Array.isArray(rampScoring.instances) ? rampScoring.instances : [];
+        if (instances.length === 0) {
+            return;
+        }
+
+        if (!this.ball?.rigidBody || typeof this.ball.rigidBody.translation !== 'function') {
+            return;
+        }
+
         const position = this.ball.rigidBody.translation();
         const nextActiveRampZones = new Set();
         const now = Date.now();
 
-        if (this.rampTraversal?.startedAt && (now - this.rampTraversal.startedAt) > (rampScoring.timeoutMs)) {
+        if (this.rampTraversal?.startedAt && (now - this.rampTraversal.startedAt) > (rampScoring.timeoutMs ?? 0)) {
             this.rampTraversal = null;
         }
 
-        rampScoring.instances.forEach((ramp) => {
+        for (const ramp of instances) {
             const entryZone = ramp.entryZone;
+            if (!entryZone || !entryZone.id) {
+                continue;
+            }
+
             if (this.isPositionInsideZone(position, entryZone)) {
                 nextActiveRampZones.add(entryZone.id);
             }
@@ -275,7 +330,10 @@ export class GamePhysics {
             }
 
             const exitZone = rampScoring.exitZone;
-            
+            if (!exitZone || !exitZone.id) {
+                continue;
+            }
+
             if (this.isPositionInsideZone(position, exitZone)) {
                 nextActiveRampZones.add(exitZone.id);
                 if (!this.activeRampZones.has(exitZone.id) && this.rampTraversal) {
@@ -290,7 +348,7 @@ export class GamePhysics {
                     this.rampTraversal = null;
                 }
             }
-        });
+        }
 
         this.activeRampZones = nextActiveRampZones;
     }
@@ -340,10 +398,8 @@ export class GamePhysics {
             this.ballRespawnedAfterBallLost = true;
             this.ballPassedAboveTriggerAfterRespawn = false;
 
-            try {
+            if (this.controls && typeof this.controls.setImpulseUsed === 'function') {
                 this.controls.setImpulseUsed(false);
-            } catch (error) {
-                console.warn('Unable to reset controls impulse flag after respawn', error);
             }
         }, 1500);
 
@@ -384,14 +440,14 @@ export class GamePhysics {
     }
 
     handleCollisionEvents(comboS) {
-        this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
-            const responders = this.findCollisionResponders(handle1, handle2);
+        let collisionDetected = false;
 
+        this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
             if (!started) {
                 return;
             }
 
-            const combo = comboS || null;
+            collisionDetected = true;
             const collidingObjects = this.findCollidingObjects(handle1, handle2);
             const collisionResponders = this.findCollisionResponders(handle1, handle2);
 
@@ -406,26 +462,23 @@ export class GamePhysics {
             }
 
             for (const obj of collisionResponders) {
-                if (obj.objectType === 'bumper'  && typeof obj.applyBumperForce === 'function')
-                {
+                if (obj.objectType === 'bumper' && typeof obj.applyBumperForce === 'function') {
                     obj.applyBumperForce(handle1, handle2);
                 }
 
-                if (obj.objectType === 'repulse'  && typeof obj.applyRepulseForce === 'function') {
-                    obj.applyRepulseForce(handle1, handle2);
+                if (typeof obj.applyLaunchingRampForce === 'function') {
+                    obj.applyLaunchingRampForce(handle1, handle2);
                 }
 
-                // if (obj.objectType === 'launching-ramp' && typeof obj.applyLaunchingRampForce === 'function') {
-                //     obj.applyLaunchingRampForce(handle1, handle2);
-                // }
-
-                if (obj.objectType === 'ramp') {
-                    this.detectRampTraversal();
+                if (obj.objectType === 'repulse' && typeof obj.applyRepulseForce === 'function') {
+                    obj.applyRepulseForce(handle1, handle2);
                 }
             }
 
             this.reportContactImpacts(collidingObjects);
         });
+
+        return collisionDetected;
     }
 
     setLaunchingRampVisible(visible) {

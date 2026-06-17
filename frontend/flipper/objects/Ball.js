@@ -17,10 +17,10 @@ export class Ball extends Objects {
         
         this.mesh = new THREE.Mesh(
             new THREE.SphereGeometry(this.radius, 32, 32),
-            new THREE.MeshStandardMaterial({
+            new THREE.MeshPhongMaterial({
                 color: 0xffffff,
-                metalness: 0.8,
-                roughness: 0.3,
+                specular: 0x888888,
+                shininess: 80,
             })
         );
 

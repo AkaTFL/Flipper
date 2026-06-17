@@ -113,11 +113,11 @@ export class Objects {
             if (collider && typeof collider.handle !== 'undefined') {
                 const handle = collider.handle;
 
-                if (this.gamePhysics.colliderOwners) {
+                if (this.gamePhysics?.colliderOwners) {
                     this.gamePhysics.colliderOwners.set(handle, this);
                 }
 
-                if (this.gamePhysics.colliderResponders) {
+                if (this.gamePhysics?.colliderResponders) {
                     this.gamePhysics.colliderResponders.set(handle, this);
                 }
             }

@@ -18,25 +18,25 @@ test('GreenBloomEffect shader file exists in frontend tests folder', () => {
 });
 
 test('GreenBloomEffect shader source contains the custom shader uniforms', () => {
-  assert.match(effectSource, /uniform\s+sampler2D\s+tDiffuse/);
-  assert.match(effectSource, /uniform\s+float\s+greenThreshold/);
-  assert.match(effectSource, /uniform\s+float\s+greenRange/);
-  assert.match(effectSource, /uniform\s+float\s+bloomIntensity/);
+  assert.match(effectSource, /uniform\s+sampler2D\s+u_texture/);
+  assert.match(effectSource, /uniform\s+float\s+u_threshold/);
+  assert.match(effectSource, /uniform\s+float\s+u_softKnee/);
+  assert.match(effectSource, /uniform\s+float\s+u_intensity/);
 });
 
 test('GreenBloomEffect shader source contains vertex and fragment shader code', () => {
   assert.match(effectSource, /varying\s+vec2\s+vUv/);
-  assert.match(effectSource, /gl_Position\s*=\s*projectionMatrix\s*\*/);
-  assert.match(effectSource, /texture2D\(tDiffuse,\s*vUv\)/);
-  assert.match(effectSource, /gl_FragColor\s*=\s*vec4\(finalColor,\s*texel\.a\)/);
+  assert.match(effectSource, /gl_Position\s*=\s*vec4\(position,1\.0\)/);
+  assert.match(effectSource, /texture2D\(u_texture,\s*vUv\)/);
+  assert.match(effectSource, /gl_FragColor\s*=\s*vec4\(color,\s*1\.0\)/);
 });
 
 test('GreenBloomEffect contains updateParam and getter method patterns', () => {
   assert.match(effectSource, /updateParams\s*\(/);
   assert.match(effectSource, /getParams\s*\(/);
-  assert.match(effectSource, /this\.bloomPass\.uniforms\.greenThreshold\.value/);
-  assert.match(effectSource, /this\.bloomPass\.uniforms\.greenRange\.value/);
-  assert.match(effectSource, /this\.bloomPass\.uniforms\.bloomIntensity\.value/);
+  assert.match(effectSource, /this\._brightMaterial\.uniforms\.u_threshold\.value/);
+  assert.match(effectSource, /this\._brightMaterial\.uniforms\.u_softKnee\.value/);
+  assert.match(effectSource, /this\._compositeMaterial\.uniforms\.u_intensity\.value/);
 });
 
 test('GreenBloom manual browser test helper exists in the expected frontend location', () => {

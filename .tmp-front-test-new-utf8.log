@@ -1,0 +1,903 @@
+﻿
+> test:frontend
+> node --test tests/frontend/config.test.js tests/frontend/game-physics.test.js tests/frontend/objects.test.js tests/frontend/controls.test.js tests/frontend/score-display.test.js tests/frontend/dmd-display.test.js tests/frontend/green-bloom.test.js
+
+TAP version 13
+# Subtest: config exposes the core physics sections used by the frontend
+not ok 1 - config exposes the core physics sections used by the frontend
+  ---
+  duration_ms: 18.7388
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:6:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(Config.gravity)
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:7:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: config uses positive values for gameplay-critical dimensions
+not ok 2 - config uses positive values for gameplay-critical dimensions
+  ---
+  duration_ms: 0.6575
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:15:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'radius')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:16:25)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: gravity configuration is numeric on all axes
+not ok 3 - gravity configuration is numeric on all axes
+  ---
+  duration_ms: 0.5033
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:22:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'x')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:24:39)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: config.staticMeshes lists the Mesh_final assets to integrate
+not ok 4 - config.staticMeshes lists the Mesh_final assets to integrate
+  ---
+  duration_ms: 2.2017
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:28:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(Array.isArray(Config.staticMeshes))
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:29:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: config.staticMeshes entries each have required fields
+not ok 5 - config.staticMeshes entries each have required fields
+  ---
+  duration_ms: 0.4793
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:40:1'
+  failureType: 'testCodeFailure'
+  error: 'Config.staticMeshes is not iterable'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:41:30)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: bumper, triangle, ramp and palles model paths reference Mesh_final
+not ok 6 - bumper, triangle, ramp and palles model paths reference Mesh_final
+  ---
+  duration_ms: 0.3546
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:49:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'instances')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:50:27)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: triangle bumpers use distinct left and right models
+not ok 7 - triangle bumpers use distinct left and right models
+  ---
+  duration_ms: 0.6105
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:57:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'find')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:58:41)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: palles config includes death-state model paths
+not ok 8 - palles config includes death-state model paths
+  ---
+  duration_ms: 0.3882
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:65:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'modelLeftDeath')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:66:27)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Launch button pressed
+# Launch button released after charging for 200ms, power: 15
+# Subtest: Controls triggers start_game callback on first launch impulse
+ok 9 - Controls triggers start_game callback on first launch impulse
+  ---
+  duration_ms: 5.8892
+  type: 'test'
+  ...
+# Subtest: Controls triggers boss_fight_started callback on debug key press
+ok 10 - Controls triggers boss_fight_started callback on debug key press
+  ---
+  duration_ms: 0.7578
+  type: 'test'
+  ...
+# Subtest: Controls triggers player damage and ball lost callbacks on debug keys
+ok 11 - Controls triggers player damage and ball lost callbacks on debug keys
+  ---
+  duration_ms: 0.9199
+  type: 'test'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\frontend\\flipper\\ui\\DmdDisplay.js' imported from C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\dmd-display.test.js
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:860:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:984:11)
+#     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:704:25)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:137:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/ui/DmdDisplay.js'
+# }
+# Node.js v22.16.0
+# Subtest: tests\\frontend\\dmd-display.test.js
+not ok 3 - tests\\frontend\\dmd-display.test.js
+  ---
+  duration_ms: 129.8775
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\dmd-display.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [backend] envoi {
+#   type: 'impact',
+#   payload: { objectId: 'bumper-1', objectType: 'bumper' }
+# }
+# [backend] ball_lost envoy├® (body-bottom-wall)
+# Subtest: GamePhysics initializes object and collider registries
+ok 13 - GamePhysics initializes object and collider registries
+  ---
+  duration_ms: 3.4213
+  type: 'test'
+  ...
+# Subtest: registerObjects appends every provided object and indexes their colliders
+ok 14 - registerObjects appends every provided object and indexes their colliders
+  ---
+  duration_ms: 0.5366
+  type: 'test'
+  ...
+# Subtest: connectBackend uses the local backend endpoint when no browser config is provided
+ok 15 - connectBackend uses the local backend endpoint when no browser config is provided
+  ---
+  duration_ms: 34.5305
+  type: 'test'
+  ...
+# Subtest: sendImpact emits a structured impact payload when the backend socket is ready
+ok 16 - sendImpact emits a structured impact payload when the backend socket is ready
+  ---
+  duration_ms: 2.7297
+  type: 'test'
+  ...
+# Subtest: high-level game event helpers send the documented backend message types
+not ok 17 - high-level game event helpers send the documented backend message types
+  ---
+  duration_ms: 0.886
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\game-physics.test.js:105:1'
+  failureType: 'testCodeFailure'
+  error: 'physics.startGame is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/game-physics.test.js:121:24)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: handleBackendMessage stores score_update payload for later UI consumption
+ok 18 - handleBackendMessage stores score_update payload for later UI consumption
+  ---
+  duration_ms: 0.922
+  type: 'test'
+  ...
+# Subtest: handleCollisionEvents triggers ball_lost when the ball hits the bottom wall drain
+ok 19 - handleCollisionEvents triggers ball_lost when the ball hits the bottom wall drain
+  ---
+  duration_ms: 1.6121
+  type: 'test'
+  ...
+# Subtest: handleCollisionEvents notifies objects and forwards the contacted gameplay object to the backend
+ok 20 - handleCollisionEvents notifies objects and forwards the contacted gameplay object to the backend
+  ---
+  duration_ms: 0.485
+  type: 'test'
+  ...
+# Subtest: handleCollisionEvents can report a ramp-side collision while delegating the gameplay response to the ramp
+not ok 21 - handleCollisionEvents can report a ramp-side collision while delegating the gameplay response to the ramp
+  ---
+  duration_ms: 2.7713
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\game-physics.test.js:256:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      [
+        'ramp:collision',
+    -   'ramp:force:10-11',
+        'impact:launching-ramp-right-rail'
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 'ramp:collision'
+    1: 'ramp:force:10-11'
+    2: 'impact:launching-ramp-right-rail'
+  actual:
+    0: 'ramp:collision'
+    1: 'impact:launching-ramp-right-rail'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/game-physics.test.js:304:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: step only verifies ramp traversal after a collision is detected
+not ok 22 - step only verifies ramp traversal after a collision is detected
+  ---
+  duration_ms: 1.1725
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\game-physics.test.js:311:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of null (reading 'rigidBody')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    GamePhysics.checkLaunchingRampHeight (file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/physics/GamePhysics.js:478:36)
+    GamePhysics.step (file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/physics/GamePhysics.js:62:14)
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/game-physics.test.js:343:11)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: detectScoreZoneEntries emits more specific target and star impacts when the ball enters configured zones
+not ok 23 - detectScoreZoneEntries emits more specific target and star impacts when the ball enters configured zones
+  ---
+  duration_ms: 1.2073
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\game-physics.test.js:352:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + []
+    - [
+    -   'target:target-left-centre'
+    - ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 'target:target-left-centre'
+  actual:
+  operator: 'deepStrictEqual'
+  stack: |-
+    file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/game-physics.test.js:389:12
+    withConfigPatch (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/game-physics.test.js:12:12)
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/game-physics.test.js:353:3)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: detectScoreZoneEntries does not spam the same zone until the ball exits and re-enters
+not ok 24 - detectScoreZoneEntries does not spam the same zone until the ball exits and re-enters
+  ---
+  duration_ms: 0.5546
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\game-physics.test.js:401:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + []
+    - [
+    -   'loop-left'
+    - ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 'loop-left'
+  actual:
+  operator: 'deepStrictEqual'
+  stack: |-
+    file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/game-physics.test.js:433:12
+    withConfigPatch (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/game-physics.test.js:12:12)
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/game-physics.test.js:402:3)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: detectRampTraversal emits ramp-main-perfect when the ball crosses the ramp without wall bounce
+not ok 25 - detectRampTraversal emits ramp-main-perfect when the ball crosses the ramp without wall bounce
+  ---
+  duration_ms: 0.3835
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\game-physics.test.js:445:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of null (reading 'rigidBody')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    GamePhysics.detectRampTraversal (file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/physics/GamePhysics.js:257:36)
+    file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/game-physics.test.js:482:13
+    withConfigPatch (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/game-physics.test.js:12:12)
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/game-physics.test.js:446:3)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: detectRampTraversal emits ramp-main-simple after a wall bounce during traversal
+not ok 26 - detectRampTraversal emits ramp-main-simple after a wall bounce during traversal
+  ---
+  duration_ms: 0.2625
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\game-physics.test.js:491:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of null (reading 'rigidBody')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    GamePhysics.detectRampTraversal (file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/physics/GamePhysics.js:257:36)
+    file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/game-physics.test.js:528:13
+    withConfigPatch (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/game-physics.test.js:12:12)
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/game-physics.test.js:492:3)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Unable to reset controls impulse flag after respawn TypeError: Cannot read properties of null (reading 'setImpulseUsed')
+#     at Timeout._onTimeout (file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/physics/GamePhysics.js:344:31)
+#     at listOnTimeout (node:internal/timers:588:17)
+#     at process.processTimers (node:internal/timers:523:7)
+# Subtest: GreenBloomEffect shader file exists in frontend tests folder
+ok 27 - GreenBloomEffect shader file exists in frontend tests folder
+  ---
+  duration_ms: 2.796
+  type: 'test'
+  ...
+# Subtest: GreenBloomEffect shader source contains the custom shader uniforms
+ok 28 - GreenBloomEffect shader source contains the custom shader uniforms
+  ---
+  duration_ms: 0.9581
+  type: 'test'
+  ...
+# Subtest: GreenBloomEffect shader source contains vertex and fragment shader code
+ok 29 - GreenBloomEffect shader source contains vertex and fragment shader code
+  ---
+  duration_ms: 0.3989
+  type: 'test'
+  ...
+# Subtest: GreenBloomEffect contains updateParam and getter method patterns
+ok 30 - GreenBloomEffect contains updateParam and getter method patterns
+  ---
+  duration_ms: 0.5476
+  type: 'test'
+  ...
+# Subtest: GreenBloom manual browser test helper exists in the expected frontend location
+ok 31 - GreenBloom manual browser test helper exists in the expected frontend location
+  ---
+  duration_ms: 0.2867
+  type: 'test'
+  ...
+# OBJECT TYPE = bumper
+# maps = {}
+# name:  isMesh: undefined
+# name:  isMesh: true
+# material: MeshStandardMaterial uv: Float32BufferAttribute {
+#   isBufferAttribute: true,
+#   name: '',
+#   array: Float32Array(48) [
+#     0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1,
+#     1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0,
+#     1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0,
+#     1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1,
+#     0, 0, 1, 0
+#   ],
+#   itemSize: 2,
+#   count: 24,
+#   normalized: false,
+#   usage: 35044,
+#   updateRanges: [],
+#   gpuType: 1015,
+#   version: 0
+# }
+# [buildTrimeshCollider] Trimesh cr├®├® : 24 vertices, 12 triangles
+# [attachCollider] failed to register collider TypeError: Cannot read properties of undefined (reading 'colliderOwners')
+#     at Bumper.attachCollider (file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:116:38)
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Bumper.js:66:39
+#     at Mesh.traverse (file:///C:/Users/bapti/Desktop/Flipper/Flipper/node_modules/three/build/three.core.js:12760:3)
+#     at Group.traverse (file:///C:/Users/bapti/Desktop/Flipper/Flipper/node_modules/three/build/three.core.js:12766:18)
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Bumper.js:43:23
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:220:21
+# OBJECT TYPE = bumper
+# maps = {}
+# name:  isMesh: undefined
+# name: ramp isMesh: true
+# material: MeshStandardMaterial uv: Float32BufferAttribute {
+#   isBufferAttribute: true,
+#   name: '',
+#   array: Float32Array(48) [
+#     0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1,
+#     1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0,
+#     1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0,
+#     1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1,
+#     0, 0, 1, 0
+#   ],
+#   itemSize: 2,
+#   count: 24,
+#   normalized: false,
+#   usage: 35044,
+#   updateRanges: [],
+#   gpuType: 1015,
+#   version: 0
+# }
+# [buildTrimeshCollider] Trimesh cr├®├® : 24 vertices, 12 triangles
+# [attachCollider] failed to register collider TypeError: Cannot read properties of undefined (reading 'colliderOwners')
+#     at Bumper.attachCollider (file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:116:38)
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Bumper.js:66:39
+#     at Mesh.traverse (file:///C:/Users/bapti/Desktop/Flipper/Flipper/node_modules/three/build/three.core.js:12760:3)
+#     at Group.traverse (file:///C:/Users/bapti/Desktop/Flipper/Flipper/node_modules/three/build/three.core.js:12766:18)
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Bumper.js:43:23
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:220:21
+# Subtest: Bumper registers a collider and uses the expected radius
+ok 32 - Bumper registers a collider and uses the expected radius
+  ---
+  duration_ms: 17.9515
+  type: 'test'
+  ...
+# OBJECT TYPE = palle
+# maps = {}
+# [buildTrimeshCollider] Trimesh cr├®├® : 24 vertices, 12 triangles
+# [attachCollider] failed to register collider TypeError: Cannot read properties of undefined (reading 'colliderOwners')
+#     at Palles.attachCollider (file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:116:38)
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Palles.js:86:26
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:220:21
+# Subtest: Bumper triangle applies an impulse using ramp mesh orientation
+ok 33 - Bumper triangle applies an impulse using ramp mesh orientation
+  ---
+  duration_ms: 5.4775
+  type: 'test'
+  ...
+# OBJECT TYPE = palle
+# maps = {}
+# [buildTrimeshCollider] Trimesh cr├®├® : 24 vertices, 12 triangles
+# [attachCollider] failed to register collider TypeError: Cannot read properties of undefined (reading 'colliderOwners')
+#     at Palles.attachCollider (file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:116:38)
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Palles.js:86:26
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:220:21
+# Subtest: Palles constructor creates physics body/collider and defers joint setup until model load
+ok 34 - Palles constructor creates physics body/collider and defers joint setup until model load
+  ---
+  duration_ms: 3.2972
+  type: 'test'
+  ...
+#  undefined undefined
+# [buildTrimeshCollider] Trimesh cr├®├® : 24 vertices, 12 triangles
+# [attachCollider] failed to register collider TypeError: Cannot read properties of undefined (reading 'colliderOwners')
+#     at StaticMesh.attachCollider (file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:116:38)
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/StaticMesh.js:46:26
+#     at Group.traverse (file:///C:/Users/bapti/Desktop/Flipper/Flipper/node_modules/three/build/three.core.js:12760:3)
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/StaticMesh.js:30:23
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:220:21
+# OBJECT TYPE = wall
+# maps = {}
+# ramp a1f6c6c4-8c7e-4e84-8545-f1c3b8d1629b
+# ramp MeshStandardMaterial {
+#   isMaterial: true,
+#   uuid: '5e5d116c-b434-43df-814f-c7132c7fea5a',
+#   name: '',
+#   type: 'MeshStandardMaterial',
+#   blending: 1,
+#   side: 2,
+#   vertexColors: false,
+#   opacity: 1,
+#   transparent: false,
+#   alphaHash: false,
+#   blendSrc: 204,
+#   blendDst: 205,
+#   blendEquation: 100,
+#   blendSrcAlpha: null,
+#   blendDstAlpha: null,
+#   blendEquationAlpha: null,
+#   blendColor: Color { isColor: true, r: 0, g: 0, b: 0 },
+#   blendAlpha: 0,
+#   depthFunc: 3,
+#   depthTest: true,
+#   depthWrite: true,
+#   stencilWriteMask: 255,
+#   stencilFunc: 519,
+#   stencilRef: 0,
+#   stencilFuncMask: 255,
+#   stencilFail: 7680,
+#   stencilZFail: 7680,
+#   stencilZPass: 7680,
+#   stencilWrite: false,
+#   clippingPlanes: null,
+#   clipIntersection: false,
+#   clipShadows: false,
+#   shadowSide: null,
+#   colorWrite: true,
+#   precision: null,
+#   polygonOffset: false,
+#   polygonOffsetFactor: 0,
+#   polygonOffsetUnits: 0,
+#   dithering: false,
+#   alphaToCoverage: false,
+#   premultipliedAlpha: false,
+#   forceSinglePass: false,
+#   allowOverride: true,
+#   visible: true,
+#   toneMapped: true,
+#   userData: {},
+#   version: 1,
+#   _alphaTest: 0,
+#   isMeshStandardMaterial: true,
+#   defines: { STANDARD: '' },
+#   color: Color { isColor: true, r: 1, g: 1, b: 1 },
+#   roughness: 1,
+#   metalness: 0,
+#   map: null,
+#   lightMap: null,
+#   lightMapIntensity: 1,
+#   aoMap: null,
+#   aoMapIntensity: 1,
+#   emissive: Color { isColor: true, r: 0, g: 0, b: 0 },
+#   emissiveIntensity: 1,
+#   emissiveMap: null,
+#   bumpMap: null,
+#   bumpScale: 1,
+#   normalMap: null,
+#   normalMapType: 0,
+#   normalScale: Vector2 { x: 1, y: 1 },
+#   displacementMap: null,
+#   displacementScale: 1,
+#   displacementBias: 0,
+#   roughnessMap: null,
+#   metalnessMap: null,
+#   alphaMap: null,
+#   envMap: null,
+#   envMapRotation: Euler { isEuler: true, _x: 0, _y: 0, _z: 0, _order: 'XYZ' },
+#   envMapIntensity: 1,
+#   wireframe: false,
+#   wireframeLinewidth: 1,
+#   wireframeLinecap: 'round',
+#   wireframeLinejoin: 'round',
+#   flatShading: false,
+#   fog: true
+# } 5e5d116c-b434-43df-814f-c7132c7fea5a
+# [buildTrimeshCollider] Trimesh cr├®├® : 24 vertices, 12 triangles
+# [attachCollider] failed to register collider TypeError: Cannot read properties of undefined (reading 'colliderOwners')
+#     at StaticMesh.attachCollider (file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:116:38)
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/StaticMesh.js:46:26
+#     at Mesh.traverse (file:///C:/Users/bapti/Desktop/Flipper/Flipper/node_modules/three/build/three.core.js:12760:3)
+#     at Group.traverse (file:///C:/Users/bapti/Desktop/Flipper/Flipper/node_modules/three/build/three.core.js:12766:18)
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/StaticMesh.js:30:23
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:220:21
+# Subtest: Palles keeps rest-angle semantics when inactive
+not ok 35 - Palles keeps rest-angle semantics when inactive
+  ---
+  duration_ms: 2.9457
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\objects.test.js:180:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'initialAngle')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/objects.test.js:195:57)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+#  undefined undefined
+# [buildTrimeshCollider] Trimesh cr├®├® : 24 vertices, 12 triangles
+# [attachCollider] failed to register collider TypeError: Cannot read properties of undefined (reading 'colliderOwners')
+#     at StaticMesh.attachCollider (file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:116:38)
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/StaticMesh.js:46:26
+#     at Group.traverse (file:///C:/Users/bapti/Desktop/Flipper/Flipper/node_modules/three/build/three.core.js:12760:3)
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/StaticMesh.js:30:23
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:220:21
+# ramp a1f6c6c4-8c7e-4e84-8545-f1c3b8d1629b
+# ramp MeshStandardMaterial {
+#   isMaterial: true,
+#   uuid: '5e5d116c-b434-43df-814f-c7132c7fea5a',
+#   name: '',
+#   type: 'MeshStandardMaterial',
+#   blending: 1,
+#   side: 2,
+#   vertexColors: false,
+#   opacity: 1,
+#   transparent: false,
+#   alphaHash: false,
+#   blendSrc: 204,
+#   blendDst: 205,
+#   blendEquation: 100,
+#   blendSrcAlpha: null,
+#   blendDstAlpha: null,
+#   blendEquationAlpha: null,
+#   blendColor: Color { isColor: true, r: 0, g: 0, b: 0 },
+#   blendAlpha: 0,
+#   depthFunc: 3,
+#   depthTest: true,
+#   depthWrite: true,
+#   stencilWriteMask: 255,
+#   stencilFunc: 519,
+#   stencilRef: 0,
+#   stencilFuncMask: 255,
+#   stencilFail: 7680,
+#   stencilZFail: 7680,
+#   stencilZPass: 7680,
+#   stencilWrite: false,
+#   clippingPlanes: null,
+#   clipIntersection: false,
+#   clipShadows: false,
+#   shadowSide: null,
+#   colorWrite: true,
+#   precision: null,
+#   polygonOffset: false,
+#   polygonOffsetFactor: 0,
+#   polygonOffsetUnits: 0,
+#   dithering: false,
+#   alphaToCoverage: false,
+#   premultipliedAlpha: false,
+#   forceSinglePass: false,
+#   allowOverride: true,
+#   visible: true,
+#   toneMapped: true,
+#   userData: {},
+#   version: 1,
+#   _alphaTest: 0,
+#   isMeshStandardMaterial: true,
+#   defines: { STANDARD: '' },
+#   color: Color { isColor: true, r: 1, g: 1, b: 1 },
+#   roughness: 1,
+#   metalness: 0,
+#   map: null,
+#   lightMap: null,
+#   lightMapIntensity: 1,
+#   aoMap: null,
+#   aoMapIntensity: 1,
+#   emissive: Color { isColor: true, r: 0, g: 0, b: 0 },
+#   emissiveIntensity: 1,
+#   emissiveMap: null,
+#   bumpMap: null,
+#   bumpScale: 1,
+#   normalMap: null,
+#   normalMapType: 0,
+#   normalScale: Vector2 { x: 1, y: 1 },
+#   displacementMap: null,
+#   displacementScale: 1,
+#   displacementBias: 0,
+#   roughnessMap: null,
+#   metalnessMap: null,
+#   alphaMap: null,
+#   envMap: null,
+#   envMapRotation: Euler { isEuler: true, _x: 0, _y: 0, _z: 0, _order: 'XYZ' },
+#   envMapIntensity: 1,
+#   wireframe: false,
+#   wireframeLinewidth: 1,
+#   wireframeLinecap: 'round',
+#   wireframeLinejoin: 'round',
+#   flatShading: false,
+#   fog: true
+# } 5e5d116c-b434-43df-814f-c7132c7fea5a
+# [buildTrimeshCollider] Trimesh cr├®├® : 24 vertices, 12 triangles
+# [attachCollider] failed to register collider TypeError: Cannot read properties of undefined (reading 'colliderOwners')
+#     at StaticMesh.attachCollider (file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:116:38)
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/StaticMesh.js:46:26
+#     at Mesh.traverse (file:///C:/Users/bapti/Desktop/Flipper/Flipper/node_modules/three/build/three.core.js:12760:3)
+#     at Group.traverse (file:///C:/Users/bapti/Desktop/Flipper/Flipper/node_modules/three/build/three.core.js:12766:18)
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/StaticMesh.js:30:23
+#     at file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Objects.js:220:21
+# OBJECT TYPE = wall
+# maps = {}
+# Subtest: StaticMesh creates a fixed rigid body and a trimesh collider after model load
+not ok 36 - StaticMesh creates a fixed rigid body and a trimesh collider after model load
+  ---
+  duration_ms: 4.9738
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\objects.test.js:200:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    2 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 2
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/objects.test.js:214:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: StaticMesh defaults objectType to "static" when not provided
+ok 37 - StaticMesh defaults objectType to "static" when not provided
+  ---
+  duration_ms: 2.9577
+  type: 'test'
+  ...
+# Subtest: Repulse does not throw when a loaded model has no usable geometry
+not ok 38 - Repulse does not throw when a loaded model has no usable geometry
+  ---
+  duration_ms: 1.1125
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\objects.test.js:228:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Got unwanted exception.
+    Actual message: "Config.global.positioning.repulse.find is not a function"
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  actual:
+  error: 'Config.global.positioning.repulse.find is not a function'
+  name: 'TypeError'
+  stack: |-
+    new Repulse (file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/objects/Repulse.js:28:65)
+    file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/objects.test.js:239:29
+    getActual (node:assert:531:5)
+    Function.doesNotThrow (node:assert:697:32)
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/objects.test.js:239:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+  operator: 'doesNotThrow'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/objects.test.js:239:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: Wall creates a fixed rigid body and a collider
+ok 39 - Wall creates a fixed rigid body and a collider
+  ---
+  duration_ms: 0.984
+  type: 'test'
+  ...
+# Subtest: ScoreDisplay mounts with default values
+ok 40 - ScoreDisplay mounts with default values
+  ---
+  duration_ms: 32.6002
+  type: 'test'
+  ...
+# Subtest: ScoreDisplay updates player state when receiving player_state_update
+ok 41 - ScoreDisplay updates player state when receiving player_state_update
+  ---
+  duration_ms: 1.1663
+  type: 'test'
+  ...
+# Subtest: ScoreDisplay updates its fields when receiving score_update
+ok 42 - ScoreDisplay updates its fields when receiving score_update
+  ---
+  duration_ms: 1.0938
+  type: 'test'
+  ...
+# Subtest: ScoreDisplay updates quest state when receiving quest_update
+ok 43 - ScoreDisplay updates quest state when receiving quest_update
+  ---
+  duration_ms: 1.0771
+  type: 'test'
+  ...
+# Subtest: ScoreDisplay updates boss state when receiving boss_state_update
+ok 44 - ScoreDisplay updates boss state when receiving boss_state_update
+  ---
+  duration_ms: 0.6394
+  type: 'test'
+  ...
+1..44
+# tests 44
+# suites 0
+# pass 25
+# fail 19
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1801.3738

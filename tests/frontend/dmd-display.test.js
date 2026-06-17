@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { DmdDisplay } from '../../frontend/flipper/ui/DmdDisplay.js';
+import { DmdDisplay } from '../../frontend/dmd/DmdDisplay.js';
 
 function createFakeElement(tagName) {
   return {
