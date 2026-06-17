@@ -53,6 +53,36 @@ def lister_ports() -> list[str]:
     return [port.device for port in list_ports.comports()]
 
 
+def trouver_port_esp32() -> str | None:
+    mots_cles = (
+        "usbserial",
+        "usbmodem",
+        "ttyusb",
+        "ttyacm",
+        "cp210",
+        "ch340",
+        "wch",
+        "silicon labs",
+        "espressif",
+        "esp32",
+    )
+
+    ports = list(list_ports.comports())
+    for port in ports:
+        texte = " ".join(
+            str(valeur).lower()
+            for valeur in (port.device, port.description, port.manufacturer, port.hwid)
+            if valeur
+        )
+        if any(mot in texte for mot in mots_cles):
+            return port.device
+
+    if len(ports) == 1:
+        return ports[0].device
+
+    return None
+
+
 def lire_ligne(ligne: str):
     morceaux = ligne.strip().split(maxsplit=1)
     if len(morceaux) != 2:
@@ -91,8 +121,12 @@ def lancer(args: argparse.Namespace) -> int:
             print(port)
         return 0
 
-    if not args.port:
-        print("Port manquant. Utilise --list-ports pour trouver l'ESP32.", file=sys.stderr)
+    port = args.port
+    if args.auto_port or not port:
+        port = trouver_port_esp32()
+
+    if not port:
+        print("Port ESP32 introuvable. Utilise --list-ports pour vérifier.", file=sys.stderr)
         return 2
 
     touches = dict(TOUCHES)
@@ -103,7 +137,7 @@ def lancer(args: argparse.Namespace) -> int:
         bouton, touche = valeur.split("=", 1)
         touches[bouton.strip()] = touche.strip().lower()
 
-    print(f"Ouverture de {args.port} à {args.baud} bauds")
+    print(f"Ouverture de {port} à {args.baud} bauds")
     if args.clavier:
         if pyautogui is None:
             print("pyautogui manquant. Lance: pip install -r iot/scripts/requirements.txt", file=sys.stderr)
@@ -112,7 +146,7 @@ def lancer(args: argparse.Namespace) -> int:
     else:
         print("Mode affichage uniquement. Ajoute --clavier pour envoyer les touches.")
 
-    with ouvrir_serie(args.port, args.baud, args.timeout) as appareil:
+    with ouvrir_serie(port, args.baud, args.timeout) as appareil:
         time.sleep(args.ready_delay)
         while True:
             ligne_brute = appareil.readline()
@@ -146,6 +180,7 @@ def construire_parser() -> argparse.ArgumentParser:
     parser.add_argument("--timeout", type=float, default=0.1)
     parser.add_argument("--ready-delay", type=float, default=1.5)
     parser.add_argument("--list-ports", action="store_true", help="Liste les ports série disponibles")
+    parser.add_argument("--auto-port", action="store_true", help="Détecte automatiquement le port ESP32")
     parser.add_argument("--clavier", "--keyboard", action="store_true", help="Envoie les touches au système")
     parser.add_argument(
         "--map",

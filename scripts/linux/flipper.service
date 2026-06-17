@@ -1,0 +1,15 @@
+[Unit]
+Description=Flipper - lancement automatique
+After=network-online.target docker.service graphical-session.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/flipper
+ExecStart=/opt/flipper/scripts/linux/start_flipper.sh
+ExecStop=/opt/flipper/scripts/linux/stop_flipper.sh
+Environment=FLIPPER_KIOSK=1
+
+[Install]
+WantedBy=default.target

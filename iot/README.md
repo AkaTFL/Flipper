@@ -67,6 +67,18 @@ iot/firmware/esp32_button_controller/esp32_button_controller.ino
 La documentation de câblage, de mapping GPIO et d'utilisation sur ordinateur est
 dans `iot/ESP32_Button_Controller.md`.
 
+Le daemon peut détecter automatiquement le port de l'ESP32 :
+
+```bash
+python iot/scripts/esp32_button_daemon.py --auto-port --clavier
+```
+
+Pour le lancement automatique sur la machine Linux du flipper, voir :
+
+```text
+doc/Linux_Launcher_Flipper.md
+```
+
 ## Standardisation des topics
 
 - `topic_registry.json` : registre versionné (JSON), aligné sur `doc/Hardware_Architecture.md`.
