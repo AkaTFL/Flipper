@@ -56,6 +56,7 @@ export class BackglassDisplay {
         this.wheelEmojis = ['🎯', '💎', '⭐', '🔥', '🎲', '🎪', '🌟', '💫'];
         this.wheelEmojiIndex = 0;
         this.wheelRotationInterval = null;
+        this.lastBossActiveState = false;
 
         this.mount();
         this.connectBackend();
@@ -80,6 +81,14 @@ export class BackglassDisplay {
         this.comboEl = this.documentRef.getElementById('combo');
         this.questsEl = this.documentRef.getElementById('quests');
         this.wheelInnerEl = this.documentRef.querySelector('.wheel-inner');
+
+        // Éléments boss
+        this.bossContainerEl = this.documentRef.querySelector('.boss-container');
+        this.bossHealthBarEl = this.documentRef.getElementById('boss-health-bar');
+        this.bossHealthTextEl = this.documentRef.getElementById('boss-health-text');
+        this.bossDamageTextEl = this.documentRef.getElementById('boss-damage-text');
+        this.bossLevelEl = this.documentRef.getElementById('boss-level');
+        this.bossVisualizationEl = this.documentRef.querySelector('.boss-visualization');
 
         this.render();
         return this.container;
@@ -339,11 +348,69 @@ export class BackglassDisplay {
         }
     }
 
+    updateBossDisplay() {
+        if (!this.bossContainerEl) return;
+
+        const bossJustDeactivated = this.lastBossActiveState && !this.bossState.active;
+        this.lastBossActiveState = this.bossState.active;
+
+        // Affiche le boss si actif
+        if (this.bossState.active) {
+            this.bossContainerEl.classList.remove('defeated');
+            this.bossContainerEl.classList.add('active');
+
+            // Calcule le pourcentage de santé
+            const healthPercent = this.bossState.maxHp > 0 
+                ? (this.bossState.hp / this.bossState.maxHp) * 100
+                : 0;
+
+            // Met à jour la barre de santé
+            if (this.bossHealthBarEl) {
+                this.bossHealthBarEl.style.width = `${Math.max(0, healthPercent)}%`;
+            }
+
+            // Met à jour le texte de santé
+            if (this.bossHealthTextEl) {
+                this.bossHealthTextEl.textContent = `${Math.max(0, this.bossState.hp)} / ${this.bossState.maxHp}`;
+            }
+
+            // Met à jour les dégâts infligés
+            if (this.bossDamageTextEl) {
+                this.bossDamageTextEl.textContent = `Dégâts infligés: +${this.bossState.damageTaken}`;
+            }
+
+            // Met à jour le niveau du boss (basé sur le nombre de quêtes complétées)
+            if (this.bossLevelEl) {
+                const level = Math.max(1, this.questState.completedCount + 1);
+                this.bossLevelEl.textContent = level.toString();
+            }
+
+            // Animation spéciale si boss presque mort
+            if (healthPercent < 20) {
+                this.bossHealthBarEl?.style.animation = 'health-shimmer 0.4s ease-in-out infinite';
+                this.bossVisualizationEl?.classList.add('critical');
+            } else {
+                this.bossHealthBarEl?.style.animation = 'health-shimmer 1.5s ease-in-out infinite';
+                this.bossVisualizationEl?.classList.remove('critical');
+            }
+        } else if (bossJustDeactivated) {
+            // Le boss vient de mourir - animation de défaite
+            this.bossContainerEl.classList.add('defeated');
+            // Retire la classe active après l'animation
+            setTimeout(() => {
+                this.bossContainerEl.classList.remove('active', 'defeated');
+            }, 1000);
+        } else {
+            this.bossContainerEl.classList.remove('active');
+        }
+    }
+
     render() {
         try {
             this.updatePlayerIndicators();
             this.updateCreditsDisplay();
             this.updateGameStatus();
+            this.updateBossDisplay();
 
             if (this.comboEl) {
                 this.comboEl.textContent = this.displayCombo();
