@@ -230,7 +230,7 @@ export async function initFlipper() {
     });
 
     // Ball
-    const ball = new Ball(physics.world, Config.global.positioning.ball.position);
+    const ball = new Ball(sceneManager.scene, physics.world, Config.global.positioning.ball.position);
     mesh.push(ball);
     loadingPromises.push(waitForMesh(ball));
     controls.setBallRef(ball);
