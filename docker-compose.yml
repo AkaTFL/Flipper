@@ -13,6 +13,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        ENV: ${ENV:-production}
     container_name: flipper-backend
     ports:
       - "8080:8080"
@@ -22,6 +24,9 @@ services:
     environment:
       MQTT_HOST: mosquitto
       MQTT_PORT: "1883"
+    volumes:
+      - ./backend:/app
+      - backend-cache:/go/pkg/mod
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health >/dev/null || exit 1"]
       interval: 15s
@@ -37,6 +42,8 @@ services:
     container_name: frontend-flipper
     ports:
       - "${FRONTEND_PORT:-3001}:80"
+    volumes:
+      - ./frontend/flipper:/usr/share/nginx/html
     depends_on:
       backend:
         condition: service_healthy
@@ -49,6 +56,8 @@ services:
     container_name: frontend-backglass
     ports:
       - "${DMD_PORT:-3002}:80"
+    volumes:
+      - ./frontend/backglass:/usr/share/nginx/html
     depends_on:
       backend:
         condition: service_healthy
@@ -61,6 +70,8 @@ services:
     container_name: frontend-dmd
     ports:
       - "${DMD_PORT:-3003}:80"
+    volumes:
+      - ./frontend/dmd:/usr/share/nginx/html
     depends_on:
       backend:
         condition: service_healthy
@@ -68,3 +79,4 @@ services:
 
 volumes:
   mosquitto-data:
+  backend-cache:
