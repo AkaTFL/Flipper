@@ -48,7 +48,7 @@ export class Scene {
         this.camera.position.z = position.z;
         this.camera.position.y = position.y + 1000;
         this.camera.position.x = position.x;
-
+        
         // Keep a strict top-down camera and flip table orientation to match gameplay view.
         this.camera.up.set(0, 0, 1);
         this.camera.lookAt(0, 0, 0);
@@ -143,6 +143,10 @@ export class Scene {
         container.appendChild(this.renderer.domElement);
 
         return { renderer: this.renderer, scene: this.scene, camera: this.camera };
+    }
+
+    getCamera() {
+        return this.camera;
     }
 
     /**

@@ -127,6 +127,7 @@ export async function initFlipper() {
     Config.global.positioning.bumpers = Config.global.positioning.bumper.instances;
     Config.global.positioning.bumpers.forEach((bumperConfig) => {
         const bumper = new Bumper(
+            sceneManager.getCamera(),
             physics.world,
             bumperConfig.width,
             bumperConfig.position,
@@ -142,6 +143,7 @@ export async function initFlipper() {
     Config.global.positioning.repulse = Config.global.positioning.repulse.instances;
     Config.global.positioning.repulse.forEach((repulseConfig) => {
         const repulse = new Repulse(
+            sceneManager.getCamera(),
             physics.world,
             repulseConfig.length,
             repulseConfig.width,
