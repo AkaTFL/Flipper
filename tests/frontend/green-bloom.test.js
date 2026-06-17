@@ -17,26 +17,26 @@ test('GreenBloomEffect shader file exists in frontend tests folder', () => {
   assert.ok(effectSource.includes('class GreenBloomEffect'));
 });
 
-test('GreenBloomEffect shader source contains the custom shader uniforms', () => {
-  assert.match(effectSource, /uniform\s+sampler2D\s+u_texture/);
-  assert.match(effectSource, /uniform\s+float\s+u_threshold/);
-  assert.match(effectSource, /uniform\s+float\s+u_softKnee/);
-  assert.match(effectSource, /uniform\s+float\s+u_intensity/);
+test('GreenBloomEffect source imports the native Three.js composer and bloom pass', () => {
+  assert.match(effectSource, /EffectComposer/);
+  assert.match(effectSource, /RenderPass/);
+  assert.match(effectSource, /UnrealBloomPass/);
 });
 
-test('GreenBloomEffect shader source contains vertex and fragment shader code', () => {
-  assert.match(effectSource, /varying\s+vec2\s+vUv/);
-  assert.match(effectSource, /gl_Position\s*=\s*vec4\(position,1\.0\)/);
-  assert.match(effectSource, /texture2D\(u_texture,\s*vUv\)/);
-  assert.match(effectSource, /gl_FragColor\s*=\s*vec4\(color,\s*1\.0\)/);
+test('GreenBloomEffect source contains bloom parameter handling', () => {
+  assert.match(effectSource, /this\.params\s*=\s*\{/);
+  assert.match(effectSource, /threshold:\s*0\.95/);
+  assert.match(effectSource, /strength:\s*0\.15/);
+  assert.match(effectSource, /radius:\s*0\.1/);
+  assert.match(effectSource, /exposure:\s*1\.0/);
 });
 
-test('GreenBloomEffect contains updateParam and getter method patterns', () => {
+test('GreenBloomEffect contains updateParams and getParams patterns', () => {
   assert.match(effectSource, /updateParams\s*\(/);
   assert.match(effectSource, /getParams\s*\(/);
-  assert.match(effectSource, /this\._brightMaterial\.uniforms\.u_threshold\.value/);
-  assert.match(effectSource, /this\._brightMaterial\.uniforms\.u_softKnee\.value/);
-  assert.match(effectSource, /this\._compositeMaterial\.uniforms\.u_intensity\.value/);
+  assert.match(effectSource, /this\.bloomPass\.threshold\s*=\s*params\.threshold/);
+  assert.match(effectSource, /this\.bloomPass\.strength\s*=\s*params\.strength/);
+  assert.match(effectSource, /this\.bloomPass\.radius\s*=\s*params\.radius/);
 });
 
 test('GreenBloom manual browser test helper exists in the expected frontend location', () => {
