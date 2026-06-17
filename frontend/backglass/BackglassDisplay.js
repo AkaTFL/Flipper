@@ -10,16 +10,40 @@ export class BackglassDisplay {
         this.container = null;
         this.socket = null;
         this.lastMessage = null;
+
+        // État des joueurs (1-4)
+        this.players = {
+            1: { score: 0, active: false },
+            2: { score: 0, active: false },
+            3: { score: 0, active: false },
+            4: { score: 0, active: false }
+        };
+
+        // Crédits
+        this.credits = 0;
+
+        // État du jeu
+        this.gameState = {
+            status: 'waiting', // 'waiting' | 'playing' | 'gameover' | 'match'
+            currentPlayer: null,
+            gameOverPlayer: null,
+            matchWinner: null
+        };
+
+        // Infos du combo et quêtes
         this.comboState = {
             score: 0,
             multiplier: 1,
             comboCount: 0
         };
+
         this.questState = {
             activeQuests: [],
             completedCount: 0,
             requiredCount: 0
         };
+
+        // État du boss
         this.bossState = {
             active: false,
             hp: 0,
@@ -27,8 +51,15 @@ export class BackglassDisplay {
             damageTaken: 0,
             arrivalMessageUntil: 0
         };
+
+        // Animations
+        this.wheelEmojis = ['🎯', '💎', '⭐', '🔥', '🎲', '🎪', '🌟', '💫'];
+        this.wheelEmojiIndex = 0;
+        this.wheelRotationInterval = null;
+
         this.mount();
         this.connectBackend();
+        this.startWheelAnimation();
     }
 
     mount(container = this.documentRef.getElementById('backglass')) {
@@ -38,9 +69,17 @@ export class BackglassDisplay {
 
         this.container = container;
 
-        // create two child elements: combo line and quests block
-        this.comboEl = this.documentRef.getElementById('combo');    
+        // Récupère les éléments du DOM
+        this.playerIndicators = {};
+        for (let i = 1; i <= 4; i++) {
+            this.playerIndicators[i] = this.documentRef.querySelector(`[data-player="${i}"]`);
+        }
+
+        this.creditsValueEl = this.documentRef.querySelector('.credits-value');
+        this.gameStatusEl = this.documentRef.querySelector('.game-status');
+        this.comboEl = this.documentRef.getElementById('combo');
         this.questsEl = this.documentRef.getElementById('quests');
+        this.wheelInnerEl = this.documentRef.querySelector('.wheel-inner');
 
         this.render();
         return this.container;
@@ -48,7 +87,7 @@ export class BackglassDisplay {
 
     connectBackend() {
         if (typeof globalThis.WebSocket !== 'function') {
-            console.log('[DMD] WebSocket non disponible');
+            console.log('[BACKGLASS] WebSocket non disponible');
             return;
         }
 
@@ -56,7 +95,7 @@ export class BackglassDisplay {
             this.socket = new globalThis.WebSocket(this.backendUrl);
 
             this.socket.addEventListener('open', () => {
-                console.log('[DMD] connecté au backend:', this.backendUrl);
+                console.log('[BACKGLASS] connecté au backend:', this.backendUrl);
             });
 
             this.socket.addEventListener('message', (event) => {
@@ -64,14 +103,14 @@ export class BackglassDisplay {
             });
 
             this.socket.addEventListener('close', () => {
-                console.log('[DMD] connexion backend fermée');
+                console.log('[BACKGLASS] connexion backend fermée');
             });
 
             this.socket.addEventListener('error', (error) => {
-                console.warn('[DMD] erreur WebSocket backend:', error);
+                console.warn('[BACKGLASS] erreur WebSocket backend:', error);
             });
         } catch (error) {
-            console.warn('[DMD] impossible de se connecter au backend:', error);
+            console.warn('[BACKGLASS] impossible de se connecter au backend:', error);
         }
     }
 
@@ -80,20 +119,70 @@ export class BackglassDisplay {
             const message = JSON.parse(rawData);
             this.lastMessage = message;
 
-            this.updateComboState(message);
-            this.updateQuestState(message);
-            this.updateBossState(message);
+            console.log('[BACKGLASS] message reçu:', message.type);
 
-            console.log('[DMD] message reçu du backend:', message);
-            console.log('[DMD] type:', message.type);
-            console.log('[DMD] payload:', message.payload);
+            // Route vers les bons handlers
+            if (message?.type === 'game_state_update') {
+                this.updateGameState(message);
+            } else if (message?.type === 'score_update') {
+                this.updateComboState(message);
+            } else if (message?.type === 'quest_update') {
+                this.updateQuestState(message);
+            } else if (message?.type === 'boss_state_update') {
+                this.updateBossState(message);
+            } else if (message?.type === 'player_update') {
+                this.updatePlayerState(message);
+            } else if (message?.type === 'credits_update') {
+                this.updateCredits(message);
+            }
 
             this.render();
             return message;
         } catch (error) {
-            console.warn('[DMD] message backend invalide:', rawData, error);
+            console.warn('[BACKGLASS] message backend invalide:', rawData, error);
             return null;
         }
+    }
+
+    updateGameState(message) {
+        const payload = message?.payload ?? {};
+        
+        if (payload.currentPlayer) {
+            this.gameState.currentPlayer = Number(payload.currentPlayer);
+        }
+
+        if (payload.status) {
+            this.gameState.status = String(payload.status).toLowerCase();
+        }
+
+        if (payload.gameOverPlayer) {
+            this.gameState.gameOverPlayer = Number(payload.gameOverPlayer);
+        }
+
+        if (payload.matchWinner) {
+            this.gameState.matchWinner = Number(payload.matchWinner);
+        }
+    }
+
+    updatePlayerState(message) {
+        const payload = message?.payload ?? {};
+
+        if (Array.isArray(payload.players)) {
+            payload.players.forEach(p => {
+                const playerId = Number(p.id);
+                if (playerId >= 1 && playerId <= 4) {
+                    this.players[playerId] = {
+                        score: Number(p.score ?? 0),
+                        active: Boolean(p.active ?? false)
+                    };
+                }
+            });
+        }
+    }
+
+    updateCredits(message) {
+        const payload = message?.payload ?? {};
+        this.credits = Number(payload.credits ?? 0);
     }
 
     updateComboState(message) {
@@ -142,6 +231,16 @@ export class BackglassDisplay {
         };
     }
 
+    startWheelAnimation() {
+        // Change l'emoji de la roulette toutes les 200ms
+        this.wheelRotationInterval = setInterval(() => {
+            this.wheelEmojiIndex = (this.wheelEmojiIndex + 1) % this.wheelEmojis.length;
+            if (this.wheelInnerEl) {
+                this.wheelInnerEl.textContent = this.wheelEmojis[this.wheelEmojiIndex];
+            }
+        }, 200);
+    }
+
     displayCombo() {
         const { score, multiplier, comboCount } = this.comboState;
 
@@ -187,13 +286,83 @@ export class BackglassDisplay {
         return [title, damageLine, hpLine].join('\n');
     }
 
+    updatePlayerIndicators() {
+        for (let i = 1; i <= 4; i++) {
+            const indicator = this.playerIndicators[i];
+            if (!indicator) continue;
+
+            const playerData = this.players[i];
+            const isActive = this.gameState.currentPlayer === i;
+
+            // Met à jour la classe active
+            if (isActive) {
+                indicator.classList.add('active');
+            } else {
+                indicator.classList.remove('active');
+            }
+
+            // Met à jour le score affiché
+            const scoreEl = indicator.querySelector('.score-display');
+            if (scoreEl) {
+                scoreEl.textContent = playerData.score.toString();
+            }
+        }
+    }
+
+    updateGameStatus() {
+        let statusText = '';
+        let statusClass = 'normal';
+
+        if (this.gameState.matchWinner !== null) {
+            statusText = `🎉 MATCH! PLAYER ${this.gameState.matchWinner} GAGNE! 🎉`;
+            statusClass = 'match';
+        } else if (this.gameState.gameOverPlayer !== null) {
+            statusText = `⚠️ GAME OVER - PLAYER ${this.gameState.gameOverPlayer}`;
+            statusClass = 'gameover';
+        } else if (this.gameState.currentPlayer !== null) {
+            statusText = `▶ PLAYER ${this.gameState.currentPlayer} EN JEU`;
+            statusClass = 'normal';
+        } else {
+            statusText = '-- EN ATTENTE --';
+            statusClass = 'normal';
+        }
+
+        if (this.gameStatusEl) {
+            this.gameStatusEl.textContent = statusText;
+            this.gameStatusEl.className = `game-status ${statusClass}`;
+        }
+    }
+
+    updateCreditsDisplay() {
+        if (this.creditsValueEl) {
+            this.creditsValueEl.textContent = this.credits.toString();
+        }
+    }
+
     render() {
         try {
-            this.comboEl.textContent = this.displayCombo();
-            this.questsEl.textContent = this.displayQuests();
+            this.updatePlayerIndicators();
+            this.updateCreditsDisplay();
+            this.updateGameStatus();
+
+            if (this.comboEl) {
+                this.comboEl.textContent = this.displayCombo();
+            }
+
+            if (this.questsEl) {
+                this.questsEl.textContent = this.displayQuests();
+            }
         } catch (err) {
-            this.comboEl.textContent = `DMD ${String(this.lastMessage.type ?? 'INCONNU').toUpperCase()}`;
-            this.questsEl.textContent = this.formatFallbackMessage();
+            console.error('[BACKGLASS] erreur lors du rendu:', err);
+        }
+    }
+
+    destroy() {
+        if (this.socket) {
+            this.socket.close();
+        }
+        if (this.wheelRotationInterval) {
+            clearInterval(this.wheelRotationInterval);
         }
     }
 }

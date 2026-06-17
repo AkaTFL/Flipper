@@ -3,52 +3,324 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Backglass</title>
+    <title>Backglass - Original Display</title>
     <style>
+      * {
+        box-sizing: border-box;
+      }
+
       body {
         width: 100vw;
         height: 100vh;
         margin: 0;
         padding: 0;
         overflow: hidden;
-        background: #000;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+        font-family: 'Courier New', monospace;
       }
+
       #backglass {
         position: fixed;
-        bottom: 30px; /* distance du bas de l'écran */
-        left: 50%;
-        transform: translateX(-50%);
-
+        inset: 0;
         display: flex;
         flex-direction: column;
+        justify-content: space-between;
         align-items: center;
-        gap: 12px; /* espace entre combo et quêtes */
-
-        width: 100%;
+        padding: 40px 20px;
         pointer-events: none;
+      }
+
+      /* === SECTION SUPÉRIEURE: JOUEURS ET CRÉDITS === */
+      .indicators-top {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        max-width: 1000px;
+      }
+
+      .player-indicator {
+        text-align: center;
+        padding: 15px;
+        border: 2px solid #333;
+        border-radius: 8px;
+        background: rgba(20, 20, 30, 0.8);
+        transition: all 0.3s ease;
+      }
+
+      .player-indicator.active {
+        background: rgba(255, 215, 0, 0.1);
+        border-color: #ffd700;
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.4),
+                    inset 0 0 15px rgba(255, 215, 0, 0.1);
+      }
+
+      .player-light {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        margin: 0 auto 8px;
+        background: #333;
+        box-shadow: 0 0 4px rgba(0,0,0,0.8);
+        transition: all 0.3s ease;
+      }
+
+      .player-indicator.active .player-light {
+        background: #ffd700;
+        box-shadow: 0 0 12px #ffd700, inset 0 0 8px rgba(255, 255, 100, 0.3);
+        animation: pulse-light 0.8s ease-in-out infinite;
+      }
+
+      .player-label {
+        color: #888;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: color 0.3s ease;
+      }
+
+      .player-indicator.active .player-label {
+        color: #ffd700;
+      }
+
+      .score-display {
+        color: #0f0;
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 8px;
+        text-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+      }
+
+      /* === SECTION CRÉDITS === */
+      .credits-section {
+        text-align: center;
+        padding: 20px 40px;
+        background: rgba(10, 100, 150, 0.15);
+        border: 2px solid #0099cc;
+        border-radius: 12px;
+        box-shadow: inset 0 0 20px rgba(0, 153, 204, 0.2);
+        margin: 20px 0;
+      }
+
+      .credits-label {
+        color: #0099cc;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: bold;
+      }
+
+      .credits-value {
+        color: #00ff99;
+        font-size: 36px;
+        font-weight: bold;
+        margin-top: 8px;
+        text-shadow: 0 0 10px rgba(0, 255, 153, 0.6);
+      }
+
+      /* === SECTION CENTRE: ANIMATIONS MÉCANIQUES === */
+      .animation-wheel {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        margin: 30px 0;
+      }
+
+      .wheel-outer {
+        position: absolute;
+        inset: 0;
+        border: 4px solid #ff6b6b;
+        border-radius: 50%;
+        background: conic-gradient(
+          from 0deg,
+          #ff6b6b 0deg,
+          #ff1744 45deg,
+          #ffd700 90deg,
+          #00ff88 135deg,
+          #00ccff 180deg,
+          #9d4edd 225deg,
+          #ff6b6b 360deg
+        );
+        animation: spin-wheel 4s linear infinite;
+        box-shadow: 0 0 30px rgba(255, 107, 107, 0.4),
+                    inset 0 0 20px rgba(0, 0, 0, 0.5);
+      }
+
+      .wheel-inner {
+        position: absolute;
+        inset: 25px;
+        background: radial-gradient(circle, #333 0%, #111 100%);
+        border-radius: 50%;
+        border: 2px solid #555;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: bold;
+        color: #ffd700;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+      }
+
+      .wheel-needle {
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 15px solid #ffd700;
+        filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.8));
+      }
+
+      /* === SECTION INFÉRIEURE: STATUS ET QUÊTES === */
+      .status-section {
+        text-align: center;
+        width: 100%;
+        max-width: 800px;
+      }
+
+      .game-status {
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 24px;
+        font-weight: bold;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .game-status.gameover {
+        background: rgba(255, 0, 0, 0.15);
+        border: 2px solid #ff0000;
+        color: #ff0000;
+        text-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+        animation: blink-gameover 0.5s ease-in-out infinite;
+      }
+
+      .game-status.match {
+        background: rgba(0, 255, 0, 0.15);
+        border: 2px solid #00ff00;
+        color: #00ff00;
+        text-shadow: 0 0 10px rgba(0, 255, 0, 0.6);
+        animation: blink-match 0.6s ease-in-out infinite;
+      }
+
+      .game-status.normal {
+        background: transparent;
+        border: none;
+        color: #888;
       }
 
       #combo {
         color: #1948e4;
-        font-family: 'Courier New', Courier, monospace;
-        text-align: center;
-        font-size: 20px;
-        margin-bottom: 25px;
+        font-size: 18px;
+        margin-bottom: 15px;
+        text-shadow: 0 0 8px rgba(25, 72, 228, 0.4);
       }
 
       #quests {
         color: #a10b0b;
-        font-family: 'Courier New', Courier, monospace;
-        text-align: center;
-        font-size: 18px;
-        margin-bottom: 20px;
+        font-size: 16px;
+        margin-top: 15px;
+        line-height: 1.6;
+        text-shadow: 0 0 8px rgba(161, 11, 11, 0.4);
+      }
+
+      /* === ANIMATIONS === */
+      @keyframes pulse-light {
+        0%, 100% {
+          box-shadow: 0 0 12px #ffd700, inset 0 0 8px rgba(255, 255, 100, 0.3);
+        }
+        50% {
+          box-shadow: 0 0 20px #ffd700, inset 0 0 12px rgba(255, 255, 100, 0.5);
+        }
+      }
+
+      @keyframes spin-wheel {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      @keyframes blink-gameover {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+
+      @keyframes blink-match {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+        75% { opacity: 1; }
+      }
+
+      /* === RESPONSIVE === */
+      @media (max-width: 768px) {
+        .indicators-top {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
+        }
+
+        .animation-wheel {
+          width: 150px;
+          height: 150px;
+        }
+
+        .credits-value {
+          font-size: 28px;
+        }
       }
     </style>
   </head>
   <body>
     <div id="backglass">
-      <div id="combo"></div>
-      <div id="quests"></div>
+      <!-- Indicateurs joueurs et crédits en haut -->
+      <div class="indicators-top">
+        <div class="player-indicator" data-player="1">
+          <div class="player-light"></div>
+          <div class="player-label">Player 1</div>
+          <div class="score-display">0</div>
+        </div>
+        <div class="player-indicator" data-player="2">
+          <div class="player-light"></div>
+          <div class="player-label">Player 2</div>
+          <div class="score-display">0</div>
+        </div>
+        <div class="player-indicator" data-player="3">
+          <div class="player-light"></div>
+          <div class="player-label">Player 3</div>
+          <div class="score-display">0</div>
+        </div>
+        <div class="player-indicator" data-player="4">
+          <div class="player-light"></div>
+          <div class="player-label">Player 4</div>
+          <div class="score-display">0</div>
+        </div>
+      </div>
+
+      <!-- Crédits -->
+      <div class="credits-section">
+        <div class="credits-label">Crédits Restants</div>
+        <div class="credits-value">--</div>
+      </div>
+
+      <!-- Animation mécanique au centre -->
+      <div class="animation-wheel">
+        <div class="wheel-outer">
+          <div class="wheel-inner">🎯</div>
+        </div>
+        <div class="wheel-needle"></div>
+      </div>
+
+      <!-- Status et quêtes en bas -->
+      <div class="status-section">
+        <div class="game-status normal">-- EN ATTENTE --</div>
+        <div id="combo"></div>
+        <div id="quests"></div>
+      </div>
     </div>
     <script type="module">
       import { BackglassDisplay } from './BackglassDisplay.js';

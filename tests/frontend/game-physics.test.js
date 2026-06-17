@@ -16,7 +16,7 @@ function withConfigPatch(key, value, callback) {
 }
 
 test('GamePhysics initializes object and collider registries', () => {
-  const physics = new GamePhysics(Config);
+  const physics = new GamePhysics();
 
   assert.deepEqual(physics.bumpers, []);
   assert.deepEqual(physics.objects, []);
@@ -25,7 +25,7 @@ test('GamePhysics initializes object and collider registries', () => {
 });
 
 test('registerObjects appends every provided object and indexes their colliders', () => {
-  const physics = new GamePhysics(Config);
+  const physics = new GamePhysics();
   const first = { collider: { handle: 11 } };
   const responder = { name: 'launching-ramp' };
   const second = {
@@ -46,7 +46,7 @@ test('registerObjects appends every provided object and indexes their colliders'
 });
 
 test('connectBackend uses the local backend endpoint when no browser config is provided', () => {
-  const physics = new GamePhysics(Config);
+  const physics = new GamePhysics();
   const previousWebSocket = globalThis.WebSocket;
   let createdUrl = null;
 
@@ -72,7 +72,7 @@ test('connectBackend uses the local backend endpoint when no browser config is p
 });
 
 test('sendImpact emits a structured impact payload when the backend socket is ready', () => {
-  const physics = new GamePhysics(Config);
+  const physics = new GamePhysics();
   const sentPayloads = [];
   const previousWebSocket = globalThis.WebSocket;
 
@@ -103,7 +103,7 @@ test('sendImpact emits a structured impact payload when the backend socket is re
 });
 
 test('high-level game event helpers send the documented backend message types', () => {
-  const physics = new GamePhysics(Config);
+  const physics = new GamePhysics();
   const sentPayloads = [];
   const previousWebSocket = globalThis.WebSocket;
 
@@ -117,6 +117,16 @@ test('high-level game event helpers send the documented backend message types', 
       sentPayloads.push(JSON.parse(payload));
     }
   };
+
+  physics.ball = {
+    rigidBody: {
+      setTranslation() {},
+      setLinvel() {},
+      setAngvel() {}
+    },
+    mesh: { position: { set() {} } }
+  };
+  physics.setLaunchingRampVisible = () => {};
 
   assert.equal(physics.startGame(), true);
   assert.equal(physics.toggleBossFight(), true);
@@ -142,7 +152,7 @@ test('high-level game event helpers send the documented backend message types', 
 });
 
 test('handleBackendMessage stores score_update payload for later UI consumption', () => {
-  const physics = new GamePhysics(Config);
+  const physics = new GamePhysics();
 
   const message = physics.handleBackendMessage(JSON.stringify({
     type: 'score_update',
@@ -166,7 +176,7 @@ test('handleBackendMessage stores score_update payload for later UI consumption'
 });
 
 test('handleCollisionEvents triggers ball_lost when the ball hits the bottom wall drain', () => {
-  const physics = new GamePhysics(Config);
+  const physics = new GamePhysics();
   const sent = [];
 
   const ball = {
@@ -207,7 +217,7 @@ test('handleCollisionEvents triggers ball_lost when the ball hits the bottom wal
 });
 
 test('handleCollisionEvents notifies objects and forwards the contacted gameplay object to the backend', () => {
-  const physics = new GamePhysics(Config);
+  const physics = new GamePhysics();
   const calls = [];
 
   const bumper = {
@@ -254,7 +264,7 @@ test('handleCollisionEvents notifies objects and forwards the contacted gameplay
 });
 
 test('handleCollisionEvents can report a ramp-side collision while delegating the gameplay response to the ramp', () => {
-  const physics = new GamePhysics(Config);
+  const physics = new GamePhysics();
   const calls = [];
 
   const launchingRamp = {
@@ -309,7 +319,7 @@ test('handleCollisionEvents can report a ramp-side collision while delegating th
 });
 
 test('step only verifies ramp traversal after a collision is detected', () => {
-  const physics = new GamePhysics(Config);
+  const physics = new GamePhysics();
   const calls = [];
 
   physics.world = {
@@ -340,6 +350,10 @@ test('step only verifies ramp traversal after a collision is detected', () => {
     calls.push('score-check');
   };
 
+  physics.checkLaunchingRampHeight = function () {
+    // stub out to avoid null reference errors
+  };
+
   physics.step();
 
   assert.deepEqual(calls, [
@@ -366,7 +380,7 @@ test('detectScoreZoneEntries emits more specific target and star impacts when th
       }
     ]
   }, () => {
-    const physics = new GamePhysics(Config);
+    const physics = new GamePhysics();
     const sent = [];
     physics.sendImpact = (payload) => {
       sent.push(`${payload.objectType}:${payload.objectId}`);
@@ -384,6 +398,7 @@ test('detectScoreZoneEntries emits more specific target and star impacts when th
     };
 
     physics.objects = [ball];
+    physics.ball = ball;
     physics.detectScoreZoneEntries();
 
     assert.deepEqual(sent, ['target:target-left-centre']);
@@ -409,7 +424,7 @@ test('detectScoreZoneEntries does not spam the same zone until the ball exits an
       }
     ]
   }, () => {
-    const physics = new GamePhysics(Config);
+    const physics = new GamePhysics();
     const sent = [];
     physics.sendImpact = (payload) => {
       sent.push(payload.objectId);
@@ -427,6 +442,7 @@ test('detectScoreZoneEntries does not spam the same zone until the ball exits an
     };
 
     physics.objects = [ball];
+    physics.ball = ball;
 
     physics.detectScoreZoneEntries();
     physics.detectScoreZoneEntries();
@@ -460,7 +476,7 @@ test('detectRampTraversal emits ramp-main-perfect when the ball crosses the ramp
     },
     timeoutMs: 4000
   }, () => {
-    const physics = new GamePhysics(Config);
+    const physics = new GamePhysics();
     const sent = [];
     physics.sendImpact = (payload) => {
       sent.push(`${payload.objectType}:${payload.objectId}`);
@@ -478,6 +494,7 @@ test('detectRampTraversal emits ramp-main-perfect when the ball crosses the ramp
     };
 
     physics.objects = [ball];
+    physics.ball = ball;
 
     physics.detectRampTraversal();
     ball.rigidBody.translation = () => ({ x: 0, y: 0, z: 100 });
@@ -506,7 +523,7 @@ test('detectRampTraversal emits ramp-main-simple after a wall bounce during trav
     },
     timeoutMs: 4000
   }, () => {
-    const physics = new GamePhysics(Config);
+    const physics = new GamePhysics();
     const sent = [];
     physics.sendImpact = (payload) => {
       sent.push(`${payload.objectType}:${payload.objectId}`);
@@ -524,6 +541,7 @@ test('detectRampTraversal emits ramp-main-simple after a wall bounce during trav
     };
 
     physics.objects = [ball];
+    physics.ball = ball;
 
     physics.detectRampTraversal();
     physics.markRampBounce([{ objectType: 'wall' }, { objectType: 'ball' }]);

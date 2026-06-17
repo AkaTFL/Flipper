@@ -1,0 +1,61 @@
+{
+  "slots": [
+    {
+      "savedAt": 1781704330493,
+      "snapshot": {
+        "score": {
+          "score": 0,
+          "comboCount": 2,
+          "hitStreak": 2,
+          "lastImpactAt": 1781703530516,
+          "recentImpactTypes": null,
+          "loopStreakById": {}
+        },
+        "boss": {
+          "active": true,
+          "hp": 1500
+        },
+        "player": {
+          "hp": 100,
+          "balls": 3
+        },
+        "quests": {
+          "activeQuests": [
+            {
+              "id": "score_3500",
+              "category": "score",
+              "label": "Atteindre 3 500 points",
+              "target": 3500,
+              "progress": 0,
+              "completed": false
+            },
+            {
+              "id": "target_center_2",
+              "category": "precision",
+              "label": "Toucher 2 fois la zone centrale d'une cible basse",
+              "target": 2,
+              "progress": 0,
+              "completed": false
+            },
+            {
+              "id": "bumpers_5",
+              "category": "exploration",
+              "label": "Toucher 5 bumpers au total",
+              "target": 5,
+              "progress": 0,
+              "completed": false
+            }
+          ],
+          "loopLeftDone": false,
+          "loopRightDone": false,
+          "phaseStartedAt": 1781703492885,
+          "bossFightTriggered": false,
+          "currentPhase": 1
+        }
+      }
+    },
+    null,
+    null,
+    null
+  ]
+}

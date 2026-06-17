@@ -41,6 +41,12 @@ export default {
                 }
             },
 
+            wall: {
+                restitution: 0.5,
+                friction: 0.5,
+                instances: []
+            },
+
             bumper: {
                 restitution: 0.9,
                 friction: 0.5,

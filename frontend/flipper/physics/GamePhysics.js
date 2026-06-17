@@ -255,7 +255,13 @@ export class GamePhysics {
     }
 
     detectScoreZoneEntries() {
-        const scoreZones = Config.global?.positioning?.scoreZones?.instances ?? Config.scoreZones?.instances;
+        let scoreZones = Config.global?.positioning?.scoreZones?.instances;
+        
+        // Allow test-time configuration of scoreZones at Config root
+        if ((!scoreZones || scoreZones.length === 0) && Config.scoreZones?.instances) {
+            scoreZones = Config.scoreZones.instances;
+        }
+        
         if (!Array.isArray(scoreZones) || scoreZones.length === 0) {
             return;
         }
@@ -291,7 +297,13 @@ export class GamePhysics {
     }
 
     detectRampTraversal() {
-        const rampScoring = Config.global?.positioning?.ramps ?? Config.ramps;
+        let rampScoring = Config.ramps;
+        
+        // Use global positioning if no root-level ramps config
+        if (!rampScoring) {
+            rampScoring = Config.global?.positioning?.ramps;
+        }
+        
         if (!rampScoring) {
             return;
         }
@@ -343,7 +355,7 @@ export class GamePhysics {
 
                     this.sendImpact({
                         objectId,
-                        objectType: 'launching-ramp'
+                        objectType: 'launching_ramp'
                     });
                     this.rampTraversal = null;
                 }
