@@ -30,7 +30,20 @@ puis redémarrer la session :
 sudo usermod -aG dialout "$USER"
 ```
 
-## Lancement manuel
+## Installation dans `/opt/flipper`
+
+Sur la machine finale, le chemin recommandé est `/opt/flipper`.
+
+```bash
+sudo mkdir -p /opt
+cd /opt
+sudo git clone https://github.com/AkaTFL/Flipper.git flipper
+sudo chown -R "$USER:$USER" /opt/flipper
+cd /opt/flipper
+git checkout feature/163-lancement-automatique-flipper
+```
+
+## Lancement manuel par terminal
 
 Depuis la racine du projet :
 
@@ -49,6 +62,34 @@ Les logs du daemon sont écrits ici :
 
 ```text
 .flipper-run/esp32_button_daemon.log
+```
+
+## Lancement par double clic
+
+Si le projet est installé dans `/opt/flipper`, le fichier
+`scripts/linux/flipper.desktop` peut servir de raccourci.
+
+Copier le raccourci sur le bureau :
+
+```bash
+cp /opt/flipper/scripts/linux/flipper.desktop ~/Bureau/Flipper.desktop
+chmod +x ~/Bureau/Flipper.desktop
+```
+
+Si le dossier du bureau s'appelle `Desktop` :
+
+```bash
+cp /opt/flipper/scripts/linux/flipper.desktop ~/Desktop/Flipper.desktop
+chmod +x ~/Desktop/Flipper.desktop
+```
+
+Au premier lancement, Linux peut demander d'autoriser le raccourci. Choisir
+`Faire confiance et lancer` ou `Allow Launching` selon l'environnement.
+
+Le double clic lance :
+
+```text
+/opt/flipper/scripts/linux/start_flipper.sh
 ```
 
 ## Mode kiosque
