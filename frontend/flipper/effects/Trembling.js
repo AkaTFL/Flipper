@@ -1,5 +1,3 @@
-import { Scene } from '../core/Scene.js';
-
 export function TremblingFromImpact(camera, impactForce, duration = 0.3) {
     const x = camera.position.x;
     const z = camera.position.z;

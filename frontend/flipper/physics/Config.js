@@ -1,4 +1,4 @@
-export var currentLevel = 1;
+export var NiveauActuel = 1;
 
 export default {
     currentLevel: 'lvl_1',
@@ -26,7 +26,7 @@ export default {
                 maximalPower: 50,
                 powerBuild: 0.25,  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
                 power: 10,
-                model: `../assets/mesh/ramp_launch/ramp_launch_lvl_${currentLevel}.glb`,
+                model: `../assets/mesh/ramp_launch/ramp_launch_lvl_${NiveauActuel}.glb`,
                 objectId: 'launching-ramp'
             },
 
@@ -51,21 +51,21 @@ export default {
                         position: { x: 10, y: 10, z: 105 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-1',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
+                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
                     {
                         width: 40,
                         position: { x: 120, y: 10, z: 193 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-2',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
+                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
                     {
                         width: 40,
                         position: { x: -100, y: 10, z: 193 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-3',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
+                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
 
 
@@ -75,35 +75,35 @@ export default {
                         position: { x: 240, y: 60, z: 317 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-4',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
+                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
                     {
                         width: 25,
                         position: { x: 120, y: 60, z: 317 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-5',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
+                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
                     {
                         width: 25,
                         position: { x: 180, y: 60, z: 217 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-6',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
+                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
                     {
                         width: 25,
                         position: { x: 195, y: 60, z: 117 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-7',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
+                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
                     {
                         width: 25,
                         position: { x: 250, y: 60, z: 157 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-8',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${currentLevel}.glb`
+                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
 
                     {
@@ -111,14 +111,14 @@ export default {
                         position: { x: -120.5, y: 20, z: -441 },
                         rotation: { x: 0, y: -(Math.PI / 3), z: 0 },
                         objectId: 'bumper-triangle-left',
-                        model: `../assets/mesh/bumpers_triangle/Bumper_triangle_left_lvl_${currentLevel}.glb`
+                        model: `../assets/mesh/bumpers_triangle/Bumper_triangle_left_lvl_${NiveauActuel}.glb`
                     },
                     {
                         width: 70,
                         position: { x: 110.5, y: 20, z: -441 },
                         rotation: { x: 0, y: (Math.PI / 3), z: 0 },
                         objectId: 'bumper-triangle-right',
-                        model: `../assets/mesh/bumpers_triangle/Bumper_triangle_right_lvl_${currentLevel}.glb`
+                        model: `../assets/mesh/bumpers_triangle/Bumper_triangle_right_lvl_${NiveauActuel}.glb`
                     },
                 ],
             },
@@ -228,8 +228,8 @@ export default {
                     { length: 40, width: 13, height: 20, position: { x: 40, y: 5, z: 20 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
                     { length: 40, width: 13, height: 20, position: { x: -76, y: 5, z: 20 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
                 ],
-                modelRight: `../assets/mesh/palles/Right_flipper_lvl_${currentLevel}.glb`,
-                modelLeft: `../assets/mesh/palles/Left_flipper_lvl_${currentLevel}.glb`
+                modelRight: `../assets/mesh/palles/Right_flipper_lvl_${NiveauActuel}.glb`,
+                modelLeft: `../assets/mesh/palles/Left_flipper_lvl_${NiveauActuel}.glb`
             },
 
             bodyFlipper: {
@@ -244,7 +244,7 @@ export default {
             },
 
             etage: {
-                model: `../assets/mesh/etage/etage_lvl_${currentLevel}.glb`,
+                model: `../assets/mesh/etage/etage_lvl_${NiveauActuel}.glb`,
                 objectId: 'etage',
                 objectType: 'etage',
                 length: 200,
@@ -259,7 +259,7 @@ export default {
             staticMeshes: [
 
                 {
-                    model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${currentLevel}.glb`,
+                    model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${NiveauActuel}.glb`,
                     objectId: 'murs-cible-left',
                     objectType: 'wall',
                     length: 50,
@@ -270,7 +270,7 @@ export default {
 
                 },
                 {
-                    model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${currentLevel}.glb`,
+                    model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${NiveauActuel}.glb`,
                     objectId: 'murs-cible-left',
                     objectType: 'wall',
                     length: 50,
@@ -281,27 +281,7 @@ export default {
 
                 },
                 {
-                    model: `../assets/mesh/murs_cible_right/murs_cible_right_lvl_${currentLevel}.glb`,
-                    objectId: 'murs-cible-right',
-                    objectType: 'wall',
-                    length: 50,
-                    width: 50,
-                    height: 50,
-                    position: { x: -270, y: 20.50, z: -132.24 },
-                    rotation: { x: 0, y: 0, z: 0 }
-                },
-                {
-                    model: `../assets/mesh/murs_cible_right/murs_cible_right_lvl_${currentLevel}.glb`,
-                    objectId: 'murs-cible-right',
-                    objectType: 'wall',
-                    length: 50,
-                    width: 50,
-                    height: 50,
-                    position: { x: -270, y: 20.50, z: -55.24 },
-                    rotation: { x: 0, y: 0, z: 0 }
-                },
-                {
-                    model: `../assets/mesh/quadri/quadri_left_cible_lvl_${currentLevel}.glb`,
+                    model: `../assets/mesh/quadri/quadri_left_cible_lvl_${NiveauActuel}.glb`,
                     objectId: 'quadri-left-cible',
                     objectType: 'wall',
                     length: 50,
@@ -311,7 +291,7 @@ export default {
                     rotation: { x: 0, y: 0, z: Math.PI }
                 },
                 {
-                    model: `../assets/mesh/quadri/quadri_right_cible_lvl_${currentLevel}.glb`,
+                    model: `../assets/mesh/quadri/quadri_right_cible_lvl_${NiveauActuel}.glb`,
                     objectId: 'quadri-right-cible',
                     objectType: 'wall',
                     length: 50,
@@ -321,7 +301,7 @@ export default {
                     rotation: { x: 0, y: 0, z: Math.PI }
                 },
                 {
-                    model: `../assets/mesh/raque_side/raque_side_lvl_${currentLevel}.glb`,
+                    model: `../assets/mesh/raque_side/raque_side_lvl_${NiveauActuel}.glb`,
                     objectId: 'raque-side-left',
                     objectType: 'wall',
                     length: 5,
@@ -331,7 +311,7 @@ export default {
                     rotation: { x: 0, y: -3.14, z: (Math.PI) }
                 },
                 {
-                    model: `../assets/mesh/raque_side/raque_side_lvl_${currentLevel}.glb`,
+                    model: `../assets/mesh/raque_side/raque_side_lvl_${NiveauActuel}.glb`,
                     objectId: 'raque-side-right',
                     objectType: 'wall',
                     length: 5,
@@ -343,7 +323,7 @@ export default {
 
 
                 {
-                    model: `../assets/mesh/wall_up_right/wall_up_right_lvl_${currentLevel}.glb`,
+                    model: `../assets/mesh/wall_up_right/wall_up_right_lvl_${NiveauActuel}.glb`,
                     objectId: 'wall-up-right',
                     objectType: 'wall',
                     length: 160,
@@ -356,7 +336,7 @@ export default {
 
             rampPales: {
                 right: {
-                    model: `../assets/mesh/ramp_pale_down_right/ramp_pale_down_right_lvl_${currentLevel}.glb`,
+                    model: `../assets/mesh/ramp_pale_down_right/ramp_pale_down_right_lvl_${NiveauActuel}.glb`,
                     objectId: 'ramp-pale-down-right',
                     objectType: 'wall',
                     length: 100,
@@ -366,7 +346,7 @@ export default {
                     rotation: { x: 0, y: 3.14, z: 0 }
                 },
                 left: {
-                    model: `../assets/mesh/ramp_pale_down_left/ramp_pale_down_left_lvl_${currentLevel}.glb`,
+                    model: `../assets/mesh/ramp_pale_down_left/ramp_pale_down_left_lvl_${NiveauActuel}.glb`,
                     objectId: 'ramp-pale-down-left',
                     objectType: 'wall',
                     length: 100,
@@ -376,7 +356,7 @@ export default {
                     rotation: { x: 0, y: 3.14, z: 0 }
                 },
                 rightDeath: {
-                    model: `../assets/mesh/ramp_pale_down_right_death/ramp_pale_down_right_death_lvl_${currentLevel}.glb`,
+                    model: `../assets/mesh/ramp_pale_down_right_death/ramp_pale_down_right_death_lvl_${NiveauActuel}.glb`,
                     objectId: 'ramp-pale-down-right-death',
                     objectType: 'wall',
                     length: 90,
@@ -386,7 +366,7 @@ export default {
                     rotation: { x: 0, y: 3.14, z: 0 }
                 },
                 leftDeath: {
-                    model: `../assets/mesh/ramp_pale_down_left_death/ramp_pale_down_left_death_lvl_${currentLevel}.glb`,
+                    model: `../assets/mesh/ramp_pale_down_left_death/ramp_pale_down_left_death_lvl_${NiveauActuel}.glb`,
                     objectId: 'ramp-pale-down-left-death',
                     objectType: 'wall',
                     length: 90,
