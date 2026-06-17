@@ -576,9 +576,24 @@ export default {
             },
             
             bumper: {
+                
             },
 
             body: {
+                table: {
+                    map: '../assets/textures/lvl2/body/table/image.png',
+                    aoMap: '../assets/textures/lvl2/body/table/sea_ao_map.png',
+                    roughnessMap: '../assets/textures/lvl2/body/table/sea_roughness_map.png',
+                    normalMap: '../assets/textures/lvl2/body/table/sea_normal_map.png',
+                    repeat: [1, 1]
+                },
+                walls: {
+                    map: '../assets/textures/lvl2/body/walls/sea_wall_map.png',               
+                    aoMap: '../assets/textures/lvl2/body/walls/sea_wall_ao_map.png',
+                    roughnessMap: '../assets/textures/lvl2/body/walls/sea_wall_roughness_map.png',
+                    normalMap: '../assets/textures/lvl2/body/walls/sea_wall_normal_map.png',
+                    repeat: [10, 10]
+                },
             },
 
             bumper_triangle: {
@@ -626,41 +641,91 @@ export default {
         textures: {
             ball: {
                 map: '../assets/textures/lvl1/metal.png',
+                repeat: [4, 4],
             },
             
             bumper: {
+                map: '../assets/textures/lvl3/bumper/mossy_rock_arm_1k.png',
+                aoMap: '../assets/textures/lvl3/bumper/mossy_rock_diff_1k.png',
+                roughnessMap: '../assets/textures/lvl3/bumper/mossy_rock_nor_gl_1k.png',
+                repeat: [4, 4]
+
             },
 
             body: {
+                table: {
+                    map: '../assets/textures/lvl3/body/table/nature.png',
+                    aoMap: '../assets/textures/lvl3/body/table/fire_dark_ao.png',
+                    roughnessMap: '../assets/textures/lvl3/body/table/fire_dark_roughness.png',
+                    normalMap: '../assets/textures/lvl3/body/table/fire_dark_normal.png',
+                    repeat: [2, 1]
+                },
+                walls: {
+                    map: '../assets/textures/lvl3/body/walls/fire_wall.png',
+                    aoMap: '../assets/textures/lvl3/body/walls/fire_wall_ao.png',
+                    roughnessMap: '../assets/textures/lvl3/body/walls/fire_wall_roughness.png',
+                    normalMap: '../assets/textures/lvl3/body/walls/fire_wall_normal.png',
+                    repeat: [4, 4]
+                }
             },
 
             bumper_triangle: {
+                map: '../assets/textures/lvl3/bumper_triangle/forest_leaves_02_diffuse_1k.png',
+                aoMap: '../assets/textures/lvl3/bumper_triangle/forest_leaves_02_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl3/bumper_triangle/forest_leaves_02_arm_1k.png',
+                normalMap: '../assets/textures/lvl3/bumper_triangle/forest_leaves_02_nor_gl_1k.png',
+                repeat: [4, 4]
             },
 
             etage: {
+                map: '../assets/textures/lvl3/etage/fire_etage_diff.png',               
+                aoMap: '../assets/textures/lvl3/etage/fire_etage_ao.png',
+                roughnessMap: '../assets/textures/lvl3/etage/fire_etage_arm.png',
+                normalMap: '../assets/textures/lvl3/etage/fire_etage_nor.png',
+                repeat: [4, 4]
 
             },
 
             launching_ramp: {
                 entrance: {
+                    map: '../assets/textures/lvl3/launching_ramp/entrance/mossy_sandstone_diff_1k.png',
+                    aoMap: '../assets/textures/lvl3/launching_ramp/entrance/mossy_sandstone_arm_1k.png',
+                    roughnessMap: '../assets/textures/lvl3/launching_ramp/entrance/mossy_sandstone_arm_1k.png',
+                    normalMap: '../assets/textures/lvl3/launching_ramp/entrance/mossy_sandstone_nor_gl_1k.png',
+                    repeat: [4, 4]
 
                 },
                 rail: {
+                    map: '../assets/textures/lvl3/launching_ramp/rail/Metal008_1K-PNG_Color.png',
+                    aoMap: '../assets/textures/lvl3/launching_ramp/rail/Metal008_1K-PNG_Displacement.png',
+                    roughnessMap: '../assets/textures/lvl3/launching_ramp/rail/Metal008_1K-PNG_Roughness.png',
+                    normalMap: '../assets/textures/lvl3/launching_ramp/rail/Metal008_1K-PNG_Normal.png',
+                    repeat: [4, 4]
                 
                 },
             },
 
             palles: {
+                repeat: [4, 4]
 
             },
 
             ramp: {
-                map: '../assets/textures/lvl1/ramp_basecolor.png'
+                map: '../assets/textures/lvl1/ramp_basecolor.png',
+                aoMap: '../assets/textures/lvl3/ramp/stone_tiles_03_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl3/ramp/stone_tiles_03_arm_1k.png',
+                normalMap: '../assets/textures/lvl3/ramp/stone_tiles_03_nor_gl_1k.png',
+                repeat: [4, 4]
             },
 
             repulse: {
-
-            }
+                map: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_diff_1k.png',
+                aoMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_arm_1k.png',
+                metalnessMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_arm_1k.png',
+                normalMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_nor_gl_1k.png',
+                repeat: [4, 4]
+            },
         },
 
         soundtrack: {
@@ -683,40 +748,94 @@ export default {
         textures: {
             ball: {
                 map: '../assets/textures/lvl1/metal.png',
+                repeat: [4, 4],
             },
             
             bumper: {
+                map: '../assets/textures/lvl1/bumper/bush_photo_albedo_tileable.png',
+                aoMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+                roughnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+                metalnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
+                normalMap: '../assets/textures/lvl1/bumper/bush_photo_normal_tileable.png',
+                displacementMap: '../assets/textures/lvl1/bumper/bush_photo_displacement_tileable.png',
+                displacementScale: 0.05,
+                repeat: [4, 4]
             },
 
             body: {
+                table: {
+                    map: '../assets/textures/lvl4/body/table/nature.png',
+                    aoMap: '../assets/textures/lvl4/body/table/portal_ao_map.png',
+                    roughnessMap: '../assets/textures/lvl4/body/table/portal_roughness_map.png',
+                    normalMap: '../assets/textures/lvl4/body/table/portal_nor_map.png',
+                    repeat: [2, 1]
+                },
+                walls: {
+                    map: '../assets/textures/lvl4/body/walls/level4_wall_map.png',
+                    aoMap: '../assets/textures/lvl4/body/walls/level4_wall_ao_map.png',
+                    roughnessMap: '../assets/textures/lvl4/body/walls/level4_wall_roughness_map.png',
+                    normalMap: '../assets/textures/lvl4/body/walls/level4_wall_nor_map.png',
+                    repeat: [2, 2]
+                }
             },
 
             bumper_triangle: {
+                map: '../assets/textures/lvl4/bumper_triangle/forest_leaves_02_diffuse_1k.png',
+                aoMap: '../assets/textures/lvl4/bumper_triangle/forest_leaves_02_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl4/bumper_triangle/forest_leaves_02_arm_1k.png',
+                normalMap: '../assets/textures/lvl4/bumper_triangle/forest_leaves_02_nor_gl_1k.png',
+                repeat: [4, 4]
             },
 
             etage: {
+                map: '../assets/textures/lvl3/etage/portal_diffuse_1k.png',
+                aoMap: '../assets/textures/lvl3/etage/portal_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl3/etage/portal_arm_1k.png',
+                normalMap: '../assets/textures/lvl3/etage/portal_nor_gl_1k.png',
+                repeat: [4, 4]
 
             },
 
             launching_ramp: {
                 entrance: {
+                    map: '../assets/textures/lvl4/launching_ramp/entrance/mossy_sandstone_diff_1k.png',
+                    aoMap: '../assets/textures/lvl4/launching_ramp/entrance/mossy_sandstone_arm_1k.png',
+                    roughnessMap: '../assets/textures/lvl4/launching_ramp/entrance/mossy_sandstone_arm_1k.png',
+                    normalMap: '../assets/textures/lvl4/launching_ramp/entrance/mossy_sandstone_nor_gl_1k.png',
+                    repeat: [4, 4]
 
                 },
                 rail: {
-                
+                map: '../assets/textures/lvl4/launching_ramp/rail/Metal008_1K-PNG_Color.png',
+                aoMap: '../assets/textures/lvl4/launching_ramp/rail/Metal008_1K-PNG_Displacement.png',
+                roughnessMap: '../assets/textures/lvl4/launching_ramp/rail/Metal008_1K-PNG_Roughness.png',
+                normalMap: '../assets/textures/lvl4/launching_ramp/rail/Metal008_1K-PNG_Normal.png',
+                repeat: [4, 4]
                 },
             },
 
             palles: {
-
+                map: '../assets/textures/lvl1/palles/bush_photo_albedo_tileable.png',
+                aoMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
+                roughnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
+                normalMap: '../assets/textures/lvl1/palles/bush_photo_normal_tileable.png',
+                repeat: [4, 4]
             },
 
             ramp: {
-                map: '../assets/textures/lvl1/ramp_basecolor.png'
+                map: '../assets/textures/lvl1/ramp_basecolor.png',
+                aoMap: '../assets/textures/lvl4/ramp/stone_tiles_03_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl4/ramp/stone_tiles_03_arm_1k.png',
+                normalMap: '../assets/textures/lvl4/ramp/stone_tiles_03_nor_gl_1k.png',
+                repeat: [4, 4]
             },
 
             repulse: {
-
+                map: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_diff_1k.png',
+                aoMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_arm_1k.png',
+                normalMap: '../assets/textures/lvl1/repulse/coast_sand_rocks_02_nor_gl_1k.png',
+                repeat: [4, 4]
             }
         },
 
