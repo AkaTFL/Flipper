@@ -1,0 +1,343 @@
+﻿
+> test:frontend
+> node --test tests/frontend/config.test.js tests/frontend/game-physics.test.js tests/frontend/objects.test.js tests/frontend/controls.test.js tests/frontend/score-display.test.js tests/frontend/dmd-display.test.js tests/frontend/green-bloom.test.js
+
+TAP version 13
+# Subtest: config exposes the core physics sections used by the frontend
+not ok 1 - config exposes the core physics sections used by the frontend
+  ---
+  duration_ms: 19.0941
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:6:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(Config.gravity)
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:7:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: config uses positive values for gameplay-critical dimensions
+not ok 2 - config uses positive values for gameplay-critical dimensions
+  ---
+  duration_ms: 0.4461
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:15:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'radius')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:16:25)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: gravity configuration is numeric on all axes
+not ok 3 - gravity configuration is numeric on all axes
+  ---
+  duration_ms: 0.3766
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:22:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'x')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:24:39)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: config.staticMeshes lists the Mesh_final assets to integrate
+not ok 4 - config.staticMeshes lists the Mesh_final assets to integrate
+  ---
+  duration_ms: 2.2832
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:28:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(Array.isArray(Config.staticMeshes))
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:29:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: config.staticMeshes entries each have required fields
+not ok 5 - config.staticMeshes entries each have required fields
+  ---
+  duration_ms: 0.4161
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:40:1'
+  failureType: 'testCodeFailure'
+  error: 'Config.staticMeshes is not iterable'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:41:30)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: bumper, triangle, ramp and palles model paths reference Mesh_final
+not ok 6 - bumper, triangle, ramp and palles model paths reference Mesh_final
+  ---
+  duration_ms: 0.3189
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:49:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'instances')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:50:27)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: triangle bumpers use distinct left and right models
+not ok 7 - triangle bumpers use distinct left and right models
+  ---
+  duration_ms: 0.3952
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:57:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'find')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:58:41)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: palles config includes death-state model paths
+not ok 8 - palles config includes death-state model paths
+  ---
+  duration_ms: 0.1958
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\config.test.js:65:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'modelLeftDeath')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/bapti/Desktop/Flipper/Flipper/tests/frontend/config.test.js:66:27)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# node:internal/modules/package_json_reader:256
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@dimforge/rapier3d-compat' imported from C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\frontend\\flipper\\objects\\Objects.js
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:256:9)
+#     at packageResolve (node:internal/modules/esm/resolve:768:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:854:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:984:11)
+#     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:704:25)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:137:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.16.0
+# Subtest: tests\\frontend\\controls.test.js
+not ok 2 - tests\\frontend\\controls.test.js
+  ---
+  duration_ms: 147.3781
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\controls.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\frontend\\flipper\\ui\\DmdDisplay.js' imported from C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\dmd-display.test.js
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:860:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:984:11)
+#     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:704:25)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:137:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///C:/Users/bapti/Desktop/Flipper/Flipper/frontend/flipper/ui/DmdDisplay.js'
+# }
+# Node.js v22.16.0
+# Subtest: tests\\frontend\\dmd-display.test.js
+not ok 3 - tests\\frontend\\dmd-display.test.js
+  ---
+  duration_ms: 134.2373
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\dmd-display.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:256
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@dimforge/rapier3d-compat' imported from C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\frontend\\flipper\\physics\\GamePhysics.js
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:256:9)
+#     at packageResolve (node:internal/modules/esm/resolve:768:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:854:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:984:11)
+#     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:704:25)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:137:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.16.0
+# Subtest: tests\\frontend\\game-physics.test.js
+not ok 4 - tests\\frontend\\game-physics.test.js
+  ---
+  duration_ms: 144.3492
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\game-physics.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: GreenBloomEffect shader file exists and contains the effect class
+ok 12 - GreenBloomEffect shader file exists and contains the effect class
+  ---
+  duration_ms: 1.496
+  type: 'test'
+  ...
+# Subtest: GreenBloomEffect defines the required shader uniforms and shader source
+ok 13 - GreenBloomEffect defines the required shader uniforms and shader source
+  ---
+  duration_ms: 0.6292
+  type: 'test'
+  ...
+# Subtest: GreenBloomEffect exports parameter update and getter logic
+ok 14 - GreenBloomEffect exports parameter update and getter logic
+  ---
+  duration_ms: 0.4213
+  type: 'test'
+  ...
+# Subtest: GreenBloom manual browser test file exists and exposes the test helper
+ok 15 - GreenBloom manual browser test file exists and exposes the test helper
+  ---
+  duration_ms: 0.3051
+  type: 'test'
+  ...
+# node:internal/modules/package_json_reader:256
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'three' imported from C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\objects.test.js
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:256:9)
+#     at packageResolve (node:internal/modules/esm/resolve:768:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:854:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:984:11)
+#     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:704:25)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:137:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.16.0
+# Subtest: tests\\frontend\\objects.test.js
+not ok 6 - tests\\frontend\\objects.test.js
+  ---
+  duration_ms: 152.8727
+  type: 'test'
+  location: 'C:\\Users\\bapti\\Desktop\\Flipper\\Flipper\\tests\\frontend\\objects.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: ScoreDisplay mounts with default values
+ok 17 - ScoreDisplay mounts with default values
+  ---
+  duration_ms: 26.6978
+  type: 'test'
+  ...
+# Subtest: ScoreDisplay updates player state when receiving player_state_update
+ok 18 - ScoreDisplay updates player state when receiving player_state_update
+  ---
+  duration_ms: 0.5655
+  type: 'test'
+  ...
+# Subtest: ScoreDisplay updates its fields when receiving score_update
+ok 19 - ScoreDisplay updates its fields when receiving score_update
+  ---
+  duration_ms: 0.5397
+  type: 'test'
+  ...
+# Subtest: ScoreDisplay updates quest state when receiving quest_update
+ok 20 - ScoreDisplay updates quest state when receiving quest_update
+  ---
+  duration_ms: 0.4607
+  type: 'test'
+  ...
+# Subtest: ScoreDisplay updates boss state when receiving boss_state_update
+ok 21 - ScoreDisplay updates boss state when receiving boss_state_update
+  ---
+  duration_ms: 0.7576
+  type: 'test'
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 9
+# fail 12
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 258.2799
