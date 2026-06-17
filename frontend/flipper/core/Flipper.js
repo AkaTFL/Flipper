@@ -229,15 +229,18 @@ export async function initFlipper() {
         loadingPromises.push(waitForMesh(rampPale));
     });
 
-    // Ball
-    const ball = new Ball(sceneManager.scene, physics.world, Config.global.positioning.ball.position);
-    mesh.push(ball);
-    loadingPromises.push(waitForMesh(ball));
-    controls.setBallRef(ball);
 
-    physics.registerObjects(mesh);
+    setTimeout(() => {
+        const ball = new Ball(sceneManager.scene, physics.world, Config.global.positioning.ball.position, physics);
+        mesh.push(ball);
+
+        controls.setBallRef(ball);
+        physics.registerObjects(mesh);
+        sceneManager.scene.add(ball.mesh);
+    }, 5000);
 
     sceneManager.scene.add(...mesh.map(obj => obj.mesh));
+    
     physics.setLaunchingRampVisible(true);
 
     sceneManager.startRender(physics, () => {

@@ -10,9 +10,10 @@ export class Ball extends Objects {
      * @param {Object} world - The physics world
      * @param {Object} position - The position object with x, y, z properties
      */
-    constructor(scene, world, position = {x: 0, y: 500, z: 0}) {
+    constructor(scene, world, position = {x: 0, y: 500, z: 0}, gamePhysics = null) {
         super(world, null, null, null, position, { x: 0, y: 0, z: 0 }, Config.global.positioning.ball.radius, [], null);
         
+        this.gamePhysics = gamePhysics;
         this.scene = scene;
         this.objectId = 'ball';
         this.objectType = 'ball';
