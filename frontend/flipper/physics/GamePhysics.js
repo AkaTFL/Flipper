@@ -18,7 +18,7 @@ export class GamePhysics {
         this.activeScoreZones = new Set();
         this.activeRampZones = new Set();
         this.rampTraversal = null;
-        this.audioManager = new AudioManager();
+        this.audioManager = AudioManager.getShared();
         this.controls = null;
         this.scene = null;
         this.gameOver = false;

@@ -76,7 +76,7 @@ func TestScoreTrackerAppliesGlobalMultiplierThresholds(t *testing.T) {
 	}
 }
 
-func TestScoreTrackerScoresRepulseLikeBumper(t *testing.T) {
+func TestScoreTrackerUsesRepulseComboValues(t *testing.T) {
 	tracker := newScoreTracker(defaultScoreConfig)
 
 	first, ok := tracker.ApplyImpact(ImpactPayload{
@@ -87,8 +87,11 @@ func TestScoreTrackerScoresRepulseLikeBumper(t *testing.T) {
 	if !ok {
 		t.Fatal("expected first repulse impact to generate score")
 	}
-	if first.BasePoints != 25 || first.Delta != 25 || first.Score != 25 {
-		t.Fatalf("expected first repulse hit to add 25 points, got %+v", first)
+	if first.BasePoints != 40 || first.Delta != 40 || first.Score != 40 {
+		t.Fatalf("expected first repulse hit to add 40 points, got %+v", first)
+	}
+	if first.ComboBonus != 0 || first.ComboMultiplier != 1 {
+		t.Fatalf("expected no combo bonus and x1 multiplier on first hit, got %+v", first)
 	}
 
 	second, ok := tracker.ApplyImpact(ImpactPayload{
@@ -99,14 +102,14 @@ func TestScoreTrackerScoresRepulseLikeBumper(t *testing.T) {
 	if !ok {
 		t.Fatal("expected second repulse impact to generate score")
 	}
-	if second.BasePoints != 40 {
-		t.Fatalf("expected combo repulse hit to use 40 base points, got %d", second.BasePoints)
+	if second.BasePoints != 60 {
+		t.Fatalf("expected combo repulse hit to use 60 base points, got %d", second.BasePoints)
 	}
 	if second.ComboBonus != 50 || second.ComboMultiplier != 1 {
 		t.Fatalf("expected second hit to get +50 combo bonus and x1 multiplier, got %+v", second)
 	}
-	if second.Delta != 90 || second.Score != 115 {
-		t.Fatalf("expected second hit to add 90 and total 115, got %+v", second)
+	if second.Delta != 110 || second.Score != 150 {
+		t.Fatalf("expected second hit to add 110 and total 150, got %+v", second)
 	}
 }
 

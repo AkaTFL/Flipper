@@ -12,8 +12,11 @@ import { Repulse } from '../objects/Repulse.js';
 
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
+import { AudioManager } from '../physics/Audio.js';
 
 export async function initFlipper() {
+    AudioManager.getShared().unlock();
+
     const physics = new GamePhysics();
     await physics.init();
 
