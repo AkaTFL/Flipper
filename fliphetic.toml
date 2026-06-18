@@ -11,7 +11,7 @@ ref      = "integration/flipper-physique"
 [screens]
 playfield = { service = "app", port = 80, path = "/playfield/?cabinet=1" }
 backglass = { service = "app", port = 80, path = "/backglass/" }
-dmd       = { service = "app", port = 80, path = "/dmd/" }
+dmd       = { service = "app", port = 80, path = "/dmd/?demo=1" }
 
 [compose]
 file = "deploy/docker-compose.yml"

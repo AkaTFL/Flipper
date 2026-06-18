@@ -123,3 +123,23 @@ test('DmdDisplay conserve la couleur du multiplicateur sur le score', () => {
   assert.equal(display.rootEl.className, 'dmd-screen dmd-score dmd-multiplier-3');
   assert.equal(display.mainEl.textContent, '4 500');
 });
+
+test('DmdDisplay fait défiler automatiquement les combos du mode démo', () => {
+  const documentRef = createFakeDocument();
+  const display = new DmdDisplay({ documentRef, backendUrl: null });
+
+  display.advanceDemo();
+  assert.equal(display.titleEl.textContent, 'COMBO x1');
+  assert.equal(display.rootEl.className, 'dmd-screen dmd-combo dmd-multiplier-1');
+
+  display.advanceDemo();
+  assert.equal(display.titleEl.textContent, 'COMBO x2');
+
+  display.advanceDemo();
+  assert.equal(display.titleEl.textContent, 'COMBO x3');
+
+  display.advanceDemo();
+  assert.equal(display.titleEl.textContent, 'SUPER COMBO');
+  assert.equal(display.mainEl.textContent, 'x4');
+  assert.equal(display.rootEl.className, 'dmd-screen dmd-super-combo dmd-multiplier-4');
+});
