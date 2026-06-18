@@ -11,7 +11,7 @@ Le script Linux démarre :
 - le daemon ESP32 uniquement si `FLIPPER_BUTTON_SOURCE=esp32` ;
 - le navigateur sur le playfield quand aucun kiosque externe ne le gère.
 
-Sur le flipper physique, les boutons sont utilisés directement comme clavier et le kiosque existant charge les trois URLs `?screen=...`.
+Sur le flipper physique, le contrôleur ESP32 est détecté automatiquement, le daemon convertit ses événements en touches clavier et le kiosque existant charge les trois URLs `?screen=...`.
 
 ## Prérequis
 
@@ -40,7 +40,7 @@ cd /opt
 sudo git clone https://github.com/AkaTFL/Flipper.git flipper
 sudo chown -R "$USER:$USER" /opt/flipper
 cd /opt/flipper
-git checkout feature/163-lancement-automatique-flipper
+git checkout integration/flipper-physique
 ```
 
 ## Lancement manuel par terminal
@@ -55,13 +55,21 @@ chmod +x scripts/linux/start_flipper.sh scripts/linux/stop_flipper.sh
 Sur la machine physique avec son kiosque déjà configuré :
 
 ```bash
-FLIPPER_MANAGED_KIOSK=1 ./scripts/linux/start_flipper.sh
+FLIPPER_MANAGED_KIOSK=1 FLIPPER_BUTTON_SOURCE=esp32 ./scripts/linux/start_flipper.sh
 ```
+
+Le raccourci `flipper.desktop` et le service `flipper.service` utilisent déjà ces deux variables. Si l'ESP32 est absent, inaccessible ou si son daemon s'arrête au démarrage, le lancement échoue avec un message et le chemin du fichier de log.
 
 Pour tester avec un ESP32 externe :
 
 ```bash
 FLIPPER_BUTTON_SOURCE=esp32 ./scripts/linux/start_flipper.sh
+```
+
+En développement, le mode automatique utilise l'ESP32 s'il est détecté et revient au clavier sinon :
+
+```bash
+FLIPPER_BUTTON_SOURCE=auto ./scripts/linux/start_flipper.sh
 ```
 
 Pour arrêter :

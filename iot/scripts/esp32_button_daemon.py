@@ -16,7 +16,7 @@ except ImportError as exc:
 
 try:
     import pyautogui
-except ImportError:
+except Exception:
     pyautogui = None
 
 
@@ -121,6 +121,13 @@ def lancer(args: argparse.Namespace) -> int:
             print(port)
         return 0
 
+    if args.detect_port:
+        port = trouver_port_esp32()
+        if not port:
+            return 2
+        print(port)
+        return 0
+
     port = args.port
     if args.auto_port or not port:
         port = trouver_port_esp32()
@@ -180,6 +187,7 @@ def construire_parser() -> argparse.ArgumentParser:
     parser.add_argument("--timeout", type=float, default=0.1)
     parser.add_argument("--ready-delay", type=float, default=1.5)
     parser.add_argument("--list-ports", action="store_true", help="Liste les ports série disponibles")
+    parser.add_argument("--detect-port", action="store_true", help="Affiche uniquement le port ESP32 détecté")
     parser.add_argument("--auto-port", action="store_true", help="Détecte automatiquement le port ESP32")
     parser.add_argument("--clavier", "--keyboard", action="store_true", help="Envoie les touches au système")
     parser.add_argument(

@@ -3,3 +3,7 @@ backend/flipper-backend.exe
 doc/issues
 /.env
 .DS_Store
+__pycache__/
+*.pyc
+.flipper-run/
+.venv-flipper/
