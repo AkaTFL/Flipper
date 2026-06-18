@@ -13,5 +13,15 @@ Participants :
 - Communnication par le moyen de Websocket (communication avec TCP ouverture continu)
 - ESP32 avec serveur Moquitto
 
+## Lancement sur le flipper physique
+
+Pour la machine Linux du flipper physique, un script de lancement démarre les
+services Docker, le daemon ESP32 et le navigateur du playfield.
+
+Documentation :
+
+```text
+doc/Linux_Launcher_Flipper.md
+```
 
 Organisation sur la base d'un Gitflow

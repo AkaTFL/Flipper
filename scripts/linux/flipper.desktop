@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Flipper
+Comment=Lance automatiquement le flipper physique
+Exec=/opt/flipper/scripts/linux/start_flipper.sh
+Terminal=false
+X-GNOME-Autostart-enabled=true

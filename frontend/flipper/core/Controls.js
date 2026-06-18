@@ -9,7 +9,7 @@ export class Controls{
      * @param {string} launch
      */
 
-    constructor(left = 'a', right = 'e', launch = 'space', bossDebug = 'b') {
+    constructor(left = 'x', right = 'c', launch = 'd', bossDebug = 'b') {
         this.left = left;
         this.right = right;
         this.launch = launch;
