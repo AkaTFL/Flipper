@@ -1,7 +1,6 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 
 import { AudioManager } from '../physics/Audio.js';
 
@@ -49,13 +48,7 @@ export class Objects {
 
         this.audioManager = new AudioManager();
         this.audio = null;
-
         this.loader = new GLTFLoader();
-        this.dracoLoader = new DRACOLoader();
-
-        this.dracoLoader.setDecoderPath('/draco/'); // dossier contenant les décodeurs
-
-        this.loader.setDRACOLoader(this.dracoLoader);
     }
 
     initSound(sound) {

@@ -140,8 +140,7 @@ export async function initFlipper() {
     });
 
     // Repulse
-    Config.global.positioning.repulse = Config.global.positioning.repulse.instances;
-    Config.global.positioning.repulse.forEach((repulseConfig) => {
+    Config.global.positioning.repulse.instances.forEach((repulseConfig) => {
         const repulse = new Repulse(
             sceneManager.getCamera(),
             physics.world,
@@ -158,7 +157,9 @@ export async function initFlipper() {
     });
 
     // Palles
-    Config.global.positioning.palles.instances.forEach(pnl => {
+    const pallesInstances = Config.global.positioning.palles.instances;
+
+    pallesInstances.forEach((pnl) => {
         const pal = new Palles(physics.world, pnl.length, pnl.width, pnl.height, pnl.position, pnl.rotation, pnl.side);
         pal.gamePhysics = physics;
         mesh.push(pal);

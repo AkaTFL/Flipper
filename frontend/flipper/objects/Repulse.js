@@ -28,7 +28,7 @@ export class Repulse extends Objects {
         // Physics properties - Fixed (Static)
         this.createFixedRigidBody(position, rotation);
 
-        const repulseConfig = Config.global.positioning.repulse.find((entry) => entry.objectId === this.objectId) || null;
+        const repulseConfig = Config.global.positioning.repulse.instances.find((entry) => entry.objectId === this.objectId) || null;
 
         // Keep group from Objects; add either GLB model or procedural sphere
         this.mesh.position.copy(position);
