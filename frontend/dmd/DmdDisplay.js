@@ -206,9 +206,9 @@ export class DmdDisplay {
 
         this.resizeFrame = globalThis.requestAnimationFrame(() => {
             const lines = [
-                { element: this.titleEl, widthRatio: 0.94 },
-                { element: this.mainEl, widthRatio: 0.9 },
-                { element: this.subEl, widthRatio: 0.94 }
+                { element: this.titleEl, widthRatio: 0.95 },
+                { element: this.mainEl, widthRatio: 0.92 },
+                { element: this.subEl, widthRatio: 0.95 }
             ];
 
             for (const line of lines) {
