@@ -110,16 +110,15 @@ export class Objects {
         }
 
         try {
-            if (collider && typeof collider.handle !== 'undefined') {
+            if (
+                this.gamePhysics &&
+                collider &&
+                typeof collider.handle !== 'undefined'
+            ) {
                 const handle = collider.handle;
 
-                if (this.gamePhysics.colliderOwners) {
-                    this.gamePhysics.colliderOwners.set(handle, this);
-                }
-
-                if (this.gamePhysics.colliderResponders) {
-                    this.gamePhysics.colliderResponders.set(handle, this);
-                }
+                this.gamePhysics.colliderOwners?.set(handle, this);
+                this.gamePhysics.colliderResponders?.set(handle, this);
             }
         } catch (e) {
             console.warn('[attachCollider] failed to register collider', e);

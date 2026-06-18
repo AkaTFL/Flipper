@@ -237,6 +237,23 @@ export async function initFlipper() {
 
     physics.registerObjects(mesh);
 
+    await Promise.all(loadingPromises);
+
+    await waitForMesh(ball);
+    if (ball.rigidBody) {
+        ball.rigidBody.setEnabled(false);
+    }
+
+    // Attendre que tout soit chargé
+    await Promise.all(loadingPromises);
+
+    // ✅ Relâcher la balle une fois tout prêt
+    if (ball.rigidBody) {
+        setTimeout(() => {
+            ball.rigidBody.setEnabled(true);
+        }, 2000); // Attendre 1 seconde avant de relâcher la balle
+    }
+
     sceneManager.scene.add(...mesh.map(obj => obj.mesh));
     physics.setLaunchingRampVisible(true);
 
