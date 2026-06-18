@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GreenBloomEffect } from '../effects/GreenBloomEffect.js';
 
 export class Scene {
     /**
@@ -149,6 +150,16 @@ export class Scene {
         var container = document.getElementById('three');
         container.appendChild(this.renderer.domElement);
 
+        // Initialize Green Bloom Effect
+        this.greenBloomEffect = new GreenBloomEffect(this.renderer, this.scene, this.camera);
+
+        // Handle window resize for bloom effect
+        window.addEventListener('resize', () => {
+            if (this.greenBloomEffect) {
+                this.greenBloomEffect.handleResize();
+            }
+        });
+
         return { renderer: this.renderer, scene: this.scene, camera: this.camera };
     }
 
@@ -190,7 +201,13 @@ export class Scene {
             onUpdate();
         }
 
-        this.renderer.render(this.scene, this.camera);
+        // Render with Green Bloom Effect
+        if (this.greenBloomEffect) {
+            this.greenBloomEffect.render();
+        } else {
+            this.renderer.render(this.scene, this.camera);
+        }
+        
         requestAnimationFrame(() => this.render(physics, onUpdate));
     }
 }

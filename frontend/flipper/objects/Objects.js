@@ -1,6 +1,7 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+
 import { AudioManager } from '../physics/Audio.js';
 
 export class Objects {
@@ -47,6 +48,7 @@ export class Objects {
 
         this.audioManager = new AudioManager();
         this.audio = null;
+        this.loader = new GLTFLoader();
     }
 
     initSound(sound) {
@@ -131,63 +133,60 @@ export class Objects {
 
         modelRoot.updateMatrixWorld(true);
 
-        const vertices = [];
-        const indices = [];
+        let firstColliderDesc = null;
 
         modelRoot.traverse((child) => {
             if (!child.isMesh || !child.geometry) return;
 
             const geometry = child.geometry.clone();
-            const positionAttribute = geometry.getAttribute('position');
 
-            if (!positionAttribute) {
+            if (!geometry.getAttribute('position')) {
                 geometry.dispose();
                 return;
             }
 
-            if (!geometry.index) {
-                geometry.setIndex(Array.from({ length: positionAttribute.count }, (_, i) => i));
-            }
-
             geometry.applyMatrix4(child.matrixWorld);
 
-            const transformedPosition = geometry.getAttribute('position');
-            const baseIndexOffset = vertices.length / 3;
+            const position = geometry.getAttribute('position');
+            const vertices = [];
+            const indices = [];
 
-            for (let i = 0; i < transformedPosition.count; i++) {
+            for (let i = 0; i < position.count; i++) {
                 vertices.push(
-                    transformedPosition.getX(i),
-                    transformedPosition.getY(i),
-                    transformedPosition.getZ(i)
+                    position.getX(i),
+                    position.getY(i),
+                    position.getZ(i)
                 );
             }
 
             if (geometry.index) {
                 for (let i = 0; i < geometry.index.count; i++) {
-                    indices.push(geometry.index.getX(i) + baseIndexOffset);
+                    indices.push(geometry.index.getX(i));
                 }
             } else {
-                for (let i = 0; i < transformedPosition.count; i++) {
-                    indices.push(baseIndexOffset + i);
+                for (let i = 0; i < position.count; i++) {
+                    indices.push(i);
+                }
+            }
+
+            if (vertices.length > 0 && indices.length > 0) {
+                const desc = RAPIER.ColliderDesc.trimesh(vertices, indices);
+
+                this.attachCollider(desc);
+
+                if (!firstColliderDesc) {
+                    firstColliderDesc = desc;
                 }
             }
 
             geometry.dispose();
         });
 
-        if (vertices.length === 0 || indices.length === 0) {
-            console.warn(`[buildTrimeshCollider] Pas de géométrie valide trouvée (vertices: ${vertices.length}, indices: ${indices.length})`);
-            return null;
-        }
-
-        console.log(`[buildTrimeshCollider] Trimesh créé : ${vertices.length / 3} vertices, ${indices.length / 3} triangles`);
-        return RAPIER.ColliderDesc.trimesh(vertices, indices);
+        return firstColliderDesc;
     }
 
     addMesh(modelPath, onModelLoaded) {
-        const loader = new GLTFLoader();
-
-        loader.loadAsync(modelPath)
+        this.loader.loadAsync(modelPath)
             .then(({ scene: modelRoot }) => {
                 this.modelRoot = modelRoot;
                 modelRoot.updateMatrixWorld(true);
