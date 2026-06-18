@@ -127,6 +127,7 @@ export async function initFlipper() {
     Config.global.positioning.bumpers = Config.global.positioning.bumper.instances;
     Config.global.positioning.bumpers.forEach((bumperConfig) => {
         const bumper = new Bumper(
+            sceneManager.getCamera(),
             physics.world,
             bumperConfig.width,
             bumperConfig.position,
@@ -139,9 +140,9 @@ export async function initFlipper() {
     });
 
     // Repulse
-    Config.global.positioning.repulse = Config.global.positioning.repulse.instances;
-    Config.global.positioning.repulse.forEach((repulseConfig) => {
+    Config.global.positioning.repulse.instances.forEach((repulseConfig) => {
         const repulse = new Repulse(
+            sceneManager.getCamera(),
             physics.world,
             repulseConfig.length,
             repulseConfig.width,
@@ -156,7 +157,9 @@ export async function initFlipper() {
     });
 
     // Palles
-    Config.global.positioning.palles.instances.forEach(pnl => {
+    const pallesInstances = Config.global.positioning.palles.instances;
+
+    pallesInstances.forEach((pnl) => {
         const pal = new Palles(physics.world, pnl.length, pnl.width, pnl.height, pnl.position, pnl.rotation, pnl.side);
         pal.gamePhysics = physics;
         mesh.push(pal);
@@ -227,15 +230,18 @@ export async function initFlipper() {
         loadingPromises.push(waitForMesh(rampPale));
     });
 
-    // Ball
-    const ball = new Ball(physics.world, Config.global.positioning.ball.position);
-    mesh.push(ball);
-    loadingPromises.push(waitForMesh(ball));
-    controls.setBallRef(ball);
 
-    physics.registerObjects(mesh);
+    setTimeout(() => {
+        const ball = new Ball(sceneManager.scene, physics.world, Config.global.positioning.ball.position, physics);
+        mesh.push(ball);
+
+        controls.setBallRef(ball);
+        physics.registerObjects(mesh);
+        sceneManager.scene.add(ball.mesh);
+    }, 5000);
 
     sceneManager.scene.add(...mesh.map(obj => obj.mesh));
+    
     physics.setLaunchingRampVisible(true);
 
     sceneManager.startRender(physics, () => {

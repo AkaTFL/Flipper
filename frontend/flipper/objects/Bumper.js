@@ -2,6 +2,7 @@ import * as RAPIER from '@dimforge/rapier3d-compat';
 import * as THREE from 'three';
 import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
+import { TremblingFromImpact } from '../effects/Trembling.js'
 
 export class Bumper extends Objects {
     /**
@@ -11,9 +12,10 @@ export class Bumper extends Objects {
      * @param {Object} position - The position object with x, y, z properties
      * @param {number} rotation - The rotation of the bumper in radians
      */
-    constructor(world, width = 50, position = { x: 0, y: 300, z: 0 }, rotation = { x: 0, y: 0, z: 0 }, objectId = null) {
+    constructor(camera, world, width = 50, position = { x: 0, y: 300, z: 0 }, rotation = { x: 0, y: 0, z: 0 }, objectId = null) {
         super(world, null, null, null, position, rotation, width / 2, [], null);
 
+        this.camera = camera;
         this.objectId = objectId ?? 'bumper';
         this.objectType = 'bumper';
         this.radius = width / 2;
@@ -185,7 +187,7 @@ export class Bumper extends Objects {
 
     handleCollision() {
         this.playSound(Config.global.sounds.bumper.collision);
-
+        TremblingFromImpact(this.camera, 50, 300);
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

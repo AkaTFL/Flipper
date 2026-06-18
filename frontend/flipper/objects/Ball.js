@@ -3,13 +3,18 @@ import * as THREE from 'three';
 import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
 
+import { Shockwave } from '../effects/Shockwave.js';
+
 export class Ball extends Objects {
     /**
      * @param {Object} world - The physics world
      * @param {Object} position - The position object with x, y, z properties
      */
-    constructor(world, position = {x: 0, y: 500, z: 0}) {
+    constructor(scene, world, position = {x: 0, y: 500, z: 0}, gamePhysics = null) {
         super(world, null, null, null, position, { x: 0, y: 0, z: 0 }, Config.global.positioning.ball.radius, [], null);
+        
+        this.gamePhysics = gamePhysics;
+        this.scene = scene;
         this.objectId = 'ball';
         this.objectType = 'ball';
 
@@ -56,6 +61,6 @@ export class Ball extends Objects {
     }
 
     handleCollision() {
+        Shockwave(0.3, 0.2, 0.03, this.scene, this.mesh.position);
     }
 }
-    
