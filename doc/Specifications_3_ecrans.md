@@ -82,12 +82,12 @@ Dans notre gameplay, il sert à afficher les informations courtes et directement
 Exemples d'informations prévues :
 
 - score ;
-- série de combo ;
+- points gagnés ;
+- combos ;
 - multiplicateur ;
-- balles restantes ;
-- quêtes actives ;
-- HP du boss ;
-- HP du joueur.
+- balles restantes.
+
+Les quêtes, les HP du joueur et les informations du boss sont affichés sur le Backglass.
 
 ### Spécifications observées
 
@@ -118,19 +118,20 @@ Recommandations :
 Exemple de structure adaptée :
 
 ```text
-SCORE 12 500
-SÉRIE +600            MULT x2
+SCORE
+12 500
 BALLES 3/3
 ```
 
-Ou, pour les quêtes :
+Lors d'un combo :
 
 ```text
-QUÊTES 1/3
-✓ Points 2000/2000
-- Rampe parfaite 0/1
-- Survivre 20s 8/20s
+COMBO x3
++1 500
+SCORE 6 250
 ```
+
+La taille des trois lignes doit s'adapter automatiquement à la quantité de caractères et à la largeur de l'écran.
 
 ## Écran Playfield
 
@@ -173,8 +174,8 @@ Les informations de HUD doivent être limitées sur cet écran pour ne pas cache
 
 | Écran | Contenu principal recommandé |
 |---|---|
-| Backglass | Boss, ambiance de phase, animations narratives, effets spectaculaires |
-| DMD | Score, combo, quêtes, balles, HP joueur, HP boss |
+| Backglass | Boss, quêtes, HP joueur, ambiance et animations narratives |
+| DMD | Score, points gagnés, combos, multiplicateur et balles |
 | Playfield | Plateau jouable, bille, flippers, bumpers, rampes, targets, portails |
 
 ## URLs locales observées
