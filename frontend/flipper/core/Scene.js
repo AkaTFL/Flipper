@@ -1,7 +1,14 @@
 import * as THREE from 'three';
 import * as RAPIER from '@dimforge/rapier3d-compat';
+
+import Config from '../physics/Config.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { GreenBloomEffect } from '../effects/GreenBloomEffect.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+
+import { createBloom } from '../effects/postprocessing/BloomEffect.js';
+import { createFXAA } from '../effects/postprocessing/FXAAEffect.js';
+import { createSSAO } from '../effects/postprocessing/SSAOEffects.js';
 
 export class Scene {
     /**
@@ -21,6 +28,7 @@ export class Scene {
         this.scene = null;
         this.camera = null;
         this.controls = null;
+        this.composer = null;
         this.introLights = [];
 
         this.init(height, width, position, rotation);
@@ -47,22 +55,17 @@ export class Scene {
 
         // Camera with a wide view and far clipping plane
         this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 3000);
-        this.camera.position.z = position.z;
-        this.camera.position.y = position.y + 1000;
-        this.camera.position.x = position.x;
+        this.camera.position.z = position.z - 200;
+        this.camera.position.y = position.y + 900;
+        this.camera.position.x = position.x - 10;
         
         // Keep a strict top-down camera and flip table orientation to match gameplay view.
         this.camera.up.set(0, 0, 1);
-        this.camera.lookAt(0, 0, 0);
+        this.camera.lookAt(-500, 0, 0);
 
         // Orbit controls - commentez cette section pour désactiver facilement
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-        // ==========================================
-        // PARTIE VISUELLE (THREE.JS)
-        // ==========================================
-
-        // Soft ambient light (starts off)
         // ==========================================
         // PARTIE VISUELLE (THREE.JS)
         // ==========================================
@@ -98,21 +101,35 @@ export class Scene {
             return light;
         };
 
-        // Spot principal central — baisser l'intensité et élargir légèrement
-            // createSpotLight(   0,  900,    0,    0,    0,  2.0, Math.PI / 8, 0.35, 2048);
+        // Spot principal central — baisser l'intensité et élargir légèrement (1-+ vers gauche, 2-+ vers moins de hauteur, 3-+vers le haut)
+            // ── LUMIÈRES NATURELLES CENTRALES ──
+            const pointLight1 = new THREE.PointLight(0xffffff, 1.0, 1200);
+            pointLight1.position.set(0, 400, 100);
+            this.scene.add(pointLight1);
 
-            // // Spot arrière-centre — augmenter pour éclairer les bumpers
-            // createSpotLight(   0,  700, -500,    0, -250,  2.8, Math.PI / 10, 0.40, 1024);
+            const pointLight2 = new THREE.PointLight(0xffeedd, 0.3, 1200);
+            pointLight2.position.set(0, 300, -100);
+            this.scene.add(pointLight2);
 
-            // // Spot gauche haut — augmenter légèrement
-            // createSpotLight(-400,  600, -300, -150, -150,  2.0, Math.PI / 12, 0.35, 1024);
+            // ── POINT LIGHT BAS (zone palles + rampe) ──
+            const pointLightBottom = new THREE.PointLight(0xffffff, 5.0, 1000);
+            pointLightBottom.position.set(0, 300, -600);
+            this.scene.add(pointLightBottom);
 
-            // // Spot droit haut — augmenter légèrement
-            // createSpotLight( 400,  600, -300,  150, -150,  2.0, Math.PI / 12, 0.35, 1024);
+            // ── SPOTS AUX 4 COINS ──
 
-            // // Spot avant-centre — descendre Y et réduire encore l'intensité
-            // createSpotLight(   0,  500,  600,    0,  500,  0.7, Math.PI / 10, 0.50, 1024);
+            // Coin haut-gauche
+            createSpotLight(-350, 500, 0,   0, 0,  2.5, Math.PI / 9, 0.1, 1024);
 
+            // Coin haut-droit
+            createSpotLight( 350, 500, 0,   0, 0,  2.5, Math.PI / 9, 0.1, 1024);
+
+            // Coin bas-gauche — boosté
+            createSpotLight(-350, 400,  -500,   0, 400,  3.5, Math.PI / 7, 0.1, 1024);
+
+            // Coin bas-droit — boosté
+            createSpotLight( 350, 400,  -500,   0, 400,  3.5, Math.PI / 7, 0.1, 1024);
+        
         // Intro : lumières s'allument une à une avec un délai croissant
         setTimeout(() => {
             if (typeof this.playSound === 'function') {
@@ -150,15 +167,21 @@ export class Scene {
         var container = document.getElementById('three');
         container.appendChild(this.renderer.domElement);
 
-        // Initialize Green Bloom Effect
-        this.greenBloomEffect = new GreenBloomEffect(this.renderer, this.scene, this.camera);
-
-        // Handle window resize for bloom effect
-        window.addEventListener('resize', () => {
-            if (this.greenBloomEffect) {
-                this.greenBloomEffect.handleResize();
-            }
-        });
+        // ==========================================
+        // POST-PROCESSING (EffectComposer)
+        // ==========================================
+        this.composer = new EffectComposer(this.renderer);
+        this.composer.addPass(new RenderPass(this.scene, this.camera));
+        this.composer.addPass(createSSAO(this.scene, this.camera));
+        
+        this.composer.addPass(this.greenBloom = createBloom(this.scene, {
+            strength: 2,
+            radius: 2,
+            threshold: 0.7,
+            color: Config[Config.currentLevel].bloom,
+            tolerance: 0.1
+        }));
+        this.composer.addPass(createFXAA());
 
         return { renderer: this.renderer, scene: this.scene, camera: this.camera };
     }
@@ -201,12 +224,7 @@ export class Scene {
             onUpdate();
         }
 
-        // Render with Green Bloom Effect
-        if (this.greenBloomEffect) {
-            this.greenBloomEffect.render();
-        } else {
-            this.renderer.render(this.scene, this.camera);
-        }
+        this.composer.render();
         
         requestAnimationFrame(() => this.render(physics, onUpdate));
     }

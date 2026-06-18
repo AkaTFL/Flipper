@@ -10,9 +10,6 @@ import { Ramp } from '../objects/Ramp.js';
 import { StaticMesh } from '../objects/StaticMesh.js';
 import { Repulse } from '../objects/Repulse.js';
 
-
-import { ScoreDisplay } from '../ui/ScoreDisplay.js';
-
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
 
@@ -51,8 +48,7 @@ export async function initFlipper() {
     const controls = new Controls('q', 'd', 'space');
     physics.controls = controls;
     physics.scene = sceneManager.scene;
-    const scoreDisplay = new ScoreDisplay();
-    scoreDisplay.mount(container);
+
     container.appendChild(sceneManager.renderer.domElement);
 
     const saveSlotHandler = (slot) => {
@@ -62,18 +58,6 @@ export async function initFlipper() {
     const loadSlotHandler = (slot) => {
         physics.sendMessage('load_game', { slot });
     };
-
-    if (typeof scoreDisplay.setSaveSlotHandler === 'function') {
-        scoreDisplay.setSaveSlotHandler(saveSlotHandler);
-    } else {
-        scoreDisplay.onSaveSlot = saveSlotHandler;
-    }
-
-    if (typeof scoreDisplay.setLoadSlotHandler === 'function') {
-        scoreDisplay.setLoadSlotHandler(loadSlotHandler);
-    } else {
-        scoreDisplay.onLoadSlot = loadSlotHandler;
-    }
 
     let startGameSent = false;
 
@@ -230,19 +214,18 @@ export async function initFlipper() {
         loadingPromises.push(waitForMesh(rampPale));
     });
 
+    
+    const ball = new Ball(sceneManager.scene, physics.world, Config.global.positioning.ball.position, physics);
+    mesh.push(ball);
 
-    setTimeout(() => {
-        const ball = new Ball(sceneManager.scene, physics.world, Config.global.positioning.ball.position, physics);
-        mesh.push(ball);
-
-        controls.setBallRef(ball);
-        physics.registerObjects(mesh);
-        sceneManager.scene.add(ball.mesh);
-    }, 5000);
+    controls.setBallRef(ball);
+    physics.registerObjects(mesh);
+    sceneManager.scene.add(ball.mesh);
 
     await Promise.all(loadingPromises);
 
     await waitForMesh(ball);
+    
     if (ball.rigidBody) {
         ball.rigidBody.setEnabled(false);
     }
@@ -250,7 +233,6 @@ export async function initFlipper() {
     // Attendre que tout soit chargé
     await Promise.all(loadingPromises);
 
-    // ✅ Relâcher la balle une fois tout prêt
     if (ball.rigidBody) {
         setTimeout(() => {
             ball.rigidBody.setEnabled(true);

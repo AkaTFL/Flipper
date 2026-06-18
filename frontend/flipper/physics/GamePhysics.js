@@ -523,12 +523,11 @@ export class GamePhysics {
     }
 
     checkBallOutOfBounds() {
-        console.log('position y:', this.ball?.rigidBody?.translation()?.y, 'position z:', this.ball?.rigidBody?.translation()?.z);
         if (!this.ball?.rigidBody || this._ballLostReported || this.gameOver) return;
 
         const pos = this.ball.rigidBody.translation();
 
-        if (pos.z > Config.global.positioning.drainZThreshold || pos.y < Config.global.positioning.drainYThreshold) {
+        if (pos.z > Config.global.positioning.drainZThreshold && pos.y < Config.global.positioning.drainYThreshold) {
             this.triggerBallLost('back_wall');
         }
     }

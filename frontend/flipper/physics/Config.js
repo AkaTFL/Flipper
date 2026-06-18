@@ -462,21 +462,9 @@ export default {
             },
 
             bumper_triangle: {
-                // map: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_diffuse_1k.png',
-                // aoMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
-                // roughnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
-                // metalnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
-                // normalMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_nor_gl_1k.png',
-                // repeat: [4, 4]
             },
 
             etage: {
-                // map: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_diff_1k.png',               
-                // aoMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
-                // roughnessMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
-                // metalnessMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
-                // normalMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_nor_gl_1k.png',
-                // repeat: [4, 4]
             },
 
             ramps: {
@@ -501,23 +489,9 @@ export default {
             },
 
             palles: {
-                // map: '../assets/textures/lvl1/palles/bush_photo_albedo_tileable.png',
-                // aoMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
-                // roughnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
-                // metalnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
-                // normalMap: '../assets/textures/lvl1/palles/bush_photo_normal_tileable.png',
-                // displacementMap: '../assets/textures/lvl1/palles/bush_photo_displacement_tileable.png',
-                // displacementScale: 0.05,
-                // repeat: [4, 4]
             },
 
             launching_ramp: {
-                // map: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_diff_1k.png',
-                // aoMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
-                // roughnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
-                // metalnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
-                // normalMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_nor_gl_1k.png',
-                // repeat: [4, 4]
             },
 
             repulse: {
@@ -530,12 +504,6 @@ export default {
             },
 
             wall: {
-                // map: '../assets/textures/lvl1/wall/emerald_albedo_tileable.png',
-                // aoMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
-                // roughnessMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
-                // metalnessMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
-                // normalMap: '../assets/textures/lvl1/wall/emerald_normal_tileable.png',
-                // repeat: [4, 4]
             },
         },
         
@@ -548,6 +516,8 @@ export default {
                 "../assets/sound/Boss 1/5.mp3",
                 "../assets/sound/Boss 1/6.mp3"
             ]},
+
+        bloom: "0x00ff00",
         
         gravity: { x: 0, y: -9.75, z: -1.11 },
     },
