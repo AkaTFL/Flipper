@@ -5,6 +5,9 @@ export default {
     
     global: {
         positioning: {
+            drainZThreshold: -650,
+            drainYThreshold: 100,
+
             ball: {
                 density: 2.0,       // Densité
                 radius: 14,          // Rayon de la balle. Une balle de flipper typique a un rayon d'environ 14 mm)

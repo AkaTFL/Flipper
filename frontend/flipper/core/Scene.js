@@ -21,7 +21,7 @@ export class Scene {
         this.scene = null;
         this.camera = null;
         this.controls = null;
-        this.greenBloomEffect = null;
+        this.introLights = [];
 
         this.init(height, width, position, rotation);
     }
@@ -62,74 +62,80 @@ export class Scene {
         // PARTIE VISUELLE (THREE.JS)
         // ==========================================
 
-        // Soft ambient light
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+        // Soft ambient light (starts off)
+        // ==========================================
+        // PARTIE VISUELLE (THREE.JS)
+        // ==========================================
+
+        // Ambient très faible — juste pour éviter le noir total
+        const ambientLight = new THREE.AmbientLight(0x111122, 0);
         this.scene.add(ambientLight);
+        this.introLights.push({ light: ambientLight, targetIntensity: 0.15 });
 
-        const createShadowLight = (x, y, z, intensity = 0.5, shadowSize = 1024) => {
-
-            const light = new THREE.DirectionalLight(0xffffff, intensity);
+        const createSpotLight = (x, y, z, targetX, targetZ, intensity, angle, penumbra, shadowSize = 1024) => {
+            const light = new THREE.SpotLight(0xffffff, 0);
 
             light.position.set(x, y, z);
             light.castShadow = true;
+            light.angle = angle;
+            light.penumbra = penumbra;
+            light.decay = 2;
+            light.distance = 3000;
 
             light.shadow.mapSize.width = shadowSize;
             light.shadow.mapSize.height = shadowSize;
-
-            light.shadow.camera.left = -700;
-            light.shadow.camera.right = 700;
-            light.shadow.camera.top = 700;
-            light.shadow.camera.bottom = -700;
-
-            light.shadow.camera.near = 1;
+            light.shadow.camera.near = 10;
             light.shadow.camera.far = 3000;
-
             light.shadow.bias = -0.0001;
             light.shadow.normalBias = 0.02;
 
-            light.target.position.set(0, 0, 0);
-
+            light.target.position.set(targetX, 0, targetZ);
             this.scene.add(light.target);
             this.scene.add(light);
+
+            this.introLights.push({ light, targetIntensity: intensity });
 
             return light;
         };
 
-        // Lumière principale
-        createShadowLight(
-            0,
-            1200,
-            1000,
-            1.2,
-            2048
-        );
+        // Spot principal central — baisser l'intensité et élargir légèrement
+            // createSpotLight(   0,  900,    0,    0,    0,  2.0, Math.PI / 8, 0.35, 2048);
 
-        // Haut gauche
-        createShadowLight(
-            -800,
-            800,
-            -800,
-            0.5,
-            1024
-        );
+            // // Spot arrière-centre — augmenter pour éclairer les bumpers
+            // createSpotLight(   0,  700, -500,    0, -250,  2.8, Math.PI / 10, 0.40, 1024);
 
-        // Haut droit
-        createShadowLight(
-            800,
-            800,
-            -800,
-            0.5,
-            1024
-        );
+            // // Spot gauche haut — augmenter légèrement
+            // createSpotLight(-400,  600, -300, -150, -150,  2.0, Math.PI / 12, 0.35, 1024);
 
-        // Bas centre
-        createShadowLight(
-            0,
-            800,
-            1200,
-            0.4,
-            1024
-        );
+            // // Spot droit haut — augmenter légèrement
+            // createSpotLight( 400,  600, -300,  150, -150,  2.0, Math.PI / 12, 0.35, 1024);
+
+            // // Spot avant-centre — descendre Y et réduire encore l'intensité
+            // createSpotLight(   0,  500,  600,    0,  500,  0.7, Math.PI / 10, 0.50, 1024);
+
+        // Intro : lumières s'allument une à une avec un délai croissant
+        setTimeout(() => {
+            if (typeof this.playSound === 'function') {
+                this.playSound();
+            }
+
+            this.introLights.forEach((entry, index) => {
+                setTimeout(() => {
+                    const target = entry.targetIntensity;
+                    const duration = 600;
+                    const steps = 30;
+                    const increment = target / steps;
+                    let current = 0;
+
+                    const fade = setInterval(() => {
+                        current += increment;
+                        entry.light.intensity = Math.min(current, target);
+                        if (current >= target) clearInterval(fade);
+                    }, duration / steps);
+
+                }, index * 500); // ✅ chaque lumière s'allume 500ms après la précédente
+            });
+        }, 3000);
 
         // ==========================================
         // PARTIE PHYSIQUE (RAPIER)
