@@ -99,3 +99,26 @@ test('Controls triggers player damage and ball lost callbacks on debug keys', ()
 
   globalThis.window = previousWindow;
 });
+
+test('Controls reports physical button press and release events', () => {
+  const previousWindow = globalThis.window;
+  const windowStub = createWindowStub();
+  globalThis.window = windowStub;
+
+  const controls = new Controls('x', 'c', 'd');
+  const events = [];
+
+  controls.setButtonEventCallback((event) => events.push(event));
+
+  windowStub.listeners.get('keydown')({ key: 'x', preventDefault() {}, repeat: false });
+  windowStub.listeners.get('keyup')({ key: 'x', preventDefault() {} });
+  windowStub.listeners.get('keydown')({ key: 'g', preventDefault() {}, repeat: false });
+
+  assert.deepEqual(events, [
+    { name: 'button_white_left', key: 'x', active: true },
+    { name: 'button_white_left', key: 'x', active: false },
+    { name: 'button_front_left_green', key: 'g', active: true }
+  ]);
+
+  globalThis.window = previousWindow;
+});

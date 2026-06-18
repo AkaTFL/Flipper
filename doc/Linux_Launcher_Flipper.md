@@ -8,10 +8,10 @@ physique sans taper manuellement la commande du daemon ESP32.
 Le script Linux démarre :
 
 - les services Docker du projet ;
-- le daemon des boutons ESP32 en mode clavier ;
-- le navigateur sur le playfield.
+- le daemon ESP32 uniquement si `FLIPPER_BUTTON_SOURCE=esp32` ;
+- le navigateur sur le playfield quand aucun kiosque externe ne le gère.
 
-Le daemon détecte automatiquement le port série de l'ESP32 avec `--auto-port`.
+Sur le flipper physique, les boutons sont utilisés directement comme clavier et le kiosque existant charge les trois URLs `?screen=...`.
 
 ## Prérequis
 
@@ -50,6 +50,18 @@ Depuis la racine du projet :
 ```bash
 chmod +x scripts/linux/start_flipper.sh scripts/linux/stop_flipper.sh
 ./scripts/linux/start_flipper.sh
+```
+
+Sur la machine physique avec son kiosque déjà configuré :
+
+```bash
+FLIPPER_MANAGED_KIOSK=1 ./scripts/linux/start_flipper.sh
+```
+
+Pour tester avec un ESP32 externe :
+
+```bash
+FLIPPER_BUTTON_SOURCE=esp32 ./scripts/linux/start_flipper.sh
 ```
 
 Pour arrêter :
@@ -147,6 +159,24 @@ Le jeu doit être accessible sur :
 ```text
 http://localhost:3001
 ```
+
+Les URLs du kiosque physique restent disponibles :
+
+```text
+http://localhost:32789/?screen=playfield
+http://localhost:32789/?screen=backglass
+http://localhost:32789/?screen=dmd
+```
+
+Le routeur redirige automatiquement chaque écran vers le Playfield, le Backglass ou le DMD. Le Backglass affiche les derniers boutons pressés et relâchés pour faciliter le test du matériel.
+
+Avant la première installation sur le flipper, vérifier quel service utilise déjà la porte `32789` :
+
+```bash
+sudo ss -ltnp | grep 32789
+```
+
+Si l'écran de debug du flipper occupe encore cette porte, il doit être arrêté ou reconfiguré avant le lancement du conteneur `frontend_kiosk`. Cette vérification ne peut être réalisée que sur la machine physique.
 
 Le daemon doit afficher les événements des boutons dans le fichier de log :
 

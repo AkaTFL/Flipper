@@ -27,6 +27,7 @@ export class BackglassDisplay {
             damageTaken: 0,
             arrivalMessageUntil: 0
         };
+        this.buttonEvents = [];
         this.mount();
         this.connectBackend();
     }
@@ -41,12 +42,17 @@ export class BackglassDisplay {
         // create two child elements: combo line and quests block
         this.comboEl = this.documentRef.getElementById('combo');    
         this.questsEl = this.documentRef.getElementById('quests');
+        this.buttonsEl = this.documentRef.getElementById('buttons-monitor');
 
         this.render();
         return this.container;
     }
 
     connectBackend() {
+        if (!this.backendUrl) {
+            return;
+        }
+
         if (typeof globalThis.WebSocket !== 'function') {
             console.log('[DMD] WebSocket non disponible');
             return;
@@ -83,6 +89,7 @@ export class BackglassDisplay {
             this.updateComboState(message);
             this.updateQuestState(message);
             this.updateBossState(message);
+            this.updateButtonState(message);
 
             console.log('[DMD] message reçu du backend:', message);
             console.log('[DMD] type:', message.type);
@@ -142,6 +149,19 @@ export class BackglassDisplay {
         };
     }
 
+    updateButtonState(message) {
+        if (message?.type !== 'button_event') {
+            return;
+        }
+
+        const payload = message.payload ?? {};
+        const action = payload.active ? 'APPUI' : 'RELACHE';
+        const name = String(payload.name ?? payload.key ?? 'bouton_inconnu');
+
+        this.buttonEvents.push(`${action} ${name}`);
+        this.buttonEvents = this.buttonEvents.slice(-8);
+    }
+
     displayCombo() {
         const { score, multiplier, comboCount } = this.comboState;
 
@@ -191,9 +211,18 @@ export class BackglassDisplay {
         try {
             this.comboEl.textContent = this.displayCombo();
             this.questsEl.textContent = this.displayQuests();
+            this.buttonsEl.textContent = this.displayButtons();
         } catch (err) {
             this.comboEl.textContent = `DMD ${String(this.lastMessage.type ?? 'INCONNU').toUpperCase()}`;
             this.questsEl.textContent = this.formatFallbackMessage();
         }
+    }
+
+    displayButtons() {
+        const lines = this.buttonEvents.length > 0
+            ? this.buttonEvents
+            : ['EN ATTENTE...'];
+
+        return ['TEST BOUTONS', ...lines].join('\n');
     }
 }

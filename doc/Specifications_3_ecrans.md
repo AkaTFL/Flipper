@@ -186,6 +186,16 @@ DMD       : localhost:32789/?screen=dmd
 Playfield : localhost:32789/?screen=playfield
 ```
 
+Le service `frontend_kiosk` conserve ces URLs et redirige chaque rôle vers l'application correspondante :
+
+```text
+?screen=playfield -> http://localhost:3001
+?screen=backglass -> http://localhost:3002
+?screen=dmd      -> http://localhost:3003
+```
+
+Le Backglass affiche également un moniteur de diagnostic avec les huit derniers événements `APPUI` et `RELACHE` reçus depuis le Playfield. Ce panneau sert à valider les boutons physiques lors de l'installation.
+
 ## Dashboard
 
 Le dashboard de contrôle observé est disponible à l'adresse suivante :

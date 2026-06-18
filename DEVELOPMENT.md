@@ -52,10 +52,11 @@ docker compose down
 | Jeu | `3001` |
 | Backglass | `3002` |
 | DMD | `3003` |
+| Routeur kiosque | `32789` |
 | Backend | `8080` |
 | MQTT | `1883` |
 
-Les ports peuvent être modifiés avec `FRONTEND_PORT`, `BACKGLASS_PORT` et `DMD_PORT`.
+Les ports peuvent être modifiés avec `FRONTEND_PORT`, `BACKGLASS_PORT`, `DMD_PORT` et `KIOSK_PORT`.
 
 ## Commandes utiles
 

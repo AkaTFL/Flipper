@@ -43,6 +43,22 @@
         font-size: 18px;
         margin-bottom: 20px;
       }
+
+      #buttons-monitor {
+        position: fixed;
+        top: 24px;
+        left: 24px;
+        min-width: 360px;
+        padding: 16px;
+        border: 2px solid #34f28b;
+        background: rgba(0, 12, 8, 0.88);
+        color: #75ffb0;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 18px;
+        line-height: 1.45;
+        white-space: pre;
+        box-shadow: 0 0 18px rgba(52, 242, 139, 0.35);
+      }
     </style>
   </head>
   <body>
@@ -50,6 +66,7 @@
       <div id="combo"></div>
       <div id="quests"></div>
     </div>
+    <div id="buttons-monitor"></div>
     <script type="module">
       import { BackglassDisplay } from './BackglassDisplay.js';
       const backglassDisplay = new BackglassDisplay();

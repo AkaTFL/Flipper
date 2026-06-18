@@ -2,3 +2,4 @@ node_modules
 backend/flipper-backend.exe
 doc/issues
 /.env
+.DS_Store

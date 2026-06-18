@@ -97,6 +97,9 @@ export async function initFlipper() {
     controls.setBallLostCallback(() => {
         physics.triggerBallLost('manual');
     });
+    controls.setButtonEventCallback((button) => {
+        physics.sendMessage('button_event', button);
+    });
 
     // Launching Ramp
     const launching = new LaunchingRamp(

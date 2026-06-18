@@ -27,6 +27,10 @@ func (gs *GameService) HandleMessage(msg Message, messageBytes []byte) ([]byte, 
 		gs.handleFlipperAction(messageBytes)
 		return nil, false
 
+	case "button_event":
+		gs.handleButtonEvent(messageBytes)
+		return nil, false
+
 	case "impact":
 		gs.handleImpact(msg.Payload)
 		return nil, false
@@ -67,6 +71,11 @@ func (gs *GameService) HandleMessage(msg Message, messageBytes []byte) ([]byte, 
 		log.Printf("Type de message inconnu: %s", msg.Type)
 		return nil, false
 	}
+}
+
+// handleButtonEvent retransmet l'état des boutons aux écrans de diagnostic
+func (gs *GameService) handleButtonEvent(messageBytes []byte) {
+	gs.hub.broadcast <- messageBytes
 }
 
 // handleFlipperAction traite les actions flipper (broadcast uniquement)

@@ -28,6 +28,18 @@ export class Controls{
         this.bossFightStartCallback = null;
         this.playerDamageCallback = null;
         this.ballLostCallback = null;
+        this.buttonEventCallback = null;
+        this.buttonNames = {
+            a: 'button_black_left',
+            x: 'button_white_left',
+            g: 'button_front_left_green',
+            b: 'button_front_left_yellow',
+            h: 'button_front_left_red',
+            e: 'button_black_right',
+            c: 'button_white_right',
+            f: 'button_front_white',
+            d: 'plunger'
+        };
 
         this.initControls();
     }
@@ -48,6 +60,10 @@ export class Controls{
 
         window.addEventListener('keydown', (e) => {
             const key = this.getInputKey(e);
+
+            if (!e.repeat) {
+                this.emitButtonEvent(key, true);
+            }
 
             if (key === this.left) {
                 this.input.left = true;
@@ -93,6 +109,8 @@ export class Controls{
 
         window.addEventListener('keyup', (e) => {
             const key = this.getInputKey(e);
+
+            this.emitButtonEvent(key, false);
 
             if (key === this.left) {
                 this.input.left = false;
@@ -152,6 +170,20 @@ export class Controls{
 
     setBallLostCallback(callback) {
         this.ballLostCallback = callback;
+    }
+
+    setButtonEventCallback(callback) {
+        this.buttonEventCallback = callback;
+    }
+
+    emitButtonEvent(key, active) {
+        const name = this.buttonNames[key];
+
+        if (!name || typeof this.buttonEventCallback !== 'function') {
+            return;
+        }
+
+        this.buttonEventCallback({ name, key, active });
     }
 
     setLaunchChargeCount(value) {
