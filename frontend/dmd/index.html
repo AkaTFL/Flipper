@@ -39,74 +39,95 @@
           linear-gradient(180deg, #05070c 0%, #000 100%);
       }
 
-#score {
-    position: fixed;
-    inset: 0;
+      #score {
+        --dmd-color: rgb(4, 190, 200);
+        --dmd-glow: rgba(4, 190, 200, 0.85);
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4vh;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        padding: 4vh 4vw;
+        color: var(--dmd-color);
+        font-family: "Press Start 2P", monospace;
+        font-weight: 400;
+        line-height: 1.1;
+        letter-spacing: 0;
+        text-transform: uppercase;
+        white-space: nowrap;
+        text-align: center;
+        -webkit-font-smoothing: none;
+        text-rendering: geometricPrecision;
+        image-rendering: pixelated;
+        text-shadow:
+          4px 0 #000,
+          -4px 0 #000,
+          0 4px #000,
+          0 -4px #000,
+          6px 6px rgba(0, 0, 0, 0.95),
+          0 0 10px var(--dmd-glow),
+          0 0 22px var(--dmd-glow),
+          0 0 42px var(--dmd-glow);
+        user-select: none;
+        pointer-events: none;
+      }
 
-    display: flex;
-    align-items: center;
+      .dmd-title {
+        font-size: 8vh;
+        color: rgb(255, 220, 90);
+      }
 
-    /* CHIFFRE COLLÉ À DROITE */
-    justify-content: flex-end;
+      .dmd-main {
+        font-size: 23vh;
+      }
 
-    width: 100vw;
-    height: 100vh;
+      .dmd-sub {
+        font-size: 7vh;
+      }
 
-    padding-right: 2vw;
+      .dmd-points .dmd-main,
+      .dmd-combo .dmd-main,
+      .dmd-super-combo .dmd-main {
+        animation: dmd-pulse 0.38s steps(2, end) infinite;
+      }
 
-    overflow: hidden;
+      #score.dmd-multiplier-2 {
+        --dmd-color: rgb(70, 255, 130);
+        --dmd-glow: rgba(70, 255, 130, 0.85);
+      }
 
-    color: rgb(4, 190, 200);
+      #score.dmd-multiplier-3 {
+        --dmd-color: rgb(255, 145, 45);
+        --dmd-glow: rgba(255, 145, 45, 0.85);
+      }
 
-    font-family: "Press Start 2P", monospace;
-    font-weight: 400;
+      #score.dmd-multiplier-4 {
+        --dmd-color: rgb(255, 45, 45);
+        --dmd-glow: rgba(255, 45, 45, 0.85);
+      }
 
-    /* Taille de base */
-    font-size: 28vh;
+      .dmd-super-combo {
+        animation: dmd-shake 0.16s steps(2, end) infinite;
+      }
 
-    /* ÉTIREMENT UNIQUEMENT VERTICAL */
-    transform: scaleY(2.6);
-    transform-origin: right center;
+      .dmd-super-combo .dmd-title {
+        color: rgb(255, 240, 90);
+      }
 
-    line-height: 1;
-    letter-spacing: -0.08em;
+      @keyframes dmd-pulse {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.08); }
+      }
 
-    text-transform: uppercase;
-    white-space: nowrap;
-    text-align: right;
-
-    /* PIXEL */
-    -webkit-font-smoothing: none;
-    text-rendering: geometricPrecision;
-    image-rendering: pixelated;
-
-    /* OUTLINE PIXEL */
-    text-shadow:
-        5px 0 #000,
-        -5px 0 #000,
-        0 5px #000,
-        0 -5px #000,
-
-        5px 5px #000,
-        -5px 5px #000,
-        5px -5px #000,
-        -5px -5px #000,
-
-        10px 10px rgba(0, 0, 0, 0.95),
-
-        0 0 10px rgba(4,190,200,0.35);
-
-    /* BLOOM */
-    filter:
-    brightness(1.15)
-    contrast(1.6)
-    drop-shadow(0 0 12px rgba(4,190,200,0.85))
-    drop-shadow(0 0 24px rgba(4,190,200,0.6))
-    drop-shadow(0 0 48px rgba(4,190,200,0.35));
-
-    user-select: none;
-    pointer-events: none;
-}
+      @keyframes dmd-shake {
+        0% { transform: translateX(-0.7vw); }
+        100% { transform: translateX(0.7vw); }
+      }
       /* Scanlines CRT */
       body::after {
         content: "";
@@ -133,9 +154,9 @@
     <div id="score"></div>
 
     <script type="module">
-      import { DmdDisplay } from './DmdDisplay.js';
+      import { DmdDisplay } from './DmdDisplay.js?v=4';
 
-      const dmdDisplay = new DmdDisplay();
+      new DmdDisplay();
     </script>
   </body>
 </html>
