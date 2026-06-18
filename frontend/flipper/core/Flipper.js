@@ -6,6 +6,7 @@ import { Bumper } from '../objects/Bumper.js';
 import { LaunchingRamp } from '../objects/LaunchingRamp.js';
 import { Palles } from '../objects/Palles.js';
 import { Controls } from './Controls.js';
+import { CabinetButtons } from './CabinetButtons.js';
 import { Ramp } from '../objects/Ramp.js';
 import { StaticMesh } from '../objects/StaticMesh.js';
 import { Repulse } from '../objects/Repulse.js';
@@ -49,6 +50,8 @@ export async function initFlipper() {
 
     const container = document.getElementById('three');
     const controls = new Controls('x', 'c', 'd');
+    const cabinetButtons = new CabinetButtons();
+    cabinetButtons.connect();
     physics.controls = controls;
     physics.scene = sceneManager.scene;
     const scoreDisplay = new ScoreDisplay();

@@ -1,0 +1,55 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    volumes:
+      - ../iot/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -h 127.0.0.1 -t '$$SYS/broker/version' -C 1 -W 3 >/dev/null"]
+      interval: 5s
+      timeout: 4s
+      retries: 6
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: "1883"
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/health >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 8
+
+  bridge:
+    image: public.ecr.aws/docker/library/node:20-alpine
+    working_dir: /app
+    volumes:
+      - ../bridge:/app:ro
+    command: ["node", "server.js"]
+    devices:
+      - "/dev/ttyUSB0:/dev/esp"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8091/"]
+      interval: 5s
+      timeout: 3s
+      retries: 8
+
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    depends_on:
+      backend:
+        condition: service_healthy
+      bridge:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 5s
+      timeout: 3s
+      retries: 8

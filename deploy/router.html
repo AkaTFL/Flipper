@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flipper AkaTFL</title>
+  </head>
+  <body>
+    <script>
+      const screen = new URLSearchParams(window.location.search).get('screen');
+      const routes = {
+        playfield: '/playfield/?cabinet=1',
+        backglass: '/backglass/',
+        dmd: '/dmd/'
+      };
+
+      window.location.replace(routes[screen] || routes.playfield);
+    </script>
+  </body>
+</html>

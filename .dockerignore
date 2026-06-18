@@ -1,0 +1,14 @@
+.git
+.github
+.flipper-run
+.venv-flipper
+backend
+doc
+firmware
+iot
+k8s
+node_modules
+scripts
+tests
+*.md
+docker-compose*.yml

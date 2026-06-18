@@ -78,7 +78,7 @@
       const playButton = document.getElementById('play-button');
       const playOverlay = document.getElementById('play-overlay');
 
-      playButton.addEventListener('click', async () => {
+      const startFlipper = async () => {
         playButton.disabled = true;
         playButton.textContent = '…';
 
@@ -86,7 +86,13 @@
         await initFlipper();
 
         playOverlay?.remove();
-      }, { once: true });
+      };
+
+      playButton.addEventListener('click', startFlipper, { once: true });
+
+      if (new URLSearchParams(window.location.search).get('cabinet') === '1') {
+        startFlipper();
+      }
     </script>
   </body>
 </html>

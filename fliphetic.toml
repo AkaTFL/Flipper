@@ -1,0 +1,25 @@
+[app]
+id          = "akatfl-flipper"
+name        = "Flipper AkaTFL"
+authors     = ["AkaTFL"]
+description = "Flipper virtuel avec Playfield, Backglass, DMD et contrôleur ESP32."
+
+[deploy]
+strategy = "branch"
+ref      = "integration/flipper-physique"
+
+[screens]
+playfield = { service = "app", port = 80, path = "/playfield/?cabinet=1" }
+backglass = { service = "app", port = 80, path = "/backglass/" }
+dmd       = { service = "app", port = 80, path = "/dmd/" }
+
+[compose]
+file = "deploy/docker-compose.yml"
+ready_timeout = 60
+
+[esp32.esp32]
+firmware   = "firmware/build/firmware.bin"
+chip       = "esp32"
+flash_addr = "0x0"
+baud       = 115200
+required   = false
