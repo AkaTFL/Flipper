@@ -1,7 +1,6 @@
 import * as RAPIER from '@dimforge/rapier3d-compat';
-import Config from '../physics/Config.js';
+import Config, {NiveauActuel} from '../physics/Config.js';
 import { AudioManager } from './Audio.js';
-import currentLevel from '../physics/Config.js';
 
 export class GamePhysics {
     constructor() {
@@ -165,10 +164,10 @@ export class GamePhysics {
 
                     if (current < 4) {
                         Config.currentLevel = `lvl_${current + 1}`;
-                        currentLevel += 1;
+                        NiveauActuel += current + 1;
                     } else {
                         Config.currentLevel = 'post_lvl';
-                        currentLevel = currentLevel;
+                        NiveauActuel = NiveauActuel;
                     }
 
                     if (previousLevel !== Config.currentLevel) {
@@ -475,6 +474,10 @@ export class GamePhysics {
     }
 
     checkLaunchingRampHeight() {
+        if (!this.ball?.rigidBody) {
+            return;
+        }
+        
         const position = this.ball.rigidBody.translation();
         const triggerY = 15;
 
