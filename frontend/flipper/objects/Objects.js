@@ -45,17 +45,18 @@ export class Objects {
             this.mesh.rotation.set(rotation.x ?? 0, rotation.y ?? 0, rotation.z ?? 0);
         }
 
-        this.audioManager = new AudioManager();
+        this.audioManager = AudioManager.getShared();
         this.audio = null;
     }
 
     initSound(sound) {
-        this.audio = this.audioManager.initSound(sound);
+        const created = this.audioManager.createAudio(sound);
+        this.audio = created?.audio ?? null;
         return this.audio;
     }
 
-    playSound(sound) {
-        return this.audioManager.playSound(sound);
+    playSound(sound, volume) {
+        return this.audioManager.playSound(sound, volume);
     }
 
     stopSound(sound) {

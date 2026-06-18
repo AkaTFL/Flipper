@@ -1,5 +1,4 @@
 import Config from '../physics/Config.js';
-import {Objects} from '../objects/Objects.js';
 import { AudioManager } from '../physics/Audio.js';
 
 export class Controls{
@@ -28,6 +27,7 @@ export class Controls{
         this.bossFightStartCallback = null;
         this.playerDamageCallback = null;
         this.ballLostCallback = null;
+        this.audioManager = AudioManager.getShared();
 
         this.initControls();
     }
@@ -42,11 +42,10 @@ export class Controls{
             return key;
     }
 
-    obj = new Objects();
-
     initControls() {
 
         window.addEventListener('keydown', (e) => {
+            this.audioManager.unlock();
             const key = this.getInputKey(e);
 
             if (key === this.left) {
@@ -66,7 +65,7 @@ export class Controls{
                 this.launchChargeStart = Date.now();
                 this.launchChargeCount += 1;
                 console.log('Launch button pressed');
-                if (!this.impulseUsed) this.obj.playSound(Config.global.sounds.launchingRamp.charging);
+                if (!this.impulseUsed) this.audioManager.playSound(Config.global.sounds.launchingRamp.charging);
                 return;
             }
             if (key === this.bossDebug) {
@@ -115,8 +114,8 @@ export class Controls{
                 console.log(`Launch button released after charging for ${chargeDuration}ms, power: ${this.input.launchPower}`);
 
                     if (this.ballRef && !this.impulseUsed) {
-                        this.obj.stopSound(Config.global.sounds.launchingRamp.charging);
-                        this.obj.playSound(Config.global.sounds.launchingRamp.launch);
+                        this.audioManager.stopSound(Config.global.sounds.launchingRamp.charging);
+                        this.audioManager.playSound(Config.global.sounds.launchingRamp.launch);
                         if (typeof this.startGameCallback === 'function') {
                             this.startGameCallback();
                         }

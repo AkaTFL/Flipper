@@ -420,6 +420,11 @@ export default {
             
             bumper: {
                 collision: { file: "../assets/sound/Bumpers_collision.mp3", volume: 0.2 },
+                move: { file: "../assets/sound/Bumpers_collision.mp3", volume: 0.15 },
+            },
+
+            wall: {
+                collision: { file: "../assets/sound/Ball/wood/collision/1.mp3", volume: 0.08 },
             },
 
             staticMesh: {
@@ -427,8 +432,8 @@ export default {
             },
 
             launchingRamp: {  
-                charging: {file: "../assets/sound/Ramp_reload_1.mp3"} , 
-                launch: {file: "../assets/sound/Ramp_launch.mp3", volume: 0.2}
+                charging: { file: "../assets/sound/Ramp_reload_1.mp3", volume: 0.25, loop: true },
+                launch: { file: "../assets/sound/Ramp_launch.mp3", volume: 0.2 }
             },
 
             palles: {
