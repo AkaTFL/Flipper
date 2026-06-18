@@ -26,8 +26,9 @@ type SolenoidCommand struct {
 func (b *MQTTBridge) PublishImpact(impact ImpactPayload) bool {
 	topicID, ok := b.topicForImpact(impact)
 
+	// Beaucoup d'impacts (murs, sol, cibles non instrumentées) n'ont volontairement
+	// aucun solénoïde: on sort sans log pour éviter d'inonder la sortie en jeu.
 	if !ok {
-		log.Printf("Aucun solénoïde associé à l'impact %s (%s)", impact.ObjectID, impact.ObjectType)
 		return false
 	}
 
