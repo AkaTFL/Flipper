@@ -1,7 +1,9 @@
 export class DmdDisplay {
     constructor({
         documentRef = globalThis.document,
-        backendUrl = 'ws://localhost:8080/ws',
+        backendUrl = globalThis.location?.host
+            ? `${globalThis.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${globalThis.location.host}/ws`
+            : 'ws://localhost:8080/ws',
         feedbackMs = 1800
     } = {}) {
         this.documentRef = documentRef;
