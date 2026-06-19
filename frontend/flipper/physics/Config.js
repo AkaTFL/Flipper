@@ -259,7 +259,7 @@ export default {
                 rotation: { x: 0, y: Math.PI, z:0 }
             },
 
-            staticMeshes: [
+            StaticMesh: [
 
                 {
                     model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${NiveauActuel}.glb`,
