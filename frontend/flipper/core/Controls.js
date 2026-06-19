@@ -64,13 +64,11 @@ export class Controls{
             if (this.leftKeys.has(key)) {
                 this.pressedLeftKeys.add(key);
                 this.input.left = true;
-                console.log('Left flipper pressed');
                 return;
                 }
             if (this.rightKeys.has(key)) {
                 this.pressedRightKeys.add(key);
                 this.input.right = true;
-                console.log('Right flipper pressed');
                 return;
             }
             if (key === this.launch) {

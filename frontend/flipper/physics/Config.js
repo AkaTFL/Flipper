@@ -636,36 +636,16 @@ export default {
             },
 
             etage: {
-                map: '../assets/textures/lvl3/etage/fire_etage_diff.png',               
-                aoMap: '../assets/textures/lvl3/etage/fire_etage_ao.png',
-                roughnessMap: '../assets/textures/lvl3/etage/fire_etage_arm.png',
-                normalMap: '../assets/textures/lvl3/etage/fire_etage_nor.png',
-                repeat: [4, 4]
-
             },
 
             launching_ramp: {
                 entrance: {
-                    map: '../assets/textures/lvl3/launching_ramp/entrance/mossy_sandstone_diff_1k.png',
-                    aoMap: '../assets/textures/lvl3/launching_ramp/entrance/mossy_sandstone_arm_1k.png',
-                    roughnessMap: '../assets/textures/lvl3/launching_ramp/entrance/mossy_sandstone_arm_1k.png',
-                    normalMap: '../assets/textures/lvl3/launching_ramp/entrance/mossy_sandstone_nor_gl_1k.png',
-                    repeat: [4, 4]
-
                 },
-                rail: {
-                    map: '../assets/textures/lvl3/launching_ramp/rail/Metal008_1K-PNG_Color.png',
-                    aoMap: '../assets/textures/lvl3/launching_ramp/rail/Metal008_1K-PNG_Displacement.png',
-                    roughnessMap: '../assets/textures/lvl3/launching_ramp/rail/Metal008_1K-PNG_Roughness.png',
-                    normalMap: '../assets/textures/lvl3/launching_ramp/rail/Metal008_1K-PNG_Normal.png',
-                    repeat: [4, 4]
-                
+                rail: {                
                 },
             },
 
             palles: {
-                repeat: [4, 4]
-
             },
 
             ramp: {
@@ -868,5 +848,5 @@ export default {
             gravity: { x: 0, y: -17.0625, z: -2.22 },
     },
 
-    forceMultiplier: 100.0  // Multiplicateur de force pour ajuster l'intensité de la physique en fonction de l'échelle
+    forceMultiplier: 400.0  // Multiplicateur de force pour ajuster l'intensité de la physique en fonction de l'échelle
 }

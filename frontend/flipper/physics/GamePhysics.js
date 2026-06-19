@@ -60,7 +60,6 @@ export class GamePhysics {
         this.detectScoreZoneEntries();
         this.checkLaunchingRampHeight();
         this.checkBallOutOfBounds();
-        console.log('ball position:', this.ball?.rigidBody?.translation());
     }
 
     updateRollingBallSound() {
@@ -120,10 +119,7 @@ export class GamePhysics {
 
     // Communication avec le backend
     connectBackend() {
-        const protocol = globalThis.location?.protocol === 'https:' ? 'wss:' : 'ws:';
-        const socketUrl = globalThis.location?.host
-            ? `${protocol}//${globalThis.location.host}/ws`
-            : 'ws://localhost:8080/ws';
+        const socketUrl = 'http://localhost:8080/ws';
 
         try {
             this.backendSocket = new globalThis.WebSocket(socketUrl);
@@ -523,11 +519,11 @@ export class GamePhysics {
     }
 
     checkBallOutOfBounds() {
-        if (this.gameOver) return;
+        if (!this.ball?.rigidBody || this._ballLostReported || this.gameOver) return;
 
         const pos = this.ball.rigidBody.translation();
 
-        if (pos.z > Config.global.positioning.drainZThreshold && pos.y > Config.global.positioning.drainYThreshold) {
+        if (pos.z < Config.global.positioning.drainZThreshold && pos.y < Config.global.positioning.drainYThreshold) {
             this.triggerBallLost();
         }
     }
