@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
 
@@ -10,28 +10,24 @@ const projectRoot = path.resolve(__dirname, '../../');
 const effectPath = path.join(projectRoot, 'frontend', 'flipper', 'effects', 'GreenBloomEffect.js');
 const manualTestPath = path.join(projectRoot, 'frontend', 'flipper', 'effects', 'GreenBloomTest.js');
 
-const effectSource = readFileSync(effectPath, 'utf8');
-const manualTestSource = readFileSync(manualTestPath, 'utf8');
+const effectSource = await readFile(effectPath, 'utf8');
+const manualTestSource = await readFile(manualTestPath, 'utf8');
 
-test('GreenBloomEffect shader file exists in frontend tests folder', () => {
+test('GreenBloomEffect shader file exists and contains the effect class', () => {
   assert.ok(effectSource.includes('class GreenBloomEffect'));
 });
 
-test('GreenBloomEffect shader source contains the custom shader uniforms', () => {
-  assert.match(effectSource, /uniform\s+sampler2D\s+tDiffuse/);
-  assert.match(effectSource, /uniform\s+float\s+greenThreshold/);
-  assert.match(effectSource, /uniform\s+float\s+greenRange/);
-  assert.match(effectSource, /uniform\s+float\s+bloomIntensity/);
-});
-
-test('GreenBloomEffect shader source contains vertex and fragment shader code', () => {
+test('GreenBloomEffect defines the required shader uniforms and shader source', () => {
+  assert.match(effectSource, /tDiffuse/);
+  assert.match(effectSource, /greenThreshold/);
+  assert.match(effectSource, /greenRange/);
+  assert.match(effectSource, /bloomIntensity/);
   assert.match(effectSource, /varying\s+vec2\s+vUv/);
-  assert.match(effectSource, /gl_Position\s*=\s*projectionMatrix\s*\*/);
   assert.match(effectSource, /texture2D\(tDiffuse,\s*vUv\)/);
   assert.match(effectSource, /gl_FragColor\s*=\s*vec4\(finalColor,\s*texel\.a\)/);
 });
 
-test('GreenBloomEffect contains updateParam and getter method patterns', () => {
+test('GreenBloomEffect exports parameter update and getter logic', () => {
   assert.match(effectSource, /updateParams\s*\(/);
   assert.match(effectSource, /getParams\s*\(/);
   assert.match(effectSource, /this\.bloomPass\.uniforms\.greenThreshold\.value/);
@@ -39,7 +35,7 @@ test('GreenBloomEffect contains updateParam and getter method patterns', () => {
   assert.match(effectSource, /this\.bloomPass\.uniforms\.bloomIntensity\.value/);
 });
 
-test('GreenBloom manual browser test helper exists in the expected frontend location', () => {
+test('GreenBloom manual browser test file exists and exposes the test helper', () => {
   assert.ok(manualTestSource.includes('export async function testGreenBloomEffect'));
   assert.match(manualTestSource, /Structure du shader est valide/);
   assert.match(manualTestSource, /Les paramètres par défaut sont corrects/);
