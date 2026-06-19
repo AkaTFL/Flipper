@@ -50,12 +50,10 @@ export class Controls{
 
             if (key === this.left) {
                 this.input.left = true;
-                console.log('Left flipper pressed');
                 return;
                 }
             if (key === this.right) {
                 this.input.right = true;
-                console.log('Right flipper pressed');
                 return;
             }
             if (key === this.launch) {
@@ -95,12 +93,10 @@ export class Controls{
 
             if (key === this.left) {
                 this.input.left = false;
-                console.log('Left flipper released');
                 return;
             }
             if (key === this.right) {
                 this.input.right = false;
-                console.log('Right flipper released');
                 return;
             }
             if (key === this.launch) {

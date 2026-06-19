@@ -31,18 +31,30 @@ export class Palles extends Objects {
         this.restAngle = this.isLeft ? -this.initialAngle : this.initialAngle;
         this.rotationSpeed = Config.global.positioning.palles.rotationSpeed;
 
-        this.mesh.rotation.z = rotation.z + this.restAngle;
-        this.joint = null;
-        const initialRotation = {
-            x: rotation.x,
-            y: rotation.y,
-            z: rotation.z + this.restAngle
-        };
+    // Mesh rotation (Three.js)
+    this.mesh.rotation.set(
+        rotation.x,
+        rotation.y,
+        rotation.z + this.restAngle
+    );
 
-        const pallesDesc = RAPIER.RigidBodyDesc.dynamic()
-            .setTranslation(position.x, position.y, position.z)
-            .setCanSleep(false)
-            .setRotation({ x: Math.sin(initialRotation.x / 2), y: Math.sin(initialRotation.y / 2), z: Math.sin(initialRotation.z / 2), w: Math.cos(initialRotation.x / 2) * Math.cos(initialRotation.y / 2) * Math.cos(initialRotation.z / 2) });
+    // Quaternion propre (Rapier)
+    const euler = new THREE.Euler(
+        rotation.x,
+        rotation.y,
+        rotation.z + this.restAngle
+    );
+
+    const quat = new THREE.Quaternion().setFromEuler(euler);
+
+    const pallesDesc = RAPIER.RigidBodyDesc.dynamic()
+        .setTranslation(position.x, position.y, position.z)
+        .setRotation({
+            x: quat.x,
+            y: quat.y,
+            z: quat.z,
+            w: quat.w
+        });
 
         this.rigidBody = this.world.createRigidBody(pallesDesc);
 
@@ -58,13 +70,13 @@ export class Palles extends Objects {
                 const { box, center, halfLengthX, size } = this.getMeshMetrics(modelRoot);
 
                 // Align on X (pivot point), center vertically, and center on Z
-                const targetX = this.isLeft ? halfLengthX : -halfLengthX;
+                const targetX = this.isLeft ? halfLengthX + 5 : -halfLengthX - 5;
                 const currentX = this.isLeft ? box.max.x : box.min.x;
 
                 modelRoot.position.x += targetX - currentX;
                 modelRoot.position.y = -center.y;
-                modelRoot.position.z = -center.z;
-                
+                modelRoot.position.z = center.z + (this.isLeft ? 4 : 8);
+
                 const anchorBody = this.isLeft
                     ? { x: halfLengthX, y: 0, z: 0 }
                     : { x: -halfLengthX, y: 0, z: 0 };
