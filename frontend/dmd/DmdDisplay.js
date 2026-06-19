@@ -15,6 +15,8 @@ export class DmdDisplay {
         this.subEl = null;
         this.socket = null;
         this.feedbackTimer = null;
+        this.demoTimer = null;
+        this.demoStep = 0;
         this.resizeFrame = null;
         this.state = {
             mode: 'score',
@@ -27,6 +29,10 @@ export class DmdDisplay {
         };
         this.mount();
         this.connectBackend();
+
+        if (new URLSearchParams(globalThis.location?.search ?? '').get('demo') === '1') {
+            this.startDemo();
+        }
 
         if (typeof globalThis.addEventListener === 'function') {
             globalThis.addEventListener('resize', () => this.adjustTextSizes());
@@ -165,6 +171,26 @@ export class DmdDisplay {
         if (typeof this.feedbackTimer.unref === 'function') {
             this.feedbackTimer.unref();
         }
+    }
+
+    startDemo(intervalMs = 2500) {
+        this.advanceDemo();
+        this.demoTimer = setInterval(() => this.advanceDemo(), intervalMs);
+
+        if (typeof this.demoTimer.unref === 'function') {
+            this.demoTimer.unref();
+        }
+    }
+
+    advanceDemo() {
+        const multiplier = (this.demoStep % 4) + 1;
+        this.demoStep += 1;
+        this.state.multiplier = multiplier;
+        this.state.comboCount = multiplier;
+        this.state.delta = multiplier * 500;
+        this.state.score += this.state.delta;
+        this.state.mode = multiplier === 4 ? 'super-combo' : 'combo';
+        this.render();
     }
 
     render() {

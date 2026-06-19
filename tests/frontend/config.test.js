@@ -25,11 +25,11 @@ test('gravity configuration is numeric on all axes', () => {
   }
 });
 
-test('config.staticMeshes lists the Mesh_final assets to integrate', () => {
-  assert.ok(Array.isArray(Config.staticMeshes));
-  assert.ok(Config.staticMeshes.length > 0);
+test('config.StaticMesh lists the Mesh_final assets to integrate', () => {
+  assert.ok(Array.isArray(Config.StaticMesh));
+  assert.ok(Config.StaticMesh.length > 0);
 
-  const ids = Config.staticMeshes.map((m) => m.objectId);
+  const ids = Config.StaticMesh.map((m) => m.objectId);
   assert.ok(ids.includes('murs-cible-left'));
   assert.ok(ids.includes('murs-cible-right'));
   assert.ok(ids.includes('quadri-left-cible'));
@@ -37,8 +37,8 @@ test('config.staticMeshes lists the Mesh_final assets to integrate', () => {
   assert.ok(ids.includes('raque-side'));
 });
 
-test('config.staticMeshes entries each have required fields', () => {
-  for (const entry of Config.staticMeshes) {
+test('config.StaticMesh entries each have required fields', () => {
+  for (const entry of Config.StaticMesh) {
     assert.ok(entry.model,    `${entry.objectId} is missing model`);
     assert.ok(entry.objectId, `entry is missing objectId`);
     assert.ok(entry.position, `${entry.objectId} is missing position`);

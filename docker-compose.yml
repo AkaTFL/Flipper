@@ -82,6 +82,24 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  frontend_kiosk:
+    build:
+      context: ./frontend/kiosk
+      dockerfile: Dockerfile
+    container_name: frontend-kiosk
+    ports:
+      - "${KIOSK_PORT:-32789}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend_flipper:
+        condition: service_started
+      frontend_backglass:
+        condition: service_started
+      frontend_dmd:
+        condition: service_started
+    restart: unless-stopped
+
 volumes:
   mosquitto-data:
   backend-cache:

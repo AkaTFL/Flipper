@@ -13,6 +13,21 @@ Participants :
 - Communnication par le moyen de Websocket (communication avec TCP ouverture continu)
 - ESP32 avec serveur Moquitto
 
+## Lancement sur le flipper physique
+
+Pour la machine Linux du flipper physique, un script unique :
+
+- vérifie la disponibilité de la porte du kiosque ;
+- démarre et contrôle les services Docker ;
+- détecte le contrôleur ESP32 et démarre son daemon ;
+- rend disponibles automatiquement le Playfield, le Backglass et le DMD ;
+- affiche les événements des boutons sur le Backglass pendant le test.
+
+Documentation :
+
+```text
+doc/Linux_Launcher_Flipper.md
+```
 
 Organisation sur la base d'un Gitflow
 

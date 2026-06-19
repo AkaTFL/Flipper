@@ -8,7 +8,7 @@ import { Palles } from '../objects/Palles.js';
 import { Controls } from './Controls.js';
 import { CabinetButtons } from './CabinetButtons.js';
 import { Ramp } from '../objects/Ramp.js';
-import { Staticmeshes } from '../objects/Staticmeshes.js';
+import { StaticMesh } from '../objects/StaticMesh.js';
 import { Repulse } from '../objects/Repulse.js';
 
 import Config from '../physics/Config.js';
@@ -157,7 +157,7 @@ export async function initFlipper() {
     });
 
     // Etage (sol principal du flipper)
-    const etage = new Staticmeshes(physics.world, Config.global.positioning.etage.model, {
+    const etage = new StaticMesh(physics.world, Config.global.positioning.etage.model, {
         length:    Config.global.positioning.etage.length,
         width:     Config.global.positioning.etage.width,
         height:    Config.global.positioning.etage.height,
@@ -173,7 +173,7 @@ export async function initFlipper() {
     loadingPromises.push(waitFormeshes(etage));
 
     // Body flipper (structure principale depuis meshes_final)
-    const bodyFlipper = new Staticmeshes(physics.world, Config.global.positioning.bodyFlipper.model, {
+    const bodyFlipper = new StaticMesh(physics.world, Config.global.positioning.bodyFlipper.model, {
         length:     Config.global.positioning.bodyFlipper.length,
         width:      Config.global.positioning.bodyFlipper.width,
         height:     Config.global.positioning.bodyFlipper.height,
@@ -189,8 +189,8 @@ export async function initFlipper() {
     loadingPromises.push(waitFormeshes(bodyFlipper));
 
     // Static mesheses from meshes_final (murs_cible, quadri_cible, raque_side)
-    (Config.global.positioning.staticmesheses || []).forEach((cfg) => {
-        const staticmeshes = new Staticmeshes(physics.world, cfg.model, {
+    (Config.global.positioning.StaticMeshes || []).forEach((cfg) => {
+        const StaticMesh = new StaticMesh(physics.world, cfg.model, {
             length: cfg.length,
             width: cfg.width,
             height: cfg.height,
@@ -199,14 +199,14 @@ export async function initFlipper() {
             objectId: cfg.objectId,
             objectType: cfg.objectType
         });
-        staticmeshes.gamePhysics = physics;
-        meshes.push(staticmeshes);
-        loadingPromises.push(waitFormeshes(staticmeshes));
+        StaticMesh.gamePhysics = physics;
+        meshes.push(StaticMesh);
+        loadingPromises.push(waitFormeshes(StaticMesh));
     });
 
     // Ramp pales (right, left, rightDeath, leftDeath)
     Object.values(Config.global.positioning.rampPales).forEach(cfg => {
-        const rampPale = new Staticmeshes(physics.world, cfg.model, {
+        const rampPale = new StaticMesh(physics.world, cfg.model, {
             length:     cfg.length,
             width:      cfg.width,
             height:     cfg.height,

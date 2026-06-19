@@ -119,7 +119,10 @@ export class GamePhysics {
 
     // Communication avec le backend
     connectBackend() {
-        const socketUrl = 'http://localhost:8080/ws';
+        const protocol = globalThis.location?.protocol === 'https:' ? 'wss:' : 'ws:';
+        const socketUrl = globalThis.location?.host
+            ? `${protocol}//${globalThis.location.host}/ws`
+            : 'ws://localhost:8080/ws';
 
         try {
             this.backendSocket = new globalThis.WebSocket(socketUrl);
