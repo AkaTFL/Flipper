@@ -14,7 +14,7 @@ export default {
                 mass: 80,           // Masse
                 restitution: 0.7,   // Bounciness (0 = pas de rebond, 1 = rebond total)
                 friction: 0.1,      // Glissement 
-                position: { x: -250, y: 210, z: -600 },
+                position: { x: -260, y: 210, z: -560 },
                 model: `../assets/mesh/Body_flipper.glb`, // Position de départ
                 objectId: 'ball'
             },
@@ -222,14 +222,14 @@ export default {
             palles: {
                 restitution: 0.5,
                 friction: 0.5,
-                rotationSpeed: 700,
+                rotationSpeed: 1400,
                 rotationAngle: 40 * (Math.PI / 180),
                 initialAngle: 30 * (Math.PI / 180),
                 instances: [
-                    { length: 60, width: 20, height: 30, position: { x: 54, y: 15, z: -545 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
-                    { length: 60, width: 20, height: 30, position: { x: -72, y: 15, z: -545 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
-                    { length: 40, width: 13, height: 20, position: { x: 40, y: 5, z: 20 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
-                    { length: 40, width: 13, height: 20, position: { x: -76, y: 5, z: 20 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
+                    { length: 80, width: 26, height: 40, position: { x: 44, y: 15, z: -532 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+                    { length: 80, width: 26, height: 40, position: { x: -62, y: 15, z: -532 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
+                    { length: 60, width: 20, height: 30, position: { x: 30, y: 5, z: 10 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+                    { length: 60, width: 20, height: 30, position: { x: -56, y: 5, z: 10 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
                 ],
                 modelRight: `../assets/mesh/palles/Right_flipper_lvl_${NiveauActuel}.glb`,
                 modelLeft: `../assets/mesh/palles/Left_flipper_lvl_${NiveauActuel}.glb`
@@ -848,5 +848,5 @@ export default {
             gravity: { x: 0, y: -17.0625, z: -2.22 },
     },
 
-    forceMultiplier: 400.0  // Multiplicateur de force pour ajuster l'intensité de la physique en fonction de l'échelle
+    forceMultiplier: 150.0  // Multiplicateur de force pour ajuster l'intensité de la physique en fonction de l'échelle
 }

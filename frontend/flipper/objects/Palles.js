@@ -12,7 +12,8 @@ export class Palles extends Objects {
      * @param {Object} rotation - The rotation object with x, y, z properties
      * @param {string} side - 'left' ou 'right'
      */
-    constructor(world, length = 500, width = 10, height = 10, position = {x: 250, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}, side) {
+    constructor(world, length = 500, width = 10, height = 10, position = {x: 250, y: 500, z: 0}, 
+        rotation = {x: 0, y: 0, z: 0}, side) {
         super(world, length, width, height, position, rotation, null, [], null);
         this.objectId = side ? `palle-${side}` : 'palle';
         this.objectType = 'palle';
@@ -75,7 +76,7 @@ export class Palles extends Objects {
 
                 modelRoot.position.x += targetX - currentX;
                 modelRoot.position.y = -center.y;
-                modelRoot.position.z = center.z + (this.isLeft ? 4 : 8);
+                modelRoot.position.z = center.z + (this.isLeft ? 4 : 6);
 
                 const anchorBody = this.isLeft
                     ? { x: halfLengthX, y: 0, z: 0 }
