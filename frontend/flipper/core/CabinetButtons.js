@@ -1,13 +1,13 @@
-const BUTTON_KEYS = {
-    'black-left': 'a',
-    'white-left': 'x',
-    'front-left-green': 'g',
+export const CABINET_BUTTON_KEYS = {
+    'black-left': 'q',
+    'white-left': 'w',
+    'front-left-green': 'l',
     'front-left-yellow': 'b',
     'front-left-red': 'h',
-    'black-right': 'e',
+    'black-right': 'd',
     'white-right': 'c',
     'front-white': 'f',
-    plunger: 'd'
+    plunger: ' '
 };
 
 export class CabinetButtons {
@@ -47,7 +47,7 @@ export class CabinetButtons {
         for (const [name, active] of Object.entries(buttons)) {
             if (this.previousButtons[name] === active) continue;
 
-            const key = BUTTON_KEYS[name];
+            const key = CABINET_BUTTON_KEYS[name];
             if (key) {
                 const KeyboardEventClass = this.windowRef?.KeyboardEvent ?? globalThis.KeyboardEvent;
                 this.windowRef.dispatchEvent(new KeyboardEventClass(active ? 'keydown' : 'keyup', {

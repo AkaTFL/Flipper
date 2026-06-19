@@ -164,6 +164,16 @@ Pendant le developpement, le frontend expose des touches simples pour tester la 
 | `H` | simule une attaque du boss et retire `20 HP` au joueur |
 | `L` | simule une perte de balle |
 
+Sur le meuble physique, ces touches sont envoyees par les boutons suivants :
+
+| Bouton ESP32 | Touche | Simulation |
+|---|---|---|
+| `front-left-yellow` | `B` | boss fight |
+| `front-left-red` | `H` | perte de HP |
+| `front-left-green` | `L` | perte de balle |
+
+Le mapping complet est centralise dans [`Controles_flipper.md`](Controles_flipper.md).
+
 Ces touches sont temporaires et servent uniquement au debug gameplay.
 
 ## Equilibrage initial

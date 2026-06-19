@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { CabinetButtons } from '../../frontend/flipper/core/CabinetButtons.js';
+import { CABINET_BUTTON_KEYS, CabinetButtons } from '../../frontend/flipper/core/CabinetButtons.js';
 
 class FakeKeyboardEvent {
   constructor(type, options) {
@@ -23,10 +23,24 @@ test('CabinetButtons transforme les changements ESP32 en touches du jeu', () => 
   buttons.handleState({ buttons: { 'white-left': false, plunger: true } });
 
   assert.deepEqual(events.map(({ type, key }) => ({ type, key })), [
-    { type: 'keydown', key: 'x' },
-    { type: 'keydown', key: 'd' },
-    { type: 'keyup', key: 'x' }
+    { type: 'keydown', key: 'w' },
+    { type: 'keydown', key: ' ' },
+    { type: 'keyup', key: 'w' }
   ]);
+});
+
+test('le mapping physique correspond aux touches documentées', () => {
+  assert.deepEqual(CABINET_BUTTON_KEYS, {
+    'black-left': 'q',
+    'white-left': 'w',
+    'front-left-green': 'l',
+    'front-left-yellow': 'b',
+    'front-left-red': 'h',
+    'black-right': 'd',
+    'white-right': 'c',
+    'front-white': 'f',
+    plunger: ' '
+  });
 });
 
 test('CabinetButtons ignore les états sans boutons', () => {
