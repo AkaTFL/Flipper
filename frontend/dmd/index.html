@@ -43,16 +43,16 @@
         --dmd-color: rgb(4, 190, 200);
         --dmd-glow: rgba(4, 190, 200, 0.85);
         position: fixed;
-        inset: 0;
+        inset: 2.5vh 2.5vw;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 4vh;
-        width: 100vw;
-        height: 100vh;
+        width: 95vw;
+        height: 95vh;
         overflow: hidden;
-        padding: 4vh 4vw;
+        padding: 1vh 1vw;
         color: var(--dmd-color);
         font-family: "Press Start 2P", monospace;
         font-weight: 400;
@@ -78,16 +78,16 @@
       }
 
       .dmd-title {
-        font-size: 8vh;
+        font-size: 15vh;
         color: rgb(255, 220, 90);
       }
 
       .dmd-main {
-        font-size: 23vh;
+        font-size: 50vh;
       }
 
       .dmd-sub {
-        font-size: 7vh;
+        font-size: 12vh;
       }
 
       .dmd-points .dmd-main,
@@ -154,7 +154,7 @@
     <div id="score"></div>
 
     <script type="module">
-      import { DmdDisplay } from './DmdDisplay.js?v=4';
+      import { DmdDisplay } from './DmdDisplay.js?v=5';
 
       new DmdDisplay();
     </script>
