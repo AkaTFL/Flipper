@@ -49,7 +49,7 @@ export async function initFlipper() {
     );
 
     const container = document.getElementById('three');
-    const controls = new Controls('x', 'c', 'd');
+    const controls = new Controls(['q', 'w'], ['d', 'c'], 'space', 'b');
     const cabinetButtons = new CabinetButtons();
     cabinetButtons.connect();
     physics.controls = controls;

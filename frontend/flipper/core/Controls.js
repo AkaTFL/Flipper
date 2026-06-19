@@ -3,18 +3,22 @@ import { AudioManager } from '../physics/Audio.js';
 
 export class Controls{
     /**
-     * @param {string} left
-     * @param {string} right
+     * @param {string|string[]} left
+     * @param {string|string[]} right
      * @param {string} launch
      */
 
-    constructor(left = 'a', right = 'e', launch = 'space', bossDebug = 'b') {
-        this.left = left;
-        this.right = right;
-        this.launch = launch;
-        this.bossDebug = bossDebug;
+    constructor(left = 'q', right = 'd', launch = 'space', bossDebug = 'b') {
+        this.leftKeys = this.normalizeKeys(left);
+        this.rightKeys = this.normalizeKeys(right);
+        this.left = [...this.leftKeys][0];
+        this.right = [...this.rightKeys][0];
+        this.launch = this.normalizeKey(launch);
+        this.bossDebug = this.normalizeKey(bossDebug);
         this.playerDamageDebug = 'h';
         this.ballLostDebug = 'l';
+        this.pressedLeftKeys = new Set();
+        this.pressedRightKeys = new Set();
 
         this.input = { left: false, right: false, launch: false, launchPower: 0 };
 
@@ -30,6 +34,15 @@ export class Controls{
         this.audioManager = AudioManager.getShared();
 
         this.initControls();
+    }
+
+    normalizeKey(key) {
+        return key === ' ' ? 'space' : String(key ?? '').toLowerCase();
+    }
+
+    normalizeKeys(keys) {
+        const values = Array.isArray(keys) ? keys : [keys];
+        return new Set(values.map((key) => this.normalizeKey(key)).filter(Boolean));
     }
 
     getInputKey(event) {
@@ -48,11 +61,13 @@ export class Controls{
             this.audioManager.unlock();
             const key = this.getInputKey(e);
 
-            if (key === this.left) {
+            if (this.leftKeys.has(key)) {
+                this.pressedLeftKeys.add(key);
                 this.input.left = true;
                 return;
                 }
-            if (key === this.right) {
+            if (this.rightKeys.has(key)) {
+                this.pressedRightKeys.add(key);
                 this.input.right = true;
                 return;
             }
@@ -91,12 +106,16 @@ export class Controls{
         window.addEventListener('keyup', (e) => {
             const key = this.getInputKey(e);
 
-            if (key === this.left) {
-                this.input.left = false;
+            if (this.leftKeys.has(key)) {
+                this.pressedLeftKeys.delete(key);
+                this.input.left = this.pressedLeftKeys.size > 0;
+                console.log('Left flipper released');
                 return;
             }
-            if (key === this.right) {
-                this.input.right = false;
+            if (this.rightKeys.has(key)) {
+                this.pressedRightKeys.delete(key);
+                this.input.right = this.pressedRightKeys.size > 0;
+                console.log('Right flipper released');
                 return;
             }
             if (key === this.launch) {
