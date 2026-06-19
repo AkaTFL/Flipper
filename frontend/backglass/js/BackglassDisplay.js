@@ -3,7 +3,9 @@ const DEFAULT_TEXT = 'En attente du backend...';
 export class BackglassDisplay {
     constructor({
         documentRef = globalThis.document,
-        backendUrl = 'ws://localhost:8080/ws'
+        backendUrl = globalThis.location?.host
+            ? `${globalThis.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${globalThis.location.host}/ws`
+            : 'ws://localhost:8080/ws'
     } = {}) {
         this.documentRef = documentRef;
         this.backendUrl = backendUrl;

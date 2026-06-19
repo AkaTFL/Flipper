@@ -1,7 +1,9 @@
 export class DmdDisplay {
     constructor({
         documentRef = globalThis.document,
-        backendUrl = 'ws://localhost:8080/ws',
+        backendUrl = globalThis.location?.host
+            ? `${globalThis.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${globalThis.location.host}/ws`
+            : 'ws://localhost:8080/ws',
         feedbackMs = 1800
     } = {}) {
         this.documentRef = documentRef;
@@ -204,9 +206,9 @@ export class DmdDisplay {
 
         this.resizeFrame = globalThis.requestAnimationFrame(() => {
             const lines = [
-                { element: this.titleEl, widthRatio: 0.9 },
-                { element: this.mainEl, widthRatio: 0.82 },
-                { element: this.subEl, widthRatio: 0.9 }
+                { element: this.titleEl, widthRatio: 0.95 },
+                { element: this.mainEl, widthRatio: 0.92 },
+                { element: this.subEl, widthRatio: 0.95 }
             ];
 
             for (const line of lines) {
