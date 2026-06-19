@@ -6,6 +6,7 @@ if (typeof globalThis.Audio !== 'function') {
   globalThis.Audio = class {
     constructor() { this.currentTime = 0; this.preload = 'auto'; this.volume = 1; }
     play() { return Promise.resolve(); }
+    pause() {}
   };
 }
 
@@ -96,6 +97,36 @@ test('Controls triggers player damage and ball lost callbacks on debug keys', ()
 
   assert.equal(damageCalls, 1);
   assert.equal(ballLostCalls, 1);
+
+  globalThis.window = previousWindow;
+});
+
+test('Controls accepts two keys for each flipper and preserves simultaneous presses', () => {
+  const previousWindow = globalThis.window;
+  const windowStub = createWindowStub();
+  globalThis.window = windowStub;
+
+  const controls = new Controls(['q', 'w'], ['d', 'c'], 'space', 'b');
+  const keydown = windowStub.listeners.get('keydown');
+  const keyup = windowStub.listeners.get('keyup');
+
+  keydown({ key: 'q', preventDefault() {}, repeat: false });
+  keydown({ key: 'w', preventDefault() {}, repeat: false });
+  assert.equal(controls.input.left, true);
+
+  keyup({ key: 'q', preventDefault() {} });
+  assert.equal(controls.input.left, true);
+  keyup({ key: 'w', preventDefault() {} });
+  assert.equal(controls.input.left, false);
+
+  keydown({ key: 'd', preventDefault() {}, repeat: false });
+  keydown({ key: 'c', preventDefault() {}, repeat: false });
+  assert.equal(controls.input.right, true);
+
+  keyup({ key: 'd', preventDefault() {} });
+  assert.equal(controls.input.right, true);
+  keyup({ key: 'c', preventDefault() {} });
+  assert.equal(controls.input.right, false);
 
   globalThis.window = previousWindow;
 });

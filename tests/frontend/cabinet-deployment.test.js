@@ -30,6 +30,18 @@ test('nginx relaie les WebSockets et les événements des boutons', () => {
   assert.match(nginx, /proxy_buffering off/);
 });
 
+test('les trois frontends locaux utilisent le proxy WebSocket de développement', () => {
+  const compose = read('docker-compose.yml');
+  const nginx = read('deploy/nginx.dev.conf');
+  const proxyMounts = compose.match(/\.\/deploy\/nginx\.dev\.conf:\/etc\/nginx\/conf\.d\/default\.conf:ro/g) ?? [];
+
+  assert.equal(proxyMounts.length, 3);
+  assert.match(nginx, /location \/ws/);
+  assert.match(nginx, /proxy_pass http:\/\/backend:8080\/ws/);
+  assert.match(nginx, /proxy_set_header Upgrade/);
+  assert.match(nginx, /proxy_set_header Connection "upgrade"/);
+});
+
 test('le firmware final existe et reste facultatif pour le chargement', () => {
   const manifest = read('fliphetic.toml');
   const firmwareUrl = new URL('../../firmware/build/firmware.bin', import.meta.url);
