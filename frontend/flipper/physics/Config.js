@@ -6,7 +6,7 @@ export default {
     global: {
         positioning: {
             drainZThreshold: -650,
-            drainYThreshold: 100,
+            drainYThreshold: 30,
 
             ball: {
                 density: 2.0,       // Densité
