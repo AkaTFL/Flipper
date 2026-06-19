@@ -8,8 +8,8 @@ export function createBloom(scene, {
     threshold = 0,
     color = 0xffffff,
     tolerance = 0.1,
-    tableStrength = 0.2,
-    tableRadius = 0.2,
+    tableStrength = 0,
+    tableRadius = 0,
 } = {}) {
     const targetColor = new THREE.Color(color);
 
@@ -26,7 +26,7 @@ export function createBloom(scene, {
     scene.traverse((obj) => {
         if (!obj.isMesh || !obj.material) return;
 
-        if (obj.parent?.name === 'table') {
+        if (obj.name === 'table') {
             obj.layers.enable(2);
             return;
         }
@@ -93,7 +93,6 @@ export function createBloom(scene, {
     const maskExcept = (enabledLayer) => {
         const mask = layerMasks[enabledLayer];
         scene.traverse((obj) => {
-            if (!obj.isMesh && obj.children.name === 'table') return;
             if (!obj.layers.test(mask)) {
                 darkMats[obj.uuid] = obj.material;
                 obj.material = new THREE.MeshBasicMaterial({ color: 0x000000 });
@@ -125,7 +124,6 @@ export function createBloom(scene, {
             weakBloom.setSize(width, height);
         },
 
-        // EffectComposer appelle render() sur chaque pass
         render(renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
             // 1. Boost des couleurs cibles
             boostPass.render(renderer, writeBuffer, readBuffer, deltaTime, maskActive);

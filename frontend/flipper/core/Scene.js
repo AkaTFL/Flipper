@@ -100,11 +100,11 @@ export class Scene {
 
         // Spot principal central — baisser l'intensité et élargir légèrement (1-+ vers gauche, 2-+ vers moins de hauteur, 3-+vers le haut)
             // ── LUMIÈRES NATURELLES CENTRALES ──
-            const pointLight1 = new THREE.PointLight(0xffffff, 1.0, 1200);
+            const pointLight1 = new THREE.PointLight(0xffffff, 0.1, 1200);
             pointLight1.position.set(0, 400, 100);
             this.scene.add(pointLight1);
 
-            const pointLight2 = new THREE.PointLight(0xffeedd, 0.3, 1200);
+            const pointLight2 = new THREE.PointLight(0xffeedd, 0.1, 1200);
             pointLight2.position.set(0, 300, -100);
             this.scene.add(pointLight2);
 
@@ -116,10 +116,10 @@ export class Scene {
             // ── SPOTS AUX 4 COINS ──
 
             // Coin haut-gauche
-            createSpotLight(-350, 500, 0,   0, 0,  2.5, Math.PI / 9, 0.1, 1024);
+            createSpotLight(-350, 500, 100,   0, 0,  1.5, Math.PI / 9, 0.1, 1024);
 
             // Coin haut-droit
-            createSpotLight( 350, 500, 0,   0, 0,  2.5, Math.PI / 9, 0.1, 1024);
+            createSpotLight( 350, 500, 100,   0, 0,  1.5, Math.PI / 9, 0.1, 1024);
 
             // Coin bas-gauche — boosté
             createSpotLight(-350, 400,  -500,   0, 400,  3.5, Math.PI / 7, 0.1, 1024);
@@ -171,12 +171,12 @@ export class Scene {
         this.composer.addPass(new RenderPass(this.scene, this.camera));
         this.composer.addPass(createSSAO(this.scene, this.camera));
         
-        this.composer.addPass(this.greenBloom = createBloom(this.scene, {
+        this.composer.addPass(createBloom(this.scene, {
             strength: 2,
             radius: 2,
-            threshold: 0.7,
+            threshold: 0.2,
             color: Config[Config.currentLevel].bloom,
-            tolerance: 0.1
+            tolerance: 0.4
         }));
         this.composer.addPass(createFXAA());
 
