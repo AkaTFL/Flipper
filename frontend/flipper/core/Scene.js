@@ -55,16 +55,13 @@ export class Scene {
 
         // Camera with a wide view and far clipping plane
         this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 3000);
-        this.camera.position.z = position.z - 200;
-        this.camera.position.y = position.y + 900;
-        this.camera.position.x = position.x - 10;
+        this.camera.position.z = position.z - 280; // Ajuste l'angle d'inclinaison 
+        this.camera.position.y = position.y + 630; // Ajuste profondeur
+        this.camera.position.x = position.x;  // Ajuste la position horizontale
         
         // Keep a strict top-down camera and flip table orientation to match gameplay view.
         this.camera.up.set(0, 0, 1);
-        this.camera.lookAt(-500, 0, 0);
-
-        // Orbit controls - commentez cette section pour désactiver facilement
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.camera.lookAt(-10, 0, -130);
 
         // ==========================================
         // PARTIE VISUELLE (THREE.JS)

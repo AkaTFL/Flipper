@@ -23,7 +23,7 @@ export default {
                 width: 200,
                 length: 230,
                 height: 1000,
-                position: { x: -190, y: 200, z: 10 },
+                position: { x: -190, y: 100, z: 10 },
                 rotation: { x: Math.PI, y: 0, z: Math.PI },
                 minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
                 maximalPower: 50,
@@ -522,7 +522,7 @@ export default {
                 "../assets/sound/Boss 1/6.mp3"
             ]},
 
-        bloom: "0x00ff00",
+        bloom: 0x00ff00,
         
         gravity: { x: 0, y: -9.75, z: -1.11 },
     },

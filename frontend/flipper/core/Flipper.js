@@ -239,7 +239,7 @@ export async function initFlipper() {
     if (ball.rigidBody) {
         setTimeout(() => {
             ball.rigidBody.setEnabled(true);
-        }, 2000); // Attendre 1 seconde avant de relâcher la balle
+        }, 6000);
     }
 
     sceneManager.scene.add(...mesh.map(obj => obj.mesh));
