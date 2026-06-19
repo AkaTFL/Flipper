@@ -1,113 +1,88 @@
-# Guide de Développement avec Hot Reload
+# Guide de développement avec Docker
 
-## Configuration pour le développement
+## Environnements
 
-Le projet est configuré pour supporter le hot reload automatique des containers sans avoir à les redémarrer manuellement.
+Le projet possède deux configurations :
 
-### Démarrage en mode développement
+- `docker-compose.yml` pour une exécution proche de la production ;
+- `docker-compose.dev.yml` pour ajouter le volume nécessaire au hot reload du backend Go.
 
-```bash
-# Utiliser le fichier .env.dev pour activer le mode développement
-ENV=dev docker-compose up --build
+Les frontends sont des fichiers statiques servis par Nginx. Leurs dossiers sont montés dans les conteneurs : une actualisation du navigateur suffit après une modification.
 
-# Ou avec les arguments en ligne de commande
-docker-compose --env-file .env.dev up --build
-```
-
-### Comment ça fonctionne
-
-#### Backend (Go)
-- **Tool**: `air` - Hot reload pour Go
-- **Fichier de config**: `.air.toml`
-- **Volumes**: Le dossier `./backend` est monté dans le container
-- **Comportement**: Tout changement dans les fichiers `.go` redéclenche automatiquement la compilation et relance le serveur
+## Développement
 
 ```bash
-# Les fichiers test.go sont ignorés pour éviter des recompilations inutiles
+docker compose \
+  --env-file .env.dev \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  up --build
 ```
 
-#### Frontend (Flipper, Backglass, DMD)
-- **Mode dev**: Utilise `npm run dev` (Vite avec hot reload)
-- **Mode production**: Build statique servie par Nginx
-- **Volumes**: Le dossier source est monté, `node_modules` est isolé dans le container
-- **Comportement**: Tout changement dans les fichiers JavaScript/Vue déclenche automatiquement le hot reload du navigateur
+Le backend utilise `air` et redémarre automatiquement après une modification d'un fichier Go.
 
-### Variables d'environnement
-
-```env
-ENV=dev              # "dev" pour développement, "production" pour production
-FRONTEND_PORT=3001   # Port pour le frontend flipper (par défaut 3001)
-DMD_PORT=3002        # Port pour les frontends backglass/dmd (par défaut 3002/3003)
-```
-
-### Commandes utiles
+Pour arrêter les services :
 
 ```bash
-# Démarrer en mode développement
-ENV=dev docker-compose up --build
-
-# Arrêter les containers
-docker-compose down
-
-# Voir les logs en direct
-docker-compose logs -f
-
-# Voir les logs d'un service spécifique
-docker-compose logs -f backend
-docker-compose logs -f frontend_flipper
-
-# Rebuild une image spécifique
-docker-compose build backend
-
-# Exécuter une commande dans un container
-docker-compose exec backend go test ./...
-docker-compose exec frontend_flipper npm run test
+docker compose \
+  --env-file .env.dev \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  down
 ```
 
-### Problèmes courants
-
-#### Backend ne se recompile pas
-- Vérifier que le `.air.toml` est à jour
-- Vérifier les logs : `docker-compose logs backend`
-- Relancer le container : `docker-compose restart backend`
-
-#### Frontend ne se hot-reload pas
-- Vérifier que `npm run dev` est défini dans `package.json`
-- Vérifier les logs : `docker-compose logs frontend_flipper`
-- S'assurer que les `node_modules` ne sont pas corrompus : `docker-compose down && docker-compose up --build`
-
-#### Ports déjà utilisés
-- Modifier les ports dans le docker-compose.yml ou avec les variables d'environnement
-- Ou arrêter les containers existants : `docker-compose down`
-
-### Architecture des Dockerfiles
-
-Chaque Dockerfile utilise une architecture multi-stage avec `ARG ENV`:
-
-- **Stage `dev`**: Utilisé en développement avec hot reload
-- **Stage `build`**: Build du projet (frontend seulement)
-- **Stage `production`**: Image légère pour la production
-- **Stage `final`**: Étape finale qui est sélectionnée selon la variable `ENV`
-
-Exemple pour le backend:
-```dockerfile
-FROM golang:1.25-alpine AS dev
-# Configuration de développement avec air
-
-FROM golang:1.25-alpine AS production
-# Build slim pour la production
-```
-
-### Passage en production
-
-Pour déployer en production:
+## Production locale
 
 ```bash
-# Avec docker-compose (sans .env.dev)
-docker-compose up --build
-
-# Ou explicitement
-docker-compose --env-file .env up --build
+docker compose up --build -d
 ```
 
-Cela utilisera automatiquement les images optimisées pour la production.
+Cette commande utilise les images de production et ne monte pas le code du backend sur son exécutable.
+
+Pour arrêter les services :
+
+```bash
+docker compose down
+```
+
+## Services et ports
+
+| Service | Port |
+|---|---:|
+| Jeu | `3001` |
+| Backglass | `3002` |
+| DMD | `3003` |
+| Backend | `8080` |
+| MQTT | `1883` |
+
+Les ports peuvent être modifiés avec `FRONTEND_PORT`, `BACKGLASS_PORT` et `DMD_PORT`.
+
+## Commandes utiles
+
+```bash
+docker compose ps
+docker compose logs -f
+docker compose logs -f backend
+docker compose build backend
+docker compose exec backend go test ./...
+```
+
+## Problèmes courants
+
+### Le backend ne démarre pas
+
+- vérifier les logs avec `docker compose logs backend` ;
+- vérifier que le mode production n'utilise pas le volume `./backend:/app` ;
+- relancer avec `docker compose up --build -d`.
+
+### Le hot reload du backend ne fonctionne pas
+
+- vérifier que `.air.toml` existe dans `backend` ;
+- utiliser les deux fichiers Compose indiqués dans la commande de développement ;
+- vérifier que `ENV=dev` est chargé depuis `.env.dev`.
+
+### Un port est déjà utilisé
+
+- arrêter une ancienne exécution avec `docker compose down` ;
+- vérifier les valeurs présentes dans `.env` ;
+- modifier uniquement la variable du service concerné.
