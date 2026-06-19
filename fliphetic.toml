@@ -6,7 +6,7 @@ description = "Flipper virtuel avec Playfield, Backglass, DMD et contrôleur ESP
 
 [deploy]
 strategy = "branch"
-ref      = "feature/lancement-automatique-flipper-dmd-95"
+ref      = "develop"
 
 [screens]
 playfield = { service = "app", port = 80, path = "/playfield/?cabinet=1" }
