@@ -10,19 +10,20 @@ import (
 )
 
 type Hub struct {
-	clients    map[*Client]bool
-	broadcast  chan []byte
-	register   chan *Client
-	unregister chan *Client
-	mqtt       *MQTTBridge
-	scorer     *ScoreTracker
-	boss       *BossTracker
-	player     *PlayerTracker
-	quests     *QuestTracker
-	saveStore  *GameSaveStore
-	mutex      sync.RWMutex
-	timerMutex sync.Mutex
-	timerStop  chan struct{}
+	clients      map[*Client]bool
+	broadcast    chan []byte
+	register     chan *Client
+	unregister   chan *Client
+	mqtt         *MQTTBridge
+	scorer       *ScoreTracker
+	boss         *BossTracker
+	player       *PlayerTracker
+	quests       *QuestTracker
+	saveStore    *GameSaveStore
+	lastLoadSlot int // Track la dernière partie chargée (-1 si aucune)
+	mutex        sync.RWMutex
+	timerMutex   sync.Mutex
+	timerStop    chan struct{}
 }
 
 var upgrader = websocket.Upgrader{

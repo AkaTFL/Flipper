@@ -142,11 +142,22 @@ func (gs *GameService) handleStartGame() {
 	// Broadcaster la confirmation de démarrage
 	gs.hub.broadcast <- NewGameStartedMessage()
 
-	// Broadcaster reset score
-	gs.hub.broadcast <- NewScoreUpdateMessage(gs.hub.scorer.Reset())
+	// Vérifier si une partie a été chargée
+	hasLoadedGame := gs.hub.lastLoadSlot >= 0
 
-	// Broadcaster reset boss
-	gs.hub.broadcast <- NewBossStateUpdateMessage(gs.hub.boss.ResetForGameStart())
+	// Ne pas réinitialiser si une partie a été chargée
+	if !hasLoadedGame {
+		// Broadcaster reset score
+		gs.hub.broadcast <- NewScoreUpdateMessage(gs.hub.scorer.Reset())
+
+		// Broadcaster reset boss
+		gs.hub.broadcast <- NewBossStateUpdateMessage(gs.hub.boss.ResetForGameStart())
+	} else {
+		// Partie chargée : juste marquer le démarrage sans reset
+		log.Println("Démarrage avec partie chargée du slot", gs.hub.lastLoadSlot)
+		// Réinitialiser le flag pour la prochaine partie
+		gs.hub.lastLoadSlot = -1
+	}
 
 	// Broadcaster reset joueur
 	gs.hub.broadcast <- NewPlayerStateUpdateMessage(gs.hub.player.ResetForGameStart())
@@ -204,6 +215,9 @@ func (gs *GameService) handleLoadGame(payload json.RawMessage) {
 		})
 		return
 	}
+
+	// Marquer que une partie a été chargée
+	gs.hub.lastLoadSlot = slot
 
 	restore := gs.hub.restoreSnapshot(entry.Snapshot)
 	gs.hub.broadcast <- NewScoreUpdateMessage(restore.Score)

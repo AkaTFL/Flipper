@@ -1,0 +1,65 @@
+{
+  "slots": [
+    {
+      "savedAt": 1781791424247,
+      "snapshot": {
+        "score": {
+          "score": 4640,
+          "comboCount": 32,
+          "hitStreak": 32,
+          "lastImpactAt": 1781791422349,
+          "recentImpactTypes": [
+            "repulse",
+            "repulse",
+            "repulse"
+          ],
+          "loopStreakById": {}
+        },
+        "boss": {
+          "active": false,
+          "hp": 1500
+        },
+        "player": {
+          "hp": 100,
+          "balls": 3
+        },
+        "quests": {
+          "activeQuests": [
+            {
+              "id": "combo_x3",
+              "category": "score",
+              "label": "Atteindre un combo x3",
+              "target": 3,
+              "progress": 3,
+              "completed": true
+            },
+            {
+              "id": "ramp_simple_2",
+              "category": "precision",
+              "label": "Réussir 2 passages de rampe",
+              "target": 2,
+              "progress": 0,
+              "completed": false
+            },
+            {
+              "id": "loop_left_right",
+              "category": "exploration",
+              "label": "Passer une fois par chaque loop latéral",
+              "target": 2,
+              "progress": 0,
+              "completed": false
+            }
+          ],
+          "loopLeftDone": false,
+          "loopRightDone": false,
+          "phaseStartedAt": 1781791388717,
+          "bossFightTriggered": false,
+          "currentPhase": 1
+        }
+      }
+    },
+    null,
+    null,
+    null
+  ]
+}

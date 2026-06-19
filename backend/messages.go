@@ -69,6 +69,14 @@ func NewPlayerStateUpdateMessage(playerUpdate any) []byte {
 	})
 }
 
+// NewPlayerUpdateMessage crée le message avec les données des 4 joueurs sauvegardés
+func NewPlayerUpdateMessage(players any) []byte {
+	return mustMarshalMessage(Message{
+		Type:    "player_update",
+		Payload: mustMarshalJSON(players),
+	})
+}
+
 // NewQuestUpdateMessage crée le message de mise à jour des quêtes actives
 func NewQuestUpdateMessage(questUpdate any) []byte {
 	return mustMarshalMessage(Message{
