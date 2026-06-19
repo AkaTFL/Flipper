@@ -27,7 +27,6 @@ services:
       MQTT_HOST: mosquitto
       MQTT_PORT: "1883"
     volumes:
-      - ./backend:/app
       - backend-cache:/go/pkg/mod
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health >/dev/null || exit 1"]
@@ -57,7 +56,7 @@ services:
       dockerfile: Dockerfile
     container_name: frontend-backglass
     ports:
-      - "${DMD_PORT:-3002}:80"
+      - "${BACKGLASS_PORT:-3002}:80"
     volumes:
       - ./frontend/backglass:/usr/share/nginx/html
     depends_on:
