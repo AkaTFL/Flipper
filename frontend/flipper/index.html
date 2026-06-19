@@ -24,15 +24,16 @@
         position: absolute;
         inset: 0;
         display: flex;
-        align-items: flex-end;
+        flex-direction: column;
+        align-items: center;
         justify-content: center;
+        gap: 18px;
         pointer-events: none;
         z-index: 10;
       }
 
       #play-button {
         pointer-events: auto;
-        margin-bottom: 18px;
         width: 54px;
         height: 54px;
         border: 0;
@@ -54,6 +55,27 @@
       #play-button:active {
         transform: scale(0.98);
       }
+
+      #controls-help {
+        padding: 18px 24px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 14px;
+        background: rgba(0, 0, 0, 0.78);
+        color: #fff;
+        font: 600 16px/1.6 system-ui, sans-serif;
+        text-align: center;
+        box-shadow: 0 12px 38px rgba(0, 0, 0, 0.45);
+      }
+
+      #controls-help strong {
+        color: #75f0ff;
+      }
+
+      #controls-help .debug-controls {
+        margin-top: 8px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 13px;
+      }
     </style>
     <script type="importmap">
       {
@@ -65,13 +87,21 @@
           "three/examples/jsm/postprocessing/EffectComposer.js": "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/postprocessing/EffectComposer.js",
           "three/examples/jsm/postprocessing/RenderPass.js": "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/postprocessing/RenderPass.js",
           "three/examples/jsm/postprocessing/ShaderPass.js": "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/postprocessing/ShaderPass.js",
-          "three/examples/jsm/shaders/FXAAShader.js": "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/shaders/FXAAShader.js"
+          "three/examples/jsm/shaders/FXAAShader.js": "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/shaders/FXAAShader.js",
+          "three/examples/jsm/postprocessing/UnrealBloomPass.js": "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/postprocessing/UnrealBloomPass.js",
+          "three/examples/jsm/postprocessing/SSAOPass.js": "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/postprocessing/SSAOPass.js"
         }
       }
     </script>
   </head>
   <body id="three">
     <div id="play-overlay" aria-hidden="false">
+      <div id="controls-help">
+        <div><strong>FLIPPER GAUCHE</strong> Q / W</div>
+        <div><strong>FLIPPER DROIT</strong> D / C</div>
+        <div><strong>LANCER LA BILLE</strong> ESPACE</div>
+        <div class="debug-controls">TESTS : BOSS B · PERTE HP H · PERTE DE BALLE L</div>
+      </div>
       <button id="play-button" type="button" aria-label="Lancer le flipper">▶</button>
     </div>
     <script type="module">

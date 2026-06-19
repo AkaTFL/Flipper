@@ -187,7 +187,7 @@ export class Bumper extends Objects {
 
     handleCollision() {
         this.playSound(Config.global.sounds.bumper.collision);
-        TremblingFromImpact(this.camera, 50, 300);
+        TremblingFromImpact(this.camera, 5, 300);
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

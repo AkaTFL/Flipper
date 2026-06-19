@@ -1,21 +1,24 @@
 import Config from '../physics/Config.js';
-import {Objects} from '../objects/Objects.js';
 import { AudioManager } from '../physics/Audio.js';
 
 export class Controls{
     /**
-     * @param {string} left
-     * @param {string} right
+     * @param {string|string[]} left
+     * @param {string|string[]} right
      * @param {string} launch
      */
 
-    constructor(left = 'x', right = 'c', launch = 'd', bossDebug = 'b') {
-        this.left = left;
-        this.right = right;
-        this.launch = launch;
-        this.bossDebug = bossDebug;
+    constructor(left = 'q', right = 'd', launch = 'space', bossDebug = 'b') {
+        this.leftKeys = this.normalizeKeys(left);
+        this.rightKeys = this.normalizeKeys(right);
+        this.left = [...this.leftKeys][0];
+        this.right = [...this.rightKeys][0];
+        this.launch = this.normalizeKey(launch);
+        this.bossDebug = this.normalizeKey(bossDebug);
         this.playerDamageDebug = 'h';
         this.ballLostDebug = 'l';
+        this.pressedLeftKeys = new Set();
+        this.pressedRightKeys = new Set();
 
         this.input = { left: false, right: false, launch: false, launchPower: 0 };
 
@@ -28,20 +31,18 @@ export class Controls{
         this.bossFightStartCallback = null;
         this.playerDamageCallback = null;
         this.ballLostCallback = null;
-        this.buttonEventCallback = null;
-        this.buttonNames = {
-            a: 'button_black_left',
-            x: 'button_white_left',
-            g: 'button_front_left_green',
-            b: 'button_front_left_yellow',
-            h: 'button_front_left_red',
-            e: 'button_black_right',
-            c: 'button_white_right',
-            f: 'button_front_white',
-            d: 'plunger'
-        };
+        this.audioManager = AudioManager.getShared();
 
         this.initControls();
+    }
+
+    normalizeKey(key) {
+        return key === ' ' ? 'space' : String(key ?? '').toLowerCase();
+    }
+
+    normalizeKeys(keys) {
+        const values = Array.isArray(keys) ? keys : [keys];
+        return new Set(values.map((key) => this.normalizeKey(key)).filter(Boolean));
     }
 
     getInputKey(event) {
@@ -54,25 +55,20 @@ export class Controls{
             return key;
     }
 
-    obj = new Objects();
-
     initControls() {
 
         window.addEventListener('keydown', (e) => {
+            this.audioManager.unlock();
             const key = this.getInputKey(e);
 
-            if (!e.repeat) {
-                this.emitButtonEvent(key, true);
-            }
-
-            if (key === this.left) {
+            if (this.leftKeys.has(key)) {
+                this.pressedLeftKeys.add(key);
                 this.input.left = true;
-                console.log('Left flipper pressed');
                 return;
                 }
-            if (key === this.right) {
+            if (this.rightKeys.has(key)) {
+                this.pressedRightKeys.add(key);
                 this.input.right = true;
-                console.log('Right flipper pressed');
                 return;
             }
             if (key === this.launch) {
@@ -82,7 +78,7 @@ export class Controls{
                 this.launchChargeStart = Date.now();
                 this.launchChargeCount += 1;
                 console.log('Launch button pressed');
-                if (!this.impulseUsed) this.obj.playSound(Config.global.sounds.launchingRamp.charging);
+                if (!this.impulseUsed) this.audioManager.playSound(Config.global.sounds.launchingRamp.charging);
                 return;
             }
             if (key === this.bossDebug) {
@@ -110,15 +106,15 @@ export class Controls{
         window.addEventListener('keyup', (e) => {
             const key = this.getInputKey(e);
 
-            this.emitButtonEvent(key, false);
-
-            if (key === this.left) {
-                this.input.left = false;
+            if (this.leftKeys.has(key)) {
+                this.pressedLeftKeys.delete(key);
+                this.input.left = this.pressedLeftKeys.size > 0;
                 console.log('Left flipper released');
                 return;
             }
-            if (key === this.right) {
-                this.input.right = false;
+            if (this.rightKeys.has(key)) {
+                this.pressedRightKeys.delete(key);
+                this.input.right = this.pressedRightKeys.size > 0;
                 console.log('Right flipper released');
                 return;
             }
@@ -133,8 +129,8 @@ export class Controls{
                 console.log(`Launch button released after charging for ${chargeDuration}ms, power: ${this.input.launchPower}`);
 
                     if (this.ballRef && !this.impulseUsed) {
-                        this.obj.stopSound(Config.global.sounds.launchingRamp.charging);
-                        this.obj.playSound(Config.global.sounds.launchingRamp.launch);
+                        this.audioManager.stopSound(Config.global.sounds.launchingRamp.charging);
+                        this.audioManager.playSound(Config.global.sounds.launchingRamp.launch);
                         if (typeof this.startGameCallback === 'function') {
                             this.startGameCallback();
                         }
@@ -170,20 +166,6 @@ export class Controls{
 
     setBallLostCallback(callback) {
         this.ballLostCallback = callback;
-    }
-
-    setButtonEventCallback(callback) {
-        this.buttonEventCallback = callback;
-    }
-
-    emitButtonEvent(key, active) {
-        const name = this.buttonNames[key];
-
-        if (!name || typeof this.buttonEventCallback !== 'function') {
-            return;
-        }
-
-        this.buttonEventCallback({ name, key, active });
     }
 
     setLaunchChargeCount(value) {

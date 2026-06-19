@@ -6,6 +6,7 @@ if (typeof globalThis.Audio !== 'function') {
   globalThis.Audio = class {
     constructor() { this.currentTime = 0; this.preload = 'auto'; this.volume = 1; }
     play() { return Promise.resolve(); }
+    pause() {}
   };
 }
 
@@ -30,7 +31,7 @@ test('Controls triggers start_game callback on first launch impulse', () => {
   let now = 1000;
   Date.now = () => now;
 
-  const controls = new Controls('x', 'c', 'd');
+  const controls = new Controls('q', 'd', 'space');
   let startGameCalls = 0;
   let impulses = 0;
 
@@ -45,9 +46,9 @@ test('Controls triggers start_game callback on first launch impulse', () => {
     }
   });
 
-  windowStub.listeners.get('keydown')({ key: 'd', preventDefault() {}, repeat: false });
+  windowStub.listeners.get('keydown')({ key: ' ', preventDefault() {}, repeat: false });
   now = 1200;
-  windowStub.listeners.get('keyup')({ key: 'd', preventDefault() {} });
+  windowStub.listeners.get('keyup')({ key: ' ', preventDefault() {} });
 
   assert.equal(startGameCalls, 1);
   assert.equal(impulses, 1);
@@ -61,7 +62,7 @@ test('Controls triggers boss_fight_started callback on debug key press', () => {
   const windowStub = createWindowStub();
   globalThis.window = windowStub;
 
-  const controls = new Controls('x', 'c', 'd', 'b');
+  const controls = new Controls('q', 'd', 'space', 'b');
   let bossFightCalls = 0;
 
   controls.setBossFightStartCallback(() => {
@@ -80,7 +81,7 @@ test('Controls triggers player damage and ball lost callbacks on debug keys', ()
   const windowStub = createWindowStub();
   globalThis.window = windowStub;
 
-  const controls = new Controls('x', 'c', 'd', 'b');
+  const controls = new Controls('q', 'd', 'space', 'b');
   let damageCalls = 0;
   let ballLostCalls = 0;
 
@@ -100,25 +101,32 @@ test('Controls triggers player damage and ball lost callbacks on debug keys', ()
   globalThis.window = previousWindow;
 });
 
-test('Controls reports physical button press and release events', () => {
+test('Controls accepts two keys for each flipper and preserves simultaneous presses', () => {
   const previousWindow = globalThis.window;
   const windowStub = createWindowStub();
   globalThis.window = windowStub;
 
-  const controls = new Controls('x', 'c', 'd');
-  const events = [];
+  const controls = new Controls(['q', 'w'], ['d', 'c'], 'space', 'b');
+  const keydown = windowStub.listeners.get('keydown');
+  const keyup = windowStub.listeners.get('keyup');
 
-  controls.setButtonEventCallback((event) => events.push(event));
+  keydown({ key: 'q', preventDefault() {}, repeat: false });
+  keydown({ key: 'w', preventDefault() {}, repeat: false });
+  assert.equal(controls.input.left, true);
 
-  windowStub.listeners.get('keydown')({ key: 'x', preventDefault() {}, repeat: false });
-  windowStub.listeners.get('keyup')({ key: 'x', preventDefault() {} });
-  windowStub.listeners.get('keydown')({ key: 'g', preventDefault() {}, repeat: false });
+  keyup({ key: 'q', preventDefault() {} });
+  assert.equal(controls.input.left, true);
+  keyup({ key: 'w', preventDefault() {} });
+  assert.equal(controls.input.left, false);
 
-  assert.deepEqual(events, [
-    { name: 'button_white_left', key: 'x', active: true },
-    { name: 'button_white_left', key: 'x', active: false },
-    { name: 'button_front_left_green', key: 'g', active: true }
-  ]);
+  keydown({ key: 'd', preventDefault() {}, repeat: false });
+  keydown({ key: 'c', preventDefault() {}, repeat: false });
+  assert.equal(controls.input.right, true);
+
+  keyup({ key: 'd', preventDefault() {} });
+  assert.equal(controls.input.right, true);
+  keyup({ key: 'c', preventDefault() {} });
+  assert.equal(controls.input.right, false);
 
   globalThis.window = previousWindow;
 });

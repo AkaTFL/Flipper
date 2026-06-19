@@ -2,6 +2,9 @@
 
 Ce dossier regroupe ce qui peut être fait **sans matériel physique** : broker, conventions de topics, tests et monitoring. La limite roadmap est la **semaine 9** (mapping GPIO) — voir l’annexe en fin de `doc/Roadmap.md`.
 
+Le mapping commun entre les boutons physiques et le clavier est documenté dans
+[`doc/Controles_flipper.md`](../doc/Controles_flipper.md).
+
 ## Prérequis
 
 - [Docker](https://docs.docker.com/get-docker/) **ou** Mosquitto installé localement (Windows : `winget install EclipseFoundation.Mosquitto`).

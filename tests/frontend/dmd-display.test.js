@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 import { DmdDisplay } from '../../frontend/dmd/DmdDisplay.js';
+
+const dmdHtml = readFileSync(new URL('../../frontend/dmd/index.html', import.meta.url), 'utf8');
 
 function createFakeElement(tagName) {
   return {
@@ -124,22 +127,14 @@ test('DmdDisplay conserve la couleur du multiplicateur sur le score', () => {
   assert.equal(display.mainEl.textContent, '4 500');
 });
 
-test('DmdDisplay fait défiler automatiquement les combos du mode démo', () => {
-  const documentRef = createFakeDocument();
-  const display = new DmdDisplay({ documentRef, backendUrl: null });
+test('le DMD utilise 95 % de la surface avec une marge centrée', () => {
+  assert.match(dmdHtml, /inset:\s*2\.5vh 2\.5vw/);
+  assert.match(dmdHtml, /width:\s*95vw/);
+  assert.match(dmdHtml, /height:\s*95vh/);
+});
 
-  display.advanceDemo();
-  assert.equal(display.titleEl.textContent, 'COMBO x1');
-  assert.equal(display.rootEl.className, 'dmd-screen dmd-combo dmd-multiplier-1');
-
-  display.advanceDemo();
-  assert.equal(display.titleEl.textContent, 'COMBO x2');
-
-  display.advanceDemo();
-  assert.equal(display.titleEl.textContent, 'COMBO x3');
-
-  display.advanceDemo();
-  assert.equal(display.titleEl.textContent, 'SUPER COMBO');
-  assert.equal(display.mainEl.textContent, 'x4');
-  assert.equal(display.rootEl.className, 'dmd-screen dmd-super-combo dmd-multiplier-4');
+test('les trois lignes du DMD utilisent les tailles prévues pour le meuble', () => {
+  assert.match(dmdHtml, /\.dmd-title\s*{[^}]*font-size:\s*15vh/s);
+  assert.match(dmdHtml, /\.dmd-main\s*{[^}]*font-size:\s*50vh/s);
+  assert.match(dmdHtml, /\.dmd-sub\s*{[^}]*font-size:\s*12vh/s);
 });

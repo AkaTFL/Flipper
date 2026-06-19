@@ -30,3 +30,8 @@ doc/Linux_Launcher_Flipper.md
 ```
 
 Organisation sur la base d'un Gitflow
+
+## Contrôles
+
+Le mapping clavier et ESP32 utilisé par le projet est documenté dans
+[`doc/Controles_flipper.md`](doc/Controles_flipper.md).

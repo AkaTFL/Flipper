@@ -13,8 +13,10 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      # dev + volume ./backend:/app => Air compile tmp/main (hot reload)
+      # production + ce volume => /app/server disparaît => erreur au démarrage
       args:
-        ENV: ${ENV:-production}
+        ENV: ${ENV:-dev}
     container_name: flipper-backend
     ports:
       - "8080:8080"
@@ -26,12 +28,13 @@ services:
       MQTT_PORT: "1883"
     volumes:
       - backend-cache:/go/pkg/mod
+      - ./backend:/app
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health >/dev/null || exit 1"]
       interval: 15s
       timeout: 5s
-      retries: 5
-      start_period: 10s
+      retries: 8
+      start_period: 45s
     restart: unless-stopped
 
   frontend_flipper:
@@ -43,6 +46,7 @@ services:
       - "${FRONTEND_PORT:-3001}:80"
     volumes:
       - ./frontend/flipper:/usr/share/nginx/html
+      - ./deploy/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       backend:
         condition: service_healthy
@@ -57,6 +61,7 @@ services:
       - "${BACKGLASS_PORT:-3002}:80"
     volumes:
       - ./frontend/backglass:/usr/share/nginx/html
+      - ./deploy/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       backend:
         condition: service_healthy
@@ -71,6 +76,7 @@ services:
       - "${DMD_PORT:-3003}:80"
     volumes:
       - ./frontend/dmd:/usr/share/nginx/html
+      - ./deploy/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       backend:
         condition: service_healthy

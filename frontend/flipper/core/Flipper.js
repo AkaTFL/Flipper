@@ -8,28 +8,28 @@ import { Palles } from '../objects/Palles.js';
 import { Controls } from './Controls.js';
 import { CabinetButtons } from './CabinetButtons.js';
 import { Ramp } from '../objects/Ramp.js';
-import { StaticMesh } from '../objects/StaticMesh.js';
+import { Staticmeshes } from '../objects/Staticmeshes.js';
 import { Repulse } from '../objects/Repulse.js';
-
-
-import { ScoreDisplay } from '../ui/ScoreDisplay.js';
 
 import Config from '../physics/Config.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
+import { AudioManager } from '../physics/Audio.js';
 
 export async function initFlipper() {
+    AudioManager.getShared().unlock();
+
     const physics = new GamePhysics();
     await physics.init();
 
-    const waitForMesh = (obj) => {
+    const waitFormeshes = (obj) => {
         return new Promise((resolve) => {
-            if (obj?.mesh) {
+            if (obj?.meshes) {
                 resolve();
                 return;
             }
 
             const interval = setInterval(() => {
-                if (obj?.mesh) {
+                if (obj?.meshes) {
                     clearInterval(interval);
                     resolve();
                 }
@@ -37,7 +37,7 @@ export async function initFlipper() {
         });
     };
 
-    const mesh = [];
+    const meshes = [];
     const loadingPromises = [];
 
     const sceneManager = new Scene(
@@ -49,13 +49,12 @@ export async function initFlipper() {
     );
 
     const container = document.getElementById('three');
-    const controls = new Controls('x', 'c', 'd');
+    const controls = new Controls(['q', 'w'], ['d', 'c'], 'space', 'b');
     const cabinetButtons = new CabinetButtons();
     cabinetButtons.connect();
     physics.controls = controls;
     physics.scene = sceneManager.scene;
-    const scoreDisplay = new ScoreDisplay();
-    scoreDisplay.mount(container);
+
     container.appendChild(sceneManager.renderer.domElement);
 
     const saveSlotHandler = (slot) => {
@@ -65,18 +64,6 @@ export async function initFlipper() {
     const loadSlotHandler = (slot) => {
         physics.sendMessage('load_game', { slot });
     };
-
-    if (typeof scoreDisplay.setSaveSlotHandler === 'function') {
-        scoreDisplay.setSaveSlotHandler(saveSlotHandler);
-    } else {
-        scoreDisplay.onSaveSlot = saveSlotHandler;
-    }
-
-    if (typeof scoreDisplay.setLoadSlotHandler === 'function') {
-        scoreDisplay.setLoadSlotHandler(loadSlotHandler);
-    } else {
-        scoreDisplay.onLoadSlot = loadSlotHandler;
-    }
 
     let startGameSent = false;
 
@@ -100,9 +87,6 @@ export async function initFlipper() {
     controls.setBallLostCallback(() => {
         physics.triggerBallLost('manual');
     });
-    controls.setButtonEventCallback((button) => {
-        physics.sendMessage('button_event', button);
-    });
 
     // Launching Ramp
     const launching = new LaunchingRamp(
@@ -117,8 +101,8 @@ export async function initFlipper() {
     
     launching.gamePhysics = physics;
     controls.setLaunchingRampRef(launching);
-    mesh.push(launching);
-    loadingPromises.push(waitForMesh(launching));
+    meshes.push(launching);
+    loadingPromises.push(waitFormeshes(launching));
 
     const rampB = new Ramp(
         physics.world,
@@ -127,8 +111,8 @@ export async function initFlipper() {
         Config.global.positioning.ramps.B.objectId
     );
     rampB.gamePhysics = physics;
-    mesh.push(rampB);
-    loadingPromises.push(waitForMesh(rampB));
+    meshes.push(rampB);
+    loadingPromises.push(waitFormeshes(rampB));
     // Bumpers
     Config.global.positioning.bumpers = Config.global.positioning.bumper.instances;
     Config.global.positioning.bumpers.forEach((bumperConfig) => {
@@ -141,8 +125,8 @@ export async function initFlipper() {
             bumperConfig.objectId
         );
         bumper.gamePhysics = physics;
-        mesh.push(bumper);
-        loadingPromises.push(waitForMesh(bumper));
+        meshes.push(bumper);
+        loadingPromises.push(waitFormeshes(bumper));
     });
 
     // Repulse
@@ -158,8 +142,8 @@ export async function initFlipper() {
             repulseConfig.objectId
         );
         repulse.gamePhysics = physics;
-        mesh.push(repulse);
-        loadingPromises.push(waitForMesh(repulse));
+        meshes.push(repulse);
+        loadingPromises.push(waitFormeshes(repulse));
     });
 
     // Palles
@@ -168,12 +152,12 @@ export async function initFlipper() {
     pallesInstances.forEach((pnl) => {
         const pal = new Palles(physics.world, pnl.length, pnl.width, pnl.height, pnl.position, pnl.rotation, pnl.side);
         pal.gamePhysics = physics;
-        mesh.push(pal);
-        loadingPromises.push(waitForMesh(pal));
+        meshes.push(pal);
+        loadingPromises.push(waitFormeshes(pal));
     });
 
     // Etage (sol principal du flipper)
-    const etage = new StaticMesh(physics.world, Config.global.positioning.etage.model, {
+    const etage = new Staticmeshes(physics.world, Config.global.positioning.etage.model, {
         length:    Config.global.positioning.etage.length,
         width:     Config.global.positioning.etage.width,
         height:    Config.global.positioning.etage.height,
@@ -185,11 +169,11 @@ export async function initFlipper() {
         objectType: Config.global.positioning.etage.objectType
     });
     etage.gamePhysics = physics;
-    mesh.push(etage);
-    loadingPromises.push(waitForMesh(etage));
+    meshes.push(etage);
+    loadingPromises.push(waitFormeshes(etage));
 
-    // Body flipper (structure principale depuis Mesh_final)
-    const bodyFlipper = new StaticMesh(physics.world, Config.global.positioning.bodyFlipper.model, {
+    // Body flipper (structure principale depuis meshes_final)
+    const bodyFlipper = new Staticmeshes(physics.world, Config.global.positioning.bodyFlipper.model, {
         length:     Config.global.positioning.bodyFlipper.length,
         width:      Config.global.positioning.bodyFlipper.width,
         height:     Config.global.positioning.bodyFlipper.height,
@@ -201,12 +185,12 @@ export async function initFlipper() {
         objectType: Config.global.positioning.bodyFlipper.objectType
     });
     bodyFlipper.gamePhysics = physics;
-    mesh.push(bodyFlipper);
-    loadingPromises.push(waitForMesh(bodyFlipper));
+    meshes.push(bodyFlipper);
+    loadingPromises.push(waitFormeshes(bodyFlipper));
 
-    // Static meshes from Mesh_final (murs_cible, quadri_cible, raque_side)
-    (Config.global.positioning.staticMeshes || []).forEach((cfg) => {
-        const staticMesh = new StaticMesh(physics.world, cfg.model, {
+    // Static mesheses from meshes_final (murs_cible, quadri_cible, raque_side)
+    (Config.global.positioning.staticmesheses || []).forEach((cfg) => {
+        const staticmeshes = new Staticmeshes(physics.world, cfg.model, {
             length: cfg.length,
             width: cfg.width,
             height: cfg.height,
@@ -215,14 +199,14 @@ export async function initFlipper() {
             objectId: cfg.objectId,
             objectType: cfg.objectType
         });
-        staticMesh.gamePhysics = physics;
-        mesh.push(staticMesh);
-        loadingPromises.push(waitForMesh(staticMesh));
+        staticmeshes.gamePhysics = physics;
+        meshes.push(staticmeshes);
+        loadingPromises.push(waitFormeshes(staticmeshes));
     });
 
     // Ramp pales (right, left, rightDeath, leftDeath)
     Object.values(Config.global.positioning.rampPales).forEach(cfg => {
-        const rampPale = new StaticMesh(physics.world, cfg.model, {
+        const rampPale = new Staticmeshes(physics.world, cfg.model, {
             length:     cfg.length,
             width:      cfg.width,
             height:     cfg.height,
@@ -232,23 +216,22 @@ export async function initFlipper() {
             objectType: cfg.objectType
         });
         rampPale.gamePhysics = physics;
-        mesh.push(rampPale);
-        loadingPromises.push(waitForMesh(rampPale));
+        meshes.push(rampPale);
+        loadingPromises.push(waitFormeshes(rampPale));
     });
 
+    
+    const ball = new Ball(sceneManager.scene, physics.world, Config.global.positioning.ball.position, physics);
+    meshes.push(ball);
 
-    setTimeout(() => {
-        const ball = new Ball(sceneManager.scene, physics.world, Config.global.positioning.ball.position, physics);
-        mesh.push(ball);
-
-        controls.setBallRef(ball);
-        physics.registerObjects(mesh);
-        sceneManager.scene.add(ball.mesh);
-    }, 5000);
+    controls.setBallRef(ball);
+    physics.registerObjects(meshes);
+    sceneManager.scene.add(ball.meshes);
 
     await Promise.all(loadingPromises);
 
-    await waitForMesh(ball);
+    await waitFormeshes(ball);
+    
     if (ball.rigidBody) {
         ball.rigidBody.setEnabled(false);
     }
@@ -256,32 +239,31 @@ export async function initFlipper() {
     // Attendre que tout soit chargé
     await Promise.all(loadingPromises);
 
-    // ✅ Relâcher la balle une fois tout prêt
     if (ball.rigidBody) {
         setTimeout(() => {
             ball.rigidBody.setEnabled(true);
-        }, 2000); // Attendre 1 seconde avant de relâcher la balle
+        }, 8000);
     }
 
-    sceneManager.scene.add(...mesh.map(obj => obj.mesh));
+    sceneManager.scene.add(...meshes.map(obj => obj.meshes));
     
     physics.setLaunchingRampVisible(true);
 
     sceneManager.startRender(physics, () => {
         controls.setLaunchChargeCount(0);
 
-        for (let i = 0; i < mesh.length; i++) {
-            if (typeof mesh[i].syncPalle === 'function') {
-                mesh[i].syncPalle();
+        for (let i = 0; i < meshes.length; i++) {
+            if (typeof meshes[i].syncPalle === 'function') {
+                meshes[i].syncPalle();
             }
-            else if (typeof mesh[i].syncBall === 'function') {
-                mesh[i].syncBall();
+            else if (typeof meshes[i].syncBall === 'function') {
+                meshes[i].syncBall();
             }
-            if (typeof mesh[i].setActive === 'function') {
-                if (mesh[i].side === 'left') {
-                    mesh[i].setActive(controls.input.left);
-                } else if (mesh[i].side === 'right') {
-                    mesh[i].setActive(controls.input.right);
+            if (typeof meshes[i].setActive === 'function') {
+                if (meshes[i].side === 'left') {
+                    meshes[i].setActive(controls.input.left);
+                } else if (meshes[i].side === 'right') {
+                    meshes[i].setActive(controls.input.right);
                 }
             }
         }

@@ -6,7 +6,7 @@ export default {
     global: {
         positioning: {
             drainZThreshold: -650,
-            drainYThreshold: 100,
+            drainYThreshold: 30,
 
             ball: {
                 density: 2.0,       // Densité
@@ -14,7 +14,7 @@ export default {
                 mass: 80,           // Masse
                 restitution: 0.7,   // Bounciness (0 = pas de rebond, 1 = rebond total)
                 friction: 0.1,      // Glissement 
-                position: { x: -250, y: 210, z: -600 },
+                position: { x: -260, y: 210, z: -560 },
                 model: `../assets/mesh/Body_flipper.glb`, // Position de départ
                 objectId: 'ball'
             },
@@ -23,7 +23,7 @@ export default {
                 width: 200,
                 length: 230,
                 height: 1000,
-                position: { x: -190, y: 200, z: 10 },
+                position: { x: -190, y: 100, z: 10 },
                 rotation: { x: Math.PI, y: 0, z: Math.PI },
                 minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
                 maximalPower: 50,
@@ -222,14 +222,14 @@ export default {
             palles: {
                 restitution: 0.5,
                 friction: 0.5,
-                rotationSpeed: 700,
+                rotationSpeed: 1400,
                 rotationAngle: 40 * (Math.PI / 180),
                 initialAngle: 30 * (Math.PI / 180),
                 instances: [
-                    { length: 60, width: 20, height: 30, position: { x: 54, y: 15, z: -545 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
-                    { length: 60, width: 20, height: 30, position: { x: -72, y: 15, z: -545 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
-                    { length: 40, width: 13, height: 20, position: { x: 40, y: 5, z: 20 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
-                    { length: 40, width: 13, height: 20, position: { x: -76, y: 5, z: 20 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
+                    { length: 80, width: 26, height: 40, position: { x: 44, y: 15, z: -532 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+                    { length: 80, width: 26, height: 40, position: { x: -62, y: 15, z: -532 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
+                    { length: 60, width: 20, height: 30, position: { x: 30, y: 5, z: 10 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+                    { length: 60, width: 20, height: 30, position: { x: -56, y: 5, z: 10 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
                 ],
                 modelRight: `../assets/mesh/palles/Right_flipper_lvl_${NiveauActuel}.glb`,
                 modelLeft: `../assets/mesh/palles/Left_flipper_lvl_${NiveauActuel}.glb`
@@ -403,6 +403,11 @@ export default {
             
             bumper: {
                 collision: { file: "../assets/sound/Bumpers_collision.mp3", volume: 0.2 },
+                move: { file: "../assets/sound/Bumpers_collision.mp3", volume: 0.15 },
+            },
+
+            wall: {
+                collision: { file: "../assets/sound/Ball/wood/collision/1.mp3", volume: 0.08 },
             },
 
             staticMesh: {
@@ -410,8 +415,8 @@ export default {
             },
 
             launchingRamp: {  
-                charging: {file: "../assets/sound/Ramp_reload_1.mp3"} , 
-                launch: {file: "../assets/sound/Ramp_launch.mp3", volume: 0.2}
+                charging: { file: "../assets/sound/Ramp_reload_1.mp3", volume: 0.25, loop: true },
+                launch: { file: "../assets/sound/Ramp_launch.mp3", volume: 0.2 }
             },
 
             palles: {
@@ -462,21 +467,9 @@ export default {
             },
 
             bumper_triangle: {
-                // map: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_diffuse_1k.png',
-                // aoMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
-                // roughnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
-                // metalnessMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_arm_1k.png',
-                // normalMap: '../assets/textures/lvl1/bumper_triangulaire/forest_leaves_02_nor_gl_1k.png',
-                // repeat: [4, 4]
             },
 
             etage: {
-                // map: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_diff_1k.png',               
-                // aoMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
-                // roughnessMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
-                // metalnessMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_arm_1k.png',
-                // normalMap: '../assets/textures/lvl1/etage/jolcham_oak_bark_01_nor_gl_1k.png',
-                // repeat: [4, 4]
             },
 
             ramps: {
@@ -501,23 +494,9 @@ export default {
             },
 
             palles: {
-                // map: '../assets/textures/lvl1/palles/bush_photo_albedo_tileable.png',
-                // aoMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
-                // roughnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
-                // metalnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
-                // normalMap: '../assets/textures/lvl1/palles/bush_photo_normal_tileable.png',
-                // displacementMap: '../assets/textures/lvl1/palles/bush_photo_displacement_tileable.png',
-                // displacementScale: 0.05,
-                // repeat: [4, 4]
             },
 
             launching_ramp: {
-                // map: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_diff_1k.png',
-                // aoMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
-                // roughnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
-                // metalnessMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_arm_1k.png',
-                // normalMap: '../assets/textures/lvl1/launching_ramp/stone_tiles_03_nor_gl_1k.png',
-                // repeat: [4, 4]
             },
 
             repulse: {
@@ -530,12 +509,6 @@ export default {
             },
 
             wall: {
-                // map: '../assets/textures/lvl1/wall/emerald_albedo_tileable.png',
-                // aoMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
-                // roughnessMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
-                // metalnessMap: '../assets/textures/lvl1/wall/emerald_ARM_tileable.png',
-                // normalMap: '../assets/textures/lvl1/wall/emerald_normal_tileable.png',
-                // repeat: [4, 4]
             },
         },
         
@@ -548,6 +521,8 @@ export default {
                 "../assets/sound/Boss 1/5.mp3",
                 "../assets/sound/Boss 1/6.mp3"
             ]},
+
+        bloom: 0x00ff00,
         
         gravity: { x: 0, y: -9.75, z: -1.11 },
     },
@@ -661,36 +636,16 @@ export default {
             },
 
             etage: {
-                map: '../assets/textures/lvl3/etage/fire_etage_diff.png',               
-                aoMap: '../assets/textures/lvl3/etage/fire_etage_ao.png',
-                roughnessMap: '../assets/textures/lvl3/etage/fire_etage_arm.png',
-                normalMap: '../assets/textures/lvl3/etage/fire_etage_nor.png',
-                repeat: [4, 4]
-
             },
 
             launching_ramp: {
                 entrance: {
-                    map: '../assets/textures/lvl3/launching_ramp/entrance/mossy_sandstone_diff_1k.png',
-                    aoMap: '../assets/textures/lvl3/launching_ramp/entrance/mossy_sandstone_arm_1k.png',
-                    roughnessMap: '../assets/textures/lvl3/launching_ramp/entrance/mossy_sandstone_arm_1k.png',
-                    normalMap: '../assets/textures/lvl3/launching_ramp/entrance/mossy_sandstone_nor_gl_1k.png',
-                    repeat: [4, 4]
-
                 },
-                rail: {
-                    map: '../assets/textures/lvl3/launching_ramp/rail/Metal008_1K-PNG_Color.png',
-                    aoMap: '../assets/textures/lvl3/launching_ramp/rail/Metal008_1K-PNG_Displacement.png',
-                    roughnessMap: '../assets/textures/lvl3/launching_ramp/rail/Metal008_1K-PNG_Roughness.png',
-                    normalMap: '../assets/textures/lvl3/launching_ramp/rail/Metal008_1K-PNG_Normal.png',
-                    repeat: [4, 4]
-                
+                rail: {                
                 },
             },
 
             palles: {
-                repeat: [4, 4]
-
             },
 
             ramp: {
@@ -893,5 +848,5 @@ export default {
             gravity: { x: 0, y: -17.0625, z: -2.22 },
     },
 
-    forceMultiplier: 100.0  // Multiplicateur de force pour ajuster l'intensité de la physique en fonction de l'échelle
+    forceMultiplier: 150.0  // Multiplicateur de force pour ajuster l'intensité de la physique en fonction de l'échelle
 }

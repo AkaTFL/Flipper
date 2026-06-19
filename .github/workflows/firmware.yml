@@ -1,12 +1,7 @@
 name: Build ESP32 firmware
 
-# Builds the button/LED tester firmware and commits the merged binary back to
-# the repo. The cabinet flashes that committed binary on load — it never
-# builds firmware itself. See docs/esp32-firmware in the Fliphetic docs.
-
 on:
   push:
-    branches: [main, integration/flipper-physique]
     paths:
       - "firmware/**"
       - "!firmware/build/**"
@@ -35,14 +30,14 @@ jobs:
         run: |
           BUILD=firmware/.pio/build/esp32dev
           mkdir -p firmware/build
-          esptool --chip esp32 merge_bin -o firmware/build/firmware.bin \
+          esptool --chip esp32 merge-bin -o firmware/build/firmware.bin \
             0x1000  "$BUILD/bootloader.bin" \
             0x8000  "$BUILD/partitions.bin" \
             0x10000 "$BUILD/firmware.bin"
 
       - name: Commit the binary
         run: |
-          git config user.name  "firmware-ci"
+          git config user.name "firmware-ci"
           git config user.email "firmware-ci@users.noreply.github.com"
           git add firmware/build/firmware.bin
           git diff --staged --quiet && echo "no change" && exit 0

@@ -29,14 +29,12 @@ uint32_t lastReport = 0;
 
 void reportState() {
   Serial.print("{\"buttons\":{");
-  for (int i = 0; i < BUTTON_COUNT; i++) {
+  for (int index = 0; index < BUTTON_COUNT; index++) {
     Serial.print('"');
-    Serial.print(buttons[i].id);
+    Serial.print(buttons[index].id);
     Serial.print("\":");
-    Serial.print(buttons[i].stable ? "true" : "false");
-    if (i < BUTTON_COUNT - 1) {
-      Serial.print(',');
-    }
+    Serial.print(buttons[index].stable ? "true" : "false");
+    if (index < BUTTON_COUNT - 1) Serial.print(',');
   }
   Serial.print("},\"up\":");
   Serial.print(millis());
@@ -45,8 +43,8 @@ void reportState() {
 
 void setup() {
   Serial.begin(BAUD);
-  for (int i = 0; i < BUTTON_COUNT; i++) {
-    pinMode(buttons[i].pin, INPUT_PULLUP);
+  for (int index = 0; index < BUTTON_COUNT; index++) {
+    pinMode(buttons[index].pin, INPUT_PULLUP);
   }
 }
 
@@ -54,16 +52,14 @@ void loop() {
   const uint32_t now = millis();
   bool changed = false;
 
-  for (int i = 0; i < BUTTON_COUNT; i++) {
-    const bool pressed = digitalRead(buttons[i].pin) == LOW;
-
-    if (pressed != buttons[i].lastRead) {
-      buttons[i].lastRead = pressed;
-      buttons[i].changedAt = now;
+  for (int index = 0; index < BUTTON_COUNT; index++) {
+    const bool pressed = digitalRead(buttons[index].pin) == LOW;
+    if (pressed != buttons[index].lastRead) {
+      buttons[index].lastRead = pressed;
+      buttons[index].changedAt = now;
     }
-
-    if (now - buttons[i].changedAt >= DEBOUNCE_MS && buttons[i].stable != pressed) {
-      buttons[i].stable = pressed;
+    if (now - buttons[index].changedAt >= DEBOUNCE_MS && buttons[index].stable != pressed) {
+      buttons[index].stable = pressed;
       changed = true;
     }
   }

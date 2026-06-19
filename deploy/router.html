@@ -6,15 +6,11 @@
     <title>Flipper AkaTFL</title>
   </head>
   <body>
-    <script>
-      const screen = new URLSearchParams(window.location.search).get('screen');
-      const routes = {
-        playfield: '/playfield/?cabinet=1',
-        backglass: '/backglass/',
-        dmd: '/dmd/'
-      };
-
-      window.location.replace(routes[screen] || routes.playfield);
-    </script>
+    <p>Flipper AkaTFL — sélectionnez un écran.</p>
+    <ul>
+      <li><a href="/playfield/?cabinet=1">Playfield</a></li>
+      <li><a href="/backglass/">Backglass</a></li>
+      <li><a href="/dmd/">DMD</a></li>
+    </ul>
   </body>
 </html>

@@ -22,6 +22,8 @@ const (
 	defaultDebugTopicFilter   = "flipper/debug/#"
 	defaultSolenoidQoS        = byte(1)
 	defaultLEDQoS             = byte(0)
+	defaultSensorSubQoS       = byte(1)
+	defaultDebugSubQoS        = byte(0)
 	defaultSolenoidDurationMS = 50
 	defaultLEDFlashTopic      = "flipper/led/flash"
 )
@@ -42,6 +44,8 @@ type MQTTConfig struct {
 	DebugFilter    string
 	SolenoidQoS    byte
 	LEDQoS         byte
+	SensorSubQoS   byte
+	DebugSubQoS    byte
 }
 
 type MQTTBridge struct {
@@ -69,6 +73,8 @@ func loadAppConfig() AppConfig {
 			DebugFilter:    envOrDefault("MQTT_DEBUG_FILTER", defaultDebugTopicFilter),
 			SolenoidQoS:    byte(envIntOrDefault("MQTT_SOLENOID_QOS", int(defaultSolenoidQoS))),
 			LEDQoS:         byte(envIntOrDefault("MQTT_LED_QOS", int(defaultLEDQoS))),
+			SensorSubQoS:   byte(envIntOrDefault("MQTT_SENSOR_SUB_QOS", int(defaultSensorSubQoS))),
+			DebugSubQoS:    byte(envIntOrDefault("MQTT_DEBUG_SUB_QOS", int(defaultDebugSubQoS))),
 		},
 	}
 }
@@ -122,7 +128,7 @@ func newMQTTBridge(config MQTTConfig, hub *Hub) *MQTTBridge {
 		AddBroker(config.brokerURL()).
 		SetClientID(config.ClientID).
 		SetAutoReconnect(true).
-		SetConnectRetry(false).
+		SetConnectRetry(true).
 		SetConnectRetryInterval(config.ReconnectDelay).
 		SetKeepAlive(30 * time.Second).
 		SetPingTimeout(10 * time.Second).
@@ -154,38 +160,18 @@ func (c MQTTConfig) brokerURL() string {
 	return fmt.Sprintf("tcp://%s:%d", c.Host, c.Port)
 }
 
+// Start lance la connexion MQTT en arrière-plan. La librairie paho gère seule
+// les tentatives de connexion initiale (ConnectRetry) puis les reconnexions
+// après une perte (AutoReconnect); l'abonnement est rejoué via OnConnect.
 func (b *MQTTBridge) Start() {
-	go b.runConnectionLoop()
-}
-
-func (b *MQTTBridge) runConnectionLoop() {
-	retryDelay := b.config.ReconnectDelay
-	if retryDelay <= 0 {
-		retryDelay = defaultMQTTReconnectDelay
-	}
-
-	for {
-		if b.client != nil && b.client.IsConnectionOpen() {
-			time.Sleep(retryDelay)
-			continue
-		}
-
+	go func() {
 		log.Printf("Connexion MQTT vers %s...", b.config.brokerURL())
 		token := b.client.Connect()
-		if !token.WaitTimeout(5 * time.Second) {
-			log.Printf("Connexion MQTT en attente trop longue, nouvel essai dans %s", retryDelay)
-			time.Sleep(retryDelay)
-			continue
-		}
-
+		token.Wait()
 		if err := token.Error(); err != nil {
 			log.Printf("Connexion MQTT impossible: %v", err)
-			time.Sleep(retryDelay)
-			continue
 		}
-
-		time.Sleep(retryDelay)
-	}
+	}()
 }
 
 func (b *MQTTBridge) subscribe(client mqtt.Client) {
@@ -194,8 +180,8 @@ func (b *MQTTBridge) subscribe(client mqtt.Client) {
 	}
 
 	topics := map[string]byte{
-		b.config.SensorFilter: b.config.SolenoidQoS,
-		b.config.DebugFilter:  b.config.LEDQoS,
+		b.config.SensorFilter: b.config.SensorSubQoS,
+		b.config.DebugFilter:  b.config.DebugSubQoS,
 	}
 
 	token := client.SubscribeMultiple(topics, b.handleMessage)

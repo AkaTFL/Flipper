@@ -6,12 +6,12 @@ description = "Flipper virtuel avec Playfield, Backglass, DMD et contrôleur ESP
 
 [deploy]
 strategy = "branch"
-ref      = "integration/flipper-physique"
+ref      = "develop"
 
 [screens]
 playfield = { service = "app", port = 80, path = "/playfield/?cabinet=1" }
 backglass = { service = "app", port = 80, path = "/backglass/" }
-dmd       = { service = "app", port = 80, path = "/dmd/?demo=1" }
+dmd       = { service = "app", port = 80, path = "/dmd/" }
 
 [compose]
 file = "deploy/docker-compose.yml"

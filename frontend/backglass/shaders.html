@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Elemental Legends - Racines & Lave Shader</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #030508; font-family: sans-serif; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        #info { position: absolute; top: 20px; left: 20px; color: rgba(255, 255, 255, 0.8); background: rgba(0, 0, 0, 0.6); padding: 15px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.15); pointer-events: none; }
+        h1 { margin: 0 0 10px 0; font-size: 1.2rem; color: #4CAF50; text-shadow: 0 0 10px rgba(76, 175, 80, 0.5); }
+        p { margin: 0; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h1>Shader Organique : Racines & Éléments</h1>
+        <p>Génération procédurale de bois, lianes et magma.</p>
+    </div>
+
+    <!-- Import Three.js -->
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+
+        // 1. Initialisation de la scène
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        // 2. Création de la texture de texte (Masque)
+        const textCanvas = document.createElement('canvas');
+        textCanvas.width = 2048; textCanvas.height = 1024;
+        const ctx = textCanvas.getContext('2d');
+        ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        
+        ctx.font = '900 220px "Arial Black", Impact, sans-serif'; 
+        ctx.fillText('ELEMENTAL', textCanvas.width / 2, textCanvas.height / 2 - 120);
+        ctx.font = '900 180px "Arial Black", Impact, sans-serif';
+        ctx.fillText('LEGENDS', textCanvas.width / 2, textCanvas.height / 2 + 100);
+
+        const textTexture = new THREE.CanvasTexture(textCanvas);
+        textTexture.minFilter = THREE.LinearFilter;
+
+        // 3. Les Shaders
+        const vertexShader = `
+            varying vec2 vUv;
+            void main() { vUv = uv; gl_Position = vec4(position, 1.0); }
+        `;
+
+        const fragmentShader = `
+            uniform float u_time;
+            uniform sampler2D u_tex;
+            uniform vec2 u_resolution;
+            varying vec2 vUv;
+
+            // --- FONCTIONS DE BRUIT ---
+            float hash(vec2 p) {
+                p = fract(p * vec2(123.34, 456.21));
+                p += dot(p, p + 45.32);
+                return fract(p.x * p.y);
+            }
+
+            float noise(vec2 p) {
+                vec2 i = floor(p); vec2 f = fract(p);
+                f = f * f * (3.0 - 2.0 * f);
+                return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+                           mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+            }
+
+            float fbm(vec2 p) {
+                float f = 0.0; float amp = 0.5;
+                for(int i=0; i<5; i++) { f += amp * noise(p); p *= 2.0; amp *= 0.5; }
+                return f;
+            }
+
+            // Bruit de Voronoi (pour la roche/lave en bas)
+            vec2 hash2(vec2 p) {
+                p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
+                return -1.0 + 2.0 * fract(sin(p) * 43758.5453123);
+            }
+            float voronoi(vec2 x) {
+                vec2 p = floor(x); vec2 f = fract(x); float minDist = 8.0;
+                for(int j=-1; j<=1; j++) {
+                    for(int i=-1; i<=1; i++) {
+                        vec2 b = vec2(float(i), float(j));
+                        vec2 r = b - f + hash2(p + b);
+                        float d = dot(r, r);
+                        if(d < minDist) minDist = d;
+                    }
+                }
+                return sqrt(minDist);
+            }
+
+            // --- FONCTION POUR LES RACINES ---
+            // Le Ridge Noise crée des lignes qui ressemblent à des veines ou des racines
+            float ridgeNoise(vec2 p) {
+                return 1.0 - abs(noise(p) * 2.0 - 1.0);
+            }
+
+            float rootPattern(vec2 p) {
+                // Déformation (Domain Warping) : On tord les coordonnées avec du bruit
+                // pour que les racines serpentent au lieu d'être droites.
+                vec2 warp = vec2(fbm(p * 2.0 + u_time * 0.05), fbm(p * 2.0 + 10.0));
+                vec2 warpedP = p * 12.0 + warp * 5.0;
+                
+                float r = 0.0;
+                float amp = 0.5;
+                for(int i=0; i<3; i++) {
+                    r += amp * ridgeNoise(warpedP);
+                    warpedP *= 2.0;
+                    amp *= 0.5;
+                }
+                // On accentue les crêtes pour faire des racines bien définies
+                return pow(r, 2.5); 
+            }
+
+            void main() {
+                vec2 uv = vUv;
+                vec4 texData = texture2D(u_tex, uv);
+                float mask = texData.a; 
+
+                // --- FOND MAGIQUE FORESTIER / SPATIAL ---
+                if (mask < 0.05) {
+                    float bgNoise = noise(uv * 80.0 + u_time * 0.02);
+                    vec3 bgColor = vec3(0.02, 0.03, 0.02); // Fond légèrement vert/sombre
+                    
+                    // Lucioles / Spores flottantes
+                    if(bgNoise > 0.98) {
+                        float pulse = sin(u_time * 3.0 + hash(uv) * 10.0) * 0.5 + 0.5;
+                        bgColor += vec3(0.3, 0.9, 0.4) * pulse * 1.5; // Spores vertes
+                    }
+                    gl_FragColor = vec4(bgColor, 1.0);
+                    return;
+                }
+
+                vec2 p = uv;
+                p.y *= 0.8;
+
+                // Gradient global : 1.0 en haut (Nature/Racines), 0.0 en bas (Feu/Roche)
+                float globalGrad = smoothstep(0.1, 0.6, uv.y);
+
+                // ==========================================
+                //  PARTIE HAUTE : BOIS, RACINES ET MOUSSE
+                // ==========================================
+                
+                // 1. Grain du bois de base (étiré horizontalement)
+                vec2 woodUV = vec2(p.x * 2.0, p.y * 15.0);
+                float woodGrain = fbm(woodUV + fbm(woodUV * 2.0));
+                vec3 woodCol = mix(vec3(0.15, 0.1, 0.05), vec3(0.35, 0.2, 0.1), woodGrain);
+
+                // 2. Génération des Racines
+                float roots = rootPattern(p);
+                // Ombre sous les racines pour le relief
+                float rootShadow = smoothstep(0.2, 0.0, roots); 
+                woodCol *= rootShadow + 0.4; // Assombrit le bois sous les racines
+                
+                // Couleur des racines (bois plus clair/vif)
+                vec3 rootHighlight = mix(vec3(0.4, 0.25, 0.1), vec3(0.5, 0.35, 0.15), fbm(p * 30.0));
+                float rootMask = smoothstep(0.4, 0.8, roots);
+                vec3 natureCol = mix(woodCol, rootHighlight, rootMask);
+
+                // 3. Mousse sur les racines
+                float mossNoise = fbm(p * 40.0);
+                float mossArea = smoothstep(0.5, 1.0, roots) * mossNoise; // Mousse sur le haut des racines
+                vec3 mossCol = vec3(0.2, 0.6, 0.2) * (mossNoise + 0.5);
+                natureCol = mix(natureCol, mossCol, mossArea * 1.5);
+
+                // ==========================================
+                //  PARTIE BASSE : ROCHE ET LAVE
+                // ==========================================
+                
+                float rockNoise = fbm(p * 20.0);
+                vec3 rockCol = vec3(0.2, 0.2, 0.25) * (rockNoise + 0.2);
+
+                float vor = voronoi(p * 25.0);
+                float cracks = smoothstep(0.35, 0.45, abs(vor - 0.5)); cracks = 1.0 - cracks;
+                
+                float lavaNoise = fbm(p * 15.0 - vec2(0.0, u_time * 0.3));
+                float glow = (sin(u_time * 5.0 + vor * 20.0) * 0.5 + 0.5);
+                vec3 lavaCol = vec3(1.0, 0.2, 0.0) * (1.5 + lavaNoise) + vec3(1.0, 0.6, 0.0) * glow;
+                
+                vec3 fireCol = mix(rockCol, lavaCol, cracks * 1.5);
+
+                // ==========================================
+                //  MÉLANGE FINAL
+                // ==========================================
+                
+                // On mixe la nature (haut) avec le feu (bas)
+                vec3 finalCol = mix(fireCol, natureCol, globalGrad);
+
+                // Ombre interne pour l'épaisseur de la police
+                float edgeDarken = smoothstep(0.0, 0.08, mask) * smoothstep(1.0, 0.92, mask);
+                finalCol *= edgeDarken + 0.2;
+
+                gl_FragColor = vec4(finalCol, mask);
+            }
+        `;
+
+        const uniforms = {
+            u_time: { value: 0.0 },
+            u_tex: { value: textTexture },
+            u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+        };
+
+        const material = new THREE.ShaderMaterial({ vertexShader, fragmentShader, uniforms, transparent: true });
+        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+        scene.add(mesh);
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            uniforms.u_time.value = clock.getElapsedTime();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            uniforms.u_resolution.value.set(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

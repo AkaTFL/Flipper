@@ -1,124 +1,219 @@
 import Config from "./Config.js";
 
+let sharedAudioManager = null;
+
+export function getSharedAudioManager() {
+    if (!sharedAudioManager) {
+        sharedAudioManager = new AudioManager();
+    }
+    return sharedAudioManager;
+}
+
 export class AudioManager {
-    constructor() {
-        this.audio = null;
-
-        this.surfaces = Config.global.sounds.ball;
-
-        this.rollingAudio = null;
-        this.rollingInitialized = false;
+    static getShared() {
+        return getSharedAudioManager();
     }
 
-    // =====================================================
-    // BASE AUDIO
-    // =====================================================
+    constructor() {
+        this.surfaces = Config.global.sounds.ball;
+        this.unlocked = false;
+        this.rollingAudio = null;
+        this.rollingInitialized = false;
+        this.musicAudio = null;
+        this.activeLoops = new Map();
+    }
 
-    initSound(sound) {
-        if (!sound) return null;
+    normalizeSoundConfig(sound) {
+        if (!sound) {
+            return null;
+        }
 
-        const cfg = typeof sound === 'string'
-            ? { file: sound, volume: 1 }
-            : { file: sound.file, volume: sound.volume ?? 1 };
+        if (typeof sound === 'string') {
+            return { file: sound, volume: 1, loop: false };
+        }
 
-        let source;
+        return {
+            file: sound.file,
+            volume: sound.volume ?? 1,
+            loop: sound.loop ?? false
+        };
+    }
+
+    resolveSource(sound) {
+        const cfg = this.normalizeSoundConfig(sound);
+        if (!cfg?.file) {
+            return null;
+        }
 
         try {
-            source = new URL(cfg.file, import.meta.url).href;
+            return {
+                cfg,
+                source: new URL(cfg.file, import.meta.url).href
+            };
         } catch {
             console.warn('Chemin audio invalide:', cfg.file);
             return null;
         }
+    }
 
+    createAudio(sound) {
+        const resolved = this.resolveSource(sound);
+        if (!resolved) {
+            return null;
+        }
+
+        const { cfg, source } = resolved;
         const audio = new Audio(source);
 
         audio.preload = 'auto';
-        audio.volume = cfg.volume ?? 1;
-
+        audio.volume = cfg.volume;
+        audio.loop = cfg.loop;
         audio.onerror = () => {
             console.warn(`Fichier manquant : ${cfg.file}`);
         };
 
-        this.audio = audio;
+        return { audio, cfg };
+    }
+
+    unlock() {
+        if (this.unlocked) {
+            return;
+        }
+
+        this.unlocked = true;
+
+        if (this.rollingAudio?.paused) {
+            this.rollingAudio.play().catch(() => {});
+        }
+
+        if (this.musicAudio?.paused) {
+            this.musicAudio.play().catch(() => {});
+        }
+
+        for (const audio of this.activeLoops.values()) {
+            if (audio.paused) {
+                audio.play().catch(() => {});
+            }
+        }
+    }
+
+    playSound(sound, volumeOverride) {
+        const created = this.createAudio(sound);
+        if (!created) {
+            return null;
+        }
+
+        const { audio, cfg } = created;
+
+        if (volumeOverride !== undefined) {
+            audio.volume = volumeOverride;
+        }
+
+        audio.currentTime = 0;
+
+        if (cfg.loop) {
+            this.activeLoops.set(cfg.file, audio);
+        }
+
+        audio.play().catch((error) => {
+            if (!this.unlocked) {
+                console.warn('Audio bloque — interaction utilisateur requise:', cfg.file);
+            } else {
+                console.warn('Impossible de jouer le son:', cfg.file, error);
+            }
+        });
 
         return audio;
     }
 
-    playSound(sound = this.sound, volume) {
-        this.audio = this.initSound(sound);
+    stopSound(sound) {
+        const cfg = this.normalizeSoundConfig(sound);
 
-        if (!this.audio) return;
-
-        this.audio.currentTime = 0;
-
-        this.audio.play().catch(console.error);
-        this.audio.volume = volume ?? 0.2;
-    }
-
-    stopSound(sound = this.sound) {
-        if (sound && typeof sound.pause === 'function') {
-            try {
-                sound.pause();
-                sound.currentTime = 0;
-            } catch {}
-
+        if (cfg?.file && this.activeLoops.has(cfg.file)) {
+            const audio = this.activeLoops.get(cfg.file);
+            audio.pause();
+            audio.currentTime = 0;
+            this.activeLoops.delete(cfg.file);
             return;
         }
 
-        if (!this.audio) return;
-
-        try {
-            this.audio.pause();
-            this.audio.currentTime = 0;
-        } catch {}
+        if (sound && typeof sound.pause === 'function') {
+            sound.pause();
+            sound.currentTime = 0;
+        }
     }
 
-    // =====================================================
-    // ROLLING BALL
-    // =====================================================
+    stopMusic() {
+        if (!this.musicAudio) {
+            return;
+        }
+
+        this.musicAudio.pause();
+        this.musicAudio.currentTime = 0;
+        this.musicAudio = null;
+    }
+
     updateRollingBall(speed = 0, ground) {
         if (!this.rollingInitialized) {
-            if (this.initSound(ground) === null) {
-                console.warn(`Impossible d'initialiser le son de roulement pour : ${ground}`);
+            const created = this.createAudio(ground);
+            if (!created) {
+                console.warn('Impossible d\'initialiser le son de roulement');
                 return;
             }
+
+            this.rollingAudio = created.audio;
+            this.rollingAudio.loop = true;
             this.rollingInitialized = true;
-            
-            this.audio.play().catch(console.error);
-            this.audio.loop = true;
+
+            if (this.unlocked) {
+                this.rollingAudio.play().catch(() => {});
+            }
         }
-        
+
         const { minSpeed, maxSpeed, minSound, maxSound, minPitch, maxPitch } = this.surfaces.param;
 
-        if (!Number.isFinite(speed)) {
-            this.audio.volume = 0;
+        if (!Number.isFinite(speed) || speed < minSpeed) {
+            this.rollingAudio.volume = 0;
             return;
         }
-        // Si la vitesse est en-dessous du seuil, couper le son
-        if (speed < minSpeed) {
-            this.audio.volume = 0;
-        } else {
-            this.audio.volume = Math.min(maxSound, ((speed / maxSpeed) + minSound));
-            this.audio.playbackRate = Math.min(maxPitch, Math.max(minPitch, (speed / maxSpeed)));
+
+        if (this.rollingAudio.paused && this.unlocked) {
+            this.rollingAudio.play().catch(() => {});
         }
+
+        this.rollingAudio.volume = Math.min(maxSound, (speed / maxSpeed) + minSound);
+        this.rollingAudio.playbackRate = Math.min(maxPitch, Math.max(minPitch, speed / maxSpeed));
     }
 
-    // =====================================================
-    // MUSIC
-    // =====================================================
+    playMusic(soundtrackOrFolder, volume = 0.2) {
+        let files;
 
-    playMusic(folderName, volume) {
-        const files = Config[Config.currentLevel].soundtrack[folderName];
+        if (typeof soundtrackOrFolder === 'string') {
+            files = Config[Config.currentLevel].soundtrack?.[soundtrackOrFolder];
+        } else if (soundtrackOrFolder && typeof soundtrackOrFolder === 'object') {
+            const folderName = Object.keys(soundtrackOrFolder)[0];
+            files = soundtrackOrFolder[folderName];
+        }
 
         if (!files?.length) {
-            console.warn(`Aucun son dans : ${folderName}`);
+            console.warn('Aucune musique disponible pour le niveau courant');
             return;
         }
 
-        const file = files[
-            Math.floor(Math.random() * files.length)
-        ];
+        const file = files[Math.floor(Math.random() * files.length)];
 
-        this.playSound(file, volume);
+        this.stopMusic();
+
+        const created = this.createAudio({ file, volume, loop: true });
+        if (!created) {
+            return;
+        }
+
+        this.musicAudio = created.audio;
+        this.musicAudio.loop = true;
+
+        if (this.unlocked) {
+            this.musicAudio.play().catch(() => {});
+        }
     }
 }
