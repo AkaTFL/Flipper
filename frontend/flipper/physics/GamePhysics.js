@@ -523,7 +523,7 @@ export class GamePhysics {
 
         const pos = this.ball.rigidBody.translation();
 
-        if (pos.z > Config.global.positioning.drainZThreshold && pos.y > Config.global.positioning.drainYThreshold) {
+        if (pos.z < Config.global.positioning.drainZThreshold && pos.y < Config.global.positioning.drainYThreshold) {
             this.triggerBallLost();
         }
     }
