@@ -60,6 +60,7 @@ export class GamePhysics {
         this.detectScoreZoneEntries();
         this.checkLaunchingRampHeight();
         this.checkBallOutOfBounds();
+        console.log('ball position:', this.ball?.rigidBody?.translation());
     }
 
     updateRollingBallSound() {
@@ -308,7 +309,7 @@ export class GamePhysics {
             && Math.abs((position.z ?? 0) - zone.center.z) <= halfZ;
     }
 
-    triggerBallLost(source = 'collision') {
+    triggerBallLost() {
         if (!this.ball?.rigidBody || this._ballLostReported || this.gameOver) {
             return false;
         }
@@ -317,7 +318,7 @@ export class GamePhysics {
         this.holdLaunchingRampVisibleAfterBallLost = true;
         this.setLaunchingRampVisible(true);
         this.sendMessage('ball_lost');
-        console.info(`[backend] ball_lost envoyé (${source})`);
+        console.info(`[backend] ball_lost envoyé`);
 
         setTimeout(() => {
             if (this.gameOver) {
@@ -399,7 +400,7 @@ export class GamePhysics {
             const collisionResponders = this.findCollisionResponders(handle1, handle2);
 
             if (this.isBallDrainCollision(collidingObjects)) {
-                this.triggerBallLost('body-bottom-wall');
+                this.triggerBallLost();
             }
 
             for (const obj of collisionResponders) {
@@ -417,10 +418,6 @@ export class GamePhysics {
                 if (obj.objectType === 'repulse'  && typeof obj.applyRepulseForce === 'function') {
                     obj.applyRepulseForce(handle1, handle2);
                 }
-
-                // if (obj.objectType === 'launching-ramp' && typeof obj.applyLaunchingRampForce === 'function') {
-                //     obj.applyLaunchingRampForce(handle1, handle2);
-                // }
 
                 if (obj.objectType === 'ramp') {
                     this.detectRampTraversal();
@@ -526,12 +523,12 @@ export class GamePhysics {
     }
 
     checkBallOutOfBounds() {
-        if (!this.ball?.rigidBody || this._ballLostReported || this.gameOver) return;
+        if (this.gameOver) return;
 
         const pos = this.ball.rigidBody.translation();
 
-        if (pos.z > Config.global.positioning.drainZThreshold && pos.y < Config.global.positioning.drainYThreshold) {
-            this.triggerBallLost('back_wall');
+        if (pos.z > Config.global.positioning.drainZThreshold && pos.y > Config.global.positioning.drainYThreshold) {
+            this.triggerBallLost();
         }
     }
 

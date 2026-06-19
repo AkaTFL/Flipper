@@ -242,7 +242,7 @@ export async function initFlipper() {
     if (ball.rigidBody) {
         setTimeout(() => {
             ball.rigidBody.setEnabled(true);
-        }, 6000);
+        }, 8000);
     }
 
     sceneManager.scene.add(...mesh.map(obj => obj.mesh));
