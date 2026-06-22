@@ -186,6 +186,42 @@ export class Objects {
         return firstColliderDesc;
     }
 
+    buildConvexHullCollider(modelRoot, offsetTranslation = { x: 0, y: 0, z: 0 }) {
+        if (!modelRoot || !modelRoot.isObject3D) return null;
+
+        modelRoot.updateMatrixWorld(true);
+
+        const points = [];
+
+        modelRoot.traverse((child) => {
+            if (!child.isMesh || !child.geometry) return;
+
+            const geometry = child.geometry.clone();
+            geometry.applyMatrix4(child.matrixWorld);
+
+            const position = geometry.getAttribute('position');
+            if (!position) { geometry.dispose(); return; }
+
+            for (let i = 0; i < position.count; i++) {
+                points.push(position.getX(i), position.getY(i), position.getZ(i));
+            }
+
+            geometry.dispose();
+        });
+
+        if (points.length === 0) return null;
+
+        const vertices = new Float32Array(points);
+
+        const desc = RAPIER.ColliderDesc.convexHull(vertices)
+            ?.setTranslation(offsetTranslation.x, offsetTranslation.y, offsetTranslation.z)
+            ?.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+
+        if (!desc) return null;
+
+        return this.attachCollider(desc, this.rigidBody);
+    }
+
     addMesh(modelPath, onModelLoaded) {
         this.loader.loadAsync(modelPath)
             .then(({ scene: modelRoot }) => {

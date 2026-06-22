@@ -33,6 +33,10 @@ export class Palles extends Objects {
         this.isLeft = side === 'left';
         this.wasActive = false;
 
+        this.length = length;
+        this.width = width;
+        this.height = height;
+
         this.position = position;
 
         this.angle = Math.abs(Config.global.positioning.palles.rotationAngle);
@@ -70,56 +74,55 @@ export class Palles extends Objects {
         const modelRelative = this.isLeft ? (Config.global.positioning.palles.modelLeft) : (Config.global.positioning.palles.modelRight);
         const modelPath = new URL(modelRelative, import.meta.url).href;
 
-        if (modelPath) {
-            this.addMesh(modelPath, (modelRoot) => {
-                this.addTexture(Config[Config.currentLevel].textures.palles, modelRoot);
+        this.addMesh(modelPath, (modelRoot) => {
+            this.addTexture(Config[Config.currentLevel].textures.palles, modelRoot);
+            modelRoot.rotation.y = this.isLeft ? -Math.PI / 5 : Math.PI / 5;
 
-                modelRoot.rotation.y = this.isLeft ? -Math.PI / 5 : Math.PI / 5;
+            const { halfLengthX, center } = this.getMeshMetrics(modelRoot, true);
 
-                const { halfLengthX, center } = this.getMeshMetrics(modelRoot);
+            // ✅ Le RigidBody est centré à halfLengthX depuis le pivot
+            // position = pointe de la palle (point de rotation)
+            const rigidBodyX = this.isLeft
+                ? position.x + halfLengthX   // palle gauche : pivot à gauche, corps vers la droite
+                : position.x - halfLengthX;  // palle droite : pivot à droite, corps vers la gauche
 
-                modelRoot.position.x += this.position.x;
-                modelRoot.position.y = this.position.y;
-                modelRoot.position.z = -center.z;
+            const quat = new THREE.Quaternion().setFromEuler(
+                new THREE.Euler(rotation.x, rotation.y, rotation.z + this.restAngle)
+            );
 
-                const anchorBody = this.isLeft
-                    ? { x: halfLengthX, y: 0, z: 0 }
-                    : { x: -halfLengthX - 20, y: 0, z: 0 };
-                    
-                const pivotWorldX = this.isLeft
-                    ? position.x + halfLengthX
-                    : position.x - halfLengthX;
+            const pallesDesc = RAPIER.RigidBodyDesc.dynamic()
+                .setTranslation(rigidBodyX, position.y, position.z)
+                .setRotation({ x: quat.x, y: quat.y, z: quat.z, w: quat.w });
 
-                const pivotDesc = RAPIER.RigidBodyDesc.fixed()
-                    .setTranslation(pivotWorldX, position.y, position.z);
-                const pivotBody = this.world.createRigidBody(pivotDesc);
+            this.rigidBody = this.world.createRigidBody(pallesDesc);
 
-                const pivot = RAPIER.JointData.revolute({ x: 0, y: 0, z: 0 }, anchorBody, { x: 0, y: 1, z: 0 });
-                this.joint = this.world.createImpulseJoint(pivot, pivotBody, this.rigidBody, true);
+            // Mesh centré sur le RigidBody
+            modelRoot.position.x = rigidBodyX;
+            modelRoot.position.y = position.y;
+            modelRoot.position.z = -center.z;
 
-                this.joint.setLimits(-this.angle, this.angle);
+            // ✅ Pivot fixe = position exacte définie dans le Config
+            const pivotDesc = RAPIER.RigidBodyDesc.fixed()
+                .setTranslation(position.x, position.y, position.z);
+            const pivotBody = this.world.createRigidBody(pivotDesc);
 
-                // ✅ Calcul de la bounding box réelle du mesh
-                const box = new THREE.Box3().setFromObject(modelRoot);
-                const size = new THREE.Vector3();
-                box.getSize(size);
+            // ✅ Ancre locale = extrémité du RigidBody côté pivot
+            const rightAnchorX = 0.75 * (this.length) + 5;
 
-                const colliderDesc = RAPIER.ColliderDesc.cuboid(
-                    size.x / 2,  // half-extent X réel du mesh
-                    size.y / 2,  // half-extent Y réel du mesh
-                    size.z / 2   // half-extent Z réel du mesh
-                )
-                .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+            const anchorBody = this.isLeft
+                ? { x: this.length, y: 0, z: 5 }  // bout gauche du corps = pointe gauche
+                : { x: rightAnchorX, y: 0, z: 0 }; // bout droit du corps = pointe droite
+            const pivot = RAPIER.JointData.revolute(
+                { x: 0, y: 0, z: 0 }, anchorBody, { x: 0, y: 1, z: 0 }
+            );
+            this.joint = this.world.createImpulseJoint(pivot, pivotBody, this.rigidBody, true);
+            this.joint.setLimits(-this.angle, this.angle);
 
-                this.collider = this.world.createCollider(
-                    colliderDesc,
-                    this.rigidBody
-                );
-            });
-        }
+            this.buildConvexHullCollider(modelRoot, { x: 0, y: 0, z: -center.z });
+        });
     }
 
-    setActive(active) {
+    setActive(active) {qq
         if (!this.joint) return;
 
         const targetAngle = active

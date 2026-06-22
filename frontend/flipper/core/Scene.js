@@ -10,6 +10,8 @@ import { createBloom } from '../effects/postprocessing/BloomEffect.js';
 import { createFXAA } from '../effects/postprocessing/FXAAEffect.js';
 import { createSSAO } from '../effects/postprocessing/SSAOEffects.js';
 
+import { RapierDebugRenderer } from '../helpers/RapierDebugRenderer.js';
+
 export class Scene {
     /**
      * @param {number} height
@@ -32,7 +34,6 @@ export class Scene {
         this.introLights = [];
 
         // Debug Rapier
-        this.debugMesh = null;
         this.debugEnabled = false;
 
         this.init(height, width, position, rotation);
@@ -60,19 +61,14 @@ export class Scene {
         // ==========================================
         // DEBUG RAPIER (toggle avec F1)
         // ==========================================
-        this.debugMesh = new THREE.LineSegments(
-            new THREE.BufferGeometry(),
-            new THREE.LineBasicMaterial({ color: 0x00ff00, vertexColors: true, depthTest: false })
-        );
-        this.debugMesh.frustumCulled = false;
-        this.debugMesh.visible = false;
-        this.scene.add(this.debugMesh);
+        this.debugRenderer = new RapierDebugRenderer(this.scene, this.world);
+        this.debugRenderer.setVisible(false);
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'F1') {
                 e.preventDefault();
                 this.debugEnabled = !this.debugEnabled;
-                this.debugMesh.visible = this.debugEnabled;
+                this.debugRenderer.setVisible(this.debugEnabled);
                 console.log(`[Rapier Debug] ${this.debugEnabled ? '✅ ON' : '❌ OFF'}`);
             }
         });
@@ -250,12 +246,9 @@ export class Scene {
         }
 
         // Mise à jour du debug renderer Rapier
-        if (this.debugEnabled && this.debugMesh) {
-            const { vertices, colors } = this.world.debugRender();
-            this.debugMesh.geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-            this.debugMesh.geometry.setAttribute('color',    new THREE.BufferAttribute(colors, 4));
+        if (this.debugEnabled) {
+            this.debugRenderer.update();
         }
-
         this.composer.render();
         
         requestAnimationFrame(() => this.render(physics, onUpdate));
