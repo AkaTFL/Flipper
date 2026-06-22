@@ -14,10 +14,11 @@ export class Palles extends Objects {
      */
     constructor(world, length = 500, width = 10, height = 10, position = {x: 250, y: 500, z: 0}, 
         rotation = {x: 0, y: 0, z: 0}, side) {
-        super(world, length, width, height, position, rotation, null, [], null);
+        super(world, length, width, height, position, rotation);
         this.objectId = side ? `palle-${side}` : 'palle';
         this.objectType = 'palle';
         
+        // Supprime le mesh de debug Three.js hérité de Objects
         if (this.TreeMesh) {
             this.mesh.remove(this.TreeMesh);
             this.TreeMesh = null;
@@ -32,34 +33,35 @@ export class Palles extends Objects {
         this.restAngle = this.isLeft ? -this.initialAngle : this.initialAngle;
         this.rotationSpeed = Config.global.positioning.palles.rotationSpeed;
 
-    // Mesh rotation (Three.js)
-    this.mesh.rotation.set(
-        rotation.x,
-        rotation.y,
-        rotation.z + this.restAngle
-    );
+        // Mesh rotation (Three.js)
+        this.mesh.rotation.set(
+            rotation.x,
+            rotation.y,
+            rotation.z + this.restAngle
+        );
 
-    // Quaternion propre (Rapier)
-    const euler = new THREE.Euler(
-        rotation.x,
-        rotation.y,
-        rotation.z + this.restAngle
-    );
+        // Quaternion pour Rapier
+        const euler = new THREE.Euler(
+            rotation.x,
+            rotation.y,
+            rotation.z + this.restAngle
+        );
+        const quat = new THREE.Quaternion().setFromEuler(euler);
 
-    const quat = new THREE.Quaternion().setFromEuler(euler);
-
-    const pallesDesc = RAPIER.RigidBodyDesc.dynamic()
-        .setTranslation(position.x, position.y, position.z)
-        .setRotation({
-            x: quat.x,
-            y: quat.y,
-            z: quat.z,
-            w: quat.w
-        });
+        const pallesDesc = RAPIER.RigidBodyDesc.dynamic()
+            .setTranslation(position.x, position.y, position.z)
+            .setRotation({
+                x: quat.x,
+                y: quat.y,
+                z: quat.z,
+                w: quat.w
+            });
 
         this.rigidBody = this.world.createRigidBody(pallesDesc);
 
-        const modelRelative = this.isLeft ? (Config.global.positioning.palles.modelLeft) : (Config.global.positioning.palles.modelRight);
+        const modelRelative = this.isLeft
+            ? Config.global.positioning.palles.modelLeft
+            : Config.global.positioning.palles.modelRight;
         const modelPath = new URL(modelRelative, import.meta.url).href;
 
         if (modelPath) {
@@ -68,9 +70,9 @@ export class Palles extends Objects {
 
                 modelRoot.rotation.y = this.isLeft ? -Math.PI / 5 : Math.PI / 5;
 
-                const { box, center, halfLengthX, size } = this.getMeshMetrics(modelRoot);
+                const { box, center, halfLengthX } = this.getMeshMetrics(modelRoot);
 
-                // Align on X (pivot point), center vertically, and center on Z
+                // Aligne sur X (point de pivot), centre verticalement et sur Z
                 const targetX = this.isLeft ? halfLengthX + 5 : -halfLengthX - 5;
                 const currentX = this.isLeft ? box.max.x : box.min.x;
 
@@ -89,19 +91,73 @@ export class Palles extends Objects {
                     .setTranslation(pivotWorldX, position.y, position.z);
                 const pivotBody = this.world.createRigidBody(pivotDesc);
 
-                const pivot = RAPIER.JointData.revolute({ x: 0, y: 0, z: 0 }, anchorBody, { x: 0, y: 1, z: 0 });
+                const pivot = RAPIER.JointData.revolute(
+                    { x: 0, y: 0, z: 0 },
+                    anchorBody,
+                    { x: 0, y: 1, z: 0 }
+                );
                 this.joint = this.world.createImpulseJoint(pivot, pivotBody, this.rigidBody, true);
-
                 this.joint.setLimits(-this.angle, this.angle);
 
-                const trimesh = this.buildTrimeshCollider(modelRoot);
-                if (trimesh) {
-                    this.attachCollider(
-                        trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
-                    );
-                }
+                // BUG FIX : buildTrimeshCollider attache déjà les colliders en interne.
+                // Il ne faut PAS rappeler attachCollider() sur son résultat,
+                // ce qui causait un double attachement et un crash physique.
+                // On force aussi activeEvents directement via la traversée du modèle.
+                this._buildTrimeshWithEvents(modelRoot);
             });
         }
+    }
+
+    /**
+     * Construit et attache les colliders trimesh avec COLLISION_EVENTS activés,
+     * sans double-attachement.
+     * @param {THREE.Object3D} modelRoot
+     */
+    _buildTrimeshWithEvents(modelRoot) {
+        if (!modelRoot || !modelRoot.isObject3D) return;
+
+        modelRoot.updateMatrixWorld(true);
+
+        const worldPos = new THREE.Vector3();
+
+        modelRoot.traverse((child) => {
+            if (!child.isMesh || !child.geometry) return;
+
+            const geometry = child.geometry;
+            const position = geometry.getAttribute('position');
+            if (!position) return;
+
+            child.updateWorldMatrix(true, false);
+
+            const vertices = [];
+            const indices = [];
+
+            for (let i = 0; i < position.count; i++) {
+                worldPos.fromBufferAttribute(position, i);
+                worldPos.applyMatrix4(child.matrixWorld);
+                vertices.push(worldPos.x, worldPos.y, worldPos.z);
+            }
+
+            if (geometry.index) {
+                const indexArray = geometry.index.array;
+                for (let i = 0; i < indexArray.length; i++) {
+                    indices.push(indexArray[i]);
+                }
+            } else {
+                for (let i = 0; i < position.count; i++) {
+                    indices.push(i);
+                }
+            }
+
+            if (vertices.length > 0 && indices.length > 0) {
+                const desc = RAPIER.ColliderDesc
+                    .trimesh(new Float32Array(vertices), new Uint32Array(indices))
+                    .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+
+                // Un seul attachement par collider
+                this.attachCollider(desc);
+            }
+        });
     }
 
     setActive(active) {
@@ -110,11 +166,11 @@ export class Palles extends Objects {
         const targetAngle = active
             ? (this.isLeft ? this.angle : -this.angle)
             : 0;
-    
+
         this.joint.configureMotorPosition(targetAngle, this.rotationSpeed, 8.0);
-        
+
         if (active && !this.wasActive) {
-            this.playSound(Config.global.sounds.palles.movement); // Son de mouvement des palles
+            this.playSound(Config.global.sounds.palles.movement);
         }
         this.wasActive = active;
     }
@@ -123,9 +179,8 @@ export class Palles extends Objects {
         this.syncObjects();
     }
 
-    
     handleCollision() {
-        this.playSound(Config.global.sounds.palles.collision); // Son de collision des palles
+        this.playSound(Config.global.sounds.palles.collision);
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

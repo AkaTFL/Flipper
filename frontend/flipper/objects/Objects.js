@@ -136,33 +136,34 @@ export class Objects {
 
         let firstColliderDesc = null;
 
+        const worldPos = new THREE.Vector3();
+
         modelRoot.traverse((child) => {
             if (!child.isMesh || !child.geometry) return;
 
-            const geometry = child.geometry.clone();
-
-            if (!geometry.getAttribute('position')) {
-                geometry.dispose();
-                return;
-            }
-
-            geometry.applyMatrix4(child.matrixWorld);
-
+            const geometry = child.geometry;
             const position = geometry.getAttribute('position');
+
+            if (!position) return;
+
             const vertices = [];
             const indices = [];
 
+            // Important : s'assurer que la matrice monde est à jour
+            child.updateWorldMatrix(true, false);
+
+            // Transforme chaque sommet dans l'espace monde sans cloner la géométrie
             for (let i = 0; i < position.count; i++) {
-                vertices.push(
-                    position.getX(i),
-                    position.getY(i),
-                    position.getZ(i)
-                );
+                worldPos.fromBufferAttribute(position, i);
+                worldPos.applyMatrix4(child.matrixWorld);
+
+                vertices.push(worldPos.x, worldPos.y, worldPos.z);
             }
 
             if (geometry.index) {
-                for (let i = 0; i < geometry.index.count; i++) {
-                    indices.push(geometry.index.getX(i));
+                const indexArray = geometry.index.array;
+                for (let i = 0; i < indexArray.length; i++) {
+                    indices.push(indexArray[i]);
                 }
             } else {
                 for (let i = 0; i < position.count; i++) {
@@ -172,15 +173,12 @@ export class Objects {
 
             if (vertices.length > 0 && indices.length > 0) {
                 const desc = RAPIER.ColliderDesc.trimesh(vertices, indices);
-
                 this.attachCollider(desc);
 
                 if (!firstColliderDesc) {
                     firstColliderDesc = desc;
                 }
             }
-
-            geometry.dispose();
         });
 
         return firstColliderDesc;
@@ -260,10 +258,6 @@ export class Objects {
 
             loadedMaps[key] = texture;
         });
-
-        console.log('OBJECT TYPE =', this.objectType);
-        console.log('maps =', maps);
-
         const applyMaps = (mesh) => {
             if (!mesh.isMesh || !mesh.material) return;
 
@@ -305,13 +299,40 @@ export class Objects {
     }
 
     getMeshMetrics(modelRoot) {
-        modelRoot.updateMatrixWorld(true);
-        
-        const box = new THREE.Box3().setFromObject(modelRoot);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
+        if (modelRoot.userData._metrics) {
+            return modelRoot.userData._metrics;
+        }
 
-        return { box, size, center, halfLengthX: size.x / 2 };
+        modelRoot.updateMatrixWorld(false);
+
+        const box = new THREE.Box3();
+
+        modelRoot.traverse((child) => {
+            if (!child.isMesh) return;
+
+            child.geometry.computeBoundingBox();
+
+            const geomBox = child.geometry.boundingBox.clone();
+            geomBox.applyMatrix4(child.matrixWorld);
+
+            box.union(geomBox);
+        });
+
+        const size = new THREE.Vector3();
+        const center = new THREE.Vector3();
+
+        box.getSize(size);
+        box.getCenter(center);
+
+        const metrics = {
+            box,
+            center,
+            halfLengthX: size.x * 0.5
+        };
+
+        modelRoot.userData._metrics = metrics;
+
+        return metrics;
     }
 
     syncObjects() {
