@@ -21,33 +21,15 @@ export async function initFlipper() {
     const physics = new GamePhysics();
     await physics.init();
 
-    // BUG FIX : l'ancienne version résolvait immédiatement car obj.mesh
-    // (un THREE.Group) est créé dès le constructeur de Objects.
-    // On attend maintenant que le modelRoot GLTF soit chargé,
-    // ce qui garantit que gamePhysics est assigné avant le callback addMesh.
-    const waitForModel = (obj) => {
+    const waitFormeshes = (obj) => {
         return new Promise((resolve) => {
-            const check = () => {
-                if (obj?.modelRoot) {
-                    resolve();
-                } else {
-                    setTimeout(check, 16);
-                }
-            };
-            check();
-        });
-    };
-
-    // Pour les objets qui n'ont pas de modèle GLTF (Ball, Wall…),
-    // on conserve l'ancienne logique basée sur mesh.
-    const waitForMesh = (obj) => {
-        return new Promise((resolve) => {
-            if (obj?.mesh) {
+            if (obj?.meshes) {
                 resolve();
                 return;
             }
+
             const interval = setInterval(() => {
-                if (obj?.mesh) {
+                if (obj?.meshes) {
                     clearInterval(interval);
                     resolve();
                 }
@@ -108,18 +90,19 @@ export async function initFlipper() {
 
     // Launching Ramp
     const launching = new LaunchingRamp(
-        physics.world,
-        Config.global.positioning.launchingRamp.length,
-        Config.global.positioning.launchingRamp.width,
-        Config.global.positioning.launchingRamp.height,
-        Config.global.positioning.launchingRamp.position,
-        Config.global.positioning.launchingRamp.rotation,
-        Config.global.positioning.launchingRamp.objectId
+      physics.world,
+      Config.global.positioning.launchingRamp.length,
+      Config.global.positioning.launchingRamp.width,
+      Config.global.positioning.launchingRamp.height,
+      Config.global.positioning.launchingRamp.position,
+      Config.global.positioning.launchingRamp.rotation,
+      Config.global.positioning.launchingRamp.objectId
     );
+    
     launching.gamePhysics = physics;
     controls.setLaunchingRampRef(launching);
     meshes.push(launching);
-    loadingPromises.push(waitForModel(launching));
+    loadingPromises.push(waitFormeshes(launching));
 
     const rampB = new Ramp(
         physics.world,
@@ -129,8 +112,7 @@ export async function initFlipper() {
     );
     rampB.gamePhysics = physics;
     meshes.push(rampB);
-    loadingPromises.push(waitForModel(rampB));
-
+    loadingPromises.push(waitFormeshes(rampB));
     // Bumpers
     Config.global.positioning.bumpers = Config.global.positioning.bumper.instances;
     Config.global.positioning.bumpers.forEach((bumperConfig) => {
@@ -144,7 +126,7 @@ export async function initFlipper() {
         );
         bumper.gamePhysics = physics;
         meshes.push(bumper);
-        loadingPromises.push(waitForModel(bumper));
+        loadingPromises.push(waitFormeshes(bumper));
     });
 
     // Repulse
@@ -161,43 +143,34 @@ export async function initFlipper() {
         );
         repulse.gamePhysics = physics;
         meshes.push(repulse);
-        loadingPromises.push(waitForModel(repulse));
+        loadingPromises.push(waitFormeshes(repulse));
     });
 
     // Palles
-    // BUG FIX : gamePhysics est assigné AVANT d'attendre le modèle,
-    // pour qu'il soit disponible dans le callback addMesh (qui est async).
     const pallesInstances = Config.global.positioning.palles.instances;
+
     pallesInstances.forEach((pnl) => {
-        const pal = new Palles(
-            physics.world,
-            pnl.length,
-            pnl.width,
-            pnl.height,
-            pnl.position,
-            pnl.rotation,
-            pnl.side
-        );
-        pal.gamePhysics = physics; // assigné avant waitForModel
+        const pal = new Palles(physics.world, pnl.length, pnl.width, pnl.height, pnl.position, pnl.rotation, pnl.side);
+        pal.gamePhysics = physics;
         meshes.push(pal);
-        loadingPromises.push(waitForModel(pal));
+        loadingPromises.push(waitFormeshes(pal));
     });
 
     // Etage (sol principal du flipper)
     const etage = new StaticMesh(physics.world, Config.global.positioning.etage.model, {
-        length:     Config.global.positioning.etage.length,
-        width:      Config.global.positioning.etage.width,
-        height:     Config.global.positioning.etage.height,
-        radius:     Config.global.positioning.etage.radius,
-        side:       Config.global.positioning.etage.side,
-        position:   Config.global.positioning.etage.position,
-        rotation:   Config.global.positioning.etage.rotation,
-        objectId:   Config.global.positioning.etage.objectId,
+        length:    Config.global.positioning.etage.length,
+        width:     Config.global.positioning.etage.width,
+        height:    Config.global.positioning.etage.height,
+        radius:    Config.global.positioning.etage.radius,
+        side:      Config.global.positioning.etage.side,
+        position:  Config.global.positioning.etage.position,
+        rotation:  Config.global.positioning.etage.rotation,
+        objectId:  Config.global.positioning.etage.objectId,
         objectType: Config.global.positioning.etage.objectType
     });
     etage.gamePhysics = physics;
     meshes.push(etage);
-    loadingPromises.push(waitForModel(etage));
+    loadingPromises.push(waitFormeshes(etage));
 
     // Body flipper (structure principale depuis meshes_final)
     const bodyFlipper = new StaticMesh(physics.world, Config.global.positioning.bodyFlipper.model, {
@@ -213,24 +186,22 @@ export async function initFlipper() {
     });
     bodyFlipper.gamePhysics = physics;
     meshes.push(bodyFlipper);
-    loadingPromises.push(waitForModel(bodyFlipper));
+    loadingPromises.push(waitFormeshes(bodyFlipper));
 
-    // Static meshes from meshes_final (murs_cible, quadri_cible, raque_side)
-    // BUG FIX : la variable locale s'appelait 'StaticMesh', écrasant l'import.
-    // Renommée en 'staticMeshInstance' pour éviter le ReferenceError.
+    // Static mesheses from meshes_final (murs_cible, quadri_cible, raque_side)
     (Config.global.positioning.StaticMeshes || []).forEach((cfg) => {
-        const staticMeshInstance = new StaticMesh(physics.world, cfg.model, {
-            length:     cfg.length,
-            width:      cfg.width,
-            height:     cfg.height,
-            position:   cfg.position,
-            rotation:   cfg.rotation,
-            objectId:   cfg.objectId,
+        const StaticMesh = new StaticMesh(physics.world, cfg.model, {
+            length: cfg.length,
+            width: cfg.width,
+            height: cfg.height,
+            position: cfg.position,
+            rotation: cfg.rotation,
+            objectId: cfg.objectId,
             objectType: cfg.objectType
         });
-        staticMeshInstance.gamePhysics = physics;
-        meshes.push(staticMeshInstance);
-        loadingPromises.push(waitForModel(staticMeshInstance));
+        StaticMesh.gamePhysics = physics;
+        meshes.push(StaticMesh);
+        loadingPromises.push(waitFormeshes(StaticMesh));
     });
 
     // Ramp pales (right, left, rightDeath, leftDeath)
@@ -246,24 +217,27 @@ export async function initFlipper() {
         });
         rampPale.gamePhysics = physics;
         meshes.push(rampPale);
-        loadingPromises.push(waitForModel(rampPale));
+        loadingPromises.push(waitFormeshes(rampPale));
     });
 
+    
     const ball = new Ball(sceneManager.scene, physics.world, Config.global.positioning.ball.position, physics);
     meshes.push(ball);
 
     controls.setBallRef(ball);
     physics.registerObjects(meshes);
-    sceneManager.scene.add(ball.mesh);
+    sceneManager.scene.add(ball.meshes);
 
-    // Attendre que tous les modèles GLTF soient chargés
     await Promise.all(loadingPromises);
 
-    await waitForMesh(ball);
-
+    await waitFormeshes(ball);
+    
     if (ball.rigidBody) {
         ball.rigidBody.setEnabled(false);
     }
+
+    // Attendre que tout soit chargé
+    await Promise.all(loadingPromises);
 
     if (ball.rigidBody) {
         setTimeout(() => {
@@ -271,8 +245,8 @@ export async function initFlipper() {
         }, 8000);
     }
 
-    sceneManager.scene.add(...meshes.map(obj => obj.mesh));
-
+    sceneManager.scene.add(...meshes.map(obj => obj.meshes));
+    
     physics.setLaunchingRampVisible(true);
 
     sceneManager.startRender(physics, () => {
@@ -281,7 +255,8 @@ export async function initFlipper() {
         for (let i = 0; i < meshes.length; i++) {
             if (typeof meshes[i].syncPalle === 'function') {
                 meshes[i].syncPalle();
-            } else if (typeof meshes[i].syncBall === 'function') {
+            }
+            else if (typeof meshes[i].syncBall === 'function') {
                 meshes[i].syncBall();
             }
             if (typeof meshes[i].setActive === 'function') {

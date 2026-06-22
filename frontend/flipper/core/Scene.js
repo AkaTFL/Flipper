@@ -104,9 +104,9 @@ export class Scene {
             pointLight1.position.set(0, 400, 100);
             this.scene.add(pointLight1);
 
-            // const pointLight2 = new THREE.PointLight(0xffeedd, 0.1, 1200);
-            // pointLight2.position.set(0, 300, -100);
-            // this.scene.add(pointLight2);
+            const pointLight2 = new THREE.PointLight(0xffeedd, 0.1, 1200);
+            pointLight2.position.set(0, 300, -100);
+            this.scene.add(pointLight2);
 
             // ── POINT LIGHT BAS (zone palles + rampe) ──
             const pointLightBottom = new THREE.PointLight(0xffffff, 5.0, 1000);
