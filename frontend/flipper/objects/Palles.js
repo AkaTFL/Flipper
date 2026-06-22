@@ -99,15 +99,17 @@ export class Palles extends Objects {
 
                 this.joint.setLimits(-this.angle, this.angle);
 
-                const colliderDesc = RAPIER.ColliderDesc.cuboid(
-                    halfLengthX,
-                    this.height / 2,
-                    this.width / 2
-                )
+                // ✅ Calcul de la bounding box réelle du mesh
+                const box = new THREE.Box3().setFromObject(modelRoot);
+                const size = new THREE.Vector3();
+                box.getSize(size);
 
-                .setActiveEvents(
-                    RAPIER.ActiveEvents.COLLISION_EVENTS
-                );
+                const colliderDesc = RAPIER.ColliderDesc.cuboid(
+                    size.x / 2,  // half-extent X réel du mesh
+                    size.y / 2,  // half-extent Y réel du mesh
+                    size.z / 2   // half-extent Z réel du mesh
+                )
+                .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
 
                 this.collider = this.world.createCollider(
                     colliderDesc,

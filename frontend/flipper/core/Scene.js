@@ -31,6 +31,10 @@ export class Scene {
         this.composer = null;
         this.introLights = [];
 
+        // Debug Rapier
+        this.debugMesh = null;
+        this.debugEnabled = false;
+
         this.init(height, width, position, rotation);
     }
 
@@ -53,6 +57,26 @@ export class Scene {
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0x0);
 
+        // ==========================================
+        // DEBUG RAPIER (toggle avec F1)
+        // ==========================================
+        this.debugMesh = new THREE.LineSegments(
+            new THREE.BufferGeometry(),
+            new THREE.LineBasicMaterial({ color: 0x00ff00, vertexColors: true, depthTest: false })
+        );
+        this.debugMesh.frustumCulled = false;
+        this.debugMesh.visible = false;
+        this.scene.add(this.debugMesh);
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'F1') {
+                e.preventDefault();
+                this.debugEnabled = !this.debugEnabled;
+                this.debugMesh.visible = this.debugEnabled;
+                console.log(`[Rapier Debug] ${this.debugEnabled ? '✅ ON' : '❌ OFF'}`);
+            }
+        });
+
         // Camera with a wide view and far clipping plane
         this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 3000);
         this.camera.position.z = position.z - 280; // Ajuste l'angle d'inclinaison 
@@ -62,6 +86,10 @@ export class Scene {
         // Keep a strict top-down camera and flip table orientation to match gameplay view.
         this.camera.up.set(0, 0, 1);
         this.camera.lookAt(-10, 0, -130);
+
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enableDamping = true;
+        this.controls.dampingFactor = 0.05;
 
         // ==========================================
         // PARTIE VISUELLE (THREE.JS)
@@ -219,6 +247,13 @@ export class Scene {
 
         if (onUpdate) {
             onUpdate();
+        }
+
+        // Mise à jour du debug renderer Rapier
+        if (this.debugEnabled && this.debugMesh) {
+            const { vertices, colors } = this.world.debugRender();
+            this.debugMesh.geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            this.debugMesh.geometry.setAttribute('color',    new THREE.BufferAttribute(colors, 4));
         }
 
         this.composer.render();

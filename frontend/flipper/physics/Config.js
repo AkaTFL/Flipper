@@ -226,8 +226,8 @@ export default {
                 rotationAngle: 40 * (Math.PI / 180),
                 initialAngle: 30 * (Math.PI / 180),
                 instances: [
-                    { length: 80, width: 26, height: 40, position: { x: 34, y: 15, z: -532 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
-                    { length: 80, width: 26, height: 40, position: { x: -52, y: 15, z: -532 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
+                    { length: 80, width: 26, height: 40, position: { x: 34, y: 5, z: -532 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+                    { length: 80, width: 26, height: 40, position: { x: -52, y: 5, z: -532 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
                     { length: 60, width: 20, height: 30, position: { x: 25, y: 5, z: 10 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
                     { length: 60, width: 20, height: 30, position: { x: -51, y: 5, z: 10 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
                 ],
