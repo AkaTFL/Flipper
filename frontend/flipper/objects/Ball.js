@@ -61,6 +61,18 @@ export class Ball extends Objects {
     }
 
     handleCollision() {
-        Shockwave(0.3, 0.2, 0.03, this.scene, this.mesh.position);
+        const velocity = this.rigidBody.linvel();
+
+        const impactForce = Math.hypot(
+            velocity.x,
+            velocity.y,
+            velocity.z
+        );
+
+        Shockwave(
+            impactForce,
+            this.scene,
+            this.mesh.position
+        );
     }
 }

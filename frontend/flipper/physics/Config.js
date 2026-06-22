@@ -226,10 +226,10 @@ export default {
                 rotationAngle: 40 * (Math.PI / 180),
                 initialAngle: 30 * (Math.PI / 180),
                 instances: [
-                    { length: 80, width: 26, height: 40, position: { x: 44, y: 15, z: -532 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
-                    { length: 80, width: 26, height: 40, position: { x: -62, y: 15, z: -532 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
-                    { length: 60, width: 20, height: 30, position: { x: 30, y: 5, z: 10 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
-                    { length: 60, width: 20, height: 30, position: { x: -56, y: 5, z: 10 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
+                    { length: 80, width: 26, height: 40, position: { x: 34, y: 15, z: -532 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+                    { length: 80, width: 26, height: 40, position: { x: -52, y: 15, z: -532 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
+                    { length: 60, width: 20, height: 30, position: { x: 25, y: 5, z: 10 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+                    { length: 60, width: 20, height: 30, position: { x: -51, y: 5, z: 10 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
                 ],
                 modelRight: `../assets/mesh/palles/Right_flipper_lvl_${NiveauActuel}.glb`,
                 modelLeft: `../assets/mesh/palles/Left_flipper_lvl_${NiveauActuel}.glb`
@@ -260,7 +260,6 @@ export default {
             },
 
             StaticMesh: [
-
                 {
                     model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${NiveauActuel}.glb`,
                     objectId: 'murs-cible-left',
@@ -329,10 +328,10 @@ export default {
                     model: `../assets/mesh/wall_up_right/wall_up_right_lvl_${NiveauActuel}.glb`,
                     objectId: 'wall-up-right',
                     objectType: 'wall',
-                    length: 160,
+                    length: 170,
                     width: 50,
                     height: 100,
-                    position: { x: 130, y: 7, z: 137 },
+                    position: { x: 140, y: 7, z: 137 },
                     rotation: { x: 0, y: -3.14, z: 0 }
                 }
             ],

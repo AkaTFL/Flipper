@@ -12,8 +12,14 @@ export class Palles extends Objects {
      * @param {Object} rotation - The rotation object with x, y, z properties
      * @param {string} side - 'left' ou 'right'
      */
-    constructor(world, length = 500, width = 10, height = 10, position = {x: 250, y: 500, z: 0}, 
-        rotation = {x: 0, y: 0, z: 0}, side) {
+    constructor(
+        world, 
+        length = 500, 
+        width = 10, 
+        height = 10,
+        position = {x: 250, y: 500, z: 0}, 
+        rotation = {x: 0, y: 0, z: 0}, side
+    ){
         super(world, length, width, height, position, rotation, null, [], null);
         this.objectId = side ? `palle-${side}` : 'palle';
         this.objectType = 'palle';
@@ -27,34 +33,36 @@ export class Palles extends Objects {
         this.isLeft = side === 'left';
         this.wasActive = false;
 
+        this.position = position;
+
         this.angle = Math.abs(Config.global.positioning.palles.rotationAngle);
         this.initialAngle = Math.abs(Config.global.positioning.palles.initialAngle);
         this.restAngle = this.isLeft ? -this.initialAngle : this.initialAngle;
         this.rotationSpeed = Config.global.positioning.palles.rotationSpeed;
 
-    // Mesh rotation (Three.js)
-    this.mesh.rotation.set(
-        rotation.x,
-        rotation.y,
-        rotation.z + this.restAngle
-    );
+        // Mesh rotation (Three.js)
+        this.mesh.rotation.set(
+            rotation.x,
+            rotation.y,
+            rotation.z + this.restAngle
+        );
 
-    // Quaternion propre (Rapier)
-    const euler = new THREE.Euler(
-        rotation.x,
-        rotation.y,
-        rotation.z + this.restAngle
-    );
+        // Quaternion propre (Rapier)
+        const euler = new THREE.Euler(
+            rotation.x,
+            rotation.y,
+            rotation.z + this.restAngle
+        );
 
-    const quat = new THREE.Quaternion().setFromEuler(euler);
+        const quat = new THREE.Quaternion().setFromEuler(euler);
 
-    const pallesDesc = RAPIER.RigidBodyDesc.dynamic()
-        .setTranslation(position.x, position.y, position.z)
-        .setRotation({
-            x: quat.x,
-            y: quat.y,
-            z: quat.z,
-            w: quat.w
+        const pallesDesc = RAPIER.RigidBodyDesc.dynamic()
+            .setTranslation(position.x, position.y, position.z)
+            .setRotation({
+                x: quat.x,
+                y: quat.y,
+                z: quat.z,
+                w: quat.w
         });
 
         this.rigidBody = this.world.createRigidBody(pallesDesc);
@@ -68,19 +76,16 @@ export class Palles extends Objects {
 
                 modelRoot.rotation.y = this.isLeft ? -Math.PI / 5 : Math.PI / 5;
 
-                const { box, center, halfLengthX, size } = this.getMeshMetrics(modelRoot);
+                const { halfLengthX, center } = this.getMeshMetrics(modelRoot);
 
-                // Align on X (pivot point), center vertically, and center on Z
-                const targetX = this.isLeft ? halfLengthX + 5 : -halfLengthX - 5;
-                const currentX = this.isLeft ? box.max.x : box.min.x;
-
-                modelRoot.position.x += targetX - currentX;
-                modelRoot.position.y = -center.y;
-                modelRoot.position.z = center.z + (this.isLeft ? 4 : 6);
+                modelRoot.position.x += this.position.x;
+                modelRoot.position.y = this.position.y;
+                modelRoot.position.z = -center.z;
 
                 const anchorBody = this.isLeft
                     ? { x: halfLengthX, y: 0, z: 0 }
-                    : { x: -halfLengthX, y: 0, z: 0 };
+                    : { x: -halfLengthX - 20, y: 0, z: 0 };
+                    
                 const pivotWorldX = this.isLeft
                     ? position.x + halfLengthX
                     : position.x - halfLengthX;
@@ -94,12 +99,20 @@ export class Palles extends Objects {
 
                 this.joint.setLimits(-this.angle, this.angle);
 
-                const trimesh = this.buildTrimeshCollider(modelRoot);
-                if (trimesh) {
-                    this.attachCollider(
-                        trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
-                    );
-                }
+                const colliderDesc = RAPIER.ColliderDesc.cuboid(
+                    halfLengthX,
+                    this.height / 2,
+                    this.width / 2
+                )
+
+                .setActiveEvents(
+                    RAPIER.ActiveEvents.COLLISION_EVENTS
+                );
+
+                this.collider = this.world.createCollider(
+                    colliderDesc,
+                    this.rigidBody
+                );
             });
         }
     }
@@ -111,7 +124,7 @@ export class Palles extends Objects {
             ? (this.isLeft ? this.angle : -this.angle)
             : 0;
     
-        this.joint.configureMotorPosition(targetAngle, this.rotationSpeed, 8.0);
+        this.joint.configureMotorPosition(targetAngle, this.rotationSpeed, 5.0);
         
         if (active && !this.wasActive) {
             this.playSound(Config.global.sounds.palles.movement); // Son de mouvement des palles

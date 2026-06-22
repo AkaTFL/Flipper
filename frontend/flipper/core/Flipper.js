@@ -23,13 +23,13 @@ export async function initFlipper() {
 
     const waitFormeshes = (obj) => {
         return new Promise((resolve) => {
-            if (obj?.meshes) {
+            if (obj?.mesh) {
                 resolve();
                 return;
             }
 
             const interval = setInterval(() => {
-                if (obj?.meshes) {
+                if (obj?.mesh) {
                     clearInterval(interval);
                     resolve();
                 }
@@ -188,9 +188,9 @@ export async function initFlipper() {
     meshes.push(bodyFlipper);
     loadingPromises.push(waitFormeshes(bodyFlipper));
 
-    // Static mesheses from meshes_final (murs_cible, quadri_cible, raque_side)
-    (Config.global.positioning.StaticMeshes || []).forEach((cfg) => {
-        const StaticMesh = new StaticMesh(physics.world, cfg.model, {
+    // Static meshes from meshes_final (murs_cible, quadri_cible, raque_side)
+    (Config.global.positioning.StaticMesh || []).forEach((cfg) => {
+        const staticMesh = new StaticMesh(physics.world, cfg.model, {
             length: cfg.length,
             width: cfg.width,
             height: cfg.height,
@@ -199,9 +199,9 @@ export async function initFlipper() {
             objectId: cfg.objectId,
             objectType: cfg.objectType
         });
-        StaticMesh.gamePhysics = physics;
-        meshes.push(StaticMesh);
-        loadingPromises.push(waitFormeshes(StaticMesh));
+        staticMesh.gamePhysics = physics;
+        meshes.push(staticMesh);
+        loadingPromises.push(waitFormeshes(staticMesh));
     });
 
     // Ramp pales (right, left, rightDeath, leftDeath)
@@ -245,7 +245,7 @@ export async function initFlipper() {
         }, 8000);
     }
 
-    sceneManager.scene.add(...meshes.map(obj => obj.meshes));
+    sceneManager.scene.add(...meshes.map(obj => obj.mesh));
     
     physics.setLaunchingRampVisible(true);
 

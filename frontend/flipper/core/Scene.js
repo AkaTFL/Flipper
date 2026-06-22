@@ -116,16 +116,16 @@ export class Scene {
             // ── SPOTS AUX 4 COINS ──
 
             // Coin haut-gauche
-            createSpotLight(-350, 500, 100,   0, 0,  1.5, Math.PI / 9, 0.1, 1024);
+            createSpotLight(-350, 500, -200,   0, 0,  1.5, Math.PI / 9, 0.1, 1024);
 
             // Coin haut-droit
-            createSpotLight( 350, 500, 100,   0, 0,  1.5, Math.PI / 9, 0.1, 1024);
+            createSpotLight( 350, 500, -200,   0, 0,  1.5, Math.PI / 9, 0.1, 1024);
 
             // Coin bas-gauche — boosté
-            createSpotLight(-350, 400,  -500,   0, 400,  3.5, Math.PI / 7, 0.1, 1024);
+            createSpotLight(-350, 400,  -700,   0, 400,  3.5, Math.PI / 7, 0.1, 1024);
 
             // Coin bas-droit — boosté
-            createSpotLight( 350, 400,  -500,   0, 400,  3.5, Math.PI / 7, 0.1, 1024);
+            createSpotLight( 350, 400,  -700,   0, 400,  3.5, Math.PI / 7, 0.1, 1024);
         
         // Intro : lumières s'allument une à une avec un délai croissant
         setTimeout(() => {
