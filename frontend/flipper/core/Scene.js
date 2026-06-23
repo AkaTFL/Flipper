@@ -101,19 +101,14 @@ export class Scene {
 
         this.camera.position.copy(cameraPosition);
 
-        // Zoom sur la rampe de lancement
-        await cam.animateTo({ x: 0, y: 700, z: -500 }, 800);
-        await cam.animateFrustumTo(800, 400);
-
-        // Debug rapide
-        cam.snapshot();
-
-        // Reset
-        cam.resetToDefault({ x: 0, y: 500, z: 0 });
-
         // Keep a strict top-down camera and flip table orientation to match gameplay view.
         this.camera.up.set(0, 0, 1);
         this.camera.lookAt(cameraTarget);
+
+        // ==========================================
+        // CAMERA CONTROLLER
+        // ==========================================
+        this.cameraController = new CameraController(this);
 
         window.addEventListener('resize', () => {
             const aspect = window.innerWidth / window.innerHeight;
@@ -251,6 +246,10 @@ export class Scene {
 
     getCamera() {
         return this.camera;
+    }
+
+    getCameraController() {
+        return this.cameraController;
     }
 
     /**
