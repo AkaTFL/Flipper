@@ -83,9 +83,9 @@ export class Scene {
         this.camera.up.set(0, 0, 1);
         this.camera.lookAt(-10, 0, -130);
 
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.enableDamping = true;
-        this.controls.dampingFactor = 0.05;
+        // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        // this.controls.enableDamping = true;
+        // this.controls.dampingFactor = 0.05;
 
         // ==========================================
         // PARTIE VISUELLE (THREE.JS)

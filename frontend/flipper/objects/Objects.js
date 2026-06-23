@@ -259,6 +259,7 @@ export class Objects {
             })
             .catch((error) => {
                 console.error('Failed to load flipper model:', error);
+                console.error('Model path:', modelPath);
             });
     }
 
