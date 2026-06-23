@@ -73,15 +73,50 @@ export class Scene {
             }
         });
 
-        // Camera with a wide view and far clipping plane
-        this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 3000);
-        this.camera.position.z = position.z - 280; // Ajuste l'angle d'inclinaison 
-        this.camera.position.y = position.y + 630; // Ajuste profondeur
-        this.camera.position.x = position.x;  // Ajuste la position horizontale
-        
+                // Camera (Orthographic) conservant le même cadrage que l'ancienne PerspectiveCamera
+        const aspect = window.innerWidth / window.innerHeight;
+
+        const cameraPosition = new THREE.Vector3(
+            position.x,
+            position.y + 630,
+            position.z - 280
+        );
+
+        const cameraTarget = new THREE.Vector3(-10, 0, -130);
+
+        const distance = cameraPosition.distanceTo(cameraTarget);
+        this.frustumHeight =
+            2 * Math.tan(THREE.MathUtils.degToRad(55 / 2)) * distance;
+        const frustumWidth = this.frustumHeight * aspect;
+
+        this.camera = new THREE.OrthographicCamera(
+            -frustumWidth / 2,
+             frustumWidth / 2,
+             this.frustumHeight / 2,
+            -this.frustumHeight / 2,
+             0.1,
+             3000
+        );
+
+        this.camera.position.copy(cameraPosition);
+
         // Keep a strict top-down camera and flip table orientation to match gameplay view.
         this.camera.up.set(0, 0, 1);
-        this.camera.lookAt(-10, 0, -130);
+        this.camera.lookAt(cameraTarget);
+
+        window.addEventListener('resize', () => {
+            const aspect = window.innerWidth / window.innerHeight;
+            const frustumWidth = this.frustumHeight * aspect;
+
+            this.camera.left = -frustumWidth / 2;
+            this.camera.right = frustumWidth / 2;
+            this.camera.top = this.frustumHeight / 2;
+            this.camera.bottom = -this.frustumHeight / 2;
+            this.camera.updateProjectionMatrix();
+
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            this.composer?.setSize(window.innerWidth, window.innerHeight);
+        });
 
         // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         // this.controls.enableDamping = true;
