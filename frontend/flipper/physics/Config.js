@@ -109,20 +109,20 @@ export default {
                         model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
 
-                    // {
-                    //     width: 70,
-                    //     position: { x: -120.5, y: 20, z: -441 },
-                    //     rotation: { x: 0, y: -(Math.PI / 3), z: 0 },
-                    //     objectId: 'bumper-triangle-left',
-                    //     model: `../assets/mesh/bumpers_triangle/bumper_triangle_left_lvl_${NiveauActuel}.glb`
-                    // },
-                    // {
-                    //     width: 70,
-                    //     position: { x: 110.5, y: 20, z: -441 },
-                    //     rotation: { x: 0, y: (Math.PI / 3), z: 0 },
-                    //     objectId: 'bumper-triangle-right',
-                    //     model: `../assets/mesh/bumpers_triangle/bumper_triangle_right_lvl_${NiveauActuel}.glb`
-                    // },
+                    {
+                        width: 130,
+                        position: { x: -120.5, y: 70, z: -441 },
+                        rotation: { x: 0, y: -(Math.PI / 3) - 0.1, z: 0 },
+                        objectId: 'bumper-triangle-left',
+                        model: `../assets/mesh/bumpers_triangle/bumper_triangle_left_lvl_${NiveauActuel}.glb`
+                    },
+                    {
+                        width: 130,
+                        position: { x: 100.5, y: 70, z: -441 },
+                        rotation: { x: 0, y: (Math.PI / 3) + 0.1, z: 0 },
+                        objectId: 'bumper-triangle-right',
+                        model: `../assets/mesh/bumpers_triangle/bumper_triangle_right_lvl_${NiveauActuel}.glb`
+                    },
                 ],
             },
 
