@@ -304,4 +304,4 @@ export class CameraController {
     get zoom()          { return this._camera.zoom; }
     get near()          { return this._camera.near; }
     get far()           { return this._camera.far; }
-}s
+}
