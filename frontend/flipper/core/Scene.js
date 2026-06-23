@@ -11,7 +11,7 @@ import { createFXAA } from '../effects/postprocessing/FXAAEffect.js';
 import { createSSAO } from '../effects/postprocessing/SSAOEffects.js';
 
 import { RapierDebugRenderer } from '../helpers/RapierDebugRenderer.js';
-import { CameraController } from '../helpers/CameraController.js';
+import GUI from 'lil-gui';
 
 export class Scene {
     /**
@@ -33,6 +33,9 @@ export class Scene {
         this.controls = null;
         this.composer = null;
         this.introLights = [];
+        this.lightHelpers = [];
+        this.spotLights = [];
+        this.gui = null;
 
         // Debug Rapier
         this.debugEnabled = false;
@@ -106,9 +109,36 @@ export class Scene {
         this.camera.lookAt(cameraTarget);
 
         // ==========================================
-        // CAMERA CONTROLLER
+        // CAMERA HELPER (F2 pour afficher/masquer)
         // ==========================================
-        this.cameraController = new CameraController(this);
+        this.cameraHelper = new THREE.CameraHelper(this.camera);
+        this.cameraHelper.visible = false;
+        this.scene.add(this.cameraHelper);
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'F2') {
+                e.preventDefault();
+                this.cameraHelper.visible = !this.cameraHelper.visible;
+                console.log(`[Camera Helper] ${this.cameraHelper.visible ? '✅ ON' : '❌ OFF'}`);
+            }
+        });
+
+        // ==========================================
+        // LIGHT HELPERS (F3 pour afficher/masquer)
+        // ==========================================
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'F3') {
+                e.preventDefault();
+
+                const visible = !this.lightHelpers[0]?.visible;
+
+                this.lightHelpers.forEach(helper => {
+                    helper.visible = visible;
+                });
+
+                console.log(`[Light Helpers] ${visible ? '✅ ON' : '❌ OFF'}`);
+            }
+        });
 
         window.addEventListener('resize', () => {
             const aspect = window.innerWidth / window.innerHeight;
@@ -154,6 +184,12 @@ export class Scene {
             this.scene.add(light.target);
             this.scene.add(light);
 
+            const helper = new THREE.SpotLightHelper(light);
+            helper.visible = false;
+            this.scene.add(helper);
+            this.lightHelpers.push(helper);
+            this.spotLights.push(light);
+
             this.introLights.push({ light, targetIntensity: intensity });
 
             return light;
@@ -161,32 +197,57 @@ export class Scene {
 
         // Spot principal central — baisser l'intensité et élargir légèrement (1-+ vers gauche, 2-+ vers moins de hauteur, 3-+vers le haut)
             // ── LUMIÈRES NATURELLES CENTRALES ──
-            const pointLight1 = new THREE.PointLight(0xffffff, 0.1, 1200);
-            pointLight1.position.set(0, 400, 100);
+            const pointLight1 = new THREE.AmbientLight(0xffffff, 1.5);
+            pointLight1.position.set(0, 200, 0);
             this.scene.add(pointLight1);
-
-            const pointLight2 = new THREE.PointLight(0xffeedd, 0.1, 1200);
-            pointLight2.position.set(0, 300, -100);
-            this.scene.add(pointLight2);
-
-            // ── POINT LIGHT BAS (zone palles + rampe) ──
-            const pointLightBottom = new THREE.PointLight(0xffffff, 5.0, 1000);
-            pointLightBottom.position.set(0, 300, -600);
-            this.scene.add(pointLightBottom);
 
             // ── SPOTS AUX 4 COINS ──
 
             // Coin haut-gauche
-            createSpotLight(-350, 500, -200,   0, 0,  1.5, Math.PI / 9, 0.1, 1024);
+            createSpotLight(-330, 630, 510,   0, 0,  1.0, 0.99, 1, 3200);
 
             // Coin haut-droit
-            createSpotLight( 350, 500, -200,   0, 0,  1.5, Math.PI / 9, 0.1, 1024);
+            createSpotLight( 330, 630, 510,   0, 0,  1.0, 0.99, 1, 3200);
 
             // Coin bas-gauche — boosté
-            createSpotLight(-350, 400,  -700,   0, 400,  3.5, Math.PI / 7, 0.1, 1024);
+            createSpotLight(-330, 630,  -770,   0, 0,  1.0, 0.99, 1, 3200);
 
             // Coin bas-droit — boosté
-            createSpotLight( 350, 400,  -700,   0, 400,  3.5, Math.PI / 7, 0.1, 1024);
+            createSpotLight( 330, 630,  -770,   0, 0,  1.0, 0.99, 1, 3200);
+
+        // ==========================================
+        // LIL-GUI (F4)
+        // ==========================================
+        this.gui = new GUI();
+        this.gui.hide();
+
+        this.spotLights.forEach((light, index) => {
+            const folder = this.gui.addFolder(`Spot ${index + 1}`);
+
+            folder.add(light.position, 'x', -1000, 1000, 1);
+            folder.add(light.position, 'y', -1000, 1000, 1);
+            folder.add(light.position, 'z', -1000, 1000, 1);
+
+            folder.add(light, 'intensity', 0, 10, 0.01);
+            folder.add(light, 'angle', 0, Math.PI / 2, 0.01);
+            folder.add(light, 'penumbra', 0, 1, 0.01);
+            folder.add(light, 'distance', 0, 5000, 1);
+            folder.open();
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'F4') {
+                e.preventDefault();
+
+                const visible = this.gui._hidden;
+
+                if (visible) {
+                    this.gui.show();
+                } else {
+                    this.gui.hide();
+                }
+            }
+        });
         
         // Intro : lumières s'allument une à une avec un délai croissant
         setTimeout(() => {
@@ -285,6 +346,16 @@ export class Scene {
         if (onUpdate) {
             onUpdate();
         }
+
+        if (this.cameraHelper?.visible) {
+            this.cameraHelper.update();
+        }
+
+        this.lightHelpers?.forEach(helper => {
+            if (helper.visible) {
+                helper.update();
+            }
+        });
 
         // Mise à jour du debug renderer Rapier
         if (this.debugEnabled) {

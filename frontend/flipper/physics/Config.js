@@ -51,23 +51,39 @@ export default {
                 instances: [
                     {
                         width: 40,
-                        position: { x: 10, y: 10, z: 105 },
+                        position: { x: -130, y: 10, z: 105 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-1',
                         model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
                     {
                         width: 40,
-                        position: { x: 120, y: 10, z: 193 },
+                        position: { x: 60, y: 10, z: 105 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-2',
                         model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
+                    
                     {
                         width: 40,
-                        position: { x: -100, y: 10, z: 193 },
+                        position: { x: 120, y: 10, z: 193 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectId: 'bumper-3',
+                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
+                    },
+                    {
+                        width: 40,
+                        position: { x: -180, y: 10, z: 193 },
+                        rotation: { x: 0, y: 0, z: 0 },
+                        objectId: 'bumper-4',
+                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
+                    },
+
+                    {
+                        width: 40,
+                        position: { x: -30, y: 10, z: 270 },
+                        rotation: { x: 0, y: 0, z: 0 },
+                        objectId: 'bumper-4',
                         model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
 
