@@ -98,32 +98,31 @@ export class Bumper extends Objects {
             Config.global.positioning.bumper.power *
             Config.forceMultiplier;
 
-        // Launching ramp
-        if (this.objectId?.includes('launching-ramp')) {
+        // // Launching ramp
+        // if (this.objectId == 'launching-ramp') {
 
-            // N'appliquer la force que sur la partie "ramp"
-            if (!this.colliderObject?.name?.includes('ramp')) {
-                return;
-            }
+        //     // N'appliquer la force que sur la partie "ramp"
+        //     if (!this.colliderObject?.name?.includes('ramp')) {
+        //         return;
+        //     }
 
-            otherBody.applyImpulse({
-                x: 0,
-                y: 0,
-                z: power
-            }, true);
+        //     otherBody.applyImpulse({
+        //         x: 0,
+        //         y: 0,
+        //         z: power
+        //     }, true);
 
-            this.playSound(Config.global.sounds.bumper.move);
-            return;
-        }
+        //     this.playSound(Config.global.sounds.bumper.move);
+        //     return;
+        // }
 
         // Bumper triangulaire
-        if (this.objectId?.includes('bumper-triangle')) {
-            const normal = this.getTriangleBumperNormal();
+        if (this.objectId == 'bumper-triangle') {
 
             otherBody.applyImpulse({
-                x: normal.x * power,
+                x: Config.global.positioning.bumper.instances.rotation.x * power,
                 y: 0,
-                z: normal.z * power
+                z: Config.global.positioning.bumper.instances.rotation.z * power
             }, true);
 
             this.playSound(Config.global.sounds.bumper.move);
@@ -150,39 +149,6 @@ export class Bumper extends Objects {
         }, true);
 
         this.playSound(Config.global.sounds.bumper.move);
-    }
-
-    getTriangleBumperNormal() {
-        if (this.modelRoot) {
-            let normal = null;
-            this.modelRoot.traverse((child) => {
-                if (normal || !child.isMesh) return;
-                if (child.name && child.name.toLowerCase().includes('ramp')) {
-                    child.updateWorldMatrix(true, false);
-                    const quaternion = child.getWorldQuaternion(new THREE.Quaternion());
-                    normal = new THREE.Vector3(0, 0, 1)
-                        .applyQuaternion(quaternion)
-                        .setY(0);
-                    if (normal.lengthSq() > 0.000001) {
-                        normal.normalize();
-                    } else {
-                        normal = null;
-                    }
-                }
-            });
-
-            if (normal) {
-                return normal;
-            }
-        }
-
-        const fallback = new THREE.Vector3(0, 0, 1)
-            .applyEuler(this.mesh.rotation)
-            .setY(0);
-
-        return fallback.lengthSq() > 0.000001
-            ? fallback.normalize()
-            : new THREE.Vector3(0, 0, 1);
     }
 
     handleCollision() {

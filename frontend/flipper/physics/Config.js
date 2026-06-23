@@ -110,15 +110,15 @@ export default {
                     },
 
                     {
-                        width: 130,
-                        position: { x: -120.5, y: 70, z: -441 },
+                        width: 110,
+                        position: { x: -140.5, y: 90, z: -441 },
                         rotation: { x: 0, y: -(Math.PI / 3) - 0.1, z: 0 },
                         objectId: 'bumper-triangle-left',
                         model: `../assets/mesh/bumpers_triangle/bumper_triangle_left_lvl_${NiveauActuel}.glb`
                     },
                     {
-                        width: 130,
-                        position: { x: 100.5, y: 70, z: -441 },
+                        width: 110,
+                        position: { x: 110.5, y: 90, z: -441 },
                         rotation: { x: 0, y: (Math.PI / 3) + 0.1, z: 0 },
                         objectId: 'bumper-triangle-right',
                         model: `../assets/mesh/bumpers_triangle/bumper_triangle_right_lvl_${NiveauActuel}.glb`
@@ -226,10 +226,10 @@ export default {
                 rotationAngle: 40 * (Math.PI / 180),
                 initialAngle: 30 * (Math.PI / 180),
                 instances: [
-                    { length: 80, width: 26, height: 40, position: { x: 34, y: 5, z: -532 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
-                    { length: 80, width: 26, height: 40, position: { x: -52, y: 5, z: -532 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
-                    { length: 60, width: 20, height: 30, position: { x: 25, y: 5, z: 10 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
-                    { length: 60, width: 20, height: 30, position: { x: -51, y: 5, z: 10 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
+                    { length: 80, width: 26, height: 40, position: { x: 74, y: 5, z: -532 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+                    { length: 80, width: 26, height: 40, position: { x: -100, y: 5, z: -532 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' },
+                    { length: 60, width: 20, height: 30, position: { x: 55, y: 5, z: 15 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
+                    { length: 60, width: 20, height: 30, position: { x: -100, y: 5, z: 15 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
                 ],
                 modelRight: `../assets/mesh/palles/Right_flipper_lvl_${NiveauActuel}.glb`,
                 modelLeft: `../assets/mesh/palles/Left_flipper_lvl_${NiveauActuel}.glb`
@@ -331,7 +331,7 @@ export default {
                     length: 170,
                     width: 50,
                     height: 100,
-                    position: { x: 140, y: 7, z: 137 },
+                    position: { x: 140, y: 7, z: 125 },
                     rotation: { x: 0, y: -3.14, z: 0 }
                 }
             ],
@@ -437,14 +437,6 @@ export default {
             },
 
             bumper: {
-                // map: '../assets/textures/lvl1/bumper/bush_photo_albedo_tileable.png',
-                // aoMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
-                // roughnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
-                // metalnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
-                // normalMap: '../assets/textures/lvl1/bumper/bush_photo_normal_tileable.png',
-                // displacementMap: '../assets/textures/lvl1/bumper/bush_photo_displacement_tileable.png',
-                // displacementScale: 0.05,
-                // repeat: [4, 4]
             },
 
             body: {
