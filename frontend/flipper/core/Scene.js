@@ -11,6 +11,7 @@ import { createFXAA } from '../effects/postprocessing/FXAAEffect.js';
 import { createSSAO } from '../effects/postprocessing/SSAOEffects.js';
 
 import { RapierDebugRenderer } from '../helpers/RapierDebugRenderer.js';
+import { CameraController } from '../helpers/CameraController.js';
 
 export class Scene {
     /**
@@ -100,6 +101,16 @@ export class Scene {
 
         this.camera.position.copy(cameraPosition);
 
+        // Zoom sur la rampe de lancement
+        await cam.animateTo({ x: 0, y: 700, z: -500 }, 800);
+        await cam.animateFrustumTo(800, 400);
+
+        // Debug rapide
+        cam.snapshot();
+
+        // Reset
+        cam.resetToDefault({ x: 0, y: 500, z: 0 });
+
         // Keep a strict top-down camera and flip table orientation to match gameplay view.
         this.camera.up.set(0, 0, 1);
         this.camera.lookAt(cameraTarget);
@@ -117,10 +128,6 @@ export class Scene {
             this.renderer.setSize(window.innerWidth, window.innerHeight);
             this.composer?.setSize(window.innerWidth, window.innerHeight);
         });
-
-        // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        // this.controls.enableDamping = true;
-        // this.controls.dampingFactor = 0.05;
 
         // ==========================================
         // PARTIE VISUELLE (THREE.JS)
