@@ -116,13 +116,13 @@ export default {
                         objectId: 'bumper-triangle-left',
                         model: `../assets/mesh/bumpers_triangle/bumper_triangle_left_lvl_${NiveauActuel}.glb`
                     },
-                    {
-                        width: 70,
-                        position: { x: 110.5, y: 20, z: -441 },
-                        rotation: { x: 0, y: (Math.PI / 3), z: 0 },
-                        objectId: 'bumper-triangle-right',
-                        model: `../assets/mesh/bumpers_triangle/bumper_triangle_right_lvl_${NiveauActuel}.glb`
-                    },
+                    // {
+                    //     width: 70,
+                    //     position: { x: 110.5, y: 20, z: -441 },
+                    //     rotation: { x: 0, y: (Math.PI / 3), z: 0 },
+                    //     objectId: 'bumper-triangle-right',
+                    //     model: `../assets/mesh/bumpers_triangle/bumper_triangle_right_lvl_${NiveauActuel}.glb`
+                    // },
                 ],
             },
 
