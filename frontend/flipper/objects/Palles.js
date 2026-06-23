@@ -122,7 +122,7 @@ export class Palles extends Objects {
         });
     }
 
-    setActive(active) {qq
+    setActive(active) {
         if (!this.joint) return;
 
         const targetAngle = active
