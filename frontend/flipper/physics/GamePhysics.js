@@ -398,6 +398,14 @@ export class GamePhysics {
             const collidingObjects = this.findCollidingObjects(handle1, handle2);
             const collisionResponders = this.findCollisionResponders(handle1, handle2);
 
+            console.log({
+                handle1,
+                handle2,
+                started,
+                type1: typeof handle1,
+                type2: typeof handle2
+            });
+
             if (this.isBallDrainCollision(collidingObjects)) {
                 this.triggerBallLost();
             }

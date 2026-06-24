@@ -2,8 +2,6 @@ import * as RAPIER from '@dimforge/rapier3d-compat';
 import * as THREE from 'three';
 import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
-import { TremblingFromImpact } from '../effects/Trembling.js'
-import { Sparks } from '../effects/Sparks.js'
 
 export class Bumper extends Objects {
     /**
@@ -137,10 +135,7 @@ export class Bumper extends Objects {
 
     handleCollision() {
         this.playSound(Config.global.sounds.bumper.collision);
-
-        TremblingFromImpact(this.camera, 5, 300);
-        Sparks(this.camera, this.position);
-
+        
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

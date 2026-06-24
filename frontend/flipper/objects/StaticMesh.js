@@ -153,5 +153,11 @@ export class StaticMesh extends Objects {
 
     handleCollision() {
         console.log(`Collision with ${this.objectType} (ID: ${this.objectId})`);
+
+        this.scene.effectManager.impact(
+            this.mesh.position,
+            1,
+            this.objectType
+        );
     }
 }

@@ -1,7 +1,5 @@
-import { ShaderPass }
-from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { FXAAShader }
-from 'three/examples/jsm/shaders/FXAAShader.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 
 export function createFXAA() {
     const pass = new ShaderPass(

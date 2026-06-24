@@ -2,7 +2,6 @@ import * as RAPIER from '@dimforge/rapier3d-compat';
 import * as THREE from 'three';
 import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
-import { TremblingFromImpact } from '../effects/Trembling.js'
 
 export class Repulse extends Objects {
     /**
@@ -90,7 +89,7 @@ export class Repulse extends Objects {
 
     handleCollision() {
         this.playSound(Config.global.sounds.bumper.collision); // Son de collision des palles
-        TremblingFromImpact(this.camera, 5, 300);
+        
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

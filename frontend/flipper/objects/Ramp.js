@@ -75,5 +75,11 @@ export class Ramp extends Objects {
 
     handleCollision({ handle1, handle2 }) {
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
+        
+        this.scene.effectManager.impact(
+            this.mesh.position,
+            1,
+            this.objectType
+        );
     }
 }

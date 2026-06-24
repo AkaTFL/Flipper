@@ -3,8 +3,6 @@ import * as THREE from 'three';
 import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
 
-import { Shockwave } from '../effects/Shockwave.js';
-
 export class Ball extends Objects {
     /**
      * @param {Object} world - The physics world
@@ -69,10 +67,10 @@ export class Ball extends Objects {
             velocity.z
         );
 
-        Shockwave(
+        this.scene.effectManager.impact(
+            this.mesh.position,
             impactForce,
-            this.scene,
-            this.mesh.position
+            'ball'
         );
     }
 }

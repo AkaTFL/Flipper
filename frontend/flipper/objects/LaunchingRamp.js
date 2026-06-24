@@ -33,7 +33,7 @@ export class LaunchingRamp extends Objects {
             if (!this.rigidBody) this.createFixedRigidBody(position, rotation);
 
             const desc = this.buildTrimeshCollider(modelRoot);
-            if (desc) this.attachCollider(desc);
+            if (desc) 
 
             this.mesh.position.copy(position);
         });

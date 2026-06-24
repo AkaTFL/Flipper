@@ -6,9 +6,11 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 
-import { createBloom } from '../effects/postprocessing/BloomEffect.js';
-import { createFXAA } from '../effects/postprocessing/FXAAEffect.js';
-import { createSSAO } from '../effects/postprocessing/SSAOEffects.js';
+import { createBloom } from '../postprocessing/BloomEffect.js';
+import { createFXAA } from '../postprocessing/FXAAEffect.js';
+import { createSSAO } from '../postprocessing/SSAOEffects.js';
+
+import { EffectManager } from '../effects/manager/EffectManager.js';
 
 import { createCamera, createCameraHelper, setupCameraResize } from '../helpers/CameraHelper.js';
 import { createRapierDebug, setupLightHelperToggle } from '../helpers/DebugHelper.js';
@@ -42,6 +44,7 @@ export class Scene {
         this.debugRenderer = null;
         this.cameraHelper = null;
         this.frustumHeight = 0;
+        this.effectManager = null;
 
         // Debug Rapier
         this.debugEnabled = false;
@@ -78,6 +81,11 @@ export class Scene {
 
         this.camera = cameraData.camera;
         this.frustumHeight = cameraData.frustumHeight;
+
+        this.effectManager = new EffectManager(
+            this.scene,
+            this.camera
+        );
 
         this.cameraHelper = createCameraHelper(
             this.scene,
@@ -225,6 +233,8 @@ export class Scene {
         if (this.debugEnabled) {
             this.debugRenderer.update();
         }
+
+        this.effectManager?.update(delta);
         this.composer.render();
         
         requestAnimationFrame(() => this.render(physics, onUpdate));

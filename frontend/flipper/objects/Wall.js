@@ -56,5 +56,11 @@ export class Wall extends Objects {
     handleCollision() {
         this.playSound(Config.global.sounds.wall.collision);
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
+
+        this.scene.effectManager.impact(
+            this.mesh.position,
+            1,
+            this.objectType
+        );
     }
 }
