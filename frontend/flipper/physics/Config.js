@@ -299,6 +299,28 @@ export default {
 
                 },
                 {
+                    model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${NiveauActuel}.glb`,
+                    objectId: 'murs-cible-droit',
+                    objectType: 'wall',
+                    length: 50,
+                    width: 50,
+                    height: 50,
+                    position: { x: -270, y: 20.50, z: -55.24 },
+                    rotation: { x: Math.PI, y: Math.PI, z: 0 }
+
+                },
+                {
+                    model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${NiveauActuel}.glb`,
+                    objectId: 'murs-cible-droit',
+                    objectType: 'wall',
+                    length: 50,
+                    width: 50,
+                    height: 50,
+                    position: { x: -270, y: 20.50, z: -132.24 },
+                    rotation: { x: Math.PI, y: Math.PI, z: 0 }
+
+                },
+                {
                     model: `../assets/mesh/quadri/quadri_left_cible_lvl_${NiveauActuel}.glb`,
                     objectId: 'quadri-left-cible',
                     objectType: 'wall',

@@ -63,12 +63,12 @@ export class StaticMesh extends Objects {
                                 child
                             );
                             break;
+                        default:
+                            this.addTexture(
+                                Config[Config.currentLevel].textures[objectType],
+                                child
+                            );
                     }
-                } else {
-                    this.addTexture(
-                        Config[Config.currentLevel].textures[objectType],
-                        child
-                    );
                 }
             });
 

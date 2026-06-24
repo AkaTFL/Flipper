@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
 import { TremblingFromImpact } from '../effects/Trembling.js'
+import { Sparks } from '../effects/Sparks.js'
 
 export class Bumper extends Objects {
     /**
@@ -22,6 +23,7 @@ export class Bumper extends Objects {
         this.length = width;
         this.width = width;
         this.height = width;
+        this.position = position;
 
         this.rampCollider = null;
 
@@ -98,24 +100,6 @@ export class Bumper extends Objects {
             Config.global.positioning.bumper.power *
             Config.forceMultiplier;
 
-        // // Launching ramp
-        // if (this.objectId == 'launching-ramp') {
-
-        //     // N'appliquer la force que sur la partie "ramp"
-        //     if (!this.colliderObject?.name?.includes('ramp')) {
-        //         return;
-        //     }
-
-        //     otherBody.applyImpulse({
-        //         x: 0,
-        //         y: 0,
-        //         z: power
-        //     }, true);
-
-        //     this.playSound(Config.global.sounds.bumper.move);
-        //     return;
-        // }
-
         // Bumper triangulaire
         if (this.objectId == 'bumper-triangle') {
 
@@ -153,7 +137,10 @@ export class Bumper extends Objects {
 
     handleCollision() {
         this.playSound(Config.global.sounds.bumper.collision);
+
         TremblingFromImpact(this.camera, 5, 300);
+        Sparks(this.camera, this.position);
+
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

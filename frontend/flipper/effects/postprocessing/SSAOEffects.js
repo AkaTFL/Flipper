@@ -10,6 +10,17 @@ export function createSSAO(
         maxDistance = 0.1
     } = {}
 ) {
+
+    if (camera.isOrthographicCamera) {
+        console.warn('[SSAO] Désactivé : caméra orthographique non supportée en r132');
+        return {
+            enabled: false,
+            needsSwap: false,
+            render() {},
+            setSize() {},
+        };
+    }
+    
     const pass = new SSAOPass(
         scene,
         camera,

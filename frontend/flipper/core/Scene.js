@@ -10,8 +10,10 @@ import { createBloom } from '../effects/postprocessing/BloomEffect.js';
 import { createFXAA } from '../effects/postprocessing/FXAAEffect.js';
 import { createSSAO } from '../effects/postprocessing/SSAOEffects.js';
 
-import { RapierDebugRenderer } from '../helpers/RapierDebugRenderer.js';
-import GUI from 'lil-gui';
+import { createCamera, createCameraHelper, setupCameraResize } from '../helpers/CameraHelper.js';
+import { createRapierDebug, setupLightHelperToggle } from '../helpers/DebugHelper.js';
+import { createLightGUI } from '../helpers/GuiHelper.js';
+import { createLights, startLightIntro } from '../core/Lights.js';
 
 export class Scene {
     /**
@@ -36,6 +38,10 @@ export class Scene {
         this.lightHelpers = [];
         this.spotLights = [];
         this.gui = null;
+
+        this.debugRenderer = null;
+        this.cameraHelper = null;
+        this.frustumHeight = 0;
 
         // Debug Rapier
         this.debugEnabled = false;
@@ -62,178 +68,54 @@ export class Scene {
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0x0);
 
-        // ==========================================
-        // DEBUG RAPIER (toggle avec F1)
-        // ==========================================
-        this.debugRenderer = new RapierDebugRenderer(this.scene, this.world);
-        this.debugRenderer.setVisible(false);
-
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'F1') {
-                e.preventDefault();
-                this.debugEnabled = !this.debugEnabled;
-                this.debugRenderer.setVisible(this.debugEnabled);
-                console.log(`[Rapier Debug] ${this.debugEnabled ? '✅ ON' : '❌ OFF'}`);
-            }
-        });
-
-                // Camera (Orthographic) conservant le même cadrage que l'ancienne PerspectiveCamera
-        const aspect = window.innerWidth / window.innerHeight;
-
-        const cameraPosition = new THREE.Vector3(
-            position.x,
-            position.y + 630,
-            position.z - 280
+       this.debugRenderer = createRapierDebug(
+            this.scene,
+            this.world,
+            this
         );
 
-        const cameraTarget = new THREE.Vector3(-10, 0, -130);
+        const cameraData = createCamera(position);
 
-        const distance = cameraPosition.distanceTo(cameraTarget);
-        this.frustumHeight =
-            2 * Math.tan(THREE.MathUtils.degToRad(55 / 2)) * distance;
-        const frustumWidth = this.frustumHeight * aspect;
+        this.camera = cameraData.camera;
+        this.frustumHeight = cameraData.frustumHeight;
 
-        this.camera = new THREE.OrthographicCamera(
-            -frustumWidth / 2,
-             frustumWidth / 2,
-             this.frustumHeight / 2,
-            -this.frustumHeight / 2,
-             0.1,
-             3000
+        this.cameraHelper = createCameraHelper(
+            this.scene,
+            this.camera
         );
 
-        this.camera.position.copy(cameraPosition);
-
-        // Keep a strict top-down camera and flip table orientation to match gameplay view.
-        this.camera.up.set(0, 0, 1);
-        this.camera.lookAt(cameraTarget);
-
-        // ==========================================
-        // CAMERA HELPER (F2 pour afficher/masquer)
-        // ==========================================
-        this.cameraHelper = new THREE.CameraHelper(this.camera);
-        this.cameraHelper.visible = false;
-        this.scene.add(this.cameraHelper);
-
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'F2') {
-                e.preventDefault();
-                this.cameraHelper.visible = !this.cameraHelper.visible;
-                console.log(`[Camera Helper] ${this.cameraHelper.visible ? '✅ ON' : '❌ OFF'}`);
-            }
-        });
-
-        // ==========================================
-        // LIGHT HELPERS (F3 pour afficher/masquer)
-        // ==========================================
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'F3') {
-                e.preventDefault();
-
-                const visible = !this.lightHelpers[0]?.visible;
-
-                this.lightHelpers.forEach(helper => {
-                    helper.visible = visible;
-                });
-
-                console.log(`[Light Helpers] ${visible ? '✅ ON' : '❌ OFF'}`);
-            }
-        });
-
-        window.addEventListener('resize', () => {
-            const aspect = window.innerWidth / window.innerHeight;
-            const frustumWidth = this.frustumHeight * aspect;
-
-            this.camera.left = -frustumWidth / 2;
-            this.camera.right = frustumWidth / 2;
-            this.camera.top = this.frustumHeight / 2;
-            this.camera.bottom = -this.frustumHeight / 2;
-            this.camera.updateProjectionMatrix();
-
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
-            this.composer?.setSize(window.innerWidth, window.innerHeight);
-        });
+        setupCameraResize(
+            this.camera,
+            this.renderer,
+            this.composer,
+            this.frustumHeight
+        );
 
         // ==========================================
         // PARTIE VISUELLE (THREE.JS)
         // ==========================================
 
-        // Ambient très faible — juste pour éviter le noir total
-        const ambientLight = new THREE.AmbientLight(0x111122, 0);
-        this.scene.add(ambientLight);
-        this.introLights.push({ light: ambientLight, targetIntensity: 0.15 });
+        const lightData = createLights(this.scene);
 
-        const createSpotLight = (x, y, z, targetX, targetZ, intensity, angle, penumbra, shadowSize = 1024) => {
-            const light = new THREE.SpotLight(0xffffff, 0);
+        this.introLights =
+            lightData.introLights;
 
-            light.position.set(x, y, z);
-            light.castShadow = true;
-            light.angle = angle;
-            light.penumbra = penumbra;
-            light.decay = 2;
-            light.distance = 3000;
+        this.lightHelpers =
+            lightData.lightHelpers;
 
-            light.shadow.mapSize.width = shadowSize;
-            light.shadow.mapSize.height = shadowSize;
-            light.shadow.camera.near = 10;
-            light.shadow.camera.far = 3000;
-            light.shadow.bias = -0.0001;
-            light.shadow.normalBias = 0.02;
+        this.spotLights =
+            lightData.spotLights;
 
-            light.target.position.set(targetX, 0, targetZ);
-            this.scene.add(light.target);
-            this.scene.add(light);
-
-            const helper = new THREE.SpotLightHelper(light);
-            helper.visible = false;
-            this.scene.add(helper);
-            this.lightHelpers.push(helper);
-            this.spotLights.push(light);
-
-            this.introLights.push({ light, targetIntensity: intensity });
-
-            return light;
-        };
-
-        // Spot principal central — baisser l'intensité et élargir légèrement (1-+ vers gauche, 2-+ vers moins de hauteur, 3-+vers le haut)
-            // ── LUMIÈRES NATURELLES CENTRALES ──
-            const pointLight1 = new THREE.AmbientLight(0xffffff, 1.5);
-            pointLight1.position.set(0, 200, 0);
-            this.scene.add(pointLight1);
-
-            // ── SPOTS AUX 4 COINS ──
-
-            // Coin haut-gauche
-            createSpotLight(-330, 630, 510,   0, 0,  1.0, 0.99, 1, 3200);
-
-            // Coin haut-droit
-            createSpotLight( 330, 630, 510,   0, 0,  1.0, 0.99, 1, 3200);
-
-            // Coin bas-gauche — boosté
-            createSpotLight(-330, 630,  -770,   0, 0,  1.0, 0.99, 1, 3200);
-
-            // Coin bas-droit — boosté
-            createSpotLight( 330, 630,  -770,   0, 0,  1.0, 0.99, 1, 3200);
+        setupLightHelperToggle(
+            this.lightHelpers
+        );
 
         // ==========================================
         // LIL-GUI (F4)
         // ==========================================
-        this.gui = new GUI();
-        this.gui.hide();
-
-        this.spotLights.forEach((light, index) => {
-            const folder = this.gui.addFolder(`Spot ${index + 1}`);
-
-            folder.add(light.position, 'x', -1000, 1000, 1);
-            folder.add(light.position, 'y', -1000, 1000, 1);
-            folder.add(light.position, 'z', -1000, 1000, 1);
-
-            folder.add(light, 'intensity', 0, 10, 0.01);
-            folder.add(light, 'angle', 0, Math.PI / 2, 0.01);
-            folder.add(light, 'penumbra', 0, 1, 0.01);
-            folder.add(light, 'distance', 0, 5000, 1);
-            folder.open();
-        });
+        this.gui = createLightGUI(
+            this.spotLights
+        );
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'F4') {
@@ -250,28 +132,10 @@ export class Scene {
         });
         
         // Intro : lumières s'allument une à une avec un délai croissant
-        setTimeout(() => {
-            if (typeof this.playSound === 'function') {
-                this.playSound();
-            }
-
-            this.introLights.forEach((entry, index) => {
-                setTimeout(() => {
-                    const target = entry.targetIntensity;
-                    const duration = 600;
-                    const steps = 30;
-                    const increment = target / steps;
-                    let current = 0;
-
-                    const fade = setInterval(() => {
-                        current += increment;
-                        entry.light.intensity = Math.min(current, target);
-                        if (current >= target) clearInterval(fade);
-                    }, duration / steps);
-
-                }, index * 500); // ✅ chaque lumière s'allume 500ms après la précédente
-            });
-        }, 3000);
+        startLightIntro(
+            this.introLights,
+            this.playSound
+        );
 
         // ==========================================
         // PARTIE PHYSIQUE (RAPIER)

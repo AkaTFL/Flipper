@@ -91,14 +91,15 @@ export function createBloom(scene, {
     const layerMasks = { 1: layer1, 2: layer2 };
 
     const maskExcept = (enabledLayer) => {
-        const mask = layerMasks[enabledLayer];
-        scene.traverse((obj) => {
-            if (!obj.layers.test(mask)) {
-                darkMats[obj.uuid] = obj.material;
-                obj.material = new THREE.MeshBasicMaterial({ color: 0x000000 });
-            }
-        });
-    };
+    const mask = layerMasks[enabledLayer];
+    scene.traverse((obj) => {
+        if (!obj.isMesh || !obj.material) return;
+        if (!obj.layers.test(mask)) {
+            darkMats[obj.uuid] = obj.material;
+            obj.material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        }
+    });
+};
 
     const restoreMats = () => {
         scene.traverse((obj) => {
