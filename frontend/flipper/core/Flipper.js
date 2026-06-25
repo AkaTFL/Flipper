@@ -90,13 +90,14 @@ export async function initFlipper() {
 
     // Launching Ramp
     const launching = new LaunchingRamp(
-      physics.world,
-      Config.global.positioning.launchingRamp.length,
-      Config.global.positioning.launchingRamp.width,
-      Config.global.positioning.launchingRamp.height,
-      Config.global.positioning.launchingRamp.position,
-      Config.global.positioning.launchingRamp.rotation,
-      Config.global.positioning.launchingRamp.objectId
+        sceneManager,
+        physics.world,
+        Config.global.positioning.launchingRamp.length,
+        Config.global.positioning.launchingRamp.width,
+        Config.global.positioning.launchingRamp.height,
+        Config.global.positioning.launchingRamp.position,
+        Config.global.positioning.launchingRamp.rotation,
+        Config.global.positioning.launchingRamp.objectId
     );
     
     launching.gamePhysics = physics;
@@ -105,9 +106,14 @@ export async function initFlipper() {
     loadingPromises.push(waitFormeshes(launching));
 
     const rampB = new Ramp(
+        sceneManager,
         physics.world,
+        Config.global.positioning.ramps.B.length,
+        Config.global.positioning.ramps.B.width,
+        Config.global.positioning.ramps.B.height,
+        Config.global.positioning.ramps.B.position,
+        Config.global.positioning.ramps.B.rotation,
         Config.global.positioning.ramps.B.model,
-        Config.global.positioning.ramps.B,
         Config.global.positioning.ramps.B.objectId
     );
     rampB.gamePhysics = physics;
@@ -117,7 +123,7 @@ export async function initFlipper() {
     Config.global.positioning.bumpers = Config.global.positioning.bumper.instances;
     Config.global.positioning.bumpers.forEach((bumperConfig) => {
         const bumper = new Bumper(
-            sceneManager.getCamera(),
+            sceneManager,
             physics.world,
             bumperConfig.width,
             bumperConfig.position,
@@ -132,7 +138,7 @@ export async function initFlipper() {
     // Repulse
     Config.global.positioning.repulse.instances.forEach((repulseConfig) => {
         const repulse = new Repulse(
-            sceneManager.getCamera(),
+            sceneManager,
             physics.world,
             repulseConfig.length,
             repulseConfig.width,
@@ -150,14 +156,14 @@ export async function initFlipper() {
     const pallesInstances = Config.global.positioning.palles.instances;
 
     pallesInstances.forEach((pnl) => {
-        const pal = new Palles(physics.world, pnl.length, pnl.width, pnl.height, pnl.position, pnl.rotation, pnl.side);
+        const pal = new Palles(sceneManager, physics.world, pnl.length, pnl.width, pnl.height, pnl.position, pnl.rotation, pnl.side);
         pal.gamePhysics = physics;
         meshes.push(pal);
         loadingPromises.push(waitFormeshes(pal));
     });
 
     // Etage (sol principal du flipper)
-    const etage = new StaticMesh(physics.world, Config.global.positioning.etage.model, {
+    const etage = new StaticMesh(sceneManager, physics.world, Config.global.positioning.etage.model, {
         length:    Config.global.positioning.etage.length,
         width:     Config.global.positioning.etage.width,
         height:    Config.global.positioning.etage.height,
@@ -173,7 +179,7 @@ export async function initFlipper() {
     loadingPromises.push(waitFormeshes(etage));
 
     // Body flipper (structure principale depuis meshes_final)
-    const bodyFlipper = new StaticMesh(physics.world, Config.global.positioning.bodyFlipper.model, {
+    const bodyFlipper = new StaticMesh(sceneManager, physics.world, Config.global.positioning.bodyFlipper.model, {
         length:     Config.global.positioning.bodyFlipper.length,
         width:      Config.global.positioning.bodyFlipper.width,
         height:     Config.global.positioning.bodyFlipper.height,
@@ -190,7 +196,7 @@ export async function initFlipper() {
 
     // Static meshes from meshes_final (murs_cible, quadri_cible, raque_side)
     (Config.global.positioning.StaticMesh || []).forEach((cfg) => {
-        const staticMesh = new StaticMesh(physics.world, cfg.model, {
+        const staticMesh = new StaticMesh(sceneManager, physics.world, cfg.model, {
             length: cfg.length,
             width: cfg.width,
             height: cfg.height,
@@ -206,7 +212,7 @@ export async function initFlipper() {
 
     // Ramp pales (right, left, rightDeath, leftDeath)
     Object.values(Config.global.positioning.rampPales).forEach(cfg => {
-        const rampPale = new StaticMesh(physics.world, cfg.model, {
+        const rampPale = new StaticMesh(sceneManager, physics.world, cfg.model, {
             length:     cfg.length,
             width:      cfg.width,
             height:     cfg.height,

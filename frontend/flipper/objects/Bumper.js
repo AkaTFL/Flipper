@@ -11,10 +11,10 @@ export class Bumper extends Objects {
      * @param {Object} position - The position object with x, y, z properties
      * @param {number} rotation - The rotation of the bumper in radians
      */
-    constructor(camera, world, width = 50, position = { x: 0, y: 300, z: 0 }, rotation = { x: 0, y: 0, z: 0 }, objectId = null) {
+    constructor(scene, world, width = 50, position = { x: 0, y: 300, z: 0 }, rotation = { x: 0, y: 0, z: 0 }, objectId = null) {
         super(world, null, null, null, position, rotation, width / 2, [], null);
-
-        this.camera = camera;
+        
+        this.scene = scene;
         this.objectId = objectId ?? 'bumper';
         this.objectType = 'bumper';
         this.radius = width / 2;
@@ -102,9 +102,9 @@ export class Bumper extends Objects {
         if (this.objectId == 'bumper-triangle') {
 
             otherBody.applyImpulse({
-                x: Config.global.positioning.bumper.instances.rotation.x * power,
+                x: Config.global.positioning.bumper.instances.find(e => e.objectId === this.objectId)?.rotation.x * power,
                 y: 0,
-                z: Config.global.positioning.bumper.instances.rotation.z * power
+                z: Config.global.positioning.bumper.instances.find(e => e.objectId === this.objectId)?.rotation.z * power
             }, true);
 
             this.playSound(Config.global.sounds.bumper.move);
@@ -135,6 +135,12 @@ export class Bumper extends Objects {
 
     handleCollision() {
         this.playSound(Config.global.sounds.bumper.collision);
+
+        this.scene.effectManager.impact(
+            this.mesh.position,
+            1,
+            this.objectType
+        );
         
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }

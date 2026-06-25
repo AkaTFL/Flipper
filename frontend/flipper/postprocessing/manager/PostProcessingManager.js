@@ -4,6 +4,7 @@ import { RenderPass }     from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { createBloom } from '../BloomEffect.js';
 import { createFXAA }  from '../FXAAEffect.js';
 import { createSSAO }  from '../SSAOEffects.js';
+import { createOutline } from '../Outline.js';
 
 /**
  * PostProcessingManager
@@ -29,6 +30,7 @@ export class PostProcessingManager {
      * @param {Object}              [options.bloom]  - Options forwarded to createBloom()
      * @param {Object}              [options.ssao]   - Options forwarded to createSSAO()
      * @param {boolean}             [options.fxaa]   - Set false to skip FXAA (default true)
+     * @param {Object}              [options.outline] - Options for the outline effect
      */
     constructor(renderer, scene, camera, options = {}) {
         this.renderer = renderer;
@@ -39,6 +41,7 @@ export class PostProcessingManager {
             bloom = {},
             ssao  = {},
             fxaa  = true,
+            outline = {}
 
         } = options;
 
@@ -48,32 +51,42 @@ export class PostProcessingManager {
         this.composer = new EffectComposer(renderer);
 
         // -------------------------------------------------------
-        // Passe 0 – rendu de la scène (obligatoire, toujours active)
+        // Passe 0 – Effers globaux (RenderPass, SSAO, Bloom, FXAA)
         // -------------------------------------------------------
         this._renderPass = new RenderPass(scene, camera);
         this.composer.addPass(this._renderPass);
 
-        // -------------------------------------------------------
-        // Passe 1 – SSAO (délégué à SSAOEffects.js)
-        // -------------------------------------------------------
         this._ssaoPass = createSSAO(scene, camera, ssao);
         this.composer.addPass(this._ssaoPass);
 
-        // -------------------------------------------------------
-        // Passe 2 – Bloom (délégué à BloomEffect.js)
-        // -------------------------------------------------------
         this._bloomPass = createBloom(scene, bloom);
         this.composer.addPass(this._bloomPass);
 
-        // -------------------------------------------------------
-        // Passe 3 – FXAA (délégué à FXAAEffect.js)
-        // -------------------------------------------------------
         this._fxaaPass = null;
         if (fxaa) {
             this._fxaaPass = createFXAA();
             this.composer.addPass(this._fxaaPass);
         }
-    }
+
+        // -------------------------------------------------------
+        // Passe 4 – Effets spécifiques
+        // -------------------------------------------------------
+         this._outlinePass = createOutline(
+            scene,
+            camera,
+            renderer,
+            outline
+        );
+
+        this.composer.addPass(this._outlinePass);
+
+        this.outlineEnabledTypes = [
+            'palle',
+            'bumper'
+        ];
+
+        this.updateOutlineObjects();
+        }
 
     // -----------------------------------------------------------
     // Activation / désactivation à chaud de chaque effet
@@ -92,6 +105,57 @@ export class PostProcessingManager {
     /** Active ou désactive le FXAA (sans effet si la passe n'a pas été créée). */
     setFXAA(enabled) {
         if (this._fxaaPass) this._fxaaPass.enabled = enabled;
+    }
+    
+    setOutlineObject(object) {
+        if (!this._outlinePass) return;
+
+        this._outlinePass.selectedObjects = [object];
+    }
+
+    updateOutlineObjects() {
+        if (!this._outlinePass) {
+            return;
+        }
+
+        const selectedObjects = [];
+
+        this.scene.traverse((object) => {
+
+            const objectType =
+                object.userData?.objectType;
+
+            if (
+                objectType &&
+                this.outlineEnabledTypes.includes(objectType)
+            ) {
+                selectedObjects.push(object);
+            }
+        });
+
+        this._outlinePass.selectedObjects =
+            selectedObjects;
+    }
+
+    enableOutlineFor(type) {
+
+        if (
+            !this.outlineEnabledTypes.includes(type)
+        ) {
+            this.outlineEnabledTypes.push(type);
+        }
+
+        this.updateOutlineObjects();
+    }
+
+    disableOutlineFor(type) {
+
+        this.outlineEnabledTypes =
+            this.outlineEnabledTypes.filter(
+                current => current !== type
+            );
+
+        this.updateOutlineObjects();
     }
 
     // -----------------------------------------------------------

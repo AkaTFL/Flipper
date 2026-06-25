@@ -11,6 +11,7 @@ export class Ball extends Objects {
     constructor(scene, world, position = {x: 0, y: 500, z: 0}, gamePhysics = null) {
         super(world, null, null, null, position, { x: 0, y: 0, z: 0 }, Config.global.positioning.ball.radius, [], null);
         
+        this.scene = scene;
         this.gamePhysics = gamePhysics;
         this.scene = scene;
         this.objectId = 'ball';
@@ -70,7 +71,7 @@ export class Ball extends Objects {
         this.scene.effectManager.impact(
             this.mesh.position,
             impactForce,
-            'ball'
+            this.objectType
         );
     }
 }

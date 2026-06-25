@@ -13,10 +13,10 @@ export class Repulse extends Objects {
      * @param {Object} rotation - The rotation object with x, y, z properties
      * @param {string} objectId - The bumper identifier
      */
-    constructor(camera, world, length = 50, width = 50, height = 50, position = {x: 0, y: 300, z: 0}, rotation = {x: 0, y: 0, z: 0}, objectId = null) {
+    constructor(scene, world, length = 50, width = 50, height = 50, position = {x:0,y:300,z:0}, rotation = {x:0,y:0,z:0}, objectId = null) {
         super(world, null, null, null, position, rotation, width / 2, [], null);
         
-        this.camera = camera;
+        this.scene = scene;
         this.objectId = objectId ?? 'repulse-zone';
         this.objectType = 'repulse';
         this.length = length;
@@ -89,6 +89,12 @@ export class Repulse extends Objects {
 
     handleCollision() {
         this.playSound(Config.global.sounds.bumper.collision); // Son de collision des palles
+
+        this.scene.effectManager.impact(
+            this.mesh.position,
+            1,
+            this.objectType
+        );
         
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }

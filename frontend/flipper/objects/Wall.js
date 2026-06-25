@@ -11,11 +11,12 @@ export class Wall extends Objects {
      * @param {Object} position - The position object with x, y, z properties
      * @param {number} rotation - The rotation of the wall in radians (default is 0, which means no rotation)
      */
-    constructor(gamePhysics, width = 500, height = 500, position = {x: 250, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}, objectId = undefined) {
+    constructor(scene, gamePhysics, width = 500, height = 500, position = {x: 250, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}, objectId = undefined) {
         super(gamePhysics.world, null, width, height, position, rotation, null, [], null);
         this.objectType = 'wall';
         this.objectId = objectId;
         this.gamePhysics = gamePhysics;
+        this.scene = scene;
         const restitution = Config.global.positioning.wall?.restitution ?? Config.global.positioning.scene?.restitution ?? 0;
         const friction = Config.global.positioning.wall?.friction ?? Config.global.positioning.scene?.friction ?? 0;
 

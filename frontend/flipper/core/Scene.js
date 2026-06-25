@@ -4,7 +4,7 @@ import * as RAPIER from '@dimforge/rapier3d-compat';
 import Config from '../physics/Config.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-import { PostProcessingManager } from '../postprocessing/PostProcessingManager.js';
+import { PostProcessingManager } from '../postprocessing/manager/PostProcessingManager.js';
 
 import { EffectManager } from '../effects/manager/EffectManager.js';
 
@@ -91,6 +91,14 @@ export class Scene {
                     tolerance:  0.4,
                 },
                 fxaa: true,
+
+                outline: {  
+                    edgeStrength: 5,
+                    edgeGlow: 0,
+                    edgeThickness: 2,
+                    visibleEdgeColor: Config[Config.currentLevel].outline ,
+                    hiddenEdgeColor: 0x22090a,
+                }
             }
         );
 
@@ -146,10 +154,6 @@ export class Scene {
 
     getCamera() {
         return this.camera;
-    }
-
-    getCameraController() {
-        return this.cameraController;
     }
 
     startRender(physics, onUpdate) {

@@ -16,8 +16,6 @@ export class EffectManager {
         this.effectTable = {
             ball: ['shockwave', 'sparks', 'shake'],
             bumper: ['shockwave', 'sparks', 'shake'],
-            flipper: ['sparks'],
-            wall: []
         };
     }
 

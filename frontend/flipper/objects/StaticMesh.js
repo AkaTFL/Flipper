@@ -4,7 +4,7 @@ import { Objects } from './Objects.js';
 import Config from '../physics/Config.js';
 
 export class StaticMesh extends Objects {
-    constructor(world, model, options = {}) {
+    constructor(scene, world, model, options = {}) {
         const {
             length   = null,
             width    = null,
@@ -22,6 +22,7 @@ export class StaticMesh extends Objects {
         this.height = height;
         this.objectId = objectId;
         this.objectType = objectType;
+        this.scene = scene;
 
         this.createFixedRigidBody(position, rotation);
 
@@ -41,7 +42,8 @@ export class StaticMesh extends Objects {
                         child.material?.uuid
                     )
 
-                const trimesh = this.buildTrimeshCollider(modelRoot);
+                const trimesh = this.buildTrimeshCollider(child);
+
                 if (trimesh) {
                     this.attachCollider(
                         trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
@@ -70,7 +72,7 @@ export class StaticMesh extends Objects {
                             );
                     }
                 }
-            });
+            })
 
             if (this.objectId === 'body-flipper') {
                 this.attachBottomWallDrainCollider(modelRoot);
