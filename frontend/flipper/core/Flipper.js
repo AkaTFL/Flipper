@@ -22,17 +22,12 @@ export async function initFlipper() {
     await physics.init();
 
     const waitFormeshes = (obj) => {
-        return new Promise((resolve) => {
-            if (obj?.mesh) {
-                resolve();
-                return;
-            }
+    return new Promise((resolve) => {
+        if (obj?.objectType === 'ball') { resolve(); return;} 
 
+        if (obj?.modelRoot) { resolve(); return; }
             const interval = setInterval(() => {
-                if (obj?.mesh) {
-                    clearInterval(interval);
-                    resolve();
-                }
+                if (obj?.modelRoot) { clearInterval(interval); resolve(); }
             }, 8);
         });
     };
@@ -232,8 +227,6 @@ export async function initFlipper() {
 
     controls.setBallRef(ball);
     physics.registerObjects(meshes);
-    
-    sceneManager.scene.add(ball.meshes);
 
     await Promise.all(loadingPromises);
 
@@ -253,6 +246,7 @@ export async function initFlipper() {
     }
 
     sceneManager.scene.add(...meshes.map(obj => obj.mesh));
+    sceneManager.postProcessing.updateOutlineObjects();
     
     physics.setLaunchingRampVisible(true);
 

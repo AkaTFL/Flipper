@@ -3,8 +3,8 @@ import { RenderPass }     from 'three/examples/jsm/postprocessing/RenderPass.js'
 
 import { createBloom } from '../BloomEffect.js';
 import { createFXAA }  from '../FXAAEffect.js';
-import { createSSAO }  from '../SSAOEffects.js';
-import { createOutline } from '../Outline.js';
+import { createSSAO }  from '../SSAOEffect.js';
+import { createOutline } from '../OutlineEffect.js';
 
 /**
  * PostProcessingManager
@@ -81,8 +81,7 @@ export class PostProcessingManager {
         this.composer.addPass(this._outlinePass);
 
         this.outlineEnabledTypes = [
-            'palle',
-            'bumper'
+            'palle'
         ];
 
         this.updateOutlineObjects();
@@ -114,27 +113,23 @@ export class PostProcessingManager {
     }
 
     updateOutlineObjects() {
-        if (!this._outlinePass) {
-            return;
-        }
+        if (!this._outlinePass) return;
 
         const selectedObjects = [];
 
         this.scene.traverse((object) => {
-
-            const objectType =
-                object.userData?.objectType;
+            const objectType = object.userData?.objectType;
 
             if (
                 objectType &&
-                this.outlineEnabledTypes.includes(objectType)
+                this.outlineEnabledTypes.includes(objectType) &&
+                !object.isGroup  // ← uniquement le Group racine, pas les enfants
             ) {
                 selectedObjects.push(object);
             }
         });
 
-        this._outlinePass.selectedObjects =
-            selectedObjects;
+        this._outlinePass.selectedObjects = selectedObjects;
     }
 
     enableOutlineFor(type) {

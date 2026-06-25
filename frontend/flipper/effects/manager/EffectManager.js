@@ -14,7 +14,7 @@ export class EffectManager {
 
         // Effets autorisés par type d'objet
         this.effectTable = {
-            ball: ['shockwave', 'sparks', 'shake'],
+            ball: ['shockwave'],
             bumper: ['shockwave', 'sparks', 'shake'],
         };
     }

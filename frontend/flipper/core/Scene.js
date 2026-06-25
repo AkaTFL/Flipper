@@ -185,6 +185,9 @@ export class Scene {
 
         this.effectManager?.update(delta);
 
+        // Pulsation de l'aura (outline)
+        this.postProcessing._outlinePass?.onBeforeRender?.();
+
         // Un seul appel, tout le pipeline est géré par le manager
         this.postProcessing.render();
 

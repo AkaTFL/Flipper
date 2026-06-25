@@ -92,7 +92,7 @@ export class Repulse extends Objects {
 
         this.scene.effectManager.impact(
             this.mesh.position,
-            1,
+            Config.global.positioning.repulse.power,
             this.objectType
         );
         

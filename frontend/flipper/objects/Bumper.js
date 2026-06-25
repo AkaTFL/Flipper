@@ -138,7 +138,7 @@ export class Bumper extends Objects {
 
         this.scene.effectManager.impact(
             this.mesh.position,
-            1,
+            Config.global.positioning.bumper.power,
             this.objectType
         );
         
