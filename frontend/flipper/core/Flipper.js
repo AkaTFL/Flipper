@@ -221,11 +221,12 @@ export async function initFlipper() {
     });
 
     
-    const ball = new Ball(sceneManager.scene, physics.world, Config.global.positioning.ball.position, physics);
+    const ball = new Ball(sceneManager, physics.world, Config.global.positioning.ball.position, physics);
     meshes.push(ball);
 
     controls.setBallRef(ball);
     physics.registerObjects(meshes);
+    
     sceneManager.scene.add(ball.meshes);
 
     await Promise.all(loadingPromises);
