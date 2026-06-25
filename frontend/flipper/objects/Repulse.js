@@ -2,7 +2,6 @@ import * as RAPIER from '@dimforge/rapier3d-compat';
 import * as THREE from 'three';
 import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
-import { TremblingFromImpact } from '../effects/Trembling.js'
 
 export class Repulse extends Objects {
     /**
@@ -14,10 +13,10 @@ export class Repulse extends Objects {
      * @param {Object} rotation - The rotation object with x, y, z properties
      * @param {string} objectId - The bumper identifier
      */
-    constructor(camera, world, length = 50, width = 50, height = 50, position = {x: 0, y: 300, z: 0}, rotation = {x: 0, y: 0, z: 0}, objectId = null) {
+    constructor(scene, world, length = 50, width = 50, height = 50, position = {x:0,y:300,z:0}, rotation = {x:0,y:0,z:0}, objectId = null) {
         super(world, null, null, null, position, rotation, width / 2, [], null);
         
-        this.camera = camera;
+        this.scene = scene;
         this.objectId = objectId ?? 'repulse-zone';
         this.objectType = 'repulse';
         this.length = length;
@@ -90,7 +89,13 @@ export class Repulse extends Objects {
 
     handleCollision() {
         this.playSound(Config.global.sounds.bumper.collision); // Son de collision des palles
-        TremblingFromImpact(this.camera, 5, 300);
+
+        this.scene.effectManager.impact(
+            this.mesh.position,
+            Config.global.positioning.repulse.power,
+            this.objectType
+        );
+        
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

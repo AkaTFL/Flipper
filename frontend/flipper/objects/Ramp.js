@@ -3,20 +3,11 @@ import { Objects } from './Objects.js';
 import Config from '../physics/Config.js';
 
 export class Ramp extends Objects {
-    constructor(world, modelFile, options = {}, fallbackObjectId = 'ramp') {
-        const resolvedOptions = options ?? {};
-        const {
-            length = 160,
-            width = 40,
-            height = 80,
-            position = { x: 0, y: 0, z: 0 },
-            rotation = { x: 0, y: 0, z: 0 },
-            objectId = fallbackObjectId
-        } = resolvedOptions;
-
+    constructor(scene, world, length, width, height, position, rotation, modelFile, objectId) {
         super(world, length, width, height, position, rotation, null, null);
         this.objectId = objectId;
         this.objectType = 'ramp';
+        this.scene = scene;
 
         if (this.TreeMesh) {
             this.mesh.remove(this.TreeMesh);
@@ -50,7 +41,7 @@ export class Ramp extends Objects {
                                 );
                                 break;
                         }
-                    } else {
+                    } else if (child.isMesh) {
                         this.addTexture(
                             Config[Config.currentLevel].textures[this.objectType],
                             child
@@ -75,5 +66,11 @@ export class Ramp extends Objects {
 
     handleCollision({ handle1, handle2 }) {
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
+        
+        this.scene.effectManager.impact(
+            this.mesh.position,
+            1,
+            this.objectType
+        );
     }
 }
