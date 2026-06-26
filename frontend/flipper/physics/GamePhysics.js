@@ -60,6 +60,8 @@ export class GamePhysics {
         this.detectScoreZoneEntries();
         this.checkLaunchingRampHeight();
         this.checkBallOutOfBounds();
+
+        console.log('Ball position:', this.ball?.rigidBody?.translation());
     }
 
     updateRollingBallSound() {
@@ -353,6 +355,22 @@ export class GamePhysics {
         return true;
     }
 
+    resetState() {
+        this.gameOver = false;
+        this._ballLostReported = false;
+        this.holdLaunchingRampVisibleAfterBallLost = false;
+        this.ballRespawnedAfterBallLost = false;
+        this.ballPassedAboveTriggerAfterRespawn = false;
+        if (this.launchingRampHideTimeout) {
+            clearTimeout(this.launchingRampHideTimeout);
+            this.launchingRampHideTimeout = null;
+        }
+        this.activeScoreZones = new Set();
+        this.activeRampZones = new Set();
+        this.rampTraversal = null;
+        this.launchingRampVisible = true;
+    }
+
     findCollidingObjects(handle1, handle2) {
         return [...new Set([
             this.colliderOwners.get(handle1),
@@ -517,7 +535,7 @@ export class GamePhysics {
             return;
         }
 
-        if (position.y <= triggerY) {
+        if (this.controls?.impulseUsed && position.y <= triggerY) {
             if (this.launchingRampHideTimeout) {
                 clearTimeout(this.launchingRampHideTimeout);
             }
@@ -534,7 +552,7 @@ export class GamePhysics {
 
         const pos = this.ball.rigidBody.translation();
 
-        if (pos.z < Config.global.positioning.drainZThreshold && pos.y < Config.global.positioning.drainYThreshold) {
+        if (pos.z < Config.global.positioning.drainZThreshold && pos.y < Config.global.positioning.drainYThreshold ) {
             this.triggerBallLost();
         }
     }

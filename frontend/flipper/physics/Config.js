@@ -6,7 +6,7 @@ export default {
     global: {
         positioning: {
             drainZThreshold: -650,
-            drainYThreshold: 30,
+            drainYThreshold: 15,
 
             ball: {
                 density: 2.0,       // Densité
@@ -571,7 +571,7 @@ export default {
             ]},
 
         bloom: 0x00ff00,
-        outline: 0x00ff00,
+        outline: 0xffff00,
         
         gravity: { x: 0, y: -9.75, z: -1.11 },
     },

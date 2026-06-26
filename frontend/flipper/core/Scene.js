@@ -93,8 +93,8 @@ export class Scene {
                 fxaa: true,
 
                 outline: {  
-                    edgeStrength: 5,
-                    edgeGlow: 0,
+                    edgeStrength: 2,
+                    edgeGlow: 1,
                     edgeThickness: 2,
                     visibleEdgeColor: Config[Config.currentLevel].outline ,
                     hiddenEdgeColor: 0x22090a,
