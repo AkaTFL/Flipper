@@ -1,6 +1,7 @@
 import { Shockwave } from '../pools/Shockwave.js';
 import { Sparks } from '../pools/Sparks.js';
 import { Trembling } from '../camera/Trembling.js';
+import Config from '../../physics/Config.js';  
 
 export class EffectManager {
 
@@ -9,13 +10,14 @@ export class EffectManager {
         this.camera = camera;
 
         this._shockwaves = new Shockwave(scene, 8);
-        this._sparks = new Sparks(scene, 5);
+        this._sparks = new Sparks(scene, Config[Config.currentLevel].sparks, 5);
         this._trembling = new Trembling(camera);
 
         // Effets autorisés par type d'objet
         this.effectTable = {
             ball: ['shockwave'],
-            bumper: ['shockwave', 'sparks', 'shake'],
+            bumper: ['shockwave','sparks', 'shake'],
+            repulse: ['shockwave','sparks', 'shake'],
         };
     }
 

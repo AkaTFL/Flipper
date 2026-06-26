@@ -60,8 +60,6 @@ export class GamePhysics {
         this.detectScoreZoneEntries();
         this.checkLaunchingRampHeight();
         this.checkBallOutOfBounds();
-
-        console.log('Ball position:', this.ball?.rigidBody?.translation());
     }
 
     updateRollingBallSound() {

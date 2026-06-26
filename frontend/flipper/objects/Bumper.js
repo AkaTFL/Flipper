@@ -77,8 +77,7 @@ export class Bumper extends Objects {
         });
     }
 
-    applyBumperForce(handle1, handle2) {
-        
+    applyBumperForce(handle1, handle2) {  
         const otherHandle =
             this.collider.handle === handle1
                 ? handle2
@@ -100,6 +99,8 @@ export class Bumper extends Objects {
 
         // Bumper triangulaire
         if (this.objectId == 'bumper-triangle') {
+            const userData = this.collider.userData ?? this.collider.getUserData?.();
+            if (!userData || userData.name !== 'bump') return;
 
             otherBody.applyImpulse({
                 x: Config.global.positioning.bumper.instances.find(e => e.objectId === this.objectId)?.rotation.x * power,
