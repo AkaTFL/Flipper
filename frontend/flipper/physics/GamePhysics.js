@@ -395,17 +395,8 @@ export class GamePhysics {
         }
     }
 
-    isBallDrainCollision(collidingObjects) {
-        const hasBall = collidingObjects.some((obj) => obj?.objectType === 'ball');
-        const hitDrain = collidingObjects.some((obj) => obj?.objectType === 'drain');
-
-        return hasBall && hitDrain;
-    }
-
     handleCollisionEvents(comboS) {
         this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
-            const responders = this.findCollisionResponders(handle1, handle2);
-
             if (!started) {
                 return;
             }
@@ -414,16 +405,17 @@ export class GamePhysics {
             const collidingObjects = this.findCollidingObjects(handle1, handle2);
             const collisionResponders = this.findCollisionResponders(handle1, handle2);
 
-            console.log({
-                handle1,
-                handle2,
-                started,
-                type1: typeof handle1,
-                type2: typeof handle2
-            });
+            console.log({ handle1, handle2, started });
 
-            if (this.isBallDrainCollision(collidingObjects)) {
+            // Détection drain : balle + mesh nommé 'drain'
+            const hasBall = collidingObjects.some((obj) => obj?.objectType === 'ball');
+            const hitDrain = collidingObjects.some(
+                (obj) => obj?.objectType === 'drain' || obj?.objectId === 'drain' || obj?.name === 'drain'
+            );
+
+            if (hasBall && hitDrain) {
                 this.triggerBallLost();
+                return;
             }
 
             for (const obj of collisionResponders) {
@@ -433,12 +425,11 @@ export class GamePhysics {
             }
 
             for (const obj of collisionResponders) {
-                if (obj.objectType === 'bumper'  && typeof obj.applyBumperForce === 'function')
-                {
+                if (obj.objectType === 'bumper' && typeof obj.applyBumperForce === 'function') {
                     obj.applyBumperForce(handle1, handle2);
                 }
 
-                if (obj.objectType === 'repulse'  && typeof obj.applyRepulseForce === 'function') {
+                if (obj.objectType === 'repulse' && typeof obj.applyRepulseForce === 'function') {
                     obj.applyRepulseForce(handle1, handle2);
                 }
 
@@ -546,11 +537,15 @@ export class GamePhysics {
     }
 
     checkBallOutOfBounds() {
+        // Filet de sécurité uniquement : ne se déclenche que si la balle est très loin hors limites
+        // La détection normale du drain passe par la collision RAPIER (handleCollisionEvents → isBallDrainCollision)
         if (!this.ball?.rigidBody || this._ballLostReported || this.gameOver) return;
 
         const pos = this.ball.rigidBody.translation();
 
-        if (pos.z < Config.global.positioning.drainZThreshold && pos.y < Config.global.positioning.drainYThreshold ) {
+        // Seuil volontairement plus large que la hitbox drain pour éviter les faux positifs
+        if (pos.z < Config.global.positioning.drainZThreshold && pos.y < Config.global.positioning.drainYThreshold) {
+            console.warn('[GamePhysics] checkBallOutOfBounds : balle hors limites (fallback), drain collider non déclenché ?');
             this.triggerBallLost();
         }
     }
