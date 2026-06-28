@@ -48,7 +48,11 @@ export async function initFlipper() {
     const cabinetButtons = new CabinetButtons();
     cabinetButtons.connect();
     physics.controls = controls;
+    // Deux références distinctes :
+    // - scene      → THREE.Scene (pour traverse, add, etc.)
+    // - sceneManager → instance Scene.js (pour postProcessing, effectManager, etc.)
     physics.scene = sceneManager.scene;
+    physics.sceneManager = sceneManager;
 
     container.appendChild(sceneManager.renderer.domElement);
 

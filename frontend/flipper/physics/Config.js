@@ -229,7 +229,7 @@ export default {
                     length: 200,
                     width: 80,
                     height: 400,
-                    position: { x: -160, y: 45, z: 150 },
+                    position: { x: -160, y: 43, z: 150 },
                     rotation: { x: 0, y: Math.PI, z: 0 },
                     objectType: 'ramp',
                     objectId: 'ramp-b',

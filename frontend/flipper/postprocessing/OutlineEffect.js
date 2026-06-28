@@ -19,15 +19,14 @@ export function createOutline(
 
     const pass = new OutlinePass(size, scene, camera);
 
-    pass.edgeStrength = edgeStrength;
-    pass.edgeGlow     = edgeGlow;
+    pass.edgeStrength  = edgeStrength;
+    pass.edgeGlow      = edgeGlow;
     pass.edgeThickness = edgeThickness;
     pass.visibleEdgeColor.set(visibleEdgeColor);
     pass.hiddenEdgeColor.set(hiddenEdgeColor);
     pass.selectedObjects = [];
 
-    if (pulsSpeed){
-        // Pulsation de l'aura
+    if (pulsSpeed) {
         const clock = new THREE.Clock();
         const baseStrength = edgeStrength;
         const baseGlow     = edgeGlow;
@@ -39,6 +38,28 @@ export function createOutline(
             pass.edgeGlow     = baseGlow     + pulse * 1.5;
         };
     }
+
+    // Décroissance basée sur delta — aucun setTimeout, aucune accumulation
+    const BASE     = { strength: edgeStrength, glow: edgeGlow, thickness: edgeThickness };
+    const PEAK = { strength: 50, glow: 10, thickness: 12 };
+    const DURATION = 1; // secondes
+    let _impactTimer = 0;
+
+    // Déclenche un flash : reset le timer (idempotent, safe à appeler à haute fréquence)
+    pass.triggerImpactPulse = () => {
+        _impactTimer = DURATION;
+    };
+
+    pass.updateImpactPulse = (delta) => {
+        if (_impactTimer <= 0) return;
+        _impactTimer = Math.max(0, _impactTimer - delta);
+        const t = _impactTimer / DURATION;
+        // Courbe ease-out pour que le pic soit bien visible au début
+        const eased = t * t;
+        pass.edgeStrength  = BASE.strength  + eased * (PEAK.strength  - BASE.strength);
+        pass.edgeGlow      = BASE.glow      + eased * (PEAK.glow      - BASE.glow);
+        pass.edgeThickness = BASE.thickness + eased * (PEAK.thickness - BASE.thickness);
+    };
 
     return pass;
 }

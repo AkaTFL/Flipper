@@ -92,11 +92,11 @@ export class Scene {
                 },
                 fxaa: true,
 
-                outline: {  
+                outline: {
                     edgeStrength: 2,
                     edgeGlow: 1,
                     edgeThickness: 2,
-                    visibleEdgeColor: Config[Config.currentLevel].outline ,
+                    visibleEdgeColor: Config[Config.currentLevel].outline,
                     hiddenEdgeColor: 0x22090a,
                 }
             }
@@ -185,11 +185,8 @@ export class Scene {
 
         this.effectManager?.update(delta);
 
-        // Pipeline postprocessing principal
-        this.postProcessing.render();
-
-        // Outline impact par-dessus (shader Sobel custom)
-        this.effectManager?.renderEffects();
+        // Pipeline postprocessing principal — delta transmis pour la décroissance du flash outline
+        this.postProcessing.render(delta);
 
         requestAnimationFrame(() => this.render(physics, onUpdate));
     }

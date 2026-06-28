@@ -20,7 +20,8 @@ export class GamePhysics {
         this.rampTraversal = null;
         this.audioManager = AudioManager.getShared();
         this.controls = null;
-        this.scene = null;
+        this.scene = null;         // THREE.Scene — pour traverse(), add(), etc.
+        this.sceneManager = null;  // instance Scene.js — pour postProcessing, effectManager, etc.
         this.gameOver = false;
         this._ballLostReported = false;
         this.launchingRampVisible = true;
@@ -154,8 +155,8 @@ export class GamePhysics {
             this.lastBackendMessage = message;
             if (message?.type === 'score_update') {
                 this.lastScoreUpdate = message.payload ?? null;
-            } 
-            
+            }
+
             else if (message?.type === 'player_state_update') {
                 this.gameOver = Boolean(message.payload?.gameOver);
             }
@@ -278,7 +279,7 @@ export class GamePhysics {
             }
 
             const exitZone = rampScoring.exitZone;
-            
+
             if (this.isPositionInsideZone(position, exitZone)) {
                 nextActiveRampZones.add(exitZone.id);
                 if (!this.activeRampZones.has(exitZone.id) && this.rampTraversal) {
@@ -424,6 +425,15 @@ export class GamePhysics {
                 }
             }
 
+            // Flash outline uniquement sur les collisions bumper/repulse
+            const hasBumperOrRepulse = collidingObjects.some(
+                (obj) => obj?.objectType === 'bumper' || obj?.objectType === 'repulse'
+            );
+            if (hasBumperOrRepulse) {
+                // sceneManager (instance Scene.js) — pas this.scene (THREE.Scene)
+                this.sceneManager?.postProcessing?.triggerImpactPulse?.();
+            }
+
             for (const obj of collisionResponders) {
                 if (obj.objectType === 'bumper' && typeof obj.applyBumperForce === 'function') {
                     obj.applyBumperForce(handle1, handle2);
@@ -492,7 +502,7 @@ export class GamePhysics {
         if (!this.ball?.rigidBody) {
             return;
         }
-        
+
         const position = this.ball.rigidBody.translation();
         const triggerY = 15;
 
@@ -537,13 +547,10 @@ export class GamePhysics {
     }
 
     checkBallOutOfBounds() {
-        // Filet de sécurité uniquement : ne se déclenche que si la balle est très loin hors limites
-        // La détection normale du drain passe par la collision RAPIER (handleCollisionEvents → isBallDrainCollision)
         if (!this.ball?.rigidBody || this._ballLostReported || this.gameOver) return;
 
         const pos = this.ball.rigidBody.translation();
 
-        // Seuil volontairement plus large que la hitbox drain pour éviter les faux positifs
         if (pos.z < Config.global.positioning.drainZThreshold && pos.y < Config.global.positioning.drainYThreshold) {
             console.warn('[GamePhysics] checkBallOutOfBounds : balle hors limites (fallback), drain collider non déclenché ?');
             this.triggerBallLost();
