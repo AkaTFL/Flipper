@@ -573,7 +573,8 @@ export default {
         bloom: 0x00ff00,
         outline: 0xffff00,
         sparks: 0x00ff00,
-        
+        outlineImpactColor: 0x00ff00,
+
         gravity: { x: 0, y: -9.75, z: -1.11 },
     },
     

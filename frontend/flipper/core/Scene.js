@@ -65,7 +65,7 @@ export class Scene {
         this.camera = cameraData.camera;
         this.frustumHeight = cameraData.frustumHeight;
 
-        this.effectManager = new EffectManager(this.scene, this.camera);
+        this.effectManager = new EffectManager(this.scene, this.camera, this.renderer);
 
         this.cameraHelper = createCameraHelper(this.scene, this.camera);
 
@@ -185,11 +185,11 @@ export class Scene {
 
         this.effectManager?.update(delta);
 
-        // Pulsation de l'aura (outline)
-        this.postProcessing._outlinePass?.onBeforeRender?.();
-
-        // Un seul appel, tout le pipeline est géré par le manager
+        // Pipeline postprocessing principal
         this.postProcessing.render();
+
+        // Outline impact par-dessus (shader Sobel custom)
+        this.effectManager?.renderEffects();
 
         requestAnimationFrame(() => this.render(physics, onUpdate));
     }
