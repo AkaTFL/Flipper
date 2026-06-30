@@ -3,8 +3,6 @@ import * as THREE from 'three';
 import { Objects } from './Objects.js';
 import Config from '../physics/Config.js';
 
-const ENTRANCE_LAUNCH_FORCE = 12;
-
 export class Ramp extends Objects {
     constructor(scene, world, length, width, height, position, rotation, modelFile, objectId) {
         super(world, length, width, height, position, rotation, null, null);
@@ -15,6 +13,7 @@ export class Ramp extends Objects {
         this.entranceCollider = null;
         this.rampCollider = null;
         this._railCenter = null;
+        this._launching = false; // verrou anti-redéclenchement pendant le lancement
 
         // gamePhysics est injecté depuis Flipper.js juste après le new Ramp(...)
         // On s'en sert pour enregistrer les colliders après le chargement async du modèle
@@ -56,6 +55,14 @@ export class Ramp extends Objects {
                     }
 
                     const trimesh = this.buildTrimeshCollider(child);
+
+                    // L'entrée ne doit JAMAIS bloquer physiquement la balle :
+                    // c'est une zone de détection, pas un mur. Sans ça, le solveur
+                    // de contact contrecarre l'impulsion de lancement vers le rail.
+                    if (child.name === 'entrance') {
+                        trimesh.setSensor(true);
+                    }
+
                     const collider = this.attachCollider(
                         trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
                     );
@@ -91,17 +98,37 @@ export class Ramp extends Objects {
 
         if (!hitEntrance || !this._railCenter) return;
 
+        // Évite de relancer plusieurs fois si l'event "started" se redéclenche
+        // pendant que la balle est encore dans la zone d'entrée
+        if (this._launching) return;
+
         const ballBody = this.gamePhysics?.ball?.rigidBody;
         if (!ballBody) {
             console.warn(`[Ramp ${this.objectId}] Pas de ballBody disponible.`);
             return;
         }
 
+        this._launching = true;
         this._launchBallTowardRail(ballBody);
+
+        // On relâche le verrou après un court délai, le temps que la balle
+        // quitte physiquement la zone d'entrée
+        setTimeout(() => {
+            this._launching = false;
+        }, 400);
     }
 
     _launchBallTowardRail(ballBody) {
         const ballPos = ballBody.translation();
+        const currentVelocity = ballBody.linvel();
+
+        // Vitesse (norme) à laquelle la balle arrive dans la zone d'entrée —
+        // on la conserve telle quelle, on ne fait que rediriger sa direction.
+        const speed = Math.hypot(
+            currentVelocity.x ?? 0,
+            currentVelocity.y ?? 0,
+            currentVelocity.z ?? 0
+        );
 
         const direction = new THREE.Vector3(
             this._railCenter.x - ballPos.x,
@@ -109,15 +136,14 @@ export class Ramp extends Objects {
             this._railCenter.z - ballPos.z
         ).normalize();
 
-        const impulse = {
-            x: direction.x * ENTRANCE_LAUNCH_FORCE,
-            y: direction.y * ENTRANCE_LAUNCH_FORCE,
-            z: direction.z * ENTRANCE_LAUNCH_FORCE,
+        const launchVelocity = {
+            x: direction.x * speed,
+            y: direction.y * speed,
+            z: direction.z * speed,
         };
 
-        ballBody.setLinvel({ x: 0, y: 0, z: 0 }, true);
-        ballBody.applyImpulse(impulse, true);
+        ballBody.setLinvel(launchVelocity, true);
 
-        console.log(`[Ramp ${this.objectId}] Impulsion vers le rail`, impulse);
+        console.log(`[Ramp ${this.objectId}] Lancement vers le rail (vitesse conservée: ${speed.toFixed(2)})`, launchVelocity);
     }
 }

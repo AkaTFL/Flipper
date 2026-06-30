@@ -1,15 +1,19 @@
 {
   "slots": [
     {
-      "savedAt": 1782847027498,
+      "savedAt": 1782849950879,
       "level": 1,
       "snapshot": {
         "score": {
-          "score": 0,
-          "comboCount": 0,
-          "hitStreak": 0,
-          "lastImpactAt": -62135596800000,
-          "recentImpactTypes": null,
+          "score": 10760,
+          "comboCount": 201,
+          "hitStreak": 201,
+          "lastImpactAt": 1782849950641,
+          "recentImpactTypes": [
+            "bumper",
+            "bumper",
+            "bumper"
+          ],
           "loopStreakById": {}
         },
         "boss": {
@@ -17,39 +21,39 @@
           "hp": 1500
         },
         "player": {
-          "hp": 100,
-          "balls": 3
+          "hp": 0,
+          "balls": 0
         },
         "quests": {
           "activeQuests": [
             {
-              "id": "score_3500",
+              "id": "score_2000",
               "category": "score",
-              "label": "Atteindre 3 500 points",
-              "target": 3500,
-              "progress": 0,
-              "completed": false
+              "label": "Atteindre 2 000 points",
+              "target": 2000,
+              "progress": 2000,
+              "completed": true
             },
             {
-              "id": "target_center_2",
+              "id": "ramp_simple_2",
               "category": "precision",
-              "label": "Toucher 2 fois la zone centrale d'une cible basse",
+              "label": "Réussir 2 passages de rampe",
               "target": 2,
               "progress": 0,
               "completed": false
             },
             {
-              "id": "bumpers_5",
+              "id": "loop_left_right",
               "category": "exploration",
-              "label": "Toucher 5 bumpers au total",
-              "target": 5,
+              "label": "Passer une fois par chaque loop latéral",
+              "target": 2,
               "progress": 0,
               "completed": false
             }
           ],
           "loopLeftDone": false,
           "loopRightDone": false,
-          "phaseStartedAt": 1782847027497,
+          "phaseStartedAt": 1782849950868,
           "bossFightTriggered": false,
           "currentPhase": 1
         }
@@ -110,7 +114,65 @@
         }
       }
     },
-    null,
+    {
+      "savedAt": 1782849507288,
+      "level": 1,
+      "snapshot": {
+        "score": {
+          "score": 13050,
+          "comboCount": 87,
+          "hitStreak": 235,
+          "lastImpactAt": 1782849506756,
+          "recentImpactTypes": [
+            "repulse",
+            "bumper",
+            "bumper"
+          ],
+          "loopStreakById": {}
+        },
+        "boss": {
+          "active": false,
+          "hp": 1500
+        },
+        "player": {
+          "hp": 0,
+          "balls": 0
+        },
+        "quests": {
+          "activeQuests": [
+            {
+              "id": "score_2000",
+              "category": "score",
+              "label": "Atteindre 2 000 points",
+              "target": 2000,
+              "progress": 2000,
+              "completed": true
+            },
+            {
+              "id": "ramp_perfect_1",
+              "category": "precision",
+              "label": "Réussir 1 rampe parfaite",
+              "target": 1,
+              "progress": 0,
+              "completed": false
+            },
+            {
+              "id": "bumpers_5",
+              "category": "exploration",
+              "label": "Toucher 5 bumpers au total",
+              "target": 5,
+              "progress": 5,
+              "completed": true
+            }
+          ],
+          "loopLeftDone": false,
+          "loopRightDone": false,
+          "phaseStartedAt": 1782849507274,
+          "bossFightTriggered": false,
+          "currentPhase": 1
+        }
+      }
+    },
     null
   ]
 }
