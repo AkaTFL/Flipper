@@ -9,7 +9,7 @@ strategy = "branch"
 ref      = "develop"
 
 [screens]
-playfield = { service = "app", port = 80, path = "/playfield/?cabinet=1" }
+flipper = { service = "app", port = 80, path = "/flipper/?cabinet=1" }
 backglass = { service = "app", port = 80, path = "/backglass/" }
 dmd       = { service = "app", port = 80, path = "/dmd/" }
 
