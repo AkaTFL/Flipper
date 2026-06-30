@@ -2,13 +2,12 @@ import * as THREE from 'three';
 import * as RAPIER from '@dimforge/rapier3d-compat';
 
 import Config from '../physics/Config.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import { PostProcessingManager } from '../postprocessing/manager/PostProcessingManager.js';
 
 import { EffectManager } from '../effects/manager/EffectManager.js';
 
-import { createCamera, createCameraHelper, setupCameraResize } from '../helpers/CameraHelper.js';
+import { createCamera, createCameraHelper, createCameraOrbitControls, setupCameraResize } from '../helpers/CameraHelper.js';
 import { createRapierDebug, setupLightHelperToggle } from '../helpers/DebugHelper.js';
 import { createLightGUI } from '../helpers/GuiHelper.js';
 import { createLights, startLightIntro } from '../core/Lights.js';
@@ -65,9 +64,13 @@ export class Scene {
         this.camera = cameraData.camera;
         this.frustumHeight = cameraData.frustumHeight;
 
+        // Controls de déplacement caméra (orbit), activés uniquement
+        // quand le camera helper (F2) est affiché — cf. createCameraHelper.
+        this.controls = createCameraOrbitControls(this.camera, this.renderer, cameraData.target);
+
         this.effectManager = new EffectManager(this.scene, this.camera, this.renderer);
 
-        this.cameraHelper = createCameraHelper(this.scene, this.camera);
+        this.cameraHelper = createCameraHelper(this.scene, this.camera, this.controls);
 
         // ==========================================
         // POST-PROCESSING

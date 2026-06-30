@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 export function createCamera(position) {
     const aspect = window.innerWidth / window.innerHeight;
@@ -18,13 +19,11 @@ export function createCamera(position) {
 
     const frustumWidth = frustumHeight * aspect;
 
-    const camera = new THREE.OrthographicCamera(
-        -frustumWidth / 2,
-         frustumWidth / 2,
-         frustumHeight / 2,
-        -frustumHeight / 2,
-         0.1,
-         3000
+    const camera = new THREE.PerspectiveCamera(
+        55,
+        aspect,
+        0.1,
+        3000
     );
 
     camera.position.copy(cameraPosition);
@@ -33,11 +32,30 @@ export function createCamera(position) {
 
     return {
         camera,
-        frustumHeight
+        frustumHeight,
+        target: cameraTarget
     };
 }
 
-export function createCameraHelper(scene, camera) {
+// Crée des OrbitControls permettant de déplacer/orbiter la caméra.
+// Désactivés par défaut : on ne veut pas que le joueur puisse bouger
+// la caméra pendant la partie, seulement en mode debug (cf. createCameraHelper).
+export function createCameraOrbitControls(camera, renderer, target) {
+    const controls = new OrbitControls(camera, renderer.domElement);
+
+    controls.enabled = false;
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    if (target) {
+        controls.target.copy(target);
+    }
+    controls.update();
+
+    return controls;
+}
+
+export function createCameraHelper(scene, camera, controls) {
     const helper = new THREE.CameraHelper(camera);
 
     helper.visible = false;
@@ -49,6 +67,11 @@ export function createCameraHelper(scene, camera) {
             e.preventDefault();
 
             helper.visible = !helper.visible;
+
+            // La caméra ne devient déplaçable que lorsque le helper est affiché
+            if (controls) {
+                controls.enabled = helper.visible;
+            }
 
             console.log(
                 `[Camera Helper] ${helper.visible ? '✅ ON' : '❌ OFF'}`
