@@ -7,7 +7,7 @@
 
 ## Vue d'ensemble
 
-**Ce qu'on construit :** Un flipper virtuel taille réelle avec contrôles physiques, retour haptique (10 solénoïdes) et affichage sur 3 écrans (Flipper, Backglass, DMD).
+**Ce qu'on construit :** Un flipper virtuel taille réelle avec contrôles physiques, retour haptique (10 solénoïdes) et affichage sur 3 écrans (Playfield, Backglass, DMD).
 
 **3 dispositifs IoT :**
 
@@ -19,9 +19,9 @@
 **Flux de données :**
 
 1. Joueur appuie sur un bouton physique → **ESP32 Contrôleur** envoie l'état via **USB série** au PC → daemon convertit en frappe clavier
-2. **Flipper** (Three.js) lit l'entrée clavier et anime le flipper / lance la bille
+2. **Playfield** (Three.js) lit l'entrée clavier et anime le flipper / lance la bille
 3. Collision détectée dans le jeu → événement envoyé au **Serveur** via WebSocket
-4. Serveur met à jour le score → envoie aux **3 écrans** (Backglass, DMD, Flipper)
+4. Serveur met à jour le score → envoie aux **3 écrans** (Backglass, DMD, Playfield)
 5. Serveur publie un message MQTT → **ESP32 Solénoïdes** activent le relais correspondant → **CLAC !**
 6. **MPU-6050** détecte une secousse excessive → Tilt déclenché
 
@@ -33,7 +33,7 @@
 ┌──────────────────────────────────────────────────────────────────────┐
 │                                                                      │
 │   ┌────────────┐     ┌────────────┐     ┌────────────┐              │
-│   │ Backglass  │     │    DMD     │     │ Flipper  │              │
+│   │ Backglass  │     │    DMD     │     │ Playfield  │              │
 │   │ (Écran 1)  │     │ (Écran 2)  │     │ (Écran 3)  │              │
 │   └─────┬──────┘     └─────┬──────┘     └─────┬──────┘              │
 │         │ WS               │ WS               │ WS                  │
@@ -73,7 +73,7 @@
 
 **Direction des données :**
 - `Serveur → ESP32 #1 / #2` : commandes MQTT via Wi-Fi pour activer les solénoïdes (sortie)
-- `ESP32 #3 → PC Flipper` : boutons + tirette via **USB série** (entrée, chemin rapide)
+- `ESP32 #3 → PC Playfield` : boutons + tirette via **USB série** (entrée, chemin rapide)
 - `ESP32 #3 → Serveur` : événements tilt via **MQTT Wi-Fi** (entrée, chemin tolérant)
 
 ---
@@ -103,7 +103,7 @@ L'ESP32 #3 utilise **USB et Wi-Fi simultanément**. Le câble USB qui alimente l
          ▼                                                  ▼
     ┌──────────┐                                       ┌──────────┐
     │          │  USB série (câble)                     │          │  Wi-Fi
-    │ ESP32 #3 ├─────────────────────► PC Flipper    │ ESP32 #3 ├──────────► Mosquitto
+    │ ESP32 #3 ├─────────────────────► PC Playfield    │ ESP32 #3 ├──────────► Mosquitto
     │          │                       (daemon série   │          │             Broker
     └──────────┘                        → clavier)     └──────────┘              │
                                                                                  │ MQTT
@@ -186,7 +186,7 @@ Les solénoïdes sont des charges inductives. À la coupure, ils génèrent une 
 
 ### Principe
 
-L'ESP32 Contrôleur est connecté au PC du Flipper par **câble USB** et transmet les états des boutons et de la tirette via **USB série**. Un daemon sur le PC convertit ces données en événements clavier. Simultanément, l'ESP32 utilise le **Wi-Fi** pour publier les événements tilt via MQTT.
+L'ESP32 Contrôleur est connecté au PC du Playfield par **câble USB** et transmet les états des boutons et de la tirette via **USB série**. Un daemon sur le PC convertit ces données en événements clavier. Simultanément, l'ESP32 utilise le **Wi-Fi** pour publier les événements tilt via MQTT.
 
 ### Vue physique des contrôles
 
@@ -377,7 +377,7 @@ Le MPU-6050 communique en **I2C** avec l'ESP32 (2 fils seulement). Les événeme
   │                               │         └──────────────┘
   │                               │
   │  ── COMMUNICATION ──────────  │
-  │  USB série (câble) ══════════│═══════► PC Flipper
+  │  USB série (câble) ══════════│═══════► PC Playfield
   │  (boutons + tirette)         │         (daemon série → clavier)
   │  Latence : 1-4 ms            │
   │                               │
@@ -447,7 +447,7 @@ Le MPU-6050 communique en **I2C** avec l'ESP32 (2 fils seulement). Les événeme
 │  │                         PC CENTRAL (Serveur)                                │    │
 │  │  ┌──────────┐  ┌──────────┐  ┌──────────────┐  ┌───────────────────────┐   │    │
 │  │  │ Serveur  │  │Mosquitto │  │  Navigateur  │  │  Navigateur           │   │    │
-│  │  │ Go       │◄─┤ Broker   │  │  Flipper   │  │  Backglass + DMD      │   │    │
+│  │  │ Go       │◄─┤ Broker   │  │  Playfield   │  │  Backglass + DMD      │   │    │
 │  │  │          │─►│ MQTT     │  │  (Three.js)  │  │  (Canvas/Three.js)    │   │    │
 │  │  └────┬─────┘  └────┬─────┘  └──────┬───────┘  └───────────┬───────────┘   │    │
 │  │       │ WS          │ MQTT          │ USB série             │ WS             │    │

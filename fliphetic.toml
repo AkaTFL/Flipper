@@ -2,14 +2,14 @@
 id          = "akatfl-flipper"
 name        = "Flipper AkaTFL"
 authors     = ["AkaTFL"]
-description = "Flipper virtuel avec Flipper, Backglass, DMD et contrôleur ESP32."
+description = "Flipper virtuel avec Playfield, Backglass, DMD et contrôleur ESP32."
 
 [deploy]
 strategy = "branch"
 ref      = "develop"
 
 [screens]
-flipper = { service = "app", port = 80, path = "/flipper/?cabinet=1" }
+playfield = { service = "app", port = 80, path = "/playfield/?cabinet=1" }
 backglass = { service = "app", port = 80, path = "/backglass/" }
 dmd       = { service = "app", port = 80, path = "/dmd/" }
 

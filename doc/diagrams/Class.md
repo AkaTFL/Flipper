@@ -51,7 +51,7 @@ classDiagram
   }
 
   namespace ThreeJS {
-    class FlipperScene {
+    class PlayfieldScene {
       ball
       flippers
       obstacles

@@ -2,4 +2,4 @@ Note pour le dev 3D
 
 - Cette image sert de base conceptuelle : positions et proportions à confirmer avec le gameplay.
 - Priorité : garder la lisibilité des bumpers, rampes, zones latérales, cœur central et zone basse.
-- Le boss vit surtout sur le backglass ; le flipper représente ses impacts, ses objectifs et son noyau de lave.
+- Le boss vit surtout sur le backglass ; le playfield représente ses impacts, ses objectifs et son noyau de lave.

@@ -8,7 +8,7 @@ Le projet utilise trois écrans distincts :
 
 - `Backglass` : écran supérieur principal ;
 - `DMD` : écran central plus petit pour les informations de jeu ;
-- `Flipper` : écran principal incliné du plateau de jeu.
+- `Playfield` : écran principal incliné du plateau de jeu.
 
 Ces informations servent de référence pour adapter l'affichage frontend aux dimensions réelles de la machine.
 
@@ -18,7 +18,7 @@ Ces informations servent de référence pour adapter l'affichage frontend aux di
 |---|---|---:|---:|---:|---|
 | Backglass | Écran supérieur | 1920 x 1080 px | 1920 x 1080 px | 1.778 (16:9) | `localhost:32789/?screen=backglass` |
 | DMD | Écran central | 1920 x 1080 px | 1920 x 1080 px | 1.778 (16:9) | `localhost:32789/?screen=dmd` |
-| Flipper | Plateau principal | 2160 x 3840 px | 2160 x 3840 px | 0.563 (9:16) | `localhost:32789/?screen=flipper` |
+| Playfield | Plateau principal | 2160 x 3840 px | 2160 x 3840 px | 0.563 (9:16) | `localhost:32789/?screen=playfield` |
 
 ## Spécifications communes
 
@@ -75,7 +75,7 @@ Le contenu important ne doit pas être collé aux bords, car l'écran est intég
 DMD
 ```
 
-Le DMD correspond à l'écran central situé entre le Backglass et le Flipper.
+Le DMD correspond à l'écran central situé entre le Backglass et le Playfield.
 
 Dans notre gameplay, il sert à afficher les informations courtes et directement utiles pendant la partie.
 
@@ -133,7 +133,7 @@ SCORE 6 250
 
 La taille des trois lignes doit s'adapter automatiquement à la quantité de caractères et à la largeur de l'écran.
 
-## Écran Flipper
+## Écran Playfield
 
 ### Rôle
 
@@ -141,7 +141,7 @@ La taille des trois lignes doit s'adapter automatiquement à la quantité de car
 PLAYFIELD
 ```
 
-Le Flipper correspond à l'écran principal incliné du flipper.
+Le Playfield correspond à l'écran principal incliné du flipper.
 
 C'est l'écran sur lequel le joueur voit le plateau de jeu, la bille, les flippers, les bumpers, les rampes et les zones d'impact.
 
@@ -153,7 +153,7 @@ Display     : 2160 x 3840 px
 Aspect      : 0.563 (9:16)
 Pixel ratio : 1.00
 Color depth : 24-bit
-Kiosk src   : localhost:32789/?screen=flipper
+Kiosk src   : localhost:32789/?screen=playfield
 ```
 
 ### Notes d'intégration
@@ -176,25 +176,25 @@ Les informations de HUD doivent être limitées sur cet écran pour ne pas cache
 |---|---|
 | Backglass | Boss, quêtes, HP joueur, ambiance et animations narratives |
 | DMD | Score, points gagnés, combos, multiplicateur et balles |
-| Flipper | Plateau jouable, bille, flippers, bumpers, rampes, targets, portails |
+| Playfield | Plateau jouable, bille, flippers, bumpers, rampes, targets, portails |
 
 ## URLs locales observées
 
 ```text
 Backglass : localhost:32789/?screen=backglass
 DMD       : localhost:32789/?screen=dmd
-Flipper : localhost:32789/?screen=flipper
+Playfield : localhost:32789/?screen=playfield
 ```
 
 Le service `frontend_kiosk` conserve ces URLs et redirige chaque rôle vers l'application correspondante :
 
 ```text
-?screen=flipper -> http://localhost:3001
+?screen=playfield -> http://localhost:3001
 ?screen=backglass -> http://localhost:3002
 ?screen=dmd      -> http://localhost:3003
 ```
 
-Le Backglass affiche également un moniteur de diagnostic avec les huit derniers événements `APPUI` et `RELACHE` reçus depuis le Flipper. Ce panneau sert à valider les boutons physiques lors de l'installation.
+Le Backglass affiche également un moniteur de diagnostic avec les huit derniers événements `APPUI` et `RELACHE` reçus depuis le Playfield. Ce panneau sert à valider les boutons physiques lors de l'installation.
 
 ## Dashboard
 
@@ -208,7 +208,7 @@ http://100.125.185.88:8080
 
 - Les trois écrans utilisent Chrome `148` d'après les écrans de debug.
 - Le pixel ratio observé est `1.00`, donc les dimensions CSS peuvent être pensées directement en pixels logiques.
-- Le Flipper est en portrait, contrairement au Backglass et au DMD qui sont en paysage.
+- Le Playfield est en portrait, contrairement au Backglass et au DMD qui sont en paysage.
 - Le DMD possède la même résolution observée que le Backglass, mais il doit rester traité comme une zone d'information compacte.
 - Le frontend doit pouvoir différencier les écrans via le paramètre `screen` dans l'URL.
 
@@ -219,7 +219,7 @@ Le frontend doit pouvoir adapter son rendu selon :
 ```text
 ?screen=backglass
 ?screen=dmd
-?screen=flipper
+?screen=playfield
 ```
 
 Cela permet d'avoir une interface spécifique à chaque écran au lieu d'afficher le même contenu partout.
@@ -229,5 +229,5 @@ Cela permet d'avoir une interface spécifique à chaque écran au lieu d'affiche
 ```text
 Backglass -> écran boss / narration
 DMD       -> écran score / état de partie
-Flipper -> écran gameplay principal
+Playfield -> écran gameplay principal
 ```

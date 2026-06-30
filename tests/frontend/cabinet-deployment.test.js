@@ -7,7 +7,7 @@ const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), '
 test('le manifeste Fliphetic cible les trois écrans sans mode démo', () => {
   const manifest = read('fliphetic.toml');
 
-  assert.match(manifest, /flipper\s*=.*\/flipper\/\?cabinet=1/);
+  assert.match(manifest, /playfield\s*=.*\/playfield\/\?cabinet=1/);
   assert.match(manifest, /backglass\s*=.*\/backglass\//);
   assert.match(manifest, /dmd\s*=.*\/dmd\//);
   assert.doesNotMatch(manifest, /demo=1/);
@@ -51,9 +51,9 @@ test('le firmware final existe et reste facultatif pour le chargement', () => {
   assert.match(manifest, /required\s*=\s*false/);
 });
 
-test('le Flipper se lance automatiquement uniquement en mode cabinet', () => {
-  const flipper = read('frontend/flipper/index.html');
+test('le Playfield se lance automatiquement uniquement en mode cabinet', () => {
+  const playfield = read('frontend/flipper/index.html');
 
-  assert.match(flipper, /get\('cabinet'\) === '1'/);
-  assert.match(flipper, /startFlipper\(\)/);
+  assert.match(playfield, /get\('cabinet'\) === '1'/);
+  assert.match(playfield, /startFlipper\(\)/);
 });

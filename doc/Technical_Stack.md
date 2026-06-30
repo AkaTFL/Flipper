@@ -131,7 +131,7 @@ Cela permet de **découpler totalement** le matériel (ESP32) du logiciel (Backe
 ```
 Backend Go → Mosquitto → ESP32_1 / ESP32_2 (solénoïdes)
 ESP32_3 → Mosquitto → Backend Go (tilt)
-ESP32_3 → USB série → PC Flipper (boutons)
+ESP32_3 → USB série → PC Playfield (boutons)
 ```
 
 ##### c) Faible overhead

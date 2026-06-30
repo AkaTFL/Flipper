@@ -1,6 +1,6 @@
 # Contrôles clavier et boutons physiques
 
-Ce document est la référence commune pour les contrôles du Flipper, le clavier et l'ESP32.
+Ce document est la référence commune pour les contrôles du Playfield, le clavier et l'ESP32.
 
 ## Contrôles de jeu
 
