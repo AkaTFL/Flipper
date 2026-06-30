@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import Config from '../../frontend/flipper/physics/Config.js';
-import { GamePhysics } from '../../frontend/flipper/physics/GamePhysics.js';
+import Config from '../../frontend/playfield/physics/Config.js';
+import { GamePhysics } from '../../frontend/playfield/physics/GamePhysics.js';
 
 function withConfigPatch(key, value, callback) {
   const previousValue = Config[key];
