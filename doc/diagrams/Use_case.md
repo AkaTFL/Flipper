@@ -21,7 +21,7 @@ flowchart LR
   UC12((Analyze score / pattern))
   UC13((Play vs human))
   UC14((Suggest events))
-  UC15((3D Playfield))
+  UC15((3D Flipper))
   UC16((Backglass))
   UC17((DMD animations))
 

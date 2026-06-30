@@ -83,7 +83,7 @@ for URL in \
   "http://localhost:3001" \
   "http://localhost:3002" \
   "http://localhost:3003" \
-  "http://localhost:$KIOSK_PORT/?screen=playfield"; do
+  "http://localhost:$KIOSK_PORT/?screen=flipper"; do
   if ! http_is_ready "$URL"; then
     echo "Service inaccessible : $URL"
     exit 3
@@ -138,7 +138,7 @@ fi
 
 if [ "${FLIPPER_MANAGED_KIOSK:-0}" = "1" ]; then
   echo "Le kiosque physique ouvre automatiquement les trois écrans."
-  echo "Playfield : http://localhost:$KIOSK_PORT/?screen=playfield"
+  echo "Flipper : http://localhost:$KIOSK_PORT/?screen=flipper"
   echo "Backglass : http://localhost:$KIOSK_PORT/?screen=backglass"
   echo "DMD       : http://localhost:$KIOSK_PORT/?screen=dmd"
   echo "Flipper lancé."

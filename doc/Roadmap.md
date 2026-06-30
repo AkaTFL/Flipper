@@ -20,7 +20,7 @@
 - **Modestin** : Backend Go + logique métier + WebSocket
 - **Charles** : IoT (ESP32 + MQTT + matériel)
 - **Hugo** : Frontend 3D (Three.js + intégration gameplay)
-- **Baptiste** : Art 3D + UI visuelle (Playfield / Backglass / DMD)
+- **Baptiste** : Art 3D + UI visuelle (Flipper / Backglass / DMD)
 - **Raphael** : Tests + CI/CD + qualité + outillage
 
 ---
@@ -133,7 +133,7 @@ Connecter le matériel réel et garantir la cohérence temps réel sur plusieurs
 **Modestin**
 - Intégrer la réception MQTT réelle dans le moteur de jeu.
 - Garantir l'ordre des événements et éviter les doublons.
-- Gérer le broadcast structuré pour Playfield, Backglass et DMD.
+- Gérer le broadcast structuré pour Flipper, Backglass et DMD.
 
 **Charles**
 - Mapper GPIO (boutons, capteurs, actionneurs).
@@ -141,7 +141,7 @@ Connecter le matériel réel et garantir la cohérence temps réel sur plusieurs
 - Mesurer latence et stabilité du réseau local.
 
 **Hugo**
-- Synchroniser Playfield / Backglass / DMD côté frontend.
+- Synchroniser Flipper / Backglass / DMD côté frontend.
 - Implémenter les réactions visuelles liées aux événements physiques.
 - Optimiser le rendu (FPS stable sur machines cibles).
 

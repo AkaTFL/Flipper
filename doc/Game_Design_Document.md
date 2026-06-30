@@ -57,7 +57,7 @@
 
 - **Score** : affiché dans le **DMD**.
 - **Backglass (écran arrière)** : **animations**.
-- **Écran à plat (playfield)** : **jeu** principal.
+- **Écran à plat (flipper)** : **jeu** principal.
 
 ---
 

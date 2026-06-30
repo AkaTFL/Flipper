@@ -2,4 +2,4 @@ Note pour le dev 3D
 
 - Cette image sert de base conceptuelle : positions et proportions restent à valider avec le gameplay.
 - Priorité : garder la lisibilité des rampes, orbits, portails, bumpers et zone centrale de mission.
-- Le boss vit surtout sur le backglass ; le playfield représente ses mécaniques, ses portails et ses points d’impact.
+- Le boss vit surtout sur le backglass ; le flipper représente ses mécaniques, ses portails et ses points d’impact.

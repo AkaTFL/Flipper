@@ -20,7 +20,7 @@ Pour la machine Linux du flipper physique, un script unique :
 - vérifie la disponibilité de la porte du kiosque ;
 - démarre et contrôle les services Docker ;
 - détecte le contrôleur ESP32 et démarre son daemon ;
-- rend disponibles automatiquement le Playfield, le Backglass et le DMD ;
+- rend disponibles automatiquement le Flipper, le Backglass et le DMD ;
 - affiche les événements des boutons sur le Backglass pendant le test.
 
 Documentation :
