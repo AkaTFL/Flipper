@@ -20,62 +20,6 @@
         height: 100vh;
       }
 
-      #play-overlay {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 18px;
-        pointer-events: none;
-        z-index: 10;
-      }
-
-      #play-button {
-        pointer-events: auto;
-        width: 54px;
-        height: 54px;
-        border: 0;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.92);
-        color: #111;
-        cursor: pointer;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-        display: grid;
-        place-items: center;
-        font-size: 18px;
-        line-height: 1;
-      }
-
-      #play-button:hover {
-        transform: scale(1.04);
-      }
-
-      #play-button:active {
-        transform: scale(0.98);
-      }
-
-      #controls-help {
-        padding: 18px 24px;
-        border: 1px solid rgba(255, 255, 255, 0.28);
-        border-radius: 14px;
-        background: rgba(0, 0, 0, 0.78);
-        color: #fff;
-        font: 600 16px/1.6 system-ui, sans-serif;
-        text-align: center;
-        box-shadow: 0 12px 38px rgba(0, 0, 0, 0.45);
-      }
-
-      #controls-help strong {
-        color: #75f0ff;
-      }
-
-      #controls-help .debug-controls {
-        margin-top: 8px;
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 13px;
-      }
     </style>
     <script type="importmap">
       {
@@ -91,6 +35,7 @@
           "three/examples/jsm/postprocessing/UnrealBloomPass.js": "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/postprocessing/UnrealBloomPass.js",
           "three/examples/jsm/postprocessing/SSAOPass.js": "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/postprocessing/SSAOPass.js",
           "three/examples/jsm/postprocessing/OutlinePass.js": "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/postprocessing/OutlinePass.js",
+          "three/examples/jsm/postprocessing/OutputPass.js": "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/postprocessing/OutputPass.js",
           
           "lil-gui": "https://cdn.jsdelivr.net/npm/lil-gui@0.18.0/dist/lil-gui.esm.min.js"
         }
@@ -98,33 +43,38 @@
     </script>
   </head>
   <body id="three">
-    <div id="play-overlay" aria-hidden="false">
-      <div id="controls-help">
-        <div><strong>FLIPPER GAUCHE</strong> Q / W</div>
-        <div><strong>FLIPPER DROIT</strong> D / C</div>
-        <div><strong>LANCER LA BILLE</strong> ESPACE</div>
-        <div class="debug-controls">TESTS : BOSS B · PERTE HP H · PERTE DE BALLE L</div>
-      </div>
-      <button id="play-button" type="button" aria-label="Lancer le flipper">▶</button>
-    </div>
     <script type="module">
-      const playButton = document.getElementById('play-button');
-      const playOverlay = document.getElementById('play-overlay');
+      const { Menu } = await import('./core/Menu.js');
+      const { CabinetButtons } = await import('./core/CabinetButtons.js');
 
-      const startFlipper = async () => {
-        playButton.disabled = true;
-        playButton.textContent = '…';
+      // Pont boutons de borne -> touches clavier, actif dès le menu ET pendant le jeu
+      const cabinetButtons = new CabinetButtons();
+      cabinetButtons.connect();
+
+      let started = false;
+
+      const launchGame = async (slot, mode, level, menu) => {
+        if (started) {
+          return;
+        }
+        started = true;
+
+        // On retire le menu (et ses écouteurs clavier) avant de lancer le jeu
+        menu?.destroy();
 
         const { initFlipper } = await import('./core/Flipper.js');
-        await initFlipper();
-
-        playOverlay?.remove();
+        await initFlipper({ slot, mode, level });
       };
 
-      playButton.addEventListener('click', startFlipper, { once: true });
+      const menu = new Menu({
+        onPlay: (slot, mode, level) => launchGame(slot, mode, level, menu)
+      });
 
+      // Mode borne : démarre directement une nouvelle partie sur le slot 1
       if (new URLSearchParams(window.location.search).get('cabinet') === '1') {
-        startFlipper();
+        launchGame(1, 'new', 1, null);
+      } else {
+        menu.mount();
       }
     </script>
   </body>

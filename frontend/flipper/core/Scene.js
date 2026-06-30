@@ -65,7 +65,7 @@ export class Scene {
         this.camera = cameraData.camera;
         this.frustumHeight = cameraData.frustumHeight;
 
-        this.effectManager = new EffectManager(this.scene, this.camera);
+        this.effectManager = new EffectManager(this.scene, this.camera, this.renderer);
 
         this.cameraHelper = createCameraHelper(this.scene, this.camera);
 
@@ -92,11 +92,11 @@ export class Scene {
                 },
                 fxaa: true,
 
-                outline: {  
-                    edgeStrength: 5,
-                    edgeGlow: 0,
+                outline: {
+                    edgeStrength: 2,
+                    edgeGlow: 1,
                     edgeThickness: 2,
-                    visibleEdgeColor: Config[Config.currentLevel].outline ,
+                    visibleEdgeColor: Config[Config.currentLevel].outline,
                     hiddenEdgeColor: 0x22090a,
                 }
             }
@@ -185,11 +185,8 @@ export class Scene {
 
         this.effectManager?.update(delta);
 
-        // Pulsation de l'aura (outline)
-        this.postProcessing._outlinePass?.onBeforeRender?.();
-
-        // Un seul appel, tout le pipeline est géré par le manager
-        this.postProcessing.render();
+        // Pipeline postprocessing principal — delta transmis pour la décroissance du flash outline
+        this.postProcessing.render(delta);
 
         requestAnimationFrame(() => this.render(physics, onUpdate));
     }

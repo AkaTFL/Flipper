@@ -6,19 +6,26 @@ import { Bumper } from '../objects/Bumper.js';
 import { LaunchingRamp } from '../objects/LaunchingRamp.js';
 import { Palles } from '../objects/Palles.js';
 import { Controls } from './Controls.js';
-import { CabinetButtons } from './CabinetButtons.js';
 import { Ramp } from '../objects/Ramp.js';
 import { StaticMesh } from '../objects/StaticMesh.js';
 import { Repulse } from '../objects/Repulse.js';
 
 import Config from '../physics/Config.js';
+
+import { CabinetButtons } from './CabinetButtons.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
 import { AudioManager } from '../physics/Audio.js';
 
-export async function initFlipper() {
+export async function initFlipper(options = {}) {
+    const { slot = 1, mode = 'new', level = 1 } = options;
+
+    // Positionne le niveau de départ avant l'init physique (gravité + musique du niveau)
+    Config.currentLevel = mode === 'resume' ? `lvl_${Math.min(4, Math.max(1, Number(level) || 1))}` : 'lvl_1';
+
     AudioManager.getShared().unlock();
 
     const physics = new GamePhysics();
+    physics.activeSaveSlot = slot;
     await physics.init();
 
     const waitFormeshes = (obj) => {
@@ -48,16 +55,20 @@ export async function initFlipper() {
     const cabinetButtons = new CabinetButtons();
     cabinetButtons.connect();
     physics.controls = controls;
+    // Deux références distinctes :
+    // - scene      → THREE.Scene (pour traverse, add, etc.)
+    // - sceneManager → instance Scene.js (pour postProcessing, effectManager, etc.)
     physics.scene = sceneManager.scene;
+    physics.sceneManager = sceneManager;
 
     container.appendChild(sceneManager.renderer.domElement);
 
-    const saveSlotHandler = (slot) => {
-        physics.sendMessage('save_game', { slot });
+    const saveSlotHandler = (targetSlot = physics.activeSaveSlot) => {
+        physics.sendMessage('save_game', { slot: targetSlot, level: physics.currentLevelNumber() });
     };
 
-    const loadSlotHandler = (slot) => {
-        physics.sendMessage('load_game', { slot });
+    const loadSlotHandler = (targetSlot) => {
+        physics.sendMessage('load_game', { slot: targetSlot });
     };
 
     let startGameSent = false;
@@ -69,6 +80,8 @@ export async function initFlipper() {
 
         if (physics.sendMessage('start_game')) {
             startGameSent = true;
+            // Occupe le slot actif dès le début de la partie (state fraîchement réinitialisé côté backend)
+            physics.autoSaveActiveSlot();
         }
     };
 
@@ -242,13 +255,19 @@ export async function initFlipper() {
     if (ball.rigidBody) {
         setTimeout(() => {
             ball.rigidBody.setEnabled(true);
-        }, 8000);
+        }, 3000);
     }
 
     sceneManager.scene.add(...meshes.map(obj => obj.mesh));
     sceneManager.postProcessing.updateOutlineObjects();
     
     physics.setLaunchingRampVisible(true);
+
+    // Reprise d'une sauvegarde : on attend que la WS soit prête puis on demande le chargement du slot
+    await physics.whenBackendReady();
+    if (mode === 'resume') {
+        loadSlotHandler(slot);
+    }
 
     sceneManager.startRender(physics, () => {
         controls.setLaunchChargeCount(0);

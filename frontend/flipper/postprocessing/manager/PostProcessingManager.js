@@ -19,7 +19,7 @@ import { createOutline } from '../OutlineEffect.js';
  * const pp = new PostProcessingManager(renderer, scene, camera);
  * pp.setSize(width, height);
  * // dans la boucle de rendu :
- * pp.render();
+ * pp.render(delta);
  */
 export class PostProcessingManager {
     /**
@@ -51,7 +51,7 @@ export class PostProcessingManager {
         this.composer = new EffectComposer(renderer);
 
         // -------------------------------------------------------
-        // Passe 0 – Effers globaux (RenderPass, SSAO, Bloom, FXAA)
+        // Passe 0 – Effets globaux (RenderPass, SSAO, Bloom, FXAA)
         // -------------------------------------------------------
         this._renderPass = new RenderPass(scene, camera);
         this.composer.addPass(this._renderPass);
@@ -71,7 +71,7 @@ export class PostProcessingManager {
         // -------------------------------------------------------
         // Passe 4 – Effets spécifiques
         // -------------------------------------------------------
-         this._outlinePass = createOutline(
+        this._outlinePass = createOutline(
             scene,
             camera,
             renderer,
@@ -81,11 +81,13 @@ export class PostProcessingManager {
         this.composer.addPass(this._outlinePass);
 
         this.outlineEnabledTypes = [
-            'palle'
+            'palle',
+            'bumper',
+            'repulse'
         ];
 
         this.updateOutlineObjects();
-        }
+    }
 
     // -----------------------------------------------------------
     // Activation / désactivation à chaud de chaque effet
@@ -105,11 +107,19 @@ export class PostProcessingManager {
     setFXAA(enabled) {
         if (this._fxaaPass) this._fxaaPass.enabled = enabled;
     }
-    
+
     setOutlineObject(object) {
         if (!this._outlinePass) return;
 
         this._outlinePass.selectedObjects = [object];
+    }
+
+    /**
+     * Déclenche un flash one-shot sur l'outline.
+     * Safe à appeler à haute fréquence : aucun setTimeout, simple reset de timer.
+     */
+    triggerImpactPulse() {
+        this._outlinePass.triggerImpactPulse();
     }
 
     updateOutlineObjects() {
@@ -133,10 +143,7 @@ export class PostProcessingManager {
     }
 
     enableOutlineFor(type) {
-
-        if (
-            !this.outlineEnabledTypes.includes(type)
-        ) {
+        if (!this.outlineEnabledTypes.includes(type)) {
             this.outlineEnabledTypes.push(type);
         }
 
@@ -144,7 +151,6 @@ export class PostProcessingManager {
     }
 
     disableOutlineFor(type) {
-
         this.outlineEnabledTypes =
             this.outlineEnabledTypes.filter(
                 current => current !== type
@@ -181,7 +187,13 @@ export class PostProcessingManager {
     // -----------------------------------------------------------
     // Rendu
     // -----------------------------------------------------------
-    render() {
+
+    /**
+     * @param {number} delta - Temps écoulé depuis la dernière frame (en secondes)
+     */
+    render(delta = 0) {
+        // Mise à jour de la décroissance du flash outline (basée sur le temps, pas sur setTimeout)
+        this._outlinePass?.updateImpactPulse?.(delta);
         this.composer.render();
     }
 }

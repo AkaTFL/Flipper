@@ -20,7 +20,8 @@ export class GamePhysics {
         this.rampTraversal = null;
         this.audioManager = AudioManager.getShared();
         this.controls = null;
-        this.scene = null;
+        this.scene = null;         // THREE.Scene — pour traverse(), add(), etc.
+        this.sceneManager = null;  // instance Scene.js — pour postProcessing, effectManager, etc.
         this.gameOver = false;
         this._ballLostReported = false;
         this.launchingRampVisible = true;
@@ -28,6 +29,7 @@ export class GamePhysics {
         this.ballRespawnedAfterBallLost = false;
         this.ballPassedAboveTriggerAfterRespawn = false;
         this.launchingRampHideTimeout = null;
+        this.activeSaveSlot = null;
     }
 
     async init() {
@@ -154,10 +156,15 @@ export class GamePhysics {
             this.lastBackendMessage = message;
             if (message?.type === 'score_update') {
                 this.lastScoreUpdate = message.payload ?? null;
-            } 
-            
+            }
+
             else if (message?.type === 'player_state_update') {
+                const wasGameOver = this.gameOver;
                 this.gameOver = Boolean(message.payload?.gameOver);
+                // Sauvegarde sur game over (transition uniquement)
+                if (this.gameOver && !wasGameOver) {
+                    this.autoSaveActiveSlot();
+                }
             }
 
             else if (message?.type === 'boss_state_update') {
@@ -176,6 +183,8 @@ export class GamePhysics {
 
                     if (previousLevel !== Config.currentLevel) {
                         this.applyLevelConfig();
+                        // Sauvegarde de checkpoint à chaque montée de niveau
+                        this.autoSaveActiveSlot();
                     }
                 }
             }
@@ -206,6 +215,54 @@ export class GamePhysics {
 
         this.backendSocket.send(JSON.stringify(message));
         return true;
+    }
+
+    // Numéro de niveau courant (1-4) dérivé de Config.currentLevel ('lvl_1'..'lvl_4', 'post_lvl')
+    currentLevelNumber() {
+        const parsed = Number(Config.currentLevel?.split('_')[1]);
+        if (!Number.isFinite(parsed) || parsed < 1) {
+            return 1;
+        }
+        return Math.min(4, parsed);
+    }
+
+    // Sauvegarde la partie courante dans le slot actif (avec son niveau)
+    autoSaveActiveSlot() {
+        if (!this.activeSaveSlot) {
+            return false;
+        }
+        return this.sendMessage('save_game', {
+            slot: this.activeSaveSlot,
+            level: this.currentLevelNumber()
+        });
+    }
+
+    // Résout quand la WebSocket backend est ouverte (ou au bout du timeout)
+    whenBackendReady(timeoutMs = 5000) {
+        return new Promise((resolve) => {
+            const socket = this.backendSocket;
+            const OPEN = globalThis.WebSocket?.OPEN ?? 1;
+
+            if (!socket) {
+                resolve(false);
+                return;
+            }
+            if (socket.readyState === OPEN) {
+                resolve(true);
+                return;
+            }
+
+            let settled = false;
+            const finish = (value) => {
+                if (!settled) {
+                    settled = true;
+                    resolve(value);
+                }
+            };
+
+            socket.addEventListener('open', () => finish(true), { once: true });
+            setTimeout(() => finish(socket.readyState === OPEN), timeoutMs);
+        });
     }
     //
     //
@@ -278,7 +335,7 @@ export class GamePhysics {
             }
 
             const exitZone = rampScoring.exitZone;
-            
+
             if (this.isPositionInsideZone(position, exitZone)) {
                 nextActiveRampZones.add(exitZone.id);
                 if (!this.activeRampZones.has(exitZone.id) && this.rampTraversal) {
@@ -353,6 +410,22 @@ export class GamePhysics {
         return true;
     }
 
+    resetState() {
+        this.gameOver = false;
+        this._ballLostReported = false;
+        this.holdLaunchingRampVisibleAfterBallLost = false;
+        this.ballRespawnedAfterBallLost = false;
+        this.ballPassedAboveTriggerAfterRespawn = false;
+        if (this.launchingRampHideTimeout) {
+            clearTimeout(this.launchingRampHideTimeout);
+            this.launchingRampHideTimeout = null;
+        }
+        this.activeScoreZones = new Set();
+        this.activeRampZones = new Set();
+        this.rampTraversal = null;
+        this.launchingRampVisible = true;
+    }
+
     findCollidingObjects(handle1, handle2) {
         return [...new Set([
             this.colliderOwners.get(handle1),
@@ -379,17 +452,8 @@ export class GamePhysics {
         }
     }
 
-    isBallDrainCollision(collidingObjects) {
-        const hasBall = collidingObjects.some((obj) => obj?.objectType === 'ball');
-        const hitDrain = collidingObjects.some((obj) => obj?.objectType === 'drain');
-
-        return hasBall && hitDrain;
-    }
-
     handleCollisionEvents(comboS) {
         this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
-            const responders = this.findCollisionResponders(handle1, handle2);
-
             if (!started) {
                 return;
             }
@@ -398,16 +462,17 @@ export class GamePhysics {
             const collidingObjects = this.findCollidingObjects(handle1, handle2);
             const collisionResponders = this.findCollisionResponders(handle1, handle2);
 
-            console.log({
-                handle1,
-                handle2,
-                started,
-                type1: typeof handle1,
-                type2: typeof handle2
-            });
+            console.log({ handle1, handle2, started });
 
-            if (this.isBallDrainCollision(collidingObjects)) {
+            // Détection drain : balle + mesh nommé 'drain'
+            const hasBall = collidingObjects.some((obj) => obj?.objectType === 'ball');
+            const hitDrain = collidingObjects.some(
+                (obj) => obj?.objectType === 'drain' || obj?.objectId === 'drain' || obj?.name === 'drain'
+            );
+
+            if (hasBall && hitDrain) {
                 this.triggerBallLost();
+                return;
             }
 
             for (const obj of collisionResponders) {
@@ -416,13 +481,21 @@ export class GamePhysics {
                 }
             }
 
+            // Flash outline uniquement sur les collisions bumper/repulse
+            const hasBumperOrRepulse = collidingObjects.some(
+                (obj) => obj?.objectType === 'bumper' || obj?.objectType === 'repulse'
+            );
+            if (hasBumperOrRepulse) {
+                // sceneManager (instance Scene.js) — pas this.scene (THREE.Scene)
+                this.sceneManager?.postProcessing?.triggerImpactPulse?.();
+            }
+
             for (const obj of collisionResponders) {
-                if (obj.objectType === 'bumper'  && typeof obj.applyBumperForce === 'function')
-                {
+                if (obj.objectType === 'bumper' && typeof obj.applyBumperForce === 'function') {
                     obj.applyBumperForce(handle1, handle2);
                 }
 
-                if (obj.objectType === 'repulse'  && typeof obj.applyRepulseForce === 'function') {
+                if (obj.objectType === 'repulse' && typeof obj.applyRepulseForce === 'function') {
                     obj.applyRepulseForce(handle1, handle2);
                 }
 
@@ -485,7 +558,7 @@ export class GamePhysics {
         if (!this.ball?.rigidBody) {
             return;
         }
-        
+
         const position = this.ball.rigidBody.translation();
         const triggerY = 15;
 
@@ -517,7 +590,7 @@ export class GamePhysics {
             return;
         }
 
-        if (position.y <= triggerY) {
+        if (this.controls?.impulseUsed && position.y <= triggerY) {
             if (this.launchingRampHideTimeout) {
                 clearTimeout(this.launchingRampHideTimeout);
             }
@@ -535,6 +608,7 @@ export class GamePhysics {
         const pos = this.ball.rigidBody.translation();
 
         if (pos.z < Config.global.positioning.drainZThreshold && pos.y < Config.global.positioning.drainYThreshold) {
+            console.warn('[GamePhysics] checkBallOutOfBounds : balle hors limites (fallback), drain collider non déclenché ?');
             this.triggerBallLost();
         }
     }

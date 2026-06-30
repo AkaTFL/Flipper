@@ -21,6 +21,8 @@ export class AudioManager {
         this.rollingInitialized = false;
         this.musicAudio = null;
         this.activeLoops = new Map();
+        this._lastPlayed = new Map();
+        this._dedupeMs = 80;
     }
 
     normalizeSoundConfig(sound) {
@@ -98,12 +100,28 @@ export class AudioManager {
     }
 
     playSound(sound, volumeOverride) {
+        const cfg = this.normalizeSoundConfig(sound);
+        if (!cfg?.file) return null;
+
+        if (cfg.loop) {
+            if (this.activeLoops.has(cfg.file)) {
+                return this.activeLoops.get(cfg.file);
+            }
+        } else {
+            const now = performance.now();
+            const last = this._lastPlayed.get(cfg.file) ?? -Infinity;
+            if (now - last < this._dedupeMs) {
+                return null;
+            }
+            this._lastPlayed.set(cfg.file, now);
+        }
+
         const created = this.createAudio(sound);
         if (!created) {
             return null;
         }
 
-        const { audio, cfg } = created;
+        const { audio } = created;
 
         if (volumeOverride !== undefined) {
             audio.volume = volumeOverride;

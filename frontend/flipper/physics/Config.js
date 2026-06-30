@@ -6,7 +6,7 @@ export default {
     global: {
         positioning: {
             drainZThreshold: -650,
-            drainYThreshold: 30,
+            drainYThreshold: 15,
 
             ball: {
                 density: 2.0,       // Densité
@@ -88,7 +88,7 @@ export default {
                         position: { x: -30, y: 10, z: 270 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
-                        objectId: 'bumper-4',
+                        objectId: 'bumper-5',
                         model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
 
@@ -99,7 +99,7 @@ export default {
                         position: { x: 240, y: 60, z: 317 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
-                        objectId: 'bumper-4',
+                        objectId: 'bumper-6',
                         model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
                     {
@@ -107,7 +107,7 @@ export default {
                         position: { x: 120, y: 60, z: 317 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
-                        objectId: 'bumper-5',
+                        objectId: 'bumper-7',
                         model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
                     {
@@ -115,7 +115,7 @@ export default {
                         position: { x: 180, y: 60, z: 217 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
-                        objectId: 'bumper-6',
+                        objectId: 'bumper-8',
                         model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
                     {
@@ -123,7 +123,7 @@ export default {
                         position: { x: 195, y: 60, z: 117 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
-                        objectId: 'bumper-7',
+                        objectId: 'bumper-9',
                         model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
                     {
@@ -131,7 +131,7 @@ export default {
                         position: { x: 250, y: 60, z: 157 },
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
-                        objectId: 'bumper-8',
+                        objectId: 'bumper-10',
                         model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
                     },
 
@@ -166,14 +166,14 @@ export default {
                         position: { x: 245, y: 10, z: -670 },
                         rotation: { x: 0, y: (Math.PI / 2), z: (Math.PI / 2) },
                         objectType: 'repulse',
-                        objectId: 'repulse-zone',
+                        objectId: 'repulse-zone-1',
                         model: '../assets/mesh/Repulse.glb'
                     },
                     {
                         width: 5,
                         height: 60,
                         length: 30,
-                        position: { x: -272, y: 10, z: -670 },
+                        position: { x: -265, y: 10, z: -670 },
                         rotation: { x: 0, y: (Math.PI / 2), z: (Math.PI / 2) },
                         objectType: 'repulse',
                         objectId: 'repulse-zone-2',
@@ -229,7 +229,7 @@ export default {
                     length: 200,
                     width: 80,
                     height: 400,
-                    position: { x: -160, y: 45, z: 150 },
+                    position: { x: -160, y: 43, z: 150 },
                     rotation: { x: 0, y: Math.PI, z: 0 },
                     objectType: 'ramp',
                     objectId: 'ramp-b',
@@ -308,7 +308,7 @@ export default {
                 },
                 {
                     model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${NiveauActuel}.glb`,
-                    objectId: 'murs-cible-left',
+                    objectId: 'murs-cible-left-2',
                     objectType: 'wall',
                     length: 50,
                     width: 50,
@@ -330,7 +330,7 @@ export default {
                 },
                 {
                     model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${NiveauActuel}.glb`,
-                    objectId: 'murs-cible-droit',
+                    objectId: 'murs-cible-droit-2',
                     objectType: 'wall',
                     length: 50,
                     width: 50,
@@ -571,8 +571,10 @@ export default {
             ]},
 
         bloom: 0x00ff00,
-        outline: 0x00ff00,
-        
+        outline: 0xffff00,
+        sparks: 0x00ff00,
+        outlineImpactColor: 0x00ff00,
+
         gravity: { x: 0, y: -9.75, z: -1.11 },
     },
     

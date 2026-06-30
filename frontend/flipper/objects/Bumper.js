@@ -23,7 +23,7 @@ export class Bumper extends Objects {
         this.height = width;
         this.position = position;
 
-        this.rampCollider = null;
+        this.bumpCollider = null;
 
         // Physics properties - Fixed (Static)
         this.createFixedRigidBody(position, rotation);
@@ -68,17 +68,14 @@ export class Bumper extends Objects {
                 const collider = this.attachCollider(desc);
 
                 if (child.name && child.name.toLowerCase().includes('bump')) {
-                    this.rampCollider = collider;
-
-                    console.log('BUMPER COLLIDER FOUND', collider.handle);
+                    this.bumpCollider = collider;
                 }
             });
 
         });
     }
 
-    applyBumperForce(handle1, handle2) {
-        
+    applyBumperForce(handle1, handle2) {  
         const otherHandle =
             this.collider.handle === handle1
                 ? handle2
@@ -100,6 +97,8 @@ export class Bumper extends Objects {
 
         // Bumper triangulaire
         if (this.objectId == 'bumper-triangle') {
+            const userData = this.collider.userData ?? this.collider.getUserData?.();
+            if (!userData || userData.name !== 'bump') return;
 
             otherBody.applyImpulse({
                 x: Config.global.positioning.bumper.instances.find(e => e.objectId === this.objectId)?.rotation.x * power,
