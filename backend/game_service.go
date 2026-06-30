@@ -23,7 +23,7 @@ func (gs *GameService) HandleMessage(msg Message, messageBytes []byte) ([]byte, 
 	case "ping":
 		return NewPongMessage(), true
 
-	case "flipper_action":
+	case "playfield_action":
 		gs.handleFlipperAction(messageBytes)
 		return nil, false
 
@@ -78,9 +78,9 @@ func (gs *GameService) handleButtonEvent(messageBytes []byte) {
 	gs.hub.broadcast <- messageBytes
 }
 
-// handleFlipperAction traite les actions flipper (broadcast uniquement)
+// handleFlipperAction traite les actions playfield (broadcast uniquement)
 func (gs *GameService) handleFlipperAction(messageBytes []byte) {
-	log.Printf("Action flipper reçue: %s", string(messageBytes))
+	log.Printf("Action playfield reçue: %s", string(messageBytes))
 	gs.hub.broadcast <- messageBytes
 }
 

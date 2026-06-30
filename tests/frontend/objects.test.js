@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-import Config from '../../frontend/flipper/physics/Config.js';
-import { Bumper } from '../../frontend/flipper/objects/Bumper.js';
-import { LaunchingRamp } from '../../frontend/flipper/objects/LaunchingRamp.js';
-import { Palles } from '../../frontend/flipper/objects/Palles.js';
-import { Repulse } from '../../frontend/flipper/objects/Repulse.js';
-import { StaticMesh } from '../../frontend/flipper/objects/StaticMesh.js';
-import { Wall } from '../../frontend/flipper/objects/Wall.js';
+import Config from '../../frontend/playfield/physics/Config.js';
+import { Bumper } from '../../frontend/playfield/objects/Bumper.js';
+import { LaunchingRamp } from '../../frontend/playfield/objects/LaunchingRamp.js';
+import { Palles } from '../../frontend/playfield/objects/Palles.js';
+import { Repulse } from '../../frontend/playfield/objects/Repulse.js';
+import { StaticMesh } from '../../frontend/playfield/objects/StaticMesh.js';
+import { Wall } from '../../frontend/playfield/objects/Wall.js';
 
 if (typeof globalThis.Audio !== 'function') {
   globalThis.Audio = class {

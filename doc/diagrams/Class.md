@@ -53,7 +53,7 @@ classDiagram
   namespace ThreeJS {
     class PlayfieldScene {
       ball
-      flippers
+      playfields
       obstacles
       updatePhysics()
     }

@@ -8,10 +8,10 @@ func TestClassifyMQTTMessage(t *testing.T) {
 		topic string
 		want  string
 	}{
-		{name: "tilt warning", topic: "flipper/sensor/tilt/warning", want: "tilt_warning"},
-		{name: "tilt triggered", topic: "flipper/sensor/tilt/triggered", want: "tilt_triggered"},
-		{name: "debug topic", topic: "flipper/debug/ping", want: "mqtt_debug"},
-		{name: "other topic", topic: "flipper/solenoid/back_left", want: "mqtt_event"},
+		{name: "tilt warning", topic: "playfield/sensor/tilt/warning", want: "tilt_warning"},
+		{name: "tilt triggered", topic: "playfield/sensor/tilt/triggered", want: "tilt_triggered"},
+		{name: "debug topic", topic: "playfield/debug/ping", want: "mqtt_debug"},
+		{name: "other topic", topic: "playfield/solenoid/back_left", want: "mqtt_event"},
 	}
 
 	for _, tc := range tests {
@@ -39,9 +39,9 @@ func TestImpactToSolenoidTopic(t *testing.T) {
 			wantOK: true,
 		},
 		{
-			name:   "left flipper",
+			name:   "left playfield",
 			impact: ImpactPayload{ObjectID: "palle-left", ObjectType: "palle"},
-			want:   "flipper_left",
+			want:   "playfield_left",
 			wantOK: true,
 		},
 		{

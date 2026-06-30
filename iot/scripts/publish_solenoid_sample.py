@@ -9,7 +9,7 @@ import paho.mqtt.client as mqtt
 
 # Payload minimal aligné doc/Hardware_Architecture.md
 SOLENOID_SAMPLE = {
-    "topic": "flipper/solenoid/back_left",
+    "topic": "playfield/solenoid/back_left",
     "payload": {"action": "activate", "duration_ms": 50},
 }
 
@@ -22,7 +22,7 @@ def main() -> int:
     args = p.parse_args()
 
     body = json.dumps(SOLENOID_SAMPLE["payload"], separators=(",", ":"))
-    client = mqtt.Client(client_id="flipper_pub_solenoid", protocol=mqtt.MQTTv311)
+    client = mqtt.Client(client_id="playfield_pub_solenoid", protocol=mqtt.MQTTv311)
     try:
         client.connect(args.host, args.port, keepalive=10)
         client.loop_start()

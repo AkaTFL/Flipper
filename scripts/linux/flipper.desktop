@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=Flipper
-Comment=Lance automatiquement le flipper physique
-Exec=/usr/bin/env FLIPPER_MANAGED_KIOSK=1 FLIPPER_BUTTON_SOURCE=esp32 /opt/flipper/scripts/linux/start_flipper.sh
+Comment=Lance automatiquement le playfield physique
+Exec=/usr/bin/env FLIPPER_MANAGED_KIOSK=1 FLIPPER_BUTTON_SOURCE=esp32 /opt/playfield/scripts/linux/start_playfield.sh
 Terminal=false
 X-GNOME-Autostart-enabled=true

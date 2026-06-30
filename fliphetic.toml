@@ -1,5 +1,5 @@
 [app]
-id          = "akatfl-flipper"
+id          = "akatfl-playfield"
 name        = "Flipper AkaTFL"
 authors     = ["AkaTFL"]
 description = "Flipper virtuel avec Playfield, Backglass, DMD et contrôleur ESP32."

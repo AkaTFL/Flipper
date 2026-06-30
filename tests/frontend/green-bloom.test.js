@@ -7,8 +7,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '../../');
-const effectPath = path.join(projectRoot, 'frontend', 'flipper', 'effects', 'GreenBloomEffect.js');
-const manualTestPath = path.join(projectRoot, 'frontend', 'flipper', 'effects', 'GreenBloomTest.js');
+const effectPath = path.join(projectRoot, 'frontend', 'playfield', 'effects', 'GreenBloomEffect.js');
+const manualTestPath = path.join(projectRoot, 'frontend', 'playfield', 'effects', 'GreenBloomTest.js');
 
 const effectSource = await readFile(effectPath, 'utf8');
 const manualTestSource = await readFile(manualTestPath, 'utf8');

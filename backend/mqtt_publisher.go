@@ -10,8 +10,8 @@ import (
 var impactToSolenoidTopic = map[string]string{
 	"bumper-1":    "back_center",
 	"bumper-2":    "back_right",
-	"palle-left":  "flipper_left",
-	"palle-right": "flipper_right",
+	"palle-left":  "playfield_left",
+	"palle-right": "playfield_right",
 }
 
 type SolenoidCommand struct {
@@ -41,7 +41,7 @@ func (b *MQTTBridge) PublishImpact(impact ImpactPayload) bool {
 		Timestamp:  time.Now().UnixMilli(),
 	}
 
-	return b.publishJSON(fmt.Sprintf("flipper/solenoid/%s", topicID), b.config.SolenoidQoS, payload)
+	return b.publishJSON(fmt.Sprintf("playfield/solenoid/%s", topicID), b.config.SolenoidQoS, payload)
 }
 
 func (b *MQTTBridge) topicForImpact(impact ImpactPayload) (string, bool) {
@@ -53,10 +53,10 @@ func (b *MQTTBridge) topicForImpact(impact ImpactPayload) (string, bool) {
 	case "palle":
 		lowerObjectID := strings.ToLower(impact.ObjectID)
 		if strings.Contains(lowerObjectID, "left") {
-			return "flipper_left", true
+			return "playfield_left", true
 		}
 		if strings.Contains(lowerObjectID, "right") {
-			return "flipper_right", true
+			return "playfield_right", true
 		}
 	case "bumper":
 		return "back_center", true

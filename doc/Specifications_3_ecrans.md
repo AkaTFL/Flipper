@@ -1,8 +1,8 @@
-# Spécifications des 3 écrans du flipper
+# Spécifications des 3 écrans du playfield
 
 ## Contexte
 
-Ce document regroupe les spécifications techniques observées sur les écrans de debug du flipper physique.
+Ce document regroupe les spécifications techniques observées sur les écrans de debug du playfield physique.
 
 Le projet utilise trois écrans distincts :
 
@@ -41,7 +41,7 @@ Browser     : Chrome 148
 BACKGLASS
 ```
 
-Le Backglass correspond à l'écran supérieur principal du flipper.
+Le Backglass correspond à l'écran supérieur principal du playfield.
 
 Il est destiné à afficher les éléments visuels importants liés à l'univers du jeu, par exemple :
 
@@ -65,7 +65,7 @@ Kiosk src   : localhost:32789/?screen=backglass
 
 L'affichage doit être pensé en format paysage `16:9`.
 
-Le contenu important ne doit pas être collé aux bords, car l'écran est intégré dans le meuble du flipper et peut avoir des zones visuellement moins confortables près du cadre.
+Le contenu important ne doit pas être collé aux bords, car l'écran est intégré dans le meuble du playfield et peut avoir des zones visuellement moins confortables près du cadre.
 
 ## Écran DMD
 
@@ -141,9 +141,9 @@ La taille des trois lignes doit s'adapter automatiquement à la quantité de car
 PLAYFIELD
 ```
 
-Le Playfield correspond à l'écran principal incliné du flipper.
+Le Playfield correspond à l'écran principal incliné du playfield.
 
-C'est l'écran sur lequel le joueur voit le plateau de jeu, la bille, les flippers, les bumpers, les rampes et les zones d'impact.
+C'est l'écran sur lequel le joueur voit le plateau de jeu, la bille, les playfields, les bumpers, les rampes et les zones d'impact.
 
 ### Spécifications observées
 
@@ -176,7 +176,7 @@ Les informations de HUD doivent être limitées sur cet écran pour ne pas cache
 |---|---|
 | Backglass | Boss, quêtes, HP joueur, ambiance et animations narratives |
 | DMD | Score, points gagnés, combos, multiplicateur et balles |
-| Playfield | Plateau jouable, bille, flippers, bumpers, rampes, targets, portails |
+| Playfield | Plateau jouable, bille, playfields, bumpers, rampes, targets, portails |
 
 ## URLs locales observées
 

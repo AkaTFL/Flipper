@@ -3,7 +3,7 @@
 Ce dossier regroupe ce qui peut être fait **sans matériel physique** : broker, conventions de topics, tests et monitoring. La limite roadmap est la **semaine 9** (mapping GPIO) — voir l’annexe en fin de `doc/Roadmap.md`.
 
 Le mapping commun entre les boutons physiques et le clavier est documenté dans
-[`doc/Controles_flipper.md`](../doc/Controles_flipper.md).
+[`doc/Controles_playfield.md`](../doc/Controles_playfield.md).
 
 ## Prérequis
 
@@ -26,8 +26,8 @@ Arrêt : `docker compose down`.
 Sur macOS avec Python Homebrew, utilise plutôt un environnement virtuel :
 
 ```bash
-python3 -m venv /tmp/flipper-esp32-venv
-source /tmp/flipper-esp32-venv/bin/activate
+python3 -m venv /tmp/playfield-esp32-venv
+source /tmp/playfield-esp32-venv/bin/activate
 pip install -r iot/scripts/requirements.txt
 ```
 
@@ -42,7 +42,7 @@ pip install -r iot\scripts\requirements.txt
 | Script | Rôle |
 |--------|------|
 | `publish_hello.py` | Publication minimale (semaine 1) |
-| `fake_esp32_publisher.py` | Simule l’ESP32 tilt + écoute `flipper/solenoid/#` (semaine 2) |
+| `fake_esp32_publisher.py` | Simule l’ESP32 tilt + écoute `playfield/solenoid/#` (semaine 2) |
 | `qos_benchmark.py` | Comparaison débit QoS 0 / 1 / 2 (semaine 5) |
 | `stability_run.py` | Charge et taux de perte (semaines 4 & 8) |
 | `monitor_sys.py` | Topics `$SYS` Mosquitto (semaine 7) |
@@ -76,7 +76,7 @@ Le daemon peut détecter automatiquement le port de l'ESP32 :
 python iot/scripts/esp32_button_daemon.py --auto-port --clavier
 ```
 
-Pour le lancement automatique sur la machine Linux du flipper, voir :
+Pour le lancement automatique sur la machine Linux du playfield, voir :
 
 ```text
 doc/Linux_Launcher_Flipper.md

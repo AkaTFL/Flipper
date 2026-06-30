@@ -84,23 +84,23 @@ Kubernetes est maintenant intégré et opérationnel en local.
 
 #### 1. Créer le cluster (une fois)
 ```bash
-kind create cluster --name flipper --image kindest/node:v1.32.5
+kind create cluster --name playfield --image kindest/node:v1.32.5
 ```
 
 #### 2. Construire les images locales
 ```bash
-docker build -t flipper-backend:local backend
-docker build -t flipper-frontend:local frontend/flipper
-docker build -t flipper-iot:local iot
-docker build -t flipper-dmd:local frontend/dmd
+docker build -t playfield-backend:local backend
+docker build -t playfield-frontend:local frontend/playfield
+docker build -t playfield-iot:local iot
+docker build -t playfield-dmd:local frontend/dmd
 ```
 
 #### 3. Charger les images dans kind
 ```bash
-kind load docker-image flipper-backend:local --name flipper
-kind load docker-image flipper-frontend:local --name flipper
-kind load docker-image flipper-iot:local --name flipper
-kind load docker-image flipper-dmd:local --name flipper
+kind load docker-image playfield-backend:local --name playfield
+kind load docker-image playfield-frontend:local --name playfield
+kind load docker-image playfield-iot:local --name playfield
+kind load docker-image playfield-dmd:local --name playfield
 ```
 
 #### 4. Déployer l'application complète
@@ -109,7 +109,7 @@ kubectl apply -k k8s
 ```
 
 Cela crée :
-- **namespace** `flipper`
+- **namespace** `playfield`
 - **backend deployment** (1 replica, health probes HTTP GET `/health`)
 - **frontend deployment** (1 replica, exposed via NodePort 30080)
 - **iot deployment** (1 replica, Mosquitto MQTT)
@@ -119,9 +119,9 @@ Cela crée :
 
 #### 5. Vérifier le statut
 ```bash
-kubectl get pods -n flipper
-kubectl get deploy -n flipper
-kubectl get svc -n flipper
+kubectl get pods -n playfield
+kubectl get deploy -n playfield
+kubectl get svc -n playfield
 ```
 
 Tous les pods doivent être `Running 1/1 Ready`.
@@ -129,7 +129,7 @@ Tous les pods doivent être `Running 1/1 Ready`.
 #### 6. Accéder au frontend
 Option A (port-forward) :
 ```bash
-kubectl port-forward -n flipper svc/frontend-service 8088:80
+kubectl port-forward -n playfield svc/frontend-service 8088:80
 # Puis : http://localhost:8088
 ```
 
@@ -142,7 +142,7 @@ Option B (NodePort direct) :
 #### Accéder au DMD
 Option A (port-forward) :
 ```bash
-kubectl port-forward -n flipper svc/dmd-service 8089:80
+kubectl port-forward -n playfield svc/dmd-service 8089:80
 # Puis : http://localhost:8089
 ```
 
@@ -157,32 +157,32 @@ Option B (NodePort direct) :
 #### Auto-healing (Résilience)
 ```bash
 # Supprimer un pod
-kubectl delete pod <pod-name> -n flipper
+kubectl delete pod <pod-name> -n playfield
 # Kubernetes le recrée automatiquement en quelques secondes
 ```
 
 #### Scaling horizontal
 ```bash
 # Augmenter à 3 replicas
-kubectl scale deployment backend-deployment -n flipper --replicas=3
+kubectl scale deployment backend-deployment -n playfield --replicas=3
 
 # Vérifier les 3 pods
-kubectl get pods -n flipper -l app=backend -o wide
+kubectl get pods -n playfield -l app=backend -o wide
 ```
 
 #### Service Discovery (DNS interne)
 Les pods peuvent communiquer entre eux via DNS interne :
 ```bash
 # Depuis un pod backend, joindre iot-service
-kubectl exec <backend-pod> -n flipper -- nslookup iot-service
-# Résultat : Name: iot-service.flipper.svc.cluster.local
+kubectl exec <backend-pod> -n playfield -- nslookup iot-service
+# Résultat : Name: iot-service.playfield.svc.cluster.local
 ```
 
 #### Health Probes
 Chaque déploiement dispose de probes de liveness et readiness :
 ```bash
 # Vérifier les probes
-kubectl describe pod <pod-name> -n flipper
+kubectl describe pod <pod-name> -n playfield
 # Affiche : Liveness HTTP GET /health (delay 10s, period 10s)
 #          Readiness HTTP GET /health (delay 5s, period 5s)
 ```
@@ -197,14 +197,14 @@ kubectl delete -k k8s
 
 Détruire le cluster entièrement :
 ```bash
-kind delete cluster --name flipper
+kind delete cluster --name playfield
 ```
 
 ### Structure Kubernetes du projet
 
 ```
 k8s/
-├── namespace.yaml          # Namespace flipper
+├── namespace.yaml          # Namespace playfield
 ├── backend.yaml            # Backend deployment + service
 ├── frontend.yaml           # Frontend deployment + service NodePort
 ├── iot.yaml                # IoT deployment (Mosquitto) + service
@@ -218,7 +218,7 @@ kubectl apply -k k8s
 ```
 
 ### Changements depuis la version Docker-only
-- Images dockers taggées `flipper-*:local` pour Kubernetes
+- Images dockers taggées `playfield-*:local` pour Kubernetes
 - Probes de santé HTTP intégrées (backend et readiness)
 - Communication inter-pod via DNS Kubernetes (backend → iot-service)
 - NodePort frontend pour accès externe (30080)

@@ -10,7 +10,7 @@ if (typeof globalThis.Audio !== 'function') {
   };
 }
 
-import { Controls } from '../../frontend/flipper/core/Controls.js';
+import { Controls } from '../../frontend/playfield/core/Controls.js';
 
 function createWindowStub() {
   const listeners = new Map();
@@ -101,7 +101,7 @@ test('Controls triggers player damage and ball lost callbacks on debug keys', ()
   globalThis.window = previousWindow;
 });
 
-test('Controls accepts two keys for each flipper and preserves simultaneous presses', () => {
+test('Controls accepts two keys for each playfield and preserves simultaneous presses', () => {
   const previousWindow = globalThis.window;
   const windowStub = createWindowStub();
   globalThis.window = windowStub;

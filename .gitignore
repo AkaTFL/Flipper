@@ -1,5 +1,5 @@
 node_modules
-backend/flipper-backend.exe
+backend/playfield-backend.exe
 doc/issues
 .env
 .env.*
@@ -7,5 +7,5 @@ doc/issues
 .DS_Store
 __pycache__/
 *.pyc
-.venv-flipper/
+.venv-playfield/
 firmware/.pio/

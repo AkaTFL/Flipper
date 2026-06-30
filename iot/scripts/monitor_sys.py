@@ -38,7 +38,7 @@ def main() -> int:
                 val = repr(msg.payload)
             print(f"{msg.topic} = {val}")
 
-    client = mqtt.Client(client_id=f"flipper_monitor_{int(time.time())}", protocol=mqtt.MQTTv311)
+    client = mqtt.Client(client_id=f"playfield_monitor_{int(time.time())}", protocol=mqtt.MQTTv311)
     client.on_connect = on_connect
     client.on_message = on_message
     try:

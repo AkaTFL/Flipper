@@ -1,7 +1,7 @@
 services:
   mosquitto:
     image: eclipse-mosquitto:2
-    container_name: flipper-mosquitto
+    container_name: playfield-mosquitto
     ports:
       - "1883:1883"
     volumes:

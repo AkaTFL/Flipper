@@ -199,15 +199,15 @@ func TestWebSocketBroadcastsFlipperActionsToOtherClients(t *testing.T) {
 	_ = readMessageType(t, secondConn)
 
 	if err := firstConn.WriteJSON(Message{
-		Type:    "flipper_action",
+		Type:    "playfield_action",
 		Payload: json.RawMessage(`{"side":"left","active":true}`),
 	}); err != nil {
-		t.Fatalf("failed to send flipper action: %v", err)
+		t.Fatalf("failed to send playfield action: %v", err)
 	}
 
 	broadcast := readMessageType(t, secondConn)
-	if broadcast.Type != "flipper_action" {
-		t.Fatalf("expected flipper_action broadcast, got %s", broadcast.Type)
+	if broadcast.Type != "playfield_action" {
+		t.Fatalf("expected playfield_action broadcast, got %s", broadcast.Type)
 	}
 }
 

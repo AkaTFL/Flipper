@@ -1,11 +1,11 @@
 {
   "version": "1.0",
   "description": "Registre MQTT Flipper — aligné sur doc/Hardware_Architecture.md",
-  "root_prefix": "flipper",
+  "root_prefix": "playfield",
   "payload_encoding": "utf-8-json",
   "topics": {
     "solenoid": {
-      "pattern": "flipper/solenoid/{id}",
+      "pattern": "playfield/solenoid/{id}",
       "ids": [
         "back_left",
         "back_center",
@@ -15,8 +15,8 @@
         "middle_right",
         "sling_left",
         "sling_right",
-        "flipper_left",
-        "flipper_right"
+        "playfield_left",
+        "playfield_right"
       ],
       "direction": "server_to_esp32",
       "default_qos": 1,
@@ -24,40 +24,40 @@
     },
     "sensor_tilt": {
       "warning": {
-        "topic": "flipper/sensor/tilt/warning",
+        "topic": "playfield/sensor/tilt/warning",
         "direction": "esp32_to_server",
         "default_qos": 1,
         "example_payload": {"level": 1, "acceleration": 1.8}
       },
       "triggered": {
-        "topic": "flipper/sensor/tilt/triggered",
+        "topic": "playfield/sensor/tilt/triggered",
         "direction": "esp32_to_server",
         "default_qos": 1,
         "example_payload": {"level": 3, "status": "TILT"}
       }
     },
     "led": {
-      "all": {"topic": "flipper/led/all", "direction": "server_to_esp32", "default_qos": 0},
-      "flash": {"topic": "flipper/led/flash", "direction": "server_to_esp32", "default_qos": 0}
+      "all": {"topic": "playfield/led/all", "direction": "server_to_esp32", "default_qos": 0},
+      "flash": {"topic": "playfield/led/flash", "direction": "server_to_esp32", "default_qos": 0}
     },
     "debug": {
-      "ping": {"topic": "flipper/debug/ping", "direction": "bidirectional_test", "default_qos": 0}
+      "ping": {"topic": "playfield/debug/ping", "direction": "bidirectional_test", "default_qos": 0}
     }
   },
   "wildcards_backend_subscribe": [
-    "flipper/sensor/#",
-    "flipper/debug/#"
+    "playfield/sensor/#",
+    "playfield/debug/#"
   ],
   "wildcards_esp32_subscribe": {
     "esp32_solenoid_group1": [
-      "flipper/solenoid/back_+",
-      "flipper/solenoid/middle_left",
-      "flipper/solenoid/middle_center"
+      "playfield/solenoid/back_+",
+      "playfield/solenoid/middle_left",
+      "playfield/solenoid/middle_center"
     ],
     "esp32_solenoid_group2": [
-      "flipper/solenoid/middle_right",
-      "flipper/solenoid/sling_+",
-      "flipper/solenoid/flipper_+"
+      "playfield/solenoid/middle_right",
+      "playfield/solenoid/sling_+",
+      "playfield/solenoid/playfield_+"
     ]
   }
 }

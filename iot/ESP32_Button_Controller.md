@@ -67,8 +67,8 @@ Il fonctionne sur macOS, Windows et Linux avec Python.
 Installation macOS / Linux :
 
 ```bash
-python3 -m venv /tmp/flipper-esp32-venv
-source /tmp/flipper-esp32-venv/bin/activate
+python3 -m venv /tmp/playfield-esp32-venv
+source /tmp/playfield-esp32-venv/bin/activate
 pip install -r iot/scripts/requirements.txt
 ```
 

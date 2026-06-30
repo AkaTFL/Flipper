@@ -75,11 +75,11 @@ jobs:
           kubectl apply -f k8s/
 
           # Aligne les images réellement déployées sur le commit courant
-          kubectl -n flipper set image deployment/backend-deployment backend=ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
-          kubectl -n flipper set image deployment/frontend-deployment frontend=ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
-          kubectl -n flipper set image deployment/iot-deployment mosquitto=ghcr.io/${{ github.repository }}/iot:${{ github.sha }}
+          kubectl -n playfield set image deployment/backend-deployment backend=ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
+          kubectl -n playfield set image deployment/frontend-deployment frontend=ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
+          kubectl -n playfield set image deployment/iot-deployment mosquitto=ghcr.io/${{ github.repository }}/iot:${{ github.sha }}
 
           # Attendre un rollout sain pour échouer tôt en cas de problème
-          kubectl -n flipper rollout status deployment/backend-deployment --timeout=180s
-          kubectl -n flipper rollout status deployment/frontend-deployment --timeout=180s
-          kubectl -n flipper rollout status deployment/iot-deployment --timeout=180s
+          kubectl -n playfield rollout status deployment/backend-deployment --timeout=180s
+          kubectl -n playfield rollout status deployment/frontend-deployment --timeout=180s
+          kubectl -n playfield rollout status deployment/iot-deployment --timeout=180s

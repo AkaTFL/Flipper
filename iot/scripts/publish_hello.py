@@ -9,14 +9,14 @@ import paho.mqtt.client as mqtt
 
 
 def main() -> int:
-    p = argparse.ArgumentParser(description="Publication simple flipper/debug/ping")
+    p = argparse.ArgumentParser(description="Publication simple playfield/debug/ping")
     p.add_argument("--host", default="127.0.0.1")
     p.add_argument("--port", type=int, default=1883)
-    p.add_argument("--topic", default="flipper/debug/ping")
+    p.add_argument("--topic", default="playfield/debug/ping")
     args = p.parse_args()
 
     payload = json.dumps({"ts": time.time(), "source": "publish_hello.py"})
-    client = mqtt.Client(client_id="flipper_pub_hello", protocol=mqtt.MQTTv311)
+    client = mqtt.Client(client_id="playfield_pub_hello", protocol=mqtt.MQTTv311)
     try:
         client.connect(args.host, args.port, keepalive=10)
         client.loop_start()

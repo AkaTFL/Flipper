@@ -2,8 +2,8 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-LOG_DIR="$ROOT_DIR/.flipper-run"
-VENV_DIR="$ROOT_DIR/.venv-flipper"
+LOG_DIR="$ROOT_DIR/.playfield-run"
+VENV_DIR="$ROOT_DIR/.venv-playfield"
 DAEMON_PID_FILE="$LOG_DIR/esp32_button_daemon.pid"
 FRONTEND_URL="${FLIPPER_FRONTEND_URL:-http://localhost:3001}"
 BUTTON_SOURCE="${FLIPPER_BUTTON_SOURCE:-auto}"
@@ -14,7 +14,7 @@ mkdir -p "$LOG_DIR"
 cd "$ROOT_DIR"
 
 if ! command -v docker >/dev/null 2>&1; then
-  echo "Docker est introuvable. Installe Docker avant de lancer le flipper."
+  echo "Docker est introuvable. Installe Docker avant de lancer le playfield."
   exit 1
 fi
 
@@ -55,7 +55,7 @@ echo "Démarrage des services Docker..."
 echo "Vérification des services..."
 SERVICES_READY=0
 for _ in $(seq 1 30); do
-  BACKEND_HEALTH="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' flipper-backend 2>/dev/null || true)"
+  BACKEND_HEALTH="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' playfield-backend 2>/dev/null || true)"
   if [ "$BACKEND_HEALTH" = "healthy" ]; then
     SERVICES_READY=1
     break

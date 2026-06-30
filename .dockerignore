@@ -1,7 +1,7 @@
 .git
 .github
-.flipper-run
-.venv-flipper
+.playfield-run
+.venv-playfield
 backend
 doc
 firmware

@@ -69,7 +69,7 @@ Même si MQTT est léger, un mauvais choix de QoS peut :
 
 ---
 
-#### Disponibilité limitée du flipper physique
+#### Disponibilité limitée du playfield physique
 
 Le matériel réel ne sera accessible que certains jours.
 Un problème d’intégration découvert tardivement pourrait compromettre la soutenance.

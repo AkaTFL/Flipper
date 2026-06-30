@@ -7,7 +7,7 @@
 
 ## Vue d'ensemble
 
-**Ce qu'on construit :** Un flipper virtuel taille réelle avec contrôles physiques, retour haptique (10 solénoïdes) et affichage sur 3 écrans (Playfield, Backglass, DMD).
+**Ce qu'on construit :** Un playfield virtuel taille réelle avec contrôles physiques, retour haptique (10 solénoïdes) et affichage sur 3 écrans (Playfield, Backglass, DMD).
 
 **3 dispositifs IoT :**
 
@@ -19,7 +19,7 @@
 **Flux de données :**
 
 1. Joueur appuie sur un bouton physique → **ESP32 Contrôleur** envoie l'état via **USB série** au PC → daemon convertit en frappe clavier
-2. **Playfield** (Three.js) lit l'entrée clavier et anime le flipper / lance la bille
+2. **Playfield** (Three.js) lit l'entrée clavier et anime le playfield / lance la bille
 3. Collision détectée dans le jeu → événement envoyé au **Serveur** via WebSocket
 4. Serveur met à jour le score → envoie aux **3 écrans** (Backglass, DMD, Playfield)
 5. Serveur publie un message MQTT → **ESP32 Solénoïdes** activent le relais correspondant → **CLAC !**
@@ -80,7 +80,7 @@
 
 ## Stratégie de communication — Approche hybride
 
-Le choix du type de branchement est dicté par la **contrainte de latence** : un flipper est un jeu de réflexes où chaque milliseconde compte sur les boutons.
+Le choix du type de branchement est dicté par la **contrainte de latence** : un playfield est un jeu de réflexes où chaque milliseconde compte sur les boutons.
 
 ### Comparaison des latences
 
@@ -139,7 +139,7 @@ PLG:0.00     → Tirette relâchée
 
 ### Principe
 
-Les solénoïdes reproduisent le "clac" mécanique d'un vrai flipper. Quand le jeu détecte une collision (bille sur bumper, activation de flipper), le serveur envoie un message MQTT à l'ESP32 correspondant qui active un relais pendant ~50ms, déclenchant le solénoïde.
+Les solénoïdes reproduisent le "clac" mécanique d'un vrai playfield. Quand le jeu détecte une collision (bille sur bumper, activation de playfield), le serveur envoie un message MQTT à l'ESP32 correspondant qui active un relais pendant ~50ms, déclenchant le solénoïde.
 
 ### Répartition des 10 solénoïdes sur la table
 
@@ -292,11 +292,11 @@ Le MPU-6050 communique en **I2C** avec l'ESP32 (2 fils seulement). Les événeme
 
 | GPIO | Relais | Solénoïde | Topic MQTT |
 |------|--------|-----------|------------|
-| 12 | REL1 | Back Left | `flipper/solenoid/back_left` |
-| 13 | REL2 | Back Center | `flipper/solenoid/back_center` |
-| 14 | REL3 | Back Right | `flipper/solenoid/back_right` |
-| 15 | REL4 | Middle Left | `flipper/solenoid/middle_left` |
-| 16 | REL5 | Middle Center | `flipper/solenoid/middle_center` |
+| 12 | REL1 | Back Left | `playfield/solenoid/back_left` |
+| 13 | REL2 | Back Center | `playfield/solenoid/back_center` |
+| 14 | REL3 | Back Right | `playfield/solenoid/back_right` |
+| 15 | REL4 | Middle Left | `playfield/solenoid/middle_left` |
+| 16 | REL5 | Middle Center | `playfield/solenoid/middle_center` |
 
 ---
 
@@ -336,11 +336,11 @@ Le MPU-6050 communique en **I2C** avec l'ESP32 (2 fils seulement). Les événeme
 
 | GPIO | Relais | Solénoïde | Topic MQTT |
 |------|--------|-----------|------------|
-| 12 | REL1 | Middle Right | `flipper/solenoid/middle_right` |
-| 13 | REL2 | Left Slingshot | `flipper/solenoid/sling_left` |
-| 14 | REL3 | Right Slingshot | `flipper/solenoid/sling_right` |
-| 15 | REL4 | Left Flipper | `flipper/solenoid/flipper_left` |
-| 16 | REL5 | Right Flipper | `flipper/solenoid/flipper_right` |
+| 12 | REL1 | Middle Right | `playfield/solenoid/middle_right` |
+| 13 | REL2 | Left Slingshot | `playfield/solenoid/sling_left` |
+| 14 | REL3 | Right Slingshot | `playfield/solenoid/sling_right` |
+| 15 | REL4 | Left Flipper | `playfield/solenoid/playfield_left` |
+| 16 | REL5 | Right Flipper | `playfield/solenoid/playfield_right` |
 
 ---
 
@@ -382,7 +382,7 @@ Le MPU-6050 communique en **I2C** avec l'ESP32 (2 fils seulement). Les événeme
   │  Latence : 1-4 ms            │
   │                               │
   │  Wi-Fi ~~~~~~~~~~~~~~~~~~~~~~~│~~~~~~~~► Serveur MQTT
-  │  (événements tilt)            │         (flipper/sensor/tilt/*)
+  │  (événements tilt)            │         (playfield/sensor/tilt/*)
   │  Latence : 15-50 ms          │
   └───────────────────────────────┘
 
@@ -492,35 +492,35 @@ Le serveur publie sur ces topics quand un événement de jeu nécessite un retou
 
 | Topic | Solénoïde | ESP32 |
 |-------|-----------|-------|
-| `flipper/solenoid/back_left` | Back Left | #1 |
-| `flipper/solenoid/back_center` | Back Center | #1 |
-| `flipper/solenoid/back_right` | Back Right | #1 |
-| `flipper/solenoid/middle_left` | Middle Left | #1 |
-| `flipper/solenoid/middle_center` | Middle Center | #1 |
-| `flipper/solenoid/middle_right` | Middle Right | #2 |
-| `flipper/solenoid/sling_left` | Left Slingshot | #2 |
-| `flipper/solenoid/sling_right` | Right Slingshot | #2 |
-| `flipper/solenoid/flipper_left` | Left Flipper | #2 |
-| `flipper/solenoid/flipper_right` | Right Flipper | #2 |
+| `playfield/solenoid/back_left` | Back Left | #1 |
+| `playfield/solenoid/back_center` | Back Center | #1 |
+| `playfield/solenoid/back_right` | Back Right | #1 |
+| `playfield/solenoid/middle_left` | Middle Left | #1 |
+| `playfield/solenoid/middle_center` | Middle Center | #1 |
+| `playfield/solenoid/middle_right` | Middle Right | #2 |
+| `playfield/solenoid/sling_left` | Left Slingshot | #2 |
+| `playfield/solenoid/sling_right` | Right Slingshot | #2 |
+| `playfield/solenoid/playfield_left` | Left Flipper | #2 |
+| `playfield/solenoid/playfield_right` | Right Flipper | #2 |
 
 **Payload :** `{"action": "activate", "duration_ms": 50}`
 
-**Souscription ESP32 #1 :** `flipper/solenoid/back_+`, `flipper/solenoid/middle_left`, `flipper/solenoid/middle_center`  
-**Souscription ESP32 #2 :** `flipper/solenoid/middle_right`, `flipper/solenoid/sling_+`, `flipper/solenoid/flipper_+`
+**Souscription ESP32 #1 :** `playfield/solenoid/back_+`, `playfield/solenoid/middle_left`, `playfield/solenoid/middle_center`  
+**Souscription ESP32 #2 :** `playfield/solenoid/middle_right`, `playfield/solenoid/sling_+`, `playfield/solenoid/playfield_+`
 
 ### Tilt (ESP32 #3 → Serveur, via Wi-Fi MQTT)
 
 | Topic | Payload | Déclencheur |
 |-------|---------|-------------|
-| `flipper/sensor/tilt/warning` | `{"level": 1, "acceleration": 1.8}` | Secousse légère (1.5-2.5g) |
-| `flipper/sensor/tilt/triggered` | `{"level": 3, "status": "TILT"}` | 3 warnings ou secousse > 2.5g |
+| `playfield/sensor/tilt/warning` | `{"level": 1, "acceleration": 1.8}` | Secousse légère (1.5-2.5g) |
+| `playfield/sensor/tilt/triggered` | `{"level": 3, "status": "TILT"}` | 3 warnings ou secousse > 2.5g |
 
 ### LEDs (Serveur → ESP32, optionnel)
 
 | Topic | Payload |
 |-------|---------|
-| `flipper/led/all` | `{"effect": "rainbow", "speed": 100}` |
-| `flipper/led/flash` | `{"color": "#FF0000", "duration_ms": 200}` |
+| `playfield/led/all` | `{"effect": "rainbow", "speed": 100}` |
+| `playfield/led/flash` | `{"color": "#FF0000", "duration_ms": 200}` |
 
 ---
 

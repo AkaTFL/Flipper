@@ -36,7 +36,7 @@ jobs:
           fi
 
           # Frontend : compatible ancien et nouveau layout
-          if [ -f "package.json" ] && { [ -f "frontend/index.html" ] || [ -f "frontend/flipper/index.html" ]; }; then
+          if [ -f "package.json" ] && { [ -f "frontend/index.html" ] || [ -f "frontend/playfield/index.html" ]; }; then
             echo "has_frontend=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_frontend=false" >> "$GITHUB_OUTPUT"
@@ -55,7 +55,7 @@ jobs:
             echo "has_backend_dockerfile=false" >> "$GITHUB_OUTPUT"
           fi
 
-          if [ -f "frontend/Dockerfile" ] || [ -f "frontend/flipper/Dockerfile" ]; then
+          if [ -f "frontend/Dockerfile" ] || [ -f "frontend/playfield/Dockerfile" ]; then
             echo "has_frontend_dockerfile=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_frontend_dockerfile=false" >> "$GITHUB_OUTPUT"
@@ -200,7 +200,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build backend image
-        run: docker build -f backend/Dockerfile -t flipper-backend:ci backend
+        run: docker build -f backend/Dockerfile -t playfield-backend:ci backend
 
   docker_frontend:
     name: Docker frontend — build
@@ -218,10 +218,10 @@ jobs:
       - name: Build frontend image
         shell: bash
         run: |
-          if [ -f "frontend/flipper/Dockerfile" ]; then
-            docker build -f frontend/flipper/Dockerfile -t flipper-frontend:ci frontend/flipper
+          if [ -f "frontend/playfield/Dockerfile" ]; then
+            docker build -f frontend/playfield/Dockerfile -t playfield-frontend:ci frontend/playfield
           elif [ -f "frontend/Dockerfile" ]; then
-            docker build -f frontend/Dockerfile -t flipper-frontend:ci frontend
+            docker build -f frontend/Dockerfile -t playfield-frontend:ci frontend
           else
             echo "No frontend Dockerfile found"
             exit 1

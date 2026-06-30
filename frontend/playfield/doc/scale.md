@@ -6,11 +6,11 @@ La taille des plans est augmentée avec un rapport de 100, afin de travailler su
 
 Pour calculer la valeur des forces à appliquer sans avoir besoin de manuellement incliner chaque mesh, voici comment faire : 
 
-Nous savons qu'un flipper a un inclinaisons comprise entre 6 et 7 degrés, la majorité étant à 6.5
+Nous savons qu'un playfield a un inclinaisons comprise entre 6 et 7 degrés, la majorité étant à 6.5
 
 Nous partirons de cette valeur pour ensuite calculer ainsi : 
 
-## Angle du flipper
+## Angle du playfield
 
 $$
 \theta = 6.5^\circ \approx 0.1134 \text{ rad}

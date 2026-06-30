@@ -10,12 +10,12 @@ export default {
 
             ball: {
                 density: 2.0,       // Densité
-                radius: 14,          // Rayon de la balle. Une balle de flipper typique a un rayon d'environ 14 mm)
+                radius: 14,          // Rayon de la balle. Une balle de playfield typique a un rayon d'environ 14 mm)
                 mass: 80,           // Masse
                 restitution: 0.7,   // Bounciness (0 = pas de rebond, 1 = rebond total)
                 friction: 0.1,      // Glissement 
                 position: { x: -260, y: 210, z: -560 },
-                model: `../assets/mesh/Body_flipper.glb`, // Position de départ
+                model: `../assets/mesh/Body_playfield.glb`, // Position de départ
                 objectId: 'ball'
             },
         
@@ -266,13 +266,13 @@ export default {
                     { length: 60, width: 20, height: 30, position: { x: 55, y: 5, z: 15 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
                     { length: 60, width: 20, height: 30, position: { x: -100, y: 5, z: 15 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
                 ],
-                modelRight: `../assets/mesh/palles/Right_flipper_lvl_${NiveauActuel}.glb`,
-                modelLeft: `../assets/mesh/palles/Left_flipper_lvl_${NiveauActuel}.glb`
+                modelRight: `../assets/mesh/palles/Right_playfield_lvl_${NiveauActuel}.glb`,
+                modelLeft: `../assets/mesh/palles/Left_playfield_lvl_${NiveauActuel}.glb`
             },
 
             bodyFlipper: {
-                model: '../assets/mesh/Body_flipper.glb',
-                objectId: 'body-flipper',
+                model: '../assets/mesh/Body_playfield.glb',
+                objectId: 'body-playfield',
                 objectType: 'wall',
                 length: 627,
                 width: null,

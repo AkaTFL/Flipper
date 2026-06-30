@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: iot-deployment
-  namespace: flipper
+  namespace: playfield
   labels:
     app: iot
 spec:
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: mosquitto
-          image: docker.io/hounga/flipper-iot:latest
+          image: docker.io/hounga/playfield-iot:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 1883
@@ -43,7 +43,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: iot-service
-  namespace: flipper
+  namespace: playfield
 spec:
   selector:
     app: iot

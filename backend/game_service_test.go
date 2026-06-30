@@ -40,22 +40,22 @@ func TestGameServiceHandleFlipperAction(t *testing.T) {
 
 	service := NewGameService(hub)
 
-	flipperMsg := []byte(`{"type":"flipper_action","payload":{"side":"left"}}`)
-	msg := Message{Type: "flipper_action"}
-	response, isDirectResponse := service.HandleMessage(msg, flipperMsg)
+	playfieldMsg := []byte(`{"type":"playfield_action","payload":{"side":"left"}}`)
+	msg := Message{Type: "playfield_action"}
+	response, isDirectResponse := service.HandleMessage(msg, playfieldMsg)
 
 	if isDirectResponse {
-		t.Fatal("expected flipper_action to not return a direct response")
+		t.Fatal("expected playfield_action to not return a direct response")
 	}
 
 	if response != nil {
-		t.Fatal("expected nil response for flipper_action")
+		t.Fatal("expected nil response for playfield_action")
 	}
 
 	// Vérifier que le message est broadcasté
 	select {
 	case broadcast := <-client.send:
-		if string(broadcast) != string(flipperMsg) {
+		if string(broadcast) != string(playfieldMsg) {
 			t.Fatalf("expected broadcast to contain original message, got %s", string(broadcast))
 		}
 	case <-time.After(500 * time.Millisecond):

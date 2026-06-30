@@ -6,26 +6,26 @@ Documenter l'état de la chaîne CI/CD et tracer les travaux de déploiement Kub
 ## État actuellement opérationnel (19 mai 2026)
 
 ### Kubernetes local (kind) - LIVE 
-- **Cluster** : `flipper` créé avec kind v0.31.0 
-- **Namespace** : `flipper` dédié
+- **Cluster** : `playfield` créé avec kind v0.31.0 
+- **Namespace** : `playfield` dédié
 - **Déploiements** : backend, frontend, iot — tous en Running 1/1 Ready
 - **Services** : 
   - backend (ClusterIP 8080)
   - frontend (NodePort 30080 → 80)
   - iot (ClusterIP 1883)
-- **Images** : flipper-backend:local, flipper-frontend:local, flipper-iot:local
+- **Images** : playfield-backend:local, playfield-frontend:local, playfield-iot:local
  - **Déploiements** : backend, frontend, iot, dmd — tous en Running 1/1 Ready
  - **Services** : 
    - backend (ClusterIP 8080)
    - frontend (NodePort 30080 → 80)
    - iot (ClusterIP 1883)
    - dmd (NodePort 30081 → 80)
- - **Images** : flipper-backend:local, flipper-frontend:local, flipper-iot:local, flipper-dmd:local
+ - **Images** : playfield-backend:local, playfield-frontend:local, playfield-iot:local, playfield-dmd:local
 
 ### Capacités Kubernetes validées 
 1. **Auto-healing** : suppression de pod → recréation automatique en <5s
 2. **Scaling** : `kubectl scale --replicas=3` → 3 pods backend déployés
-3. **Service Discovery** : DNS interne `iot-service.flipper.svc.cluster.local` résolu
+3. **Service Discovery** : DNS interne `iot-service.playfield.svc.cluster.local` résolu
 4. **Health Probes** : Liveness/Readiness HTTP GET `/health` actives
 5. **Exposition externe** : Frontend accessible via NodePort 30080 (ou port-forward)
 
@@ -34,7 +34,7 @@ Documenter l'état de la chaîne CI/CD et tracer les travaux de déploiement Kub
 ### Fichiers Kubernetes (k8s/)
 ```
 k8s/
-├── namespace.yaml         # Namespace flipper
+├── namespace.yaml         # Namespace playfield
 ├── backglass.yaml         # backglass deployment + service NodePort
 ├── backend.yaml           # Backend deployment + service ClusterIP
 ├── frontend.yaml          # Frontend deployment + service NodePort
@@ -46,34 +46,34 @@ k8s/
 ### Commandes clés de déploiement
 ```bash
 # Build des images locales
-docker build -t flipper-backend:local backend
-docker build -t flipper-frontend:local frontend/flipper
-docker build -t flipper-iot:local iot
-docker build -t flipper-dmd:local frontend/dmd
-docker build -t flipper-backglass:local frontend/backglass
+docker build -t playfield-backend:local backend
+docker build -t playfield-frontend:local frontend/playfield
+docker build -t playfield-iot:local iot
+docker build -t playfield-dmd:local frontend/dmd
+docker build -t playfield-backglass:local frontend/backglass
 
 # Chargement dans kind
-kind load docker-image flipper-backend:local --name flipper
-kind load docker-image flipper-frontend:local --name flipper
-kind load docker-image flipper-iot:local --name flipper
-kind load docker-image flipper-dmd:local --name flipper
-kind load docker-image flipper-backglass:local --name flipper
+kind load docker-image playfield-backend:local --name playfield
+kind load docker-image playfield-frontend:local --name playfield
+kind load docker-image playfield-iot:local --name playfield
+kind load docker-image playfield-dmd:local --name playfield
+kind load docker-image playfield-backglass:local --name playfield
 
 # Déploiement complet
 kubectl apply -k k8s
 
 # Vérifications
-kubectl get pods -n flipper -o wide
-kubectl get deploy -n flipper
-kubectl get svc -n flipper
+kubectl get pods -n playfield -o wide
+kubectl get deploy -n playfield
+kubectl get svc -n playfield
 
 # Port-forward pour accès frontend
-kubectl port-forward -n flipper svc/frontend-service 8088:80
+kubectl port-forward -n playfield svc/frontend-service 8088:80
 # http://localhost:8088
 ```
 
 ### Modifications aux manifests
-- Images : `ghcr.io/OWNER/REPO/*:latest` → `flipper-*:local` (IfNotPresent)
+- Images : `ghcr.io/OWNER/REPO/*:latest` → `playfield-*:local` (IfNotPresent)
 - Frontend Service : ClusterIP → **NodePort 30080**
 - Tous les pods ont des probes de santé HTTP
 

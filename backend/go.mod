@@ -1,4 +1,4 @@
-module flipper-backend
+module playfield-backend
 
 go 1.25.0
 

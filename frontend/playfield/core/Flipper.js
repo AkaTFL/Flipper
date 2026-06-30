@@ -170,7 +170,7 @@ export async function initFlipper(options = {}) {
         loadingPromises.push(waitFormeshes(pal));
     });
 
-    // Etage (sol principal du flipper)
+    // Etage (sol principal du playfield)
     const etage = new StaticMesh(sceneManager, physics.world, Config.global.positioning.etage.model, {
         length:    Config.global.positioning.etage.length,
         width:     Config.global.positioning.etage.width,
@@ -186,7 +186,7 @@ export async function initFlipper(options = {}) {
     meshes.push(etage);
     loadingPromises.push(waitFormeshes(etage));
 
-    // Body flipper (structure principale depuis meshes_final)
+    // Body playfield (structure principale depuis meshes_final)
     const bodyFlipper = new StaticMesh(sceneManager, physics.world, Config.global.positioning.bodyFlipper.model, {
         length:     Config.global.positioning.bodyFlipper.length,
         width:      Config.global.positioning.bodyFlipper.width,

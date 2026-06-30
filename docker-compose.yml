@@ -1,7 +1,7 @@
 services:
   mosquitto:
     image: eclipse-mosquitto:2
-    container_name: flipper-mosquitto
+    container_name: playfield-mosquitto
     ports:
       - "1883:1883"
     volumes:
@@ -17,7 +17,7 @@ services:
       # production + ce volume => /app/server disparaît => erreur au démarrage
       args:
         ENV: ${ENV:-dev}
-    container_name: flipper-backend
+    container_name: playfield-backend
     ports:
       - "8080:8080"
     depends_on:
@@ -37,15 +37,15 @@ services:
       start_period: 45s
     restart: unless-stopped
 
-  frontend_flipper:
+  frontend_playfield:
     build:
-      context: ./frontend/flipper
+      context: ./frontend/playfield
       dockerfile: Dockerfile
-    container_name: frontend-flipper
+    container_name: frontend-playfield
     ports:
       - "${FRONTEND_PORT:-3001}:80"
     volumes:
-      - ./frontend/flipper:/usr/share/nginx/html
+      - ./frontend/playfield:/usr/share/nginx/html
       - ./deploy/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       backend:
@@ -92,7 +92,7 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-      frontend_flipper:
+      frontend_playfield:
         condition: service_started
       frontend_backglass:
         condition: service_started

@@ -8,8 +8,8 @@ Tous les tests réussis et documentés ci-dessous.
 
 ## État du cluster
 
-**Cluster** : flipper (kind v0.31.0, nœud Kubernetes v1.32.5)  
-**Namespace** : flipper  
+**Cluster** : playfield (kind v0.31.0, nœud Kubernetes v1.32.5)  
+**Namespace** : playfield  
 **Pods** : 3 (backend, frontend, iot) — tous **Running 1/1 Ready**  
 **Services** : 3 (ClusterIP backend, NodePort frontend, ClusterIP iot)  
 
@@ -23,15 +23,15 @@ Tous les tests réussis et documentés ci-dessous.
 
 ```bash
 # Avant
-$ kubectl get pods -n flipper -l app=backend
+$ kubectl get pods -n playfield -l app=backend
 backend-deployment-746b6fc8bd-255xn   1/1   Running   0   37s
 
 # Supprimer le pod
-$ kubectl delete pod backend-deployment-746b6fc8bd-255xn -n flipper
+$ kubectl delete pod backend-deployment-746b6fc8bd-255xn -n playfield
 pod "backend-deployment-746b6fc8bd-255xn" deleted
 
 # Après 3-5 secondes
-$ kubectl get pods -n flipper -l app=backend
+$ kubectl get pods -n playfield -l app=backend
 backend-deployment-746b6fc8bd-qtqmc   0/1   Running   0   5s    # Nouveau pod !
 ```
 
@@ -46,15 +46,15 @@ backend-deployment-746b6fc8bd-qtqmc   0/1   Running   0   5s    # Nouveau pod !
 
 ```bash
 # Commande
-$ kubectl scale deployment backend-deployment -n flipper --replicas=3
+$ kubectl scale deployment backend-deployment -n playfield --replicas=3
 deployment.apps/backend-deployment scaled
 
 # État immédiat
-$ kubectl get deploy backend-deployment -n flipper
+$ kubectl get deploy backend-deployment -n playfield
 backend-deployment   1/3   3            1           21h
 
 # État après 5-10s
-$ kubectl get pods -n flipper -l app=backend -o wide
+$ kubectl get pods -n playfield -l app=backend -o wide
 backend-deployment-746b6fc8bd-9jtrc   0/1   Running   0   6s
 backend-deployment-746b6fc8bd-qtqmc   1/1   Running   0   25s
 backend-deployment-746b6fc8bd-wfljv   0/1   Running   0   6s
@@ -71,12 +71,12 @@ backend-deployment-746b6fc8bd-wfljv   0/1   Running   0   6s
 
 ```bash
 # Depuis un pod backend, résoudre le service iot
-$ kubectl exec backend-deployment-746b6fc8bd-qtqmc -n flipper -- nslookup iot-service
+$ kubectl exec backend-deployment-746b6fc8bd-qtqmc -n playfield -- nslookup iot-service
 
 Server:         10.96.0.10
 Address:        10.96.0.10:53
 
-Name:   iot-service.flipper.svc.cluster.local
+Name:   iot-service.playfield.svc.cluster.local
 Address: 10.96.223.84
 ```
 
@@ -92,7 +92,7 @@ Address: 10.96.223.84
 **Test** : Vérification des probes configurées
 
 ```bash
-$ kubectl describe pod backend-deployment-746b6fc8bd-9jtrc -n flipper | grep -A 10 Probes
+$ kubectl describe pod backend-deployment-746b6fc8bd-9jtrc -n playfield | grep -A 10 Probes
 
 Liveness:       http-get http://:8080/health 
                 delay=10s timeout=1s period=10s #success=1 #failure=3
@@ -117,14 +117,14 @@ Conditions:
 
 ```bash
 # Service frontend
-$ kubectl get svc frontend-service -n flipper
+$ kubectl get svc frontend-service -n playfield
 frontend-service   NodePort   10.96.152.67   <none>   80:30080/TCP
 
 # Accès direct
 http://localhost:30080
 
 # Ou via port-forward
-$ kubectl port-forward -n flipper svc/frontend-service 8088:80
+$ kubectl port-forward -n playfield svc/frontend-service 8088:80
 http://localhost:8088
 ```
 
@@ -136,7 +136,7 @@ http://localhost:8088
 ## État final consolidé
 
 ```bash
-$ kubectl get all -n flipper -o wide
+$ kubectl get all -n playfield -o wide
 
 NAME                                   READY   STATUS    AGE    IP
 pod/backend-deployment-746b6fc8bd-qtqmc    1/1     Running   118s   10.244.0.9
@@ -167,7 +167,7 @@ iot-service        ClusterIP   10.96.223.84    1883/TCP
 
 ### 📦 Prêt pour production
 - Déploiement reproductible via `kubectl apply -k k8s`
-- Images locales valides (flipper-*:local)
+- Images locales valides (playfield-*:local)
 - Manifests versionés (k8s/) et orchestrés (kustomization.yaml)
 - Cluster local stable pour développement/CI
 
