@@ -5,6 +5,7 @@ import { Objects } from './Objects.js';
 
 export class LaunchingRamp extends Objects {
     constructor(
+        scene,
         world,
         length = Config.global.positioning.launchingRamp.length,
         width = Config.global.positioning.launchingRamp.width,
@@ -13,7 +14,9 @@ export class LaunchingRamp extends Objects {
         rotation = Config.global.positioning.launchingRamp.rotation
     ) {
         super(world, length, width, height, position, rotation, null, null);
-
+        
+        this.scene = scene;
+        
         if (this.TreeMesh) {
             this.mesh.remove(this.TreeMesh);
             this.TreeMesh = null;
@@ -33,7 +36,6 @@ export class LaunchingRamp extends Objects {
             if (!this.rigidBody) this.createFixedRigidBody(position, rotation);
 
             const desc = this.buildTrimeshCollider(modelRoot);
-            if (desc) this.attachCollider(desc);
 
             this.mesh.position.copy(position);
         });

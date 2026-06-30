@@ -1,5 +1,4 @@
-import { SSAOPass }
-from 'three/examples/jsm/postprocessing/SSAOPass.js';
+import { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass.js';
 
 export function createSSAO(
     scene,

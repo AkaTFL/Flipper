@@ -14,6 +14,7 @@ export class Palles extends Objects {
      * @param {string} side - 'left' ou 'right'
      */
     constructor(
+        scene,
         world,
         length   = 500,
         width    = 10,
@@ -27,6 +28,7 @@ export class Palles extends Objects {
         // ─── Identité ────────────────────────────────────────────────────────
         this.objectId   = side ? `palle-${side}` : 'palle';
         this.objectType = 'palle';
+        this.scene = scene;
 
         if (this.TreeMesh) {
             this.mesh.remove(this.TreeMesh);
@@ -155,6 +157,13 @@ export class Palles extends Objects {
 
     handleCollision() {
         this.playSound(Config.global.sounds.palles.collision);
+
+        this.scene.effectManager.impact(
+            this.mesh.position,
+            1,
+            this.objectType
+        );
+
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

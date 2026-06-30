@@ -2,8 +2,6 @@ import * as RAPIER from '@dimforge/rapier3d-compat';
 import * as THREE from 'three';
 import Config from '../physics/Config.js';
 import { Objects } from './Objects.js';
-import { TremblingFromImpact } from '../effects/Trembling.js'
-import { Sparks } from '../effects/Sparks.js'
 
 export class Bumper extends Objects {
     /**
@@ -13,10 +11,10 @@ export class Bumper extends Objects {
      * @param {Object} position - The position object with x, y, z properties
      * @param {number} rotation - The rotation of the bumper in radians
      */
-    constructor(camera, world, width = 50, position = { x: 0, y: 300, z: 0 }, rotation = { x: 0, y: 0, z: 0 }, objectId = null) {
+    constructor(scene, world, width = 50, position = { x: 0, y: 300, z: 0 }, rotation = { x: 0, y: 0, z: 0 }, objectId = null) {
         super(world, null, null, null, position, rotation, width / 2, [], null);
-
-        this.camera = camera;
+        
+        this.scene = scene;
         this.objectId = objectId ?? 'bumper';
         this.objectType = 'bumper';
         this.radius = width / 2;
@@ -25,7 +23,7 @@ export class Bumper extends Objects {
         this.height = width;
         this.position = position;
 
-        this.rampCollider = null;
+        this.bumpCollider = null;
 
         // Physics properties - Fixed (Static)
         this.createFixedRigidBody(position, rotation);
@@ -70,17 +68,14 @@ export class Bumper extends Objects {
                 const collider = this.attachCollider(desc);
 
                 if (child.name && child.name.toLowerCase().includes('bump')) {
-                    this.rampCollider = collider;
-
-                    console.log('BUMPER COLLIDER FOUND', collider.handle);
+                    this.bumpCollider = collider;
                 }
             });
 
         });
     }
 
-    applyBumperForce(handle1, handle2) {
-        
+    applyBumperForce(handle1, handle2) {  
         const otherHandle =
             this.collider.handle === handle1
                 ? handle2
@@ -102,11 +97,13 @@ export class Bumper extends Objects {
 
         // Bumper triangulaire
         if (this.objectId == 'bumper-triangle') {
+            const userData = this.collider.userData ?? this.collider.getUserData?.();
+            if (!userData || userData.name !== 'bump') return;
 
             otherBody.applyImpulse({
-                x: Config.global.positioning.bumper.instances.rotation.x * power,
+                x: Config.global.positioning.bumper.instances.find(e => e.objectId === this.objectId)?.rotation.x * power,
                 y: 0,
-                z: Config.global.positioning.bumper.instances.rotation.z * power
+                z: Config.global.positioning.bumper.instances.find(e => e.objectId === this.objectId)?.rotation.z * power
             }, true);
 
             this.playSound(Config.global.sounds.bumper.move);
@@ -138,9 +135,12 @@ export class Bumper extends Objects {
     handleCollision() {
         this.playSound(Config.global.sounds.bumper.collision);
 
-        TremblingFromImpact(this.camera, 5, 300);
-        Sparks(this.camera, this.position);
-
+        this.scene.effectManager.impact(
+            this.mesh.position,
+            Config.global.positioning.bumper.power,
+            this.objectType
+        );
+        
         console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

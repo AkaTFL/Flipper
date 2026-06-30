@@ -251,11 +251,19 @@ export class Objects {
                     }
                 });
 
+                this.mesh.add(modelRoot);
+                modelRoot.updateMatrixWorld(true);
+                
                 if (onModelLoaded) {
                     onModelLoaded(modelRoot);
                 }
-                
-                this.mesh.add(modelRoot);
+
+                if (this.objectType) {
+                    this.mesh.userData.objectType = this.objectType;
+                    modelRoot.traverse((child) => {
+                        child.userData.objectType = this.objectType;
+                    });
+                }
             })
             .catch((error) => {
                 console.error('Failed to load flipper model:', error);
