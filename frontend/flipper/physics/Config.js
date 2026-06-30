@@ -173,7 +173,7 @@ export default {
                         width: 5,
                         height: 60,
                         length: 30,
-                        position: { x: -272, y: 10, z: -670 },
+                        position: { x: -265, y: 10, z: -670 },
                         rotation: { x: 0, y: (Math.PI / 2), z: (Math.PI / 2) },
                         objectType: 'repulse',
                         objectId: 'repulse-zone-2',

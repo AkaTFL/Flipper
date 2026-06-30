@@ -23,7 +23,7 @@ export class Bumper extends Objects {
         this.height = width;
         this.position = position;
 
-        this.rampCollider = null;
+        this.bumpCollider = null;
 
         // Physics properties - Fixed (Static)
         this.createFixedRigidBody(position, rotation);
@@ -68,9 +68,7 @@ export class Bumper extends Objects {
                 const collider = this.attachCollider(desc);
 
                 if (child.name && child.name.toLowerCase().includes('bump')) {
-                    this.rampCollider = collider;
-
-                    console.log('BUMPER COLLIDER FOUND', collider.handle);
+                    this.bumpCollider = collider;
                 }
             });
 
