@@ -11,6 +11,8 @@ import { StaticMesh } from '../objects/StaticMesh.js';
 import { Repulse } from '../objects/Repulse.js';
 
 import Config from '../physics/Config.js';
+
+import { CabinetButtons } from './CabinetButtons.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
 import { AudioManager } from '../physics/Audio.js';
 
