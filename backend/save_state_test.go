@@ -2,11 +2,68 @@ package main
 
 import (
 	"encoding/json"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
+
+func TestGameSaveStoreListReflectsSlots(t *testing.T) {
+	store := newGameSaveStore(filepath.Join(t.TempDir(), "saves.json"))
+
+	if _, err := store.Save(2, 3, GameSnapshot{Score: ScoreStateSnapshot{Score: 1250}}); err != nil {
+		t.Fatalf("save failed: %v", err)
+	}
+
+	infos := store.List()
+	if len(infos) != maxSaveSlots {
+		t.Fatalf("expected %d slots, got %d", maxSaveSlots, len(infos))
+	}
+
+	if infos[0].Occupied {
+		t.Fatalf("expected slot 1 empty, got %+v", infos[0])
+	}
+
+	slot2 := infos[1]
+	if !slot2.Occupied || slot2.Slot != 2 || slot2.Level != 3 || slot2.Score != 1250 || slot2.SavedAt == 0 {
+		t.Fatalf("unexpected slot 2 info: %+v", slot2)
+	}
+}
+
+func TestGameSaveStoreDeleteClearsSlotAndPersists(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "saves.json")
+	store := newGameSaveStore(path)
+
+	if _, err := store.Save(1, 2, GameSnapshot{Score: ScoreStateSnapshot{Score: 500}}); err != nil {
+		t.Fatalf("save failed: %v", err)
+	}
+
+	if err := store.Delete(1); err != nil {
+		t.Fatalf("delete failed: %v", err)
+	}
+
+	if _, found := store.Load(1); found {
+		t.Fatal("expected slot 1 to be empty after delete")
+	}
+
+	// La suppression doit être persistée : un nouveau store relit le fichier
+	reloaded := newGameSaveStore(path)
+	if _, found := reloaded.Load(1); found {
+		t.Fatal("expected deletion to be persisted to disk")
+	}
+}
+
+func TestGameSaveStoreDeleteRejectsInvalidSlot(t *testing.T) {
+	store := newGameSaveStore(filepath.Join(t.TempDir(), "saves.json"))
+
+	if err := store.Delete(0); err == nil {
+		t.Fatal("expected error for slot 0")
+	}
+	if err := store.Delete(maxSaveSlots + 1); err == nil {
+		t.Fatal("expected error for out-of-range slot")
+	}
+}
 
 func TestWebSocketSaveAndLoadGameSlot(t *testing.T) {
 	_, server, wsURL := newTestServer(t)
