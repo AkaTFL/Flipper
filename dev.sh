@@ -75,7 +75,7 @@ logs_backend() {
 
 logs_frontend() {
   say "📋 Logs des frontends..."
-  compose logs -f frontend_playfield frontend_backglass frontend_dmd
+  compose logs -f frontend_flipper frontend_backglass frontend_dmd
 }
 
 restart() {

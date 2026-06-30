@@ -181,7 +181,7 @@ def lancer(args: argparse.Namespace) -> int:
 
 
 def construire_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Lecture USB série des boutons ESP32 du playfield")
+    parser = argparse.ArgumentParser(description="Lecture USB série des boutons ESP32 du flipper")
     parser.add_argument("--port", help="Port série, exemple: /dev/cu.usbserial-0001 ou COM3")
     parser.add_argument("--baud", type=int, default=115200)
     parser.add_argument("--timeout", type=float, default=0.1)

@@ -29,13 +29,13 @@ def main() -> int:
             print(f"Connexion refusée rc={rc}", file=sys.stderr)
             return
         print("Connecté au broker (simulation ESP32)")
-        client.subscribe("playfield/solenoid/#", qos=1)
+        client.subscribe("flipper/solenoid/#", qos=1)
 
     def on_message(_client, _userdata, msg):
         received.append((msg.topic, msg.payload.decode("utf-8", errors="replace")))
         print(f"[RX solénoïde] {msg.topic}: {msg.payload!r}")
 
-    client = mqtt.Client(client_id=f"playfield_fake_esp_{random.randint(1000,9999)}", protocol=mqtt.MQTTv311)
+    client = mqtt.Client(client_id=f"flipper_fake_esp_{random.randint(1000,9999)}", protocol=mqtt.MQTTv311)
     client.on_connect = on_connect
     client.on_message = on_message
 
@@ -58,7 +58,7 @@ def main() -> int:
     try:
         while True:
             warn = json.dumps({"level": 1, "acceleration": round(1.5 + random.random(), 2)})
-            client.publish("playfield/sensor/tilt/warning", warn, qos=1)
+            client.publish("flipper/sensor/tilt/warning", warn, qos=1)
             print(f"Pub tilt/warning: {warn}")
             time.sleep(args.interval)
             n += 1

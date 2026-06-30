@@ -1,4 +1,4 @@
-// Menu de l'écran playfield : menu principal -> sélection des sauvegardes (4 slots)
+// Menu de l'écran flipper : menu principal -> sélection des sauvegardes (4 slots)
 // -> actions Reprendre / Supprimer (avec modale de confirmation).
 // Les données des slots viennent du backend Go (GET /saves, DELETE /saves?slot=N).
 
@@ -50,7 +50,7 @@ function formatScore(score) {
 const MENU_STYLES = `
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cinzel+Decorative:wght@700;900&display=swap');
 
-#playfield-menu {
+#flipper-menu {
     position: absolute;
     inset: 0;
     z-index: 20;
@@ -62,12 +62,12 @@ const MENU_STYLES = `
     font-family: 'Cinzel', 'Segoe UI', serif;
     user-select: none;
 }
-#playfield-menu *, #playfield-menu *::before, #playfield-menu *::after {
+#flipper-menu *, #flipper-menu *::before, #flipper-menu *::after {
     box-sizing: border-box;
 }
 /* Cadre vertical 9:16 fixe (écran cabinet), letterboxé au centre.
    Fond = royaume des 4 éléments : Nature, Océan, Feu, Néant. */
-#playfield-menu .menu-frame {
+#flipper-menu .menu-frame {
     position: relative;
     width: min(100%, calc(100vh * 9 / 16));
     aspect-ratio: 9 / 16;
@@ -85,14 +85,14 @@ const MENU_STYLES = `
         radial-gradient(circle at 50% 45%, #15131d 0%, #0a0810 60%, #050308 100%);
 }
 /* Vignette + grain léger pour la profondeur */
-#playfield-menu .menu-frame::after {
+#flipper-menu .menu-frame::after {
     content: '';
     position: absolute;
     inset: 0;
     pointer-events: none;
     background: radial-gradient(circle at 50% 42%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
 }
-#playfield-menu .menu-screen {
+#flipper-menu .menu-screen {
     position: relative;
     z-index: 1;
     width: 86%;
@@ -104,7 +104,7 @@ const MENU_STYLES = `
     gap: 2.4cqh;
     padding: 3cqh 0;
 }
-#playfield-menu .menu-title {
+#flipper-menu .menu-title {
     margin: 0;
     font-family: 'Cinzel Decorative', 'Cinzel', serif;
     font-size: clamp(20px, 7cqw, 40px);
@@ -119,14 +119,14 @@ const MENU_STYLES = `
         0 0 22px rgba(124, 58, 237, 0.25),
         0 2px 2px rgba(0, 0, 0, 0.6);
 }
-#playfield-menu .menu-logo {
+#flipper-menu .menu-logo {
     width: 100%;
     max-width: 98%;
     max-height: 46cqh;
     object-fit: contain;
     filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.5));
 }
-#playfield-menu .menu-subtitle {
+#flipper-menu .menu-subtitle {
     margin: 0;
     font-size: clamp(10px, 2.7cqw, 14px);
     letter-spacing: 0.18em;
@@ -135,19 +135,19 @@ const MENU_STYLES = `
     text-align: center;
 }
 /* Rangée des 4 éléments (menu principal) */
-#playfield-menu .elements {
+#flipper-menu .elements {
     display: flex;
     gap: 6cqw;
     justify-content: center;
     align-items: flex-start;
 }
-#playfield-menu .element {
+#flipper-menu .element {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 1cqh;
 }
-#playfield-menu .element .orb {
+#flipper-menu .element .orb {
     width: 11cqw;
     height: 11cqw;
     max-width: 58px;
@@ -159,10 +159,10 @@ const MENU_STYLES = `
     box-shadow: 0 0 16px var(--el-color), inset 0 0 10px rgba(0, 0, 0, 0.45);
     animation: orbPulse 3.6s ease-in-out infinite;
 }
-#playfield-menu .element:nth-child(2) .orb { animation-delay: 0.5s; }
-#playfield-menu .element:nth-child(3) .orb { animation-delay: 1s; }
-#playfield-menu .element:nth-child(4) .orb { animation-delay: 1.5s; }
-#playfield-menu .element .el-label {
+#flipper-menu .element:nth-child(2) .orb { animation-delay: 0.5s; }
+#flipper-menu .element:nth-child(3) .orb { animation-delay: 1s; }
+#flipper-menu .element:nth-child(4) .orb { animation-delay: 1.5s; }
+#flipper-menu .element .el-label {
     font-size: clamp(8px, 2.2cqw, 11px);
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -173,7 +173,7 @@ const MENU_STYLES = `
     50% { transform: scale(1.08); filter: brightness(1.25); }
 }
 /* Boutons style parchemin / or */
-#playfield-menu .menu-btn {
+#flipper-menu .menu-btn {
     cursor: pointer;
     border: 1px solid #b8924a;
     border-radius: 6px;
@@ -189,37 +189,37 @@ const MENU_STYLES = `
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
     transition: transform 0.08s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
-#playfield-menu .menu-btn:hover {
+#flipper-menu .menu-btn:hover {
     transform: scale(1.03);
     border-color: #e7c87d;
     box-shadow: 0 0 18px rgba(231, 200, 125, 0.45), inset 0 0 16px rgba(231, 200, 125, 0.16);
 }
-#playfield-menu .menu-btn:active { transform: scale(0.98); }
-#playfield-menu .menu-btn.ghost {
+#flipper-menu .menu-btn:active { transform: scale(0.98); }
+#flipper-menu .menu-btn.ghost {
     background: linear-gradient(180deg, #1a1a22 0%, #101016 100%);
     border-color: #4a4a58;
     color: #9a9aa8;
     box-shadow: none;
 }
-#playfield-menu .menu-btn.ghost:hover { color: #ece3d0; border-color: #7a7a8a; box-shadow: none; }
-#playfield-menu .menu-btn.danger {
+#flipper-menu .menu-btn.ghost:hover { color: #ece3d0; border-color: #7a7a8a; box-shadow: none; }
+#flipper-menu .menu-btn.danger {
     border-color: #b4422a;
     color: #ffd9cf;
     background: linear-gradient(180deg, #3a160e 0%, #200a06 100%);
     box-shadow: 0 0 12px rgba(229, 72, 45, 0.3), inset 0 0 14px rgba(229, 72, 45, 0.12);
 }
-#playfield-menu .menu-btn.danger:hover {
+#flipper-menu .menu-btn.danger:hover {
     border-color: #ff6a4d;
     box-shadow: 0 0 18px rgba(255, 106, 77, 0.45), inset 0 0 16px rgba(255, 106, 77, 0.18);
 }
-#playfield-menu .slots {
+#flipper-menu .slots {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.6cqh;
     width: 100%;
 }
 /* Carte de sauvegarde = relique élémentaire */
-#playfield-menu .slot {
+#flipper-menu .slot {
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(184, 146, 74, 0.28);
@@ -231,13 +231,13 @@ const MENU_STYLES = `
     color: inherit;
     transition: border-color 0.15s ease, transform 0.08s ease, box-shadow 0.2s ease;
 }
-#playfield-menu .slot:hover {
+#flipper-menu .slot:hover {
     transform: translateY(-2px);
     border-color: var(--slot-color, #b8924a);
     box-shadow: 0 0 16px color-mix(in srgb, var(--slot-color, #b8924a) 45%, transparent);
 }
 /* Barre + halo de l'élément */
-#playfield-menu .slot::before {
+#flipper-menu .slot::before {
     content: '';
     position: absolute;
     left: 0; top: 0; bottom: 0;
@@ -245,7 +245,7 @@ const MENU_STYLES = `
     background: var(--slot-color, #3a3a40);
     box-shadow: 0 0 12px var(--slot-color, transparent);
 }
-#playfield-menu .slot::after {
+#flipper-menu .slot::after {
     content: '';
     position: absolute;
     right: -20%; top: -40%;
@@ -254,20 +254,20 @@ const MENU_STYLES = `
     pointer-events: none;
 }
 /* Carte non interactive (écran d'actions) : pas de survol ni de focus clavier */
-#playfield-menu .slot.static { cursor: default; }
-#playfield-menu .slot.static:hover {
+#flipper-menu .slot.static { cursor: default; }
+#flipper-menu .slot.static:hover {
     transform: none;
     box-shadow: none;
     border-color: rgba(184, 146, 74, 0.28);
 }
 /* Élément sélectionné via la navigation borne/clavier */
-#playfield-menu .slot.focused,
-#playfield-menu .menu-btn.focused {
+#flipper-menu .slot.focused,
+#flipper-menu .menu-btn.focused {
     outline: 2px solid #e7c87d;
     outline-offset: 2px;
     box-shadow: 0 0 18px rgba(231, 200, 125, 0.55);
 }
-#playfield-menu .slot.empty {
+#flipper-menu .slot.empty {
     border-style: dashed;
     border-color: rgba(184, 146, 74, 0.35);
     min-height: 72px;
@@ -275,32 +275,32 @@ const MENU_STYLES = `
     flex-direction: column;
     justify-content: center;
 }
-#playfield-menu .slot.empty .slot-phase { color: #b8a878; }
-#playfield-menu .slot.empty .slot-date { color: #8f8268; }
-#playfield-menu .slot .slot-head {
+#flipper-menu .slot.empty .slot-phase { color: #b8a878; }
+#flipper-menu .slot.empty .slot-date { color: #8f8268; }
+#flipper-menu .slot .slot-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 5px;
 }
-#playfield-menu .slot .slot-phase { font-size: clamp(12px, 3.2cqw, 15px); font-weight: 700; letter-spacing: 0.04em; }
-#playfield-menu .slot .slot-num { font-size: clamp(9px, 2.4cqw, 11px); color: #8f8268; letter-spacing: 0.08em; }
-#playfield-menu .slot .slot-score { font-size: clamp(16px, 4.5cqw, 22px); font-weight: 800; margin: 1px 0; color: #f1e7cf; }
-#playfield-menu .slot .slot-date { font-size: clamp(9px, 2.4cqw, 11px); color: #8f8268; }
-#playfield-menu .menu-actions-stack {
+#flipper-menu .slot .slot-phase { font-size: clamp(12px, 3.2cqw, 15px); font-weight: 700; letter-spacing: 0.04em; }
+#flipper-menu .slot .slot-num { font-size: clamp(9px, 2.4cqw, 11px); color: #8f8268; letter-spacing: 0.08em; }
+#flipper-menu .slot .slot-score { font-size: clamp(16px, 4.5cqw, 22px); font-weight: 800; margin: 1px 0; color: #f1e7cf; }
+#flipper-menu .slot .slot-date { font-size: clamp(9px, 2.4cqw, 11px); color: #8f8268; }
+#flipper-menu .menu-actions-stack {
     display: flex;
     flex-direction: column;
     gap: 1.6cqh;
     width: 100%;
     max-width: 320px;
 }
-#playfield-menu .menu-actions-stack .menu-btn { width: 100%; }
-#playfield-menu .menu-error {
+#flipper-menu .menu-actions-stack .menu-btn { width: 100%; }
+#flipper-menu .menu-error {
     color: #ff6a4d;
     font-size: clamp(11px, 2.6cqw, 14px);
     text-align: center;
 }
-#playfield-menu .menu-modal {
+#flipper-menu .menu-modal {
     position: absolute;
     inset: 0;
     display: flex;
@@ -309,7 +309,7 @@ const MENU_STYLES = `
     background: rgba(3, 2, 6, 0.72);
     backdrop-filter: blur(2px);
 }
-#playfield-menu .menu-modal .modal-card {
+#flipper-menu .menu-modal .modal-card {
     width: min(420px, 86cqw);
     background: linear-gradient(180deg, #1b1622 0%, #100b18 100%);
     border: 1px solid rgba(184, 146, 74, 0.4);
@@ -321,7 +321,7 @@ const MENU_STYLES = `
     text-align: center;
     box-shadow: 0 0 30px rgba(124, 58, 237, 0.25);
 }
-#playfield-menu .menu-modal .modal-actions {
+#flipper-menu .menu-modal .modal-actions {
     display: flex;
     gap: 12px;
     justify-content: center;
@@ -343,15 +343,15 @@ export class Menu {
     }
 
     mount() {
-        if (!document.getElementById('playfield-menu-styles')) {
+        if (!document.getElementById('flipper-menu-styles')) {
             const style = document.createElement('style');
-            style.id = 'playfield-menu-styles';
+            style.id = 'flipper-menu-styles';
             style.textContent = MENU_STYLES;
             document.head.appendChild(style);
         }
 
         this.root = document.createElement('div');
-        this.root.id = 'playfield-menu';
+        this.root.id = 'flipper-menu';
 
         // Cadre vertical 9:16 persistant : toutes les vues s'affichent à l'intérieur
         this.frame = document.createElement('div');

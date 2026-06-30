@@ -1,6 +1,6 @@
 # Backend Flipper - WebSocket + MQTT Bridge
 
-Serveur Go pour le jeu de playfield. Il garde le canal WebSocket pour le frontend et relaie aussi des événements vers MQTT pour le matériel IoT.
+Serveur Go pour le jeu de flipper. Il garde le canal WebSocket pour le frontend et relaie aussi des événements vers MQTT pour le matériel IoT.
 
 ## Prérequis
 
@@ -68,7 +68,7 @@ Variables utiles:
 | `player_state_update` | Serveur → Client | État courant du joueur (HP, balles, game over) |
 | `quest_update` | Serveur → Client | État courant des quêtes actives |
 | `game_save_status` | Serveur → Client | Confirmation ou erreur liée à un slot de sauvegarde |
-| `playfield_action` | Client → Serveur | Action sur les playfields (left/right) |
+| `flipper_action` | Client → Serveur | Action sur les flippers (left/right) |
 | `impact` | Client → Serveur | Contact détecté côté frontend (bumper, palle, mur, rampe) |
 | `game_state` | Bidirectionnel | État actuel du jeu |
 
@@ -78,10 +78,10 @@ Le backend publie les impacts vers les solénoïdes et relaie les alertes tilt d
 
 Topics utilisés:
 
-- `playfield/solenoid/{id}` : commande de solénoïde envoyée quand un impact est reçu côté frontend
-- `playfield/led/flash` : impulsion LED au démarrage d'une partie
-- `playfield/sensor/tilt/warning` : alerte tilt remontée côté WebSocket
-- `playfield/sensor/tilt/triggered` : tilt déclenché, retransmis côté WebSocket et converti en `game_state` avec `gameOver=true`
+- `flipper/solenoid/{id}` : commande de solénoïde envoyée quand un impact est reçu côté frontend
+- `flipper/led/flash` : impulsion LED au démarrage d'une partie
+- `flipper/sensor/tilt/warning` : alerte tilt remontée côté WebSocket
+- `flipper/sensor/tilt/triggered` : tilt déclenché, retransmis côté WebSocket et converti en `game_state` avec `gameOver=true`
 
 
 ## Architecture
@@ -224,10 +224,10 @@ go test -v -cover ./...
 go run main.go
 
 # Build Docker
-docker build -t playfield-backend .
+docker build -t flipper-backend .
 
 # Run Docker avec Mosquitto externe
-docker run -e MQTT_HOST=host.docker.internal -p 8080:8080 playfield-backend
+docker run -e MQTT_HOST=host.docker.internal -p 8080:8080 flipper-backend
 ```
 
 ## Version

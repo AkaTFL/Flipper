@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-LOG_DIR="$ROOT_DIR/.playfield-run"
+LOG_DIR="$ROOT_DIR/.flipper-run"
 DAEMON_PID_FILE="$LOG_DIR/esp32_button_daemon.pid"
 
 cd "$ROOT_DIR"

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { CABINET_BUTTON_KEYS, CabinetButtons } from '../../frontend/playfield/core/CabinetButtons.js';
+import { CABINET_BUTTON_KEYS, CabinetButtons } from '../../frontend/flipper/core/CabinetButtons.js';
 
 class FakeKeyboardEvent {
   constructor(type, options) {

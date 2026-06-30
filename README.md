@@ -13,9 +13,9 @@ Participants :
 - Communnication par le moyen de Websocket (communication avec TCP ouverture continu)
 - ESP32 avec serveur Moquitto
 
-## Lancement sur le playfield physique
+## Lancement sur le flipper physique
 
-Pour la machine Linux du playfield physique, un script unique :
+Pour la machine Linux du flipper physique, un script unique :
 
 - vérifie la disponibilité de la porte du kiosque ;
 - démarre et contrôle les services Docker ;
@@ -34,4 +34,4 @@ Organisation sur la base d'un Gitflow
 ## Contrôles
 
 Le mapping clavier et ESP32 utilisé par le projet est documenté dans
-[`doc/Controles_playfield.md`](doc/Controles_playfield.md).
+[`doc/Controles_flipper.md`](doc/Controles_flipper.md).

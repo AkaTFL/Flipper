@@ -17,15 +17,15 @@ const (
 	defaultMQTTHost           = "127.0.0.1"
 	defaultMQTTPort           = 1883
 	defaultMQTTReconnectDelay = 5 * time.Second
-	defaultMQTTClientPrefix   = "playfield-backend"
-	defaultSensorTopicFilter  = "playfield/sensor/#"
-	defaultDebugTopicFilter   = "playfield/debug/#"
+	defaultMQTTClientPrefix   = "flipper-backend"
+	defaultSensorTopicFilter  = "flipper/sensor/#"
+	defaultDebugTopicFilter   = "flipper/debug/#"
 	defaultSolenoidQoS        = byte(1)
 	defaultLEDQoS             = byte(0)
 	defaultSensorSubQoS       = byte(1)
 	defaultDebugSubQoS        = byte(0)
 	defaultSolenoidDurationMS = 50
-	defaultLEDFlashTopic      = "playfield/led/flash"
+	defaultLEDFlashTopic      = "flipper/led/flash"
 )
 
 type AppConfig struct {
@@ -212,7 +212,7 @@ func (b *MQTTBridge) handleMessage(_ mqtt.Client, message mqtt.Message) {
 		b.hub.broadcast <- mustMarshalMessage(broadcast)
 	}
 
-	if message.Topic() == "playfield/sensor/tilt/triggered" && b.hub != nil {
+	if message.Topic() == "flipper/sensor/tilt/triggered" && b.hub != nil {
 		state := GameState{GameOver: true}
 		b.hub.broadcast <- mustMarshalMessage(Message{Type: "game_state", Payload: mustMarshalJSON(state)})
 	}
@@ -220,11 +220,11 @@ func (b *MQTTBridge) handleMessage(_ mqtt.Client, message mqtt.Message) {
 
 func classifyMQTTMessage(topic string) string {
 	switch {
-	case topic == "playfield/sensor/tilt/warning":
+	case topic == "flipper/sensor/tilt/warning":
 		return "tilt_warning"
-	case topic == "playfield/sensor/tilt/triggered":
+	case topic == "flipper/sensor/tilt/triggered":
 		return "tilt_triggered"
-	case strings.HasPrefix(topic, "playfield/debug/"):
+	case strings.HasPrefix(topic, "flipper/debug/"):
 		return "mqtt_debug"
 	default:
 		return "mqtt_event"

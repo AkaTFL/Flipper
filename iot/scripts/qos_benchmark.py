@@ -51,7 +51,7 @@ def main() -> int:
     p.add_argument("--host", default="127.0.0.1")
     p.add_argument("--port", type=int, default=1883)
     p.add_argument("--count", type=int, default=200)
-    p.add_argument("--topic", default="playfield/debug/qos_bench")
+    p.add_argument("--topic", default="flipper/debug/qos_bench")
     args = p.parse_args()
 
     topic = args.topic

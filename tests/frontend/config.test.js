@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import Config from '../../frontend/playfield/physics/Config.js';
+import Config from '../../frontend/flipper/physics/Config.js';
 
 test('config exposes the core physics sections used by the frontend', () => {
   assert.ok(Config.gravity);

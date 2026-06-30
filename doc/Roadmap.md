@@ -48,7 +48,7 @@ Poser une base exécutable pour backend, frontend et IoT avec pipeline de qualit
 - Consommer un message WebSocket de test.
 
 **Baptiste**
-- Créer les premiers assets proxy (table, playfields, bumper placeholders).
+- Créer les premiers assets proxy (table, flippers, bumper placeholders).
 - Définir une direction visuelle et une nomenclature d'assets.
 
 **Raphael**
@@ -78,7 +78,7 @@ Poser une base exécutable pour backend, frontend et IoT avec pipeline de qualit
 ## Phase 2 — Boucle de jeu MVP clavier (16 mars → 10 avril, 4 semaines)
 
 ### Objectif
-Livrer un playfield jouable au clavier, sans dépendance forte au matériel.
+Livrer un flipper jouable au clavier, sans dépendance forte au matériel.
 
 ### Travaux par rôle
 
@@ -93,7 +93,7 @@ Livrer un playfield jouable au clavier, sans dépendance forte au matériel.
 
 **Hugo**
 - Intégrer la physique (Rapier) et la logique de collisions côté frontend.
-- Implémenter les contrôles clavier (playfields, lancement bille).
+- Implémenter les contrôles clavier (flippers, lancement bille).
 - Afficher score et état de partie.
 
 **Baptiste**

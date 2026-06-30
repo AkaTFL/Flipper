@@ -52,7 +52,7 @@ test('le firmware final existe et reste facultatif pour le chargement', () => {
 });
 
 test('le Playfield se lance automatiquement uniquement en mode cabinet', () => {
-  const playfield = read('frontend/playfield/index.html');
+  const playfield = read('frontend/flipper/index.html');
 
   assert.match(playfield, /get\('cabinet'\) === '1'/);
   assert.match(playfield, /startFlipper\(\)/);

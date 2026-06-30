@@ -64,7 +64,7 @@
 ## 7. Contrôles et support (MVP)
 
 - **Plateforme** : jouable sur **PC**.
-- **Contrôles** : correspondance **touches clavier ↔ boutons** du playfield ; pas d’indication à l’écran des correspondances dans le jeu (documentation côté équipe).
+- **Contrôles** : correspondance **touches clavier ↔ boutons** du flipper ; pas d’indication à l’écran des correspondances dans le jeu (documentation côté équipe).
 
 ---
 

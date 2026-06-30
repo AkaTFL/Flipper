@@ -21,7 +21,7 @@ if "!COMMAND!"=="up" (
     docker-compose logs -f backend
 ) else if "!COMMAND!"=="logs-frontend" (
     echo 📋 Logs du frontend...
-    docker-compose logs -f frontend_playfield frontend_backglass frontend_dmd
+    docker-compose logs -f frontend_flipper frontend_backglass frontend_dmd
 ) else if "!COMMAND!"=="restart" (
     echo 🔄 Redémarrage des services...
     docker-compose restart

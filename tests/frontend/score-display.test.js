@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { ScoreDisplay } from '../../frontend/playfield/ui/ScoreDisplay.js';
+import { ScoreDisplay } from '../../frontend/flipper/ui/ScoreDisplay.js';
 
 function createFakeElement(tagName) {
   return {

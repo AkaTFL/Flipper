@@ -109,13 +109,13 @@ export class Controls{
             if (this.leftKeys.has(key)) {
                 this.pressedLeftKeys.delete(key);
                 this.input.left = this.pressedLeftKeys.size > 0;
-                console.log('Left playfield released');
+                console.log('Left flipper released');
                 return;
             }
             if (this.rightKeys.has(key)) {
                 this.pressedRightKeys.delete(key);
                 this.input.right = this.pressedRightKeys.size > 0;
-                console.log('Right playfield released');
+                console.log('Right flipper released');
                 return;
             }
             if (key === this.launch) {

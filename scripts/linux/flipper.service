@@ -6,9 +6,9 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=/opt/playfield
-ExecStart=/opt/playfield/scripts/linux/start_playfield.sh
-ExecStop=/opt/playfield/scripts/linux/stop_playfield.sh
+WorkingDirectory=/opt/flipper
+ExecStart=/opt/flipper/scripts/linux/start_flipper.sh
+ExecStop=/opt/flipper/scripts/linux/stop_flipper.sh
 Environment=FLIPPER_KIOSK=1
 Environment=FLIPPER_MANAGED_KIOSK=1
 Environment=FLIPPER_BUTTON_SOURCE=esp32

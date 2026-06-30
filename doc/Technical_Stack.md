@@ -2,7 +2,7 @@
 
 ## Vue d'ensemble
 
-Le projet Flipper est une simulation de playfield virtuel multijoueur combinant une interface 3D temps réel avec des contrôleurs physiques IoT. L'architecture repose sur une séparation claire entre frontend Web, backend applicatif et couche matérielle.
+Le projet Flipper est une simulation de flipper virtuel multijoueur combinant une interface 3D temps réel avec des contrôleurs physiques IoT. L'architecture repose sur une séparation claire entre frontend Web, backend applicatif et couche matérielle.
 
 ## Tableau récapitulatif
 
@@ -46,7 +46,7 @@ Le projet Flipper est une simulation de playfield virtuel multijoueur combinant 
 │  ┌────────────────────┼─────────────────────────────┐   │
 │  │     ESP32 (Wi-Fi + GPIO)                         │   │
 │  │  - Bumpers (lecture capteurs)                    │   │
-│  │  - Boutons playfield (entrées digitales)          │   │
+│  │  - Boutons flipper (entrées digitales)          │   │
 │  │  - LEDs / Solénoïdes (sorties)                  │   │
 │  └──────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────┘
@@ -58,14 +58,14 @@ Le projet Flipper est une simulation de playfield virtuel multijoueur combinant 
 
 ### 1. Backend : Go (Golang)
 
-Le choix de Go pour le backend d'un playfield est stratégique pour trois raisons majeures :
+Le choix de Go pour le backend d'un flipper est stratégique pour trois raisons majeures :
 
 #### 1.1 Gestion de la concurrence (Goroutines)
-Un playfield doit gérer plusieurs événements simultanés : la bille touche un bumper, le score se met à jour, une musique se lance, le WebSocket diffuse les événements aux 3 écrans. Go gère cela nativement avec des **goroutines** ultra-légères (2 Ko de stack vs 1-2 Mo pour un thread Java), permettant de gérer des milliers d'événements concurrents sans surconsommation mémoire.
+Un flipper doit gérer plusieurs événements simultanés : la bille touche un bumper, le score se met à jour, une musique se lance, le WebSocket diffuse les événements aux 3 écrans. Go gère cela nativement avec des **goroutines** ultra-légères (2 Ko de stack vs 1-2 Mo pour un thread Java), permettant de gérer des milliers d'événements concurrents sans surconsommation mémoire.
 
 
 #### 1.2 Latence minimale
-Contrairement à Python ou Node.js (interprétés), **Go est compilé en code machine**. Pour un playfield, chaque milliseconde compte entre le contact physique d'un bumper et la réaction visuelle. Go offre une latence typique de **< 1ms** pour le traitement d'événements, contre ~5-10ms pour Node.js sous charge.
+Contrairement à Python ou Node.js (interprétés), **Go est compilé en code machine**. Pour un flipper, chaque milliseconde compte entre le contact physique d'un bumper et la réaction visuelle. Go offre une latence typique de **< 1ms** pour le traitement d'événements, contre ~5-10ms pour Node.js sous charge.
 
 #### 1.3 Robustesse du binaire
 Go produit un **binaire unique et statiquement lié** (sans dépendances externes). C'est idéal pour un projet IoT car vous pouvez le déployer facilement sur n'importe quel serveur (même un Raspberry Pi) sans gérer Node.js, pip, ou JVM.
@@ -79,7 +79,7 @@ Concernant le choix du moteur graphique et du framework, notre décision s'est p
 Three.js a été priorisé par rapport à Babylon.js et d'autres moteurs, car il est largement adopté et bénéficie d'un support communautaire très important, ce qui permet d'accéder plus facilement à des ressources, des exemples et des tutoriels. Par ailleurs, Three.js est relativement léger et offre une grande liberté, que ce soit pour la conception de shaders, l'optimisation ou l'utilisation d'outils en surcouche tels que React Three Fiber, qui permet de gérer des objets Three.js comme des composants React. Enfin, son fonctionnement en tant que librairie JavaScript le rend compatible avec la majorité des navigateurs actuels.
 
 #### 2.2 Rapier (Moteur physique)
-Concernant le moteur physique, notre choix s'est porté sur Rapier, un moteur physique écrit en Rust et compilé en WebAssembly. L'avantage de Rapier réside dans son implémentation moderne, qui permet des calculs performants et peu lourds, ce qui est utile si le jeu se complexifie (gestion de multiples collisions, vitesse de la balle élevée, etc.). Rapier s'intègre facilement avec des surcouches comme R3F. Bien que son système soit un peu plus complexe que celui de certains concurrents, il offre une simulation de collisions fiable. De plus, sa capacité à utiliser le multi-threading, même si elle est surdimensionnée pour ce projet, permet de concevoir un playfield plus complexe tout en conservant une fluidité maximale.
+Concernant le moteur physique, notre choix s'est porté sur Rapier, un moteur physique écrit en Rust et compilé en WebAssembly. L'avantage de Rapier réside dans son implémentation moderne, qui permet des calculs performants et peu lourds, ce qui est utile si le jeu se complexifie (gestion de multiples collisions, vitesse de la balle élevée, etc.). Rapier s'intègre facilement avec des surcouches comme R3F. Bien que son système soit un peu plus complexe que celui de certains concurrents, il offre une simulation de collisions fiable. De plus, sa capacité à utiliser le multi-threading, même si elle est surdimensionnée pour ce projet, permet de concevoir un flipper plus complexe tout en conservant une fluidité maximale.
 
 ---
 
@@ -122,9 +122,9 @@ MQTT est conçu pour les **réseaux instables**. Si un message est envoyé par u
 
 ##### b) Architecture Pub/Sub (Publish/Subscribe)
 Cela permet de **découpler totalement** le matériel (ESP32) du logiciel (Backend Go) :
-- Les ESP32 solénoïdes **écoutent** les topics `playfield/solenoid/#`
-- L'ESP32 contrôleur peut **publier** le tilt sur `playfield/tilt/#`
-- Le backend Go **souscrit** à tous les topics `playfield/sensor/#`
+- Les ESP32 solénoïdes **écoutent** les topics `flipper/solenoid/#`
+- L'ESP32 contrôleur peut **publier** le tilt sur `flipper/tilt/#`
+- Le backend Go **souscrit** à tous les topics `flipper/sensor/#`
 - Si on ajoute un nouveau capteur, aucun changement côté backend (juste un nouveau topic)
 
 **Architecture scalable :**
@@ -137,7 +137,7 @@ ESP32_3 → USB série → PC Playfield (boutons)
 ##### c) Faible overhead
 Les messages MQTT ont un **header de seulement 2 octets** (vs 200-800 octets pour HTTP). Sur un réseau Wi-Fi local, c'est adapté aux solénoïdes, au tilt et aux événements non critiques.
 
-Les boutons de playfield restent en **USB série**, car ils doivent être plus réactifs qu'une entrée réseau.
+Les boutons de flipper restent en **USB série**, car ils doivent être plus réactifs qu'une entrée réseau.
 
 ---
 
@@ -172,7 +172,7 @@ Les boutons de playfield restent en **USB série**, car ils doivent être plus r
 ### Backend (Go)
 ```go
 // go.mod
-module github.com/playfield/backend
+module github.com/flipper/backend
 
 go 1.26
 

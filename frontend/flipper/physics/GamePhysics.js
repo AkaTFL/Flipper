@@ -190,7 +190,7 @@ export class GamePhysics {
             }
 
             if (typeof globalThis.dispatchEvent === 'function' && typeof globalThis.CustomEvent === 'function') {
-                globalThis.dispatchEvent(new globalThis.CustomEvent('playfield:backend-message', {
+                globalThis.dispatchEvent(new globalThis.CustomEvent('flipper:backend-message', {
                     detail: message
                 }));
             }

@@ -19,7 +19,7 @@ Principe general:
 ### Arbre des fichiers frontend
 
 frontend/
-- playfield/
+- flipper/
   - index.html
     - Point d entree navigateur
     - Charge le module principal core/Flipper.js
@@ -34,7 +34,7 @@ frontend/
   - objects/
     - Objects.js: classe de base commune, helpers mesh/collider/sync
     - Ball.js: balle dynamique
-    - Palles.js: playfields avec joint revolute
+    - Palles.js: flippers avec joint revolute
     - Bumper.js: bumpers
     - LaunchingRamp.js: lanceur
     - Wall.js, etc.: elements statiques
@@ -58,7 +58,7 @@ frontend/
    - murs Wall
    - launcher LaunchingRamp
    - bumpers Bumper
-   - playfields Palles
+   - flippers Palles
    - balle Ball
 7. Les references de controle sont branchees
    - controls.setLaunchingRampRef(...)
@@ -71,8 +71,8 @@ frontend/
 Dans Scene.render:
 1. physics.step() avance Rapier
 2. onUpdate() execute la logique metier
-   - sync des playfields et de la balle
-   - activation des playfields selon clavier
+   - sync des flippers et de la balle
+   - activation des flippers selon clavier
 3. renderer.render(scene, camera) dessine la frame
 4. requestAnimationFrame relance la frame suivante
 
@@ -108,7 +108,7 @@ Core idea:
 ### Frontend file tree
 
 frontend/
-- playfield/
+- flipper/
   - index.html
     - Browser entry point
     - Loads the main module core/Flipper.js
@@ -123,7 +123,7 @@ frontend/
   - objects/
     - Objects.js: shared base class, mesh/collider/sync helpers
     - Ball.js: dynamic ball
-    - Palles.js: playfields with revolute joint
+    - Palles.js: flippers with revolute joint
     - Bumper.js: bumpers
     - LaunchingRamp.js: launcher
     - Wall.js, etc.: static elements
@@ -147,7 +147,7 @@ frontend/
    - walls (Wall)
    - launcher (LaunchingRamp)
    - bumpers (Bumper)
-   - playfields (Palles)
+   - flippers (Palles)
    - ball (Ball)
 7. Control references are connected
    - controls.setLaunchingRampRef(...)
@@ -160,8 +160,8 @@ frontend/
 In Scene.render:
 1. physics.step() updates Rapier
 2. onUpdate() runs game logic
-   - playfield and ball sync
-   - playfield activation from keyboard input
+   - flipper and ball sync
+   - flipper activation from keyboard input
 3. renderer.render(scene, camera) draws the frame
 4. requestAnimationFrame schedules the next frame
 

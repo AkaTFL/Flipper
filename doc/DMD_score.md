@@ -2,7 +2,7 @@
 
 ## Rôle
 
-Le DMD est l'écran central du playfield. Il affiche des informations courtes et immédiatement utiles pendant la partie, sans détourner l'attention du joueur.
+Le DMD est l'écran central du flipper. Il affiche des informations courtes et immédiatement utiles pendant la partie, sans détourner l'attention du joueur.
 
 Les quêtes, les points de vie et le boss sont affichés sur le Backglass. Le DMD reste consacré au score et au rythme de la partie.
 

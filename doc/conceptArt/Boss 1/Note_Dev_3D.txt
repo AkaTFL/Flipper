@@ -1,5 +1,5 @@
 Note pour le dev 3D
 
 Cette image sert de base conceptuelle : positions à confirmer avec le gameplay.
-Priorité : conserver la lisibilité des bumpers, couloirs, playfields et zones de quête.
+Priorité : conserver la lisibilité des bumpers, couloirs, flippers et zones de quête.
 Le boss principal peut vivre sur le backglass, le playfield représentant ses zones d’attaque.

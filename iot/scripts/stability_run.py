@@ -16,7 +16,7 @@ def main() -> int:
     p.add_argument("--duration", type=float, default=10.0)
     p.add_argument("--rate", type=float, default=50.0, help="Messages publics par seconde")
     p.add_argument("--qos", type=int, default=1, choices=(0, 1, 2))
-    p.add_argument("--topic", default="playfield/debug/stability")
+    p.add_argument("--topic", default="flipper/debug/stability")
     args = p.parse_args()
 
     state = {"rx": 0}

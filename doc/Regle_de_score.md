@@ -1,6 +1,6 @@
 # Règle de score
 
-Ce document décrit la logique de score du playfield à partir du système final partagé pour le projet.
+Ce document décrit la logique de score du flipper à partir du système final partagé pour le projet.
 
 ## Formule globale
 

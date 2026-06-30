@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: dmd-deployment
-  namespace: playfield
+  namespace: flipper
   labels:
     app: dmd
 spec:
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: dmd
-          image: docker.io/hounga/playfield-dmd:latest
+          image: docker.io/hounga/flipper-dmd:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
@@ -47,7 +47,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: dmd-service
-  namespace: playfield
+  namespace: flipper
 spec:
   selector:
     app: dmd
