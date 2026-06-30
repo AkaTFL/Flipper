@@ -20,40 +20,6 @@
         height: 100vh;
       }
 
-      #play-overlay {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        pointer-events: none;
-        z-index: 10;
-      }
-
-      #play-button {
-        pointer-events: auto;
-        margin-bottom: 18px;
-        width: 54px;
-        height: 54px;
-        border: 0;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.92);
-        color: #111;
-        cursor: pointer;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-        display: grid;
-        place-items: center;
-        font-size: 18px;
-        line-height: 1;
-      }
-
-      #play-button:hover {
-        transform: scale(1.04);
-      }
-
-      #play-button:active {
-        transform: scale(0.98);
-      }
     </style>
     <script type="importmap">
       {
@@ -73,27 +39,38 @@
     </script>
   </head>
   <body id="three">
-    <div id="play-overlay" aria-hidden="false">
-      <button id="play-button" type="button" aria-label="Lancer le flipper">▶</button>
-    </div>
     <script type="module">
-      const playButton = document.getElementById('play-button');
-      const playOverlay = document.getElementById('play-overlay');
+      const { Menu } = await import('./core/Menu.js');
+      const { CabinetButtons } = await import('./core/CabinetButtons.js');
 
-      const startFlipper = async () => {
-        playButton.disabled = true;
-        playButton.textContent = '…';
+      // Pont boutons de borne -> touches clavier, actif dès le menu ET pendant le jeu
+      const cabinetButtons = new CabinetButtons();
+      cabinetButtons.connect();
+
+      let started = false;
+
+      const launchGame = async (slot, mode, level, menu) => {
+        if (started) {
+          return;
+        }
+        started = true;
+
+        // On retire le menu (et ses écouteurs clavier) avant de lancer le jeu
+        menu?.destroy();
 
         const { initFlipper } = await import('./core/Flipper.js');
-        await initFlipper();
-
-        playOverlay?.remove();
+        await initFlipper({ slot, mode, level });
       };
 
-      playButton.addEventListener('click', startFlipper, { once: true });
+      const menu = new Menu({
+        onPlay: (slot, mode, level) => launchGame(slot, mode, level, menu)
+      });
 
+      // Mode borne : démarre directement une nouvelle partie sur le slot 1
       if (new URLSearchParams(window.location.search).get('cabinet') === '1') {
-        startFlipper();
+        launchGame(1, 'new', 1, null);
+      } else {
+        menu.mount();
       }
     </script>
   </body>

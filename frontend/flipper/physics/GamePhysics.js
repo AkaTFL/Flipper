@@ -28,6 +28,7 @@ export class GamePhysics {
         this.ballRespawnedAfterBallLost = false;
         this.ballPassedAboveTriggerAfterRespawn = false;
         this.launchingRampHideTimeout = null;
+        this.activeSaveSlot = null;
     }
 
     async init() {
@@ -154,7 +155,12 @@ export class GamePhysics {
             } 
             
             else if (message?.type === 'player_state_update') {
+                const wasGameOver = this.gameOver;
                 this.gameOver = Boolean(message.payload?.gameOver);
+                // Sauvegarde sur game over (transition uniquement)
+                if (this.gameOver && !wasGameOver) {
+                    this.autoSaveActiveSlot();
+                }
             }
 
             else if (message?.type === 'boss_state_update') {
@@ -173,6 +179,8 @@ export class GamePhysics {
 
                     if (previousLevel !== Config.currentLevel) {
                         this.applyLevelConfig();
+                        // Sauvegarde de checkpoint à chaque montée de niveau
+                        this.autoSaveActiveSlot();
                     }
                 }
             }
@@ -203,6 +211,54 @@ export class GamePhysics {
 
         this.backendSocket.send(JSON.stringify(message));
         return true;
+    }
+
+    // Numéro de niveau courant (1-4) dérivé de Config.currentLevel ('lvl_1'..'lvl_4', 'post_lvl')
+    currentLevelNumber() {
+        const parsed = Number(Config.currentLevel?.split('_')[1]);
+        if (!Number.isFinite(parsed) || parsed < 1) {
+            return 1;
+        }
+        return Math.min(4, parsed);
+    }
+
+    // Sauvegarde la partie courante dans le slot actif (avec son niveau)
+    autoSaveActiveSlot() {
+        if (!this.activeSaveSlot) {
+            return false;
+        }
+        return this.sendMessage('save_game', {
+            slot: this.activeSaveSlot,
+            level: this.currentLevelNumber()
+        });
+    }
+
+    // Résout quand la WebSocket backend est ouverte (ou au bout du timeout)
+    whenBackendReady(timeoutMs = 5000) {
+        return new Promise((resolve) => {
+            const socket = this.backendSocket;
+            const OPEN = globalThis.WebSocket?.OPEN ?? 1;
+
+            if (!socket) {
+                resolve(false);
+                return;
+            }
+            if (socket.readyState === OPEN) {
+                resolve(true);
+                return;
+            }
+
+            let settled = false;
+            const finish = (value) => {
+                if (!settled) {
+                    settled = true;
+                    resolve(value);
+                }
+            };
+
+            socket.addEventListener('open', () => finish(true), { once: true });
+            setTimeout(() => finish(socket.readyState === OPEN), timeoutMs);
+        });
     }
     //
     //

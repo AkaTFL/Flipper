@@ -167,7 +167,7 @@ func (gs *GameService) handleSaveGame(payload json.RawMessage) {
 		return
 	}
 
-	entry, err := gs.hub.saveStore.Save(slot, gs.hub.captureSnapshot())
+	entry, err := gs.hub.saveStore.Save(slot, parseGameLevel(payload), gs.hub.captureSnapshot())
 	if err != nil {
 		gs.hub.broadcast <- NewGameSaveStatusMessage(GameSaveStatusPayload{
 			Slot:    slot,
@@ -266,4 +266,17 @@ func parseGameSlot(payload json.RawMessage) (int, bool) {
 	}
 
 	return request.Slot, true
+}
+
+func parseGameLevel(payload json.RawMessage) int {
+	if len(payload) == 0 {
+		return 0
+	}
+
+	var request GameSlotRequestPayload
+	if err := json.Unmarshal(payload, &request); err != nil {
+		return 0
+	}
+
+	return request.Level
 }
