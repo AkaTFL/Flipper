@@ -141,7 +141,7 @@ export default {
                         rotation: { x: 0, y: -(Math.PI / 3) - 0.1, z: 0 },
                         objectType: 'bumper',
                         objectId: 'bumper-triangle-left',
-                        model: `../assets/mesh/bumpers_triangle/bumper_triangle_left_lvl_${NiveauActuel}.glb`
+                        model: `../assets/mesh/bumpers_triangle/bumpers_triangle_left_lvl_${NiveauActuel}.glb`
                     },
                     {
                         width: 110,
@@ -149,7 +149,7 @@ export default {
                         rotation: { x: 0, y: (Math.PI / 3) + 0.1, z: 0 },
                         objectType: 'bumper',
                         objectId: 'bumper-triangle-right',
-                        model: `../assets/mesh/bumpers_triangle/bumper_triangle_right_lvl_${NiveauActuel}.glb`
+                        model: `../assets/mesh/bumpers_triangle/bumpers_triangle_right_lvl_${NiveauActuel}.glb`
                     },
                 ],
             },
@@ -679,10 +679,10 @@ export default {
             },
 
             bumper_triangle: {
-                map: '../assets/textures/lvl3/bumper_triangle/forest_leaves_02_diffuse_1k.png',
-                aoMap: '../assets/textures/lvl3/bumper_triangle/forest_leaves_02_arm_1k.png',
-                roughnessMap: '../assets/textures/lvl3/bumper_triangle/forest_leaves_02_arm_1k.png',
-                normalMap: '../assets/textures/lvl3/bumper_triangle/forest_leaves_02_nor_gl_1k.png',
+                map: '../assets/textures/lvl3/bumpers_triangle/forest_leaves_02_diffuse_1k.png',
+                aoMap: '../assets/textures/lvl3/bumpers_triangle/forest_leaves_02_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl3/bumpers_triangle/forest_leaves_02_arm_1k.png',
+                normalMap: '../assets/textures/lvl3/bumpers_triangle/forest_leaves_02_nor_gl_1k.png',
                 repeat: [4, 4]
             },
 
@@ -769,10 +769,10 @@ export default {
             },
 
             bumper_triangle: {
-                map: '../assets/textures/lvl4/bumper_triangle/forest_leaves_02_diffuse_1k.png',
-                aoMap: '../assets/textures/lvl4/bumper_triangle/forest_leaves_02_arm_1k.png',
-                roughnessMap: '../assets/textures/lvl4/bumper_triangle/forest_leaves_02_arm_1k.png',
-                normalMap: '../assets/textures/lvl4/bumper_triangle/forest_leaves_02_nor_gl_1k.png',
+                map: '../assets/textures/lvl4/bumpers_triangle/forest_leaves_02_diffuse_1k.png',
+                aoMap: '../assets/textures/lvl4/bumpers_triangle/forest_leaves_02_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl4/bumpers_triangle/forest_leaves_02_arm_1k.png',
+                normalMap: '../assets/textures/lvl4/bumpers_triangle/forest_leaves_02_nor_gl_1k.png',
                 repeat: [4, 4]
             },
 
