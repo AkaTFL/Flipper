@@ -1,5 +1,7 @@
 export var NiveauActuel = 1;
 
+const soundAsset = (path) => new URL(path, import.meta.url).href;
+
 export default {
     currentLevel: 'lvl_1',
     
@@ -440,11 +442,11 @@ export default {
         sounds: {
             ball: {
                 wood: {
-                    file: '../assets/sound/Ball/wood/rolling/1.mp3',
+                    file: soundAsset('../assets/sound/Ball/wood/rolling/1.mp3'),
                 },
 
                 metal: {
-                    file: '../assets/sound/Ball/metal/rolling/1.mp3',
+                    file: soundAsset('../assets/sound/Ball/metal/rolling/1.mp3'),
                 },
 
                 param: {
@@ -458,30 +460,30 @@ export default {
             },
             
             bumper: {
-                collision: { file: "../assets/sound/Bumpers_collision.mp3", volume: 0.2 },
-                move: { file: "../assets/sound/Bumpers_collision.mp3", volume: 0.15 },
+                collision: { file: soundAsset("../assets/sound/Bumpers_collision.mp3"), volume: 0.2 },
+                move: { file: soundAsset("../assets/sound/Bumpers_collision.mp3"), volume: 0.15 },
             },
 
             wall: {
-                collision: { file: "../assets/sound/Ball/wood/collision/1.mp3", volume: 0.08 },
+                collision: { file: soundAsset("../assets/sound/Ball/wood/collision/1.mp3"), volume: 0.08 },
             },
 
             staticMesh: {
-                collision: { file: "../assets/sound/Ball/wood/collision/1.mp3", volume: 0.05 },
+                collision: { file: soundAsset("../assets/sound/Ball/wood/collision/1.mp3"), volume: 0.05 },
             },
 
             launchingRamp: {  
-                charging: { file: "../assets/sound/Ramp_reload_1.mp3", volume: 0.25, loop: true },
-                launch: { file: "../assets/sound/Ramp_launch.mp3", volume: 0.2 }
+                charging: { file: soundAsset("../assets/sound/Ramp_reload_1.mp3"), volume: 0.25, loop: true },
+                launch: { file: soundAsset("../assets/sound/Ramp_launch.mp3"), volume: 0.2 }
             },
 
             palles: {
-                collision: { file: "../assets/sound/Ball/wood/collision/1.mp3", volume: 0.05 },
-                movement: { file: "../assets/sound/Palles_move.mp3", volume: 0.2 }
+                collision: { file: soundAsset("../assets/sound/Ball/wood/collision/1.mp3"), volume: 0.05 },
+                movement: { file: soundAsset("../assets/sound/Palles_move.mp3"), volume: 0.2 }
             },
 
             ramp: {        
-                collision: { file: "../assets/sound/Ball/wood/collision/1.mp3", volume: 0.05 }
+                collision: { file: soundAsset("../assets/sound/Ball/wood/collision/1.mp3"), volume: 0.05 }
             },
         },
     },
@@ -562,12 +564,12 @@ export default {
         
         soundtrack: {
             "Boss 1": [
-                "../assets/sound/Boss 1/1.mp3",
-                "../assets/sound/Boss 1/2.mp3",
-                "../assets/sound/Boss 1/3.mp3",
-                "../assets/sound/Boss 1/4.mp3",
-                "../assets/sound/Boss 1/5.mp3",
-                "../assets/sound/Boss 1/6.mp3"
+                soundAsset("../assets/sound/Boss 1/1.mp3"),
+                soundAsset("../assets/sound/Boss 1/2.mp3"),
+                soundAsset("../assets/sound/Boss 1/3.mp3"),
+                soundAsset("../assets/sound/Boss 1/4.mp3"),
+                soundAsset("../assets/sound/Boss 1/5.mp3"),
+                soundAsset("../assets/sound/Boss 1/6.mp3")
             ]},
 
         bloom: 0x00ff00,
@@ -635,11 +637,11 @@ export default {
 
         soundtrack: {
             "Boss 2": [
-                    "../assets/sound/Boss 2/1.mp3",
-                    "../assets/sound/Boss 2/2.mp3",
-                    "../assets/sound/Boss 2/3.mp3",
-                    "../assets/sound/Boss 2/4.mp3",
-                    "../assets/sound/Boss 2/5.mp3",
+                    soundAsset("../assets/sound/Boss 2/1.mp3"),
+                    soundAsset("../assets/sound/Boss 2/2.mp3"),
+                    soundAsset("../assets/sound/Boss 2/3.mp3"),
+                    soundAsset("../assets/sound/Boss 2/4.mp3"),
+                    soundAsset("../assets/sound/Boss 2/5.mp3"),
                 ]},
         
         gravity: { x: 0, y: -12.1875, z: -1.3875 },
@@ -713,15 +715,15 @@ export default {
 
         soundtrack: {
             "Boss 3": [
-                "../assets/sound/Boss 3/1.mp3",
-                "../assets/sound/Boss 3/2.mp3",
-                "../assets/sound/Boss 3/3.mp3",
-                "../assets/sound/Boss 3/4.mp3",
-                "../assets/sound/Boss 3/5.mp3",
-                "../assets/sound/Boss 3/6.mp3",
-                "../assets/sound/Boss 3/7.mp3",
-                "../assets/sound/Boss 3/8.mp3",
-                "../assets/sound/Boss 3/9.mp3",
+                soundAsset("../assets/sound/Boss 3/1.mp3"),
+                soundAsset("../assets/sound/Boss 3/2.mp3"),
+                soundAsset("../assets/sound/Boss 3/3.mp3"),
+                soundAsset("../assets/sound/Boss 3/4.mp3"),
+                soundAsset("../assets/sound/Boss 3/5.mp3"),
+                soundAsset("../assets/sound/Boss 3/6.mp3"),
+                soundAsset("../assets/sound/Boss 3/7.mp3"),
+                soundAsset("../assets/sound/Boss 3/8.mp3"),
+                soundAsset("../assets/sound/Boss 3/9.mp3"),
             ]},
         
         gravity: { x: 0, y: -14.625, z: -1.665 },
@@ -819,14 +821,14 @@ export default {
 
         soundtrack: {
         "Boss 4 (Final)": [
-                "../assets/sound/Boss 4 (Final)/1.mp3",
-                "../assets/sound/Boss 4 (Final)/2.mp3",
-                "../assets/sound/Boss 4 (Final)/3.mp3",
-                "../assets/sound/Boss 4 (Final)/4.mp3",
-                "../assets/sound/Boss 4 (Final)/5.mp3",
-                "../assets/sound/Boss 4 (Final)/6.mp3",
-                "../assets/sound/Boss 4 (Final)/7.mp3",
-                "../assets/sound/Boss 4 (Final)/8.mp3"
+            soundAsset("../assets/sound/Boss 4 (Final)/1.mp3"),
+            soundAsset("../assets/sound/Boss 4 (Final)/2.mp3"),
+            soundAsset("../assets/sound/Boss 4 (Final)/3.mp3"),
+            soundAsset("../assets/sound/Boss 4 (Final)/4.mp3"),
+            soundAsset("../assets/sound/Boss 4 (Final)/5.mp3"),
+            soundAsset("../assets/sound/Boss 4 (Final)/6.mp3"),
+            soundAsset("../assets/sound/Boss 4 (Final)/7.mp3"),
+            soundAsset("../assets/sound/Boss 4 (Final)/8.mp3")
             ]},
         
         gravity: { x: 0, y: -17.0625, z: -1.9425 },
@@ -875,14 +877,14 @@ export default {
         
         soundtrack: {
             "Boss 4 (Final)": [
-                    "../assets/sound/Boss 4 (Final)/1.mp3",
-                    "../assets/sound/Boss 4 (Final)/2.mp3",
-                    "../assets/sound/Boss 4 (Final)/3.mp3",
-                    "../assets/sound/Boss 4 (Final)/4.mp3",
-                    "../assets/sound/Boss 4 (Final)/5.mp3",
-                    "../assets/sound/Boss 4 (Final)/6.mp3",
-                    "../assets/sound/Boss 4 (Final)/7.mp3",
-                    "../assets/sound/Boss 4 (Final)/8.mp3"
+                    soundAsset("../assets/sound/Boss 4 (Final)/1.mp3"),
+                    soundAsset("../assets/sound/Boss 4 (Final)/2.mp3"),
+                    soundAsset("../assets/sound/Boss 4 (Final)/3.mp3"),
+                    soundAsset("../assets/sound/Boss 4 (Final)/4.mp3"),
+                    soundAsset("../assets/sound/Boss 4 (Final)/5.mp3"),
+                    soundAsset("../assets/sound/Boss 4 (Final)/6.mp3"),
+                    soundAsset("../assets/sound/Boss 4 (Final)/7.mp3"),
+                    soundAsset("../assets/sound/Boss 4 (Final)/8.mp3")
                 ]},
             
             gravity: { x: 0, y: -17.0625, z: -2.22 },
