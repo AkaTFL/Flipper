@@ -17,7 +17,7 @@ export function createCamera(position) {
     const frustumHeight =
         2 * Math.tan(THREE.MathUtils.degToRad(55 / 2)) * distance;
 
-    const frustumWidth = frustumHeight * aspect;
+    const frustumWidth = aspect;
 
     const camera = new THREE.PerspectiveCamera(
         55,
