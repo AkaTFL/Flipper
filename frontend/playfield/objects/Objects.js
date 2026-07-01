@@ -293,7 +293,7 @@ export class Objects {
 
             const texture = value.isTexture
                 ? value
-                : loader.load(value);
+                : loader.load(new URL(value, import.meta.url).href);
 
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;

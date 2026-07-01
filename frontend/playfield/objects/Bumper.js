@@ -37,10 +37,13 @@ export class Bumper extends Objects {
         const bumperConfig = Config.global.positioning.bumper.instances.find((entry) => entry.objectId === this.objectId) || null;
 
         const modelPath = new URL(bumperConfig.model, import.meta.url).href;
+        const textureSet = this.objectId?.includes('bumper-triangle')
+            ? Config[Config.currentLevel].textures.bumper_triangle
+            : Config[Config.currentLevel].textures.bumper;
 
         this.addMesh(modelPath, (modelRoot) => {
 
-            this.addTexture(Config[Config.currentLevel].textures.bumper, modelRoot);
+            this.addTexture(textureSet, modelRoot);
 
             modelRoot.traverse((child) => {
 
@@ -96,7 +99,7 @@ export class Bumper extends Objects {
             Config.forceMultiplier;
 
         // Bumper triangulaire
-        if (this.objectId == 'bumper-triangle') {
+        if (this.objectId?.includes('bumper-triangle')) {
             const userData = this.collider.userData ?? this.collider.getUserData?.();
             if (!userData || userData.name !== 'bump') return;
 

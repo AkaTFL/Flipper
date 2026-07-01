@@ -679,10 +679,10 @@ export default {
             },
 
             bumper_triangle: {
-                map: '../assets/textures/lvl3/bumpers_triangle/forest_leaves_02_diffuse_1k.png',
-                aoMap: '../assets/textures/lvl3/bumpers_triangle/forest_leaves_02_arm_1k.png',
-                roughnessMap: '../assets/textures/lvl3/bumpers_triangle/forest_leaves_02_arm_1k.png',
-                normalMap: '../assets/textures/lvl3/bumpers_triangle/forest_leaves_02_nor_gl_1k.png',
+                map: '../assets/textures/lvl3/bumpers_triangulaire/forest_leaves_02_diffuse_1k.png',
+                aoMap: '../assets/textures/lvl3/bumpers_triangulaire/forest_leaves_02_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl3/bumpers_triangulaire/forest_leaves_02_arm_1k.png',
+                normalMap: '../assets/textures/lvl3/bumpers_triangulaire/forest_leaves_02_nor_gl_1k.png',
                 repeat: [4, 4]
             },
 
@@ -769,10 +769,10 @@ export default {
             },
 
             bumper_triangle: {
-                map: '../assets/textures/lvl4/bumpers_triangle/forest_leaves_02_diffuse_1k.png',
-                aoMap: '../assets/textures/lvl4/bumpers_triangle/forest_leaves_02_arm_1k.png',
-                roughnessMap: '../assets/textures/lvl4/bumpers_triangle/forest_leaves_02_arm_1k.png',
-                normalMap: '../assets/textures/lvl4/bumpers_triangle/forest_leaves_02_nor_gl_1k.png',
+                map: '../assets/textures/lvl4/bumpers_triangulaire/forest_leaves_02_diffuse_1k.png',
+                aoMap: '../assets/textures/lvl4/bumpers_triangulaire/forest_leaves_02_arm_1k.png',
+                roughnessMap: '../assets/textures/lvl4/bumpers_triangulaire/forest_leaves_02_arm_1k.png',
+                normalMap: '../assets/textures/lvl4/bumpers_triangulaire/forest_leaves_02_nor_gl_1k.png',
                 repeat: [4, 4]
             },
 
