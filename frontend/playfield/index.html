@@ -45,12 +45,12 @@
   </head>
   <body id="three">
     <script type="module">
-      //const { Menu } = await import('./core/Menu.js');
-      //const { CabinetButtons } = await import('./core/CabinetButtons.js');
+      const { Menu } = await import('./core/Menu.js');
+      const { CabinetButtons } = await import('./core/CabinetButtons.js');
 
       // Pont boutons de borne -> touches clavier, actif dès le menu ET pendant le jeu
-      //const cabinetButtons = new CabinetButtons();
-      //cabinetButtons.connect();
+      const cabinetButtons = new CabinetButtons();
+      cabinetButtons.connect();
 
       let started = false;
 
@@ -67,9 +67,9 @@
         await initFlipper({ slot, mode, level });
       };
 
-      // const menu = new Menu({
-      //   onPlay: (slot, mode, level) => launchGame(slot, mode, level, menu)
-      // });
+      const menu = new Menu({
+        onPlay: (slot, mode, level) => launchGame(slot, mode, level, menu)
+      });
 
       // Mode borne : démarre directement une nouvelle partie sur le slot 1
       if (new URLSearchParams(window.location.search).get('cabinet') === '1') {
