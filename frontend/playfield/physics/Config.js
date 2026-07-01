@@ -1,6 +1,10 @@
 export var NiveauActuel = 1;
 
-const soundAsset = (path) => new URL(path, import.meta.url).href;
+const soundAsset = (path) => {
+    const resolved = new URL(path, import.meta.url).href;
+    console.info(`[sound-import] ${path} -> ${resolved}`);
+    return resolved;
+};
 
 export default {
     currentLevel: 'lvl_1',
