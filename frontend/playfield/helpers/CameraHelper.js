@@ -19,9 +19,11 @@ export function createCamera(position) {
 
     const frustumWidth = aspect;
 
-    const camera = new THREE.PerspectiveCamera(
-        55,
-        window.innerHeight,
+    const camera = new THREE.OrthographicCamera(
+        -frustumWidth / 2,
+        frustumWidth / 2,
+        frustumHeight / 2,
+        -frustumHeight / 2,
         0.1,
         3000
     );
