@@ -21,7 +21,7 @@ export function createCamera(position) {
 
     const camera = new THREE.PerspectiveCamera(
         55,
-        window.innerWidth / window.innerHeight,
+        window.innerHeight,
         0.1,
         3000
     );
