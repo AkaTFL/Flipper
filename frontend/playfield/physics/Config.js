@@ -235,6 +235,12 @@ export default {
                     length: 200,
                     width: 80,
                     height: 400,
+                    minimumLaunchSpeed: 180,
+                    propulsionSpeed: 260,
+                    propulsionDurationMs: 1600,
+                    propulsionTickMs: 40,
+                    propulsionSwitchDistance: 55,
+                    propulsionExitDistance: 170,
                     position: { x: -160, y: 43, z: 150 },
                     rotation: { x: 0, y: Math.PI, z: 0 },
                     objectType: 'ramp',
@@ -264,6 +270,9 @@ export default {
                 restitution: 0.5,
                 friction: 0.5,
                 rotationSpeed: 1400,
+                // Le moteur doit frapper rapidement tout en revenant sans osciller.
+                motorStiffness: 5000,
+                motorDamping: 150,
                 rotationAngle: 40 * (Math.PI / 180),
                 initialAngle: 30 * (Math.PI / 180),
                 instances: [
@@ -291,7 +300,8 @@ export default {
                 model: `../assets/mesh/etage/etage_lvl_${NiveauActuel}.glb`,
                 objectId: 'etage',
                 objectType: 'etage',
-                length: 200,
+                // Élargit l'accès gauche sans modifier la hauteur de l'étage.
+                length: 230,
                 width: 80,
                 height: 450,
                 radius: null,

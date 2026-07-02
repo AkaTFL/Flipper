@@ -13,6 +13,9 @@ export class Ramp extends Objects {
         this.entranceCollider = null;
         this.rampCollider = null;
         this._railCenter = null;
+        this._entranceCenter = null;
+        this._railExit = null;
+        this._propulsionTimer = null;
         this._launching = false; // verrou anti-redéclenchement pendant le lancement
 
         // gamePhysics est injecté depuis Flipper.js juste après le new Ramp(...)
@@ -38,7 +41,23 @@ export class Ramp extends Objects {
                         this._railCenter = new THREE.Vector3();
                         box.getCenter(this._railCenter);
                     }
+                    if (child.isMesh && child.name === 'entrance') {
+                        const box = new THREE.Box3().setFromObject(child);
+                        this._entranceCenter = new THREE.Vector3();
+                        box.getCenter(this._entranceCenter);
+                    }
                 });
+
+                if (this._entranceCenter && this._railCenter) {
+                    const exitDirection = this._railCenter.clone()
+                        .sub(this._entranceCenter)
+                        .normalize();
+                    this._railExit = this._railCenter.clone().add(
+                        exitDirection.multiplyScalar(
+                            Config.global.positioning.ramps.B.propulsionExitDistance
+                        )
+                    );
+                }
 
                 modelRoot.traverse((child) => {
                     if (!child.isMesh) return;
@@ -49,23 +68,19 @@ export class Ramp extends Objects {
                             break;
                         case 'entrance':
                             this.addTexture(Config[Config.currentLevel].textures.ramps.entrance, child);
+                            this._setEntranceBaseColor(child, 0x343b2a);
                             break;
                         default:
                             this.addTexture(Config[Config.currentLevel].textures[this.objectType], child);
                     }
 
-                    const trimesh = this.buildTrimeshCollider(child);
+                    const collider = this.buildLocalTrimeshCollider(child, {
+                        // L'entrée détecte la balle sans la bloquer.
+                        sensor: child.name === 'entrance',
+                        activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+                    });
 
-                    // L'entrée ne doit JAMAIS bloquer physiquement la balle :
-                    // c'est une zone de détection, pas un mur. Sans ça, le solveur
-                    // de contact contrecarre l'impulsion de lancement vers le rail.
-                    if (child.name === 'entrance') {
-                        trimesh.setSensor(true);
-                    }
-
-                    const collider = this.attachCollider(
-                        trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
-                    );
+                    if (!collider) return;
 
                     if (child.name === 'entrance') {
                         this.entranceCollider = collider;
@@ -108,14 +123,7 @@ export class Ramp extends Objects {
             return;
         }
 
-        this._launching = true;
-        this._launchBallTowardRail(ballBody);
-
-        // On relâche le verrou après un court délai, le temps que la balle
-        // quitte physiquement la zone d'entrée
-        setTimeout(() => {
-            this._launching = false;
-        }, 400);
+        this._activatePropulsion(ballBody);
     }
 
     _launchBallTowardRail(ballBody) {
@@ -124,10 +132,14 @@ export class Ramp extends Objects {
 
         // Vitesse (norme) à laquelle la balle arrive dans la zone d'entrée —
         // on la conserve telle quelle, on ne fait que rediriger sa direction.
-        const speed = Math.hypot(
+        const incomingSpeed = Math.hypot(
             currentVelocity.x ?? 0,
             currentVelocity.y ?? 0,
             currentVelocity.z ?? 0
+        );
+        const speed = Math.max(
+            incomingSpeed,
+            Config.global.positioning.ramps.B.minimumLaunchSpeed ?? 0
         );
 
         const direction = new THREE.Vector3(
@@ -144,6 +156,79 @@ export class Ramp extends Objects {
 
         ballBody.setLinvel(launchVelocity, true);
 
-        console.log(`[Ramp ${this.objectId}] Lancement vers le rail (vitesse conservée: ${speed.toFixed(2)})`, launchVelocity);
+        console.log(`[Ramp ${this.objectId}] Lancement vers le rail (entrée: ${incomingSpeed.toFixed(2)}, sortie: ${speed.toFixed(2)})`, launchVelocity);
+    }
+
+    _activatePropulsion(ballBody) {
+        if (!ballBody || this._launching || !this._railCenter) return false;
+
+        this._launching = true;
+        this._launchBallTowardRail(ballBody);
+        this._startGuidedPropulsion(ballBody);
+
+        setTimeout(() => {
+            this._launching = false;
+        }, Config.global.positioning.ramps.B.propulsionDurationMs);
+
+        return true;
+    }
+
+    _setEntranceBaseColor(mesh, color) {
+        const materials = Array.isArray(mesh.material)
+            ? mesh.material
+            : [mesh.material];
+
+        materials.filter(Boolean).forEach((material) => {
+            material.color?.set(color);
+            material.roughness = 0.9;
+            material.metalness = 0;
+            material.needsUpdate = true;
+        });
+    }
+
+    _startGuidedPropulsion(ballBody) {
+        if (!this._railCenter) return;
+
+        if (this._propulsionTimer !== null) {
+            clearInterval(this._propulsionTimer);
+        }
+
+        const config = Config.global.positioning.ramps.B;
+        const startedAt = Date.now();
+        let target = this._railCenter;
+        let targetingExit = false;
+
+        const propel = () => {
+            if ((Date.now() - startedAt) >= config.propulsionDurationMs) {
+                clearInterval(this._propulsionTimer);
+                this._propulsionTimer = null;
+                return;
+            }
+
+            const position = ballBody.translation();
+            const ballPosition = new THREE.Vector3(position.x, position.y, position.z);
+
+            if (
+                !targetingExit &&
+                this._railExit &&
+                ballPosition.distanceTo(this._railCenter) <= config.propulsionSwitchDistance
+            ) {
+                target = this._railExit;
+                targetingExit = true;
+            }
+
+            const direction = target.clone().sub(ballPosition);
+            if (direction.lengthSq() < 1) return;
+
+            direction.normalize().multiplyScalar(config.propulsionSpeed);
+            ballBody.setLinvel({
+                x: direction.x,
+                y: direction.y,
+                z: direction.z
+            }, true);
+        };
+
+        propel();
+        this._propulsionTimer = setInterval(propel, config.propulsionTickMs);
     }
 }
