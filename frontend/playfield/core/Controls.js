@@ -123,7 +123,7 @@ export class Controls{
 
                 const chargeDuration = this.launchChargeStart > 0 ? Date.now() - this.launchChargeStart : 0;
 
-                this.input.launchPower = Math.min(Config.global.positioning.launchingRamp.minimalPower + (chargeDuration * Config.global.positioning.launchingRamp.powerBuild) / 10, Config.global.positioning.launchingRamp.maximalPower);
+                this.input.launchPower = this.calculateLaunchSpeed(chargeDuration);
 
                 this.launchChargeStart = 0;
                 console.log(`Launch button released after charging for ${chargeDuration}ms, power: ${this.input.launchPower}`);
@@ -134,13 +134,25 @@ export class Controls{
                         if (typeof this.startGameCallback === 'function') {
                             this.startGameCallback();
                         }
-                        const chargedPower = Config.global.positioning.launchingRamp.maximalPower * Math.max(0.1, this.input.launchPower) * Config.forceMultiplier;
-                        this.ballRef.rigidBody.applyImpulse({ x: 0, y: 0, z: chargedPower }, true);
+                        this.ballRef.rigidBody.setLinvel({
+                            x: 0,
+                            y: 0,
+                            z: this.input.launchPower
+                        }, true);
                         this.impulseUsed = true;
                     }
                 }
             }
         );
+    }
+
+    calculateLaunchSpeed(chargeDurationMs) {
+        const config = Config.global.positioning.launchingRamp;
+        const charge = Math.min(1, Math.max(0, chargeDurationMs) / config.chargeDurationMs);
+        // Courbe douce : précise au début, puis ralentit près de la puissance maximale.
+        const easedCharge = 1 - Math.pow(1 - charge, 2);
+        return config.minimalSpeed
+            + (config.maximalSpeed - config.minimalSpeed) * easedCharge;
     }
 
     setLaunchingRampRef(ref) {

@@ -41,8 +41,9 @@ export function createOutline(
 
     // Décroissance basée sur delta — aucun setTimeout, aucune accumulation
     const BASE     = { strength: edgeStrength, glow: edgeGlow, thickness: edgeThickness };
-    const PEAK = { strength: 50, glow: 10, thickness: 12 };
-    const DURATION = 1; // secondes
+    // Flash lisible sans masquer la bille ni saturer les éléments jaunes.
+    const PEAK = { strength: 7, glow: 1.6, thickness: 3 };
+    const DURATION = 0.2; // secondes
     let _impactTimer = 0;
 
     // Déclenche un flash : reset le timer (idempotent, safe à appeler à haute fréquence)

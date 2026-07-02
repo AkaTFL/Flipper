@@ -31,10 +31,12 @@ export default {
                 height: 1000,
                 position: { x: -190, y: 100, z: 10 },
                 rotation: { x: Math.PI, y: 0, z: Math.PI },
-                minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
-                maximalPower: 50,
-                powerBuild: 0.25,  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
-                power: 10,
+                // Vitesse contrôlée plutôt qu'une impulsion dépendante de la masse.
+                // Un appui bref sort toujours la balle du couloir; un appui long
+                // reste sous la limite qui pourrait l'éjecter du playfield.
+                minimalSpeed: 1500,
+                maximalSpeed: 1750,
+                chargeDurationMs: 900,
                 model: `../assets/mesh/ramp_launch/ramp_launch_lvl_${NiveauActuel}.glb`,
                 objectId: 'launching-ramp'
             },
@@ -235,12 +237,6 @@ export default {
                     length: 200,
                     width: 80,
                     height: 400,
-                    minimumLaunchSpeed: 180,
-                    propulsionSpeed: 260,
-                    propulsionDurationMs: 1600,
-                    propulsionTickMs: 40,
-                    propulsionSwitchDistance: 55,
-                    propulsionExitDistance: 170,
                     position: { x: -160, y: 43, z: 150 },
                     rotation: { x: 0, y: Math.PI, z: 0 },
                     objectType: 'ramp',
