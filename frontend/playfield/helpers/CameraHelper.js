@@ -17,7 +17,11 @@ export function createCamera(position) {
     const frustumHeight =
         2 * Math.tan(THREE.MathUtils.degToRad(55 / 2)) * distance;
 
-    const frustumWidth = aspect;
+    // Utiliser dès l'initialisation la même projection que lors d'un resize.
+    // Avec seulement `aspect`, le frustum horizontal était presque nul par
+    // rapport à sa hauteur et la scène apparaissait sous forme de lignes
+    // étirées jusqu'au premier redimensionnement de la fenêtre.
+    const frustumWidth = frustumHeight * aspect;
 
     const camera = new THREE.OrthographicCamera(
         -frustumWidth / 2,
