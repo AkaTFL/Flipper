@@ -69,8 +69,9 @@ export class LaunchingRamp extends Objects {
         if (this.pushedBodyHandles.has(otherBody.handle)) return;
 
         // --- LE PLAFOND VIRTUEL ---
-        const absoluteMax = Config.global.positioning.launchingRamp.maximalPower;
-        let targetSpeed = powerOverride;
+        const launchConfig = Config.global.positioning.launchingRamp;
+        const absoluteMax = launchConfig.maximalSpeed;
+        let targetSpeed = powerOverride ?? launchConfig.minimalSpeed;
 
         if (targetSpeed > absoluteMax) targetSpeed = absoluteMax;
 

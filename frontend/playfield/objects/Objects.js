@@ -186,6 +186,61 @@ export class Objects {
         return firstColliderDesc;
     }
 
+    /**
+     * Construit un collider à partir d'un mesh en conservant ses coordonnées
+     * locales par rapport au groupe porté par le rigid body.
+     *
+     * `buildTrimeshCollider` historique applique `matrixWorld`, puis attache le
+     * résultat à un rigid body déjà positionné : la translation et la rotation
+     * peuvent alors être appliquées deux fois. Cette variante est utilisée par
+     * les accès aux rampes, pour lesquels l'alignement visuel/physique doit être
+     * exact.
+     */
+    buildLocalTrimeshCollider(mesh, { sensor = false, activeEvents = null } = {}) {
+        if (!mesh?.isMesh || !mesh.geometry || !this.mesh) return null;
+
+        this.mesh.updateMatrixWorld(true);
+        mesh.updateMatrixWorld(true);
+
+        const geometry = mesh.geometry.clone();
+        const position = geometry.getAttribute('position');
+        if (!position) {
+            geometry.dispose();
+            return null;
+        }
+
+        const relativeMatrix = new THREE.Matrix4()
+            .copy(this.mesh.matrixWorld)
+            .invert()
+            .multiply(mesh.matrixWorld);
+
+        geometry.applyMatrix4(relativeMatrix);
+
+        const vertices = [];
+        const indices = [];
+
+        for (let i = 0; i < position.count; i++) {
+            vertices.push(position.getX(i), position.getY(i), position.getZ(i));
+        }
+
+        if (geometry.index) {
+            for (let i = 0; i < geometry.index.count; i++) {
+                indices.push(geometry.index.getX(i));
+            }
+        } else {
+            for (let i = 0; i < position.count; i++) indices.push(i);
+        }
+
+        geometry.dispose();
+        if (vertices.length === 0 || indices.length === 0) return null;
+
+        let desc = RAPIER.ColliderDesc.trimesh(vertices, indices);
+        if (sensor) desc = desc.setSensor(true);
+        if (activeEvents !== null) desc = desc.setActiveEvents(activeEvents);
+
+        return this.attachCollider(desc);
+    }
+
     buildConvexHullCollider(modelRoot, offsetTranslation = { x: 0, y: 0, z: 0 }) {
         if (!modelRoot || !modelRoot.isObject3D) return null;
 

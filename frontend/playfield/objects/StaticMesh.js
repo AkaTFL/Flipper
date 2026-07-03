@@ -33,12 +33,18 @@ export class StaticMesh extends Objects {
                     console.log(child.name, child.geometry.uuid);
                     console.log(child.name, child.material, child.material?.uuid);
 
-                    const trimesh = this.buildTrimeshCollider(child);
+                    if (this.objectType === 'etage') {
+                        this.buildLocalTrimeshCollider(child, {
+                            activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+                        });
+                    } else {
+                        const trimesh = this.buildTrimeshCollider(child);
 
-                    if (trimesh) {
-                        this.attachCollider(
-                            trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
-                        );
+                        if (trimesh) {
+                            this.attachCollider(
+                                trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
+                            );
+                        }
                     }
 
                     switch (child.name) {

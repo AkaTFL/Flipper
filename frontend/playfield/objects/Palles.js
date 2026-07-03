@@ -49,6 +49,8 @@ export class Palles extends Objects {
         this.initialAngle  = Math.abs(Config.global.positioning.palles.initialAngle);
         this.restAngle     = this.isLeft ? -this.initialAngle : this.initialAngle;
         this.rotationSpeed = Config.global.positioning.palles.rotationSpeed;
+        this.motorStiffness = Config.global.positioning.palles.motorStiffness;
+        this.motorDamping = Config.global.positioning.palles.motorDamping;
 
         // ─── Chemin du modèle (Config) ────────────────────────────────────────
         const modelRelative = this.isLeft
@@ -143,7 +145,11 @@ export class Palles extends Objects {
             ? (this.isLeft ? this.angle : -this.angle)
             : 0;
 
-        this.joint.configureMotorPosition(targetAngle, this.rotationSpeed, 5.0);
+        this.joint.configureMotorPosition(
+            targetAngle,
+            this.motorStiffness,
+            this.motorDamping
+        );
 
         if (active && !this.wasActive) {
             this.playSound(Config.global.sounds.palles.movement);

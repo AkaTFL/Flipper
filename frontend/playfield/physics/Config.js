@@ -31,10 +31,12 @@ export default {
                 height: 1000,
                 position: { x: -190, y: 100, z: 10 },
                 rotation: { x: Math.PI, y: 0, z: Math.PI },
-                minimalPower: 10,  // Puissance minimale de lancement pour garantir que la balle se déplace même avec une charge très courte
-                maximalPower: 50,
-                powerBuild: 0.25,  // Vitesse à laquelle la puissance de lancement augmente pendant que le bouton est maintenu enfoncé
-                power: 10,
+                // Vitesse contrôlée plutôt qu'une impulsion dépendante de la masse.
+                // Un appui bref sort toujours la balle du couloir; un appui long
+                // reste sous la limite qui pourrait l'éjecter du playfield.
+                minimalSpeed: 1500,
+                maximalSpeed: 1750,
+                chargeDurationMs: 900,
                 model: `../assets/mesh/ramp_launch/ramp_launch_lvl_${NiveauActuel}.glb`,
                 objectId: 'launching-ramp'
             },
@@ -264,6 +266,9 @@ export default {
                 restitution: 0.5,
                 friction: 0.5,
                 rotationSpeed: 1400,
+                // Le moteur doit frapper rapidement tout en revenant sans osciller.
+                motorStiffness: 5000,
+                motorDamping: 150,
                 rotationAngle: 40 * (Math.PI / 180),
                 initialAngle: 30 * (Math.PI / 180),
                 instances: [
@@ -291,7 +296,8 @@ export default {
                 model: `../assets/mesh/etage/etage_lvl_${NiveauActuel}.glb`,
                 objectId: 'etage',
                 objectType: 'etage',
-                length: 200,
+                // Élargit l'accès gauche sans modifier la hauteur de l'étage.
+                length: 230,
                 width: 80,
                 height: 450,
                 radius: null,
