@@ -3,20 +3,22 @@ package main
 import (
 	"log"
 	"net/http"
+
+	game "flipper-backend/internal/game"
 )
 
 func main() {
-	config := loadAppConfig()
-	hub := newHub()
-	mqttBridge := newMQTTBridge(config.MQTT, hub)
-	hub.mqtt = mqttBridge
+	config := game.LoadAppConfig()
+	hub := game.NewHub()
+	mqttBridge := game.NewMQTTBridge(config.MQTT, hub)
+	hub.SetMQTTBridge(mqttBridge)
 	defer mqttBridge.Close()
 
-	go hub.run()
+	go hub.Run()
 	mqttBridge.Start()
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(hub, w, r)
+		game.ServeWs(hub, w, r)
 	})
 
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {

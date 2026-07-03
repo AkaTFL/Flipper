@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"fmt"
@@ -14,6 +14,21 @@ var impactToSolenoidTopic = map[string]string{
 	"palle-right": "flipper_right",
 }
 
+type impactTopicResolver interface {
+	Resolve(impact ImpactPayload) (string, bool)
+}
+
+type impactTopicResolverFunc func(impact ImpactPayload) (string, bool)
+
+func (f impactTopicResolverFunc) Resolve(impact ImpactPayload) (string, bool) {
+	return f(impact)
+}
+
+var impactTopicResolvers = []impactTopicResolver{
+	impactTopicResolverFunc(resolveFromObjectID),
+	impactTopicResolverFunc(resolveFromObjectType),
+}
+
 type SolenoidCommand struct {
 	Action     string `json:"action"`
 	DurationMS int    `json:"duration_ms"`
@@ -26,8 +41,9 @@ type SolenoidCommand struct {
 func (b *MQTTBridge) PublishImpact(impact ImpactPayload) bool {
 	topicID, ok := b.topicForImpact(impact)
 
+	// Beaucoup d'impacts (murs, sol, cibles non instrumentées) n'ont volontairement
+	// aucun solénoïde: on sort sans log pour éviter d'inonder la sortie en jeu.
 	if !ok {
-		log.Printf("Aucun solénoïde associé à l'impact %s (%s)", impact.ObjectID, impact.ObjectType)
 		return false
 	}
 
@@ -48,16 +64,38 @@ func (b *MQTTBridge) topicForImpact(impact ImpactPayload) (string, bool) {
 		return topicID, true
 	}
 
-	switch strings.ToLower(strings.TrimSpace(impact.ObjectType)) {
-	case "palle":
-		lowerObjectID := strings.ToLower(impact.ObjectID)
+	for _, resolver := range impactTopicResolvers {
+		if topicID, ok := resolver.Resolve(impact); ok {
+			return topicID, true
+		}
+	}
+
+	return "", false
+}
+
+func resolveFromObjectID(impact ImpactPayload) (string, bool) {
+	if topicID, ok := impactToSolenoidTopic[impact.ObjectID]; ok {
+		return topicID, true
+	}
+
+	return "", false
+}
+
+func resolveFromObjectType(impact ImpactPayload) (string, bool) {
+	objectType := strings.ToLower(strings.TrimSpace(impact.ObjectType))
+	lowerObjectID := strings.ToLower(impact.ObjectID)
+
+	if objectType == "palle" {
 		if strings.Contains(lowerObjectID, "left") {
 			return "flipper_left", true
 		}
 		if strings.Contains(lowerObjectID, "right") {
 			return "flipper_right", true
 		}
-	case "bumper":
+		return "", false
+	}
+
+	if objectType == "bumper" {
 		return "back_center", true
 	}
 
