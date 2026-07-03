@@ -20,6 +20,7 @@ type GameSnapshot struct {
 
 type GameSaveEntry struct {
 	SavedAt  int64        `json:"savedAt"`
+	Level    int          `json:"level"`
 	Snapshot GameSnapshot `json:"snapshot"`
 }
 
@@ -28,7 +29,17 @@ type GameSaveFile struct {
 }
 
 type GameSlotRequestPayload struct {
-	Slot int `json:"slot"`
+	Slot  int `json:"slot"`
+	Level int `json:"level"`
+}
+
+// SaveSlotInfo résume l'état d'un slot pour l'écran de sélection (sans le snapshot complet)
+type SaveSlotInfo struct {
+	Slot     int   `json:"slot"`
+	Occupied bool  `json:"occupied"`
+	Level    int   `json:"level,omitempty"`
+	Score    int   `json:"score"`
+	SavedAt  int64 `json:"savedAt,omitempty"`
 }
 
 type GameSaveStatusPayload struct {
@@ -57,7 +68,7 @@ func newGameSaveStore(path string) *GameSaveStore {
 	return store
 }
 
-func (s *GameSaveStore) Save(slot int, snapshot GameSnapshot) (GameSaveEntry, error) {
+func (s *GameSaveStore) Save(slot int, level int, snapshot GameSnapshot) (GameSaveEntry, error) {
 	if slot < 1 || slot > maxSaveSlots {
 		return GameSaveEntry{}, errors.New("slot invalide")
 	}
@@ -67,6 +78,7 @@ func (s *GameSaveStore) Save(slot int, snapshot GameSnapshot) (GameSaveEntry, er
 
 	entry := &GameSaveEntry{
 		SavedAt:  time.Now().UnixMilli(),
+		Level:    level,
 		Snapshot: snapshot,
 	}
 	s.file.Slots[slot-1] = entry
@@ -76,6 +88,40 @@ func (s *GameSaveStore) Save(slot int, snapshot GameSnapshot) (GameSaveEntry, er
 	}
 
 	return *entry, nil
+}
+
+// List renvoie un résumé des 4 slots pour l'écran de sélection
+func (s *GameSaveStore) List() []SaveSlotInfo {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	infos := make([]SaveSlotInfo, maxSaveSlots)
+	for i := 0; i < maxSaveSlots; i++ {
+		info := SaveSlotInfo{Slot: i + 1}
+		if entry := s.file.Slots[i]; entry != nil {
+			info.Occupied = true
+			info.Level = entry.Level
+			info.Score = entry.Snapshot.Score.Score
+			info.SavedAt = entry.SavedAt
+		}
+		infos[i] = info
+	}
+
+	return infos
+}
+
+// Delete vide un slot de sauvegarde et persiste le fichier
+func (s *GameSaveStore) Delete(slot int) error {
+	if slot < 1 || slot > maxSaveSlots {
+		return errors.New("slot invalide")
+	}
+
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	s.file.Slots[slot-1] = nil
+
+	return s.persistLocked()
 }
 
 func (s *GameSaveStore) Load(slot int) (GameSaveEntry, bool) {

@@ -2,6 +2,9 @@
 
 Ce dossier regroupe ce qui peut être fait **sans matériel physique** : broker, conventions de topics, tests et monitoring. La limite roadmap est la **semaine 9** (mapping GPIO) — voir l’annexe en fin de `doc/Roadmap.md`.
 
+Le mapping commun entre les boutons physiques et le clavier est documenté dans
+[`doc/Controles_flipper.md`](../doc/Controles_flipper.md).
+
 ## Prérequis
 
 - [Docker](https://docs.docker.com/get-docker/) **ou** Mosquitto installé localement (Windows : `winget install EclipseFoundation.Mosquitto`).
@@ -20,8 +23,20 @@ Arrêt : `docker compose down`.
 
 ## Scripts Python
 
+Sur macOS avec Python Homebrew, utilise plutôt un environnement virtuel :
+
 ```bash
+python3 -m venv /tmp/flipper-esp32-venv
+source /tmp/flipper-esp32-venv/bin/activate
 pip install -r iot/scripts/requirements.txt
+```
+
+Sur Windows PowerShell :
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r iot\scripts\requirements.txt
 ```
 
 | Script | Rôle |
@@ -32,6 +47,7 @@ pip install -r iot/scripts/requirements.txt
 | `stability_run.py` | Charge et taux de perte (semaines 4 & 8) |
 | `monitor_sys.py` | Topics `$SYS` Mosquitto (semaine 7) |
 | `publish_solenoid_sample.py` | Exemple commande solénoïde JSON compact (semaine 6) |
+| `esp32_button_daemon.py` | Lit le contrôleur boutons ESP32 en USB série et peut envoyer des touches sur macOS, Windows et Linux |
 
 Exemples :
 
@@ -40,6 +56,30 @@ python iot/scripts/publish_hello.py --host 127.0.0.1
 python iot/scripts/fake_esp32_publisher.py --cycles 3 --interval 1
 python iot/scripts/stability_run.py --duration 15 --rate 40
 python iot/scripts/monitor_sys.py --seconds 5
+python iot/scripts/esp32_button_daemon.py --list-ports
+```
+
+## Contrôleur boutons ESP32
+
+Le firmware du contrôleur joueur se trouve ici :
+
+```text
+iot/firmware/esp32_button_controller/esp32_button_controller.ino
+```
+
+La documentation de câblage, de mapping GPIO et d'utilisation sur ordinateur est
+dans `iot/ESP32_Button_Controller.md`.
+
+Le daemon peut détecter automatiquement le port de l'ESP32 :
+
+```bash
+python iot/scripts/esp32_button_daemon.py --auto-port --clavier
+```
+
+Pour le lancement automatique sur la machine Linux du flipper, voir :
+
+```text
+doc/Linux_Launcher_Flipper.md
 ```
 
 ## Standardisation des topics

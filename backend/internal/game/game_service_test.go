@@ -63,6 +63,27 @@ func TestGameServiceHandleFlipperAction(t *testing.T) {
 	}
 }
 
+func TestGameServiceBroadcastsButtonEvent(t *testing.T) {
+	hub := newHub()
+	go hub.run()
+
+	client := &Client{send: make(chan []byte, 256)}
+	hub.register <- client
+	service := NewGameService(hub)
+	buttonMessage := []byte(`{"type":"button_event","payload":{"name":"button_white_left","key":"x","active":true}}`)
+
+	service.HandleMessage(Message{Type: "button_event"}, buttonMessage)
+
+	select {
+	case broadcast := <-client.send:
+		if string(broadcast) != string(buttonMessage) {
+			t.Fatalf("expected button event broadcast, got %s", string(broadcast))
+		}
+	case <-time.After(500 * time.Millisecond):
+		t.Fatal("expected button event broadcast")
+	}
+}
+
 func TestGameServiceHandleGameState(t *testing.T) {
 	hub := newHub()
 	go hub.run()

@@ -35,8 +35,60 @@ func NewGameService(hub *Hub) *GameService {
 // HandleMessage route et traite les messages WebSocket selon leur type
 // Retourne une réponse optionnelle à envoyer au client et un booléen indiquant si c'est une réponse directe
 func (gs *GameService) HandleMessage(msg Message, messageBytes []byte) ([]byte, bool) {
+<<<<<<< HEAD:backend/internal/game/game_service.go
 	handler, ok := gs.handlers[msg.Type]
 	if !ok {
+=======
+	switch msg.Type {
+	case "ping":
+		return NewPongMessage(), true
+
+	case "flipper_action":
+		gs.handleFlipperAction(messageBytes)
+		return nil, false
+
+	case "button_event":
+		gs.handleButtonEvent(messageBytes)
+		return nil, false
+
+	case "impact":
+		gs.handleImpact(msg.Payload)
+		return nil, false
+
+	case "game_state":
+		gs.handleGameState(messageBytes)
+		return nil, false
+
+	case "start_game":
+		gs.handleStartGame()
+		return nil, false
+
+	case "save_game":
+		gs.handleSaveGame(msg.Payload)
+		return nil, false
+
+	case "load_game":
+		gs.handleLoadGame(msg.Payload)
+		return nil, false
+
+	case "boss_fight_started":
+		gs.handleBossFightStarted()
+		return nil, false
+
+	case "boss_fight_toggled":
+		gs.handleBossFightToggled()
+		return nil, false
+
+	case "boss_attack_test", "player_damage_test":
+		gs.handlePlayerDamageTest()
+		return nil, false
+
+	case "ball_lost":
+		gs.handleBallLost()
+		return nil, false
+
+	default:
+>>>>>>> origin/main:backend/game_service.go
 		log.Printf("Type de message inconnu: %s", msg.Type)
 		return nil, false
 	}
@@ -100,6 +152,11 @@ func (gs *GameService) registerHandlers() {
 		gs.handleBallLost()
 		return nil, false
 	})
+}
+
+// handleButtonEvent retransmet l'état des boutons aux écrans de diagnostic
+func (gs *GameService) handleButtonEvent(messageBytes []byte) {
+	gs.hub.broadcast <- messageBytes
 }
 
 // handleFlipperAction traite les actions flipper (broadcast uniquement)
@@ -200,7 +257,7 @@ func (gs *GameService) handleSaveGame(payload json.RawMessage) {
 		return
 	}
 
-	entry, err := gs.hub.saveStore.Save(slot, gs.hub.captureSnapshot())
+	entry, err := gs.hub.saveStore.Save(slot, parseGameLevel(payload), gs.hub.captureSnapshot())
 	if err != nil {
 		gs.hub.broadcast <- NewGameSaveStatusMessage(GameSaveStatusPayload{
 			Slot:    slot,
@@ -299,4 +356,17 @@ func parseGameSlot(payload json.RawMessage) (int, bool) {
 	}
 
 	return request.Slot, true
+}
+
+func parseGameLevel(payload json.RawMessage) int {
+	if len(payload) == 0 {
+		return 0
+	}
+
+	var request GameSlotRequestPayload
+	if err := json.Unmarshal(payload, &request); err != nil {
+		return 0
+	}
+
+	return request.Level
 }

@@ -1,58 +1,209 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Backglass</title>
-    <style>
-      body {
-        width: 100vw;
-        height: 100vh;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        background: #000;
-      }
-      #backglass {
-        position: fixed;
-        bottom: 30px; /* distance du bas de l'écran */
-        left: 50%;
-        transform: translateX(-50%);
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Backglass — Elemental Legends</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="./css/styles.css"/>
 
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 12px; /* espace entre combo et quêtes */
+</head>
+<body class="theme-nature">
 
-        width: 100%;
-        pointer-events: none;
-      }
+<!-- ═══════════════════════════════════════════════ -->
+<!-- CANVAS SHADER                                    -->
+<!-- ═══════════════════════════════════════════════ -->
+<canvas id="shader-canvas"></canvas>
 
-      #combo {
-        color: #1948e4;
-        font-family: 'Courier New', Courier, monospace;
-        text-align: center;
-        font-size: 20px;
-        margin-bottom: 25px;
-      }
+<!-- ═══════════════════════════════════════════════ -->
+<!-- TITRE ELEMENTAL LEGENDS                          -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="elemental-title" data-level="1">
+  <div class="title-line">Elemental Legends</div>
+  <div class="title-sub">Choisissez votre destin élémentaire</div>
+  <div class="title-underline"></div>
+  <!-- Particules générées par JS -->
+</div>
 
-      #quests {
-        color: #a10b0b;
-        font-family: 'Courier New', Courier, monospace;
-        text-align: center;
-        font-size: 18px;
-        margin-bottom: 20px;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="backglass">
-      <div id="combo"></div>
-      <div id="quests"></div>
+<!-- ═══════════════════════════════════════════════ -->
+<!-- BOSS VIDEO OVERLAY                              -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="boss-video-overlay">
+  <div id="boss-video-frame">
+    <video id="boss-video" autoplay loop muted playsinline></video>
+  </div>
+  <div id="boss-hp-container">
+    <div class="boss-hp-label">Points de vie du Boss</div>
+    <div class="boss-hp-track">
+      <div id="boss-hp-bar"></div>
     </div>
-    <script type="module">
-      import { BackglassDisplay } from './BackglassDisplay.js';
-      const backglassDisplay = new BackglassDisplay();
-    </script>
-  </body>
+    <div id="boss-hp-text">-- / --</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- INDICATEUR DE LEVEL                             -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="level-indicator">
+  <div class="level-label">Level</div>
+  <div class="level-orb">
+    <span class="level-orb-num" id="level-orb-num">1</span>
+  </div>
+  <div class="level-name" id="level-name">Nature</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- BACKGLASS PRINCIPAL                              -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="backglass">
+
+
+
+
+  <!-- CENTER PANEL : Widgets bas -->
+  <div class="center-panel">
+    <div class="bottom-bar">
+
+      <!-- Score à battre -->
+      <div class="widget stb-widget">
+        <div class="widget-inset"></div>
+        <div class="stb-label">Score à Battre</div>
+        <div class="stb-value" id="score-to-beat">2.500.000</div>
+      </div>
+
+      <!-- Bonus -->
+      <div class="widget bonus-widget">
+        <div class="widget-inset"></div>
+        <div class="bonus-title">Bonus</div>
+        <div class="bonus-slots-row" id="bonus-pills-row">
+          <div class="bonus-slot" data-slot="1">
+            <div class="slot-symbol">★</div>
+            <div class="slot-label">1</div>
+          </div>
+          <div class="bonus-slot" data-slot="2">
+            <div class="slot-symbol">★</div>
+            <div class="slot-label">2</div>
+          </div>
+          <div class="bonus-slot" data-slot="3">
+            <div class="slot-symbol">★</div>
+            <div class="slot-label">3</div>
+          </div>
+          <div class="bonus-slot" data-slot="4">
+            <div class="slot-symbol">★</div>
+            <div class="slot-label">4</div>
+          </div>
+          <div class="bonus-slot" data-slot="5">
+            <div class="slot-symbol">★</div>
+            <div class="slot-label">5</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Combos -->
+      <div class="widget combos-widget">
+        <div class="widget-inset"></div>
+        <div class="combos-title">Combos</div>
+        <div class="combo-balls-row">
+          <div class="cball"></div>
+          <div class="cball"></div>
+          <div class="cball"></div>
+          <div class="cball"></div>
+          <div class="cball empty"></div>
+        </div>
+        <div class="combo-score" id="combo-score">75.000.000</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel"></div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SCRIPTS                                         -->
+<!-- ═══════════════════════════════════════════════ -->
+<script type="module">
+  import { BackglassDisplay } from './js/BackglassDisplay.js';
+  import { ShaderEffects }    from './js/ShaderEffects.js';
+
+  console.log('========================================');
+  console.log('🎮 ELEMENTAL LEGENDS — BACKGLASS BOOT');
+  console.log('========================================');
+
+  // ── Diagnostic WebGL avant tout
+  const testCanvas = document.createElement('canvas');
+  const testCtx = testCanvas.getContext('webgl2') || testCanvas.getContext('webgl');
+  if (!testCtx) {
+    console.error('[INIT] ❌ WebGL non disponible dans ce navigateur !');
+  } else {
+    console.log('[INIT] ✅ WebGL disponible :', testCtx.constructor.name);
+  }
+
+  // ── Shader
+  const shaderEffects = new ShaderEffects('shader-canvas');
+  console.log('[INIT] Shaders OK — canvas:', document.getElementById('shader-canvas'));
+
+  // ── Vérification canvas shader après init
+  setTimeout(() => {
+    const c = document.getElementById('shader-canvas');
+    console.log('[DIAG] canvas size:', c.width, 'x', c.height,
+                '| gl:', shaderEffects.gl ? '✅' : '❌',
+                '| program:', shaderEffects.program ? '✅' : '❌');
+  }, 500);
+
+  // ── Backglass display
+  const backglassDisplay = new BackglassDisplay();
+  backglassDisplay.setShaderEffects(shaderEffects);
+  console.log('[INIT] BackglassDisplay OK');
+
+  // ── Indicateur de level (DOM)
+  const levelNames = { 1: 'Nature', 2: 'Eau', 3: 'Feu' };
+  const levelOrbNumEl = document.getElementById('level-orb-num');
+  const levelNameEl   = document.getElementById('level-name');
+
+  function updateLevelIndicator(level) {
+    if (levelOrbNumEl) levelOrbNumEl.textContent = level;
+    if (levelNameEl)   levelNameEl.textContent   = levelNames[level] ?? `Level ${level}`;
+  }
+  updateLevelIndicator(1);
+
+  // ── Patch setLevel pour mettre à jour l'indicateur aussi
+  const originalSetLevel = backglassDisplay.setLevel.bind(backglassDisplay);
+  backglassDisplay.setLevel = (level) => {
+    originalSetLevel(level);
+    updateLevelIndicator(level);
+  };
+
+  // ── Particules titre (CSS JS)
+  function spawnTitleParticles() {
+    const titleEl = document.getElementById('elemental-title');
+    if (!titleEl) return;
+    for (let i = 0; i < 8; i++) {
+      const p = document.createElement('div');
+      p.className = 'title-particle';
+      p.style.left   = (Math.random() * 90 + 5) + '%';
+      p.style.bottom = '-6px';
+      p.style.animationDuration = (3 + Math.random() * 3) + 's';
+      p.style.animationDelay    = (Math.random() * 4) + 's';
+      p.style.width = p.style.height = (2 + Math.random() * 4) + 'px';
+      titleEl.appendChild(p);
+    }
+  }
+  spawnTitleParticles();
+
+  // ── API publique
+  window.backglassDisplay = backglassDisplay;
+  window.shaderEffects    = shaderEffects;
+  window.setLevel = (n) => backglassDisplay.setLevel(n);
+
+  console.log('========================================');
+  console.log('✅ BACKGLASS PRÊT — Level 1 : Nature');
+  console.log('💡 Test console: setLevel(1|2|3)');
+  console.log('========================================');
+</script>
+</body>
 </html>

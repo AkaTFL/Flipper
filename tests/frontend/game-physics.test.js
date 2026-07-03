@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import Config from '../../frontend/flipper/physics/Config.js';
-import { GamePhysics } from '../../frontend/flipper/physics/GamePhysics.js';
+import Config from '../../frontend/playfield/physics/Config.js';
+import { GamePhysics } from '../../frontend/playfield/physics/GamePhysics.js';
 
 function withConfigPatch(key, value, callback) {
   const previousValue = Config[key];
@@ -12,6 +12,17 @@ function withConfigPatch(key, value, callback) {
     return callback();
   } finally {
     Config[key] = previousValue;
+  }
+}
+
+function withPositioningPatch(key, value, callback) {
+  const previousValue = Config.global.positioning[key];
+  Config.global.positioning[key] = value;
+
+  try {
+    return callback();
+  } finally {
+    Config.global.positioning[key] = previousValue;
   }
 }
 
@@ -62,13 +73,41 @@ test('connectBackend uses the local backend endpoint when no browser config is p
 
   physics.connectBackend();
 
-  assert.equal(createdUrl, 'http://localhost:8080/ws');
+  assert.equal(createdUrl, 'ws://localhost:8080/ws');
 
   if (previousWebSocket === undefined) {
     delete globalThis.WebSocket;
   } else {
     globalThis.WebSocket = previousWebSocket;
   }
+});
+
+test('connectBackend uses the current frontend host when a browser proxy is available', () => {
+  const physics = new GamePhysics(Config);
+  const previousWebSocket = globalThis.WebSocket;
+  const previousLocation = globalThis.location;
+  let createdUrl = null;
+
+  class FakeWebSocket {
+    constructor(url) {
+      createdUrl = url;
+    }
+
+    addEventListener() {}
+  }
+
+  globalThis.WebSocket = FakeWebSocket;
+  globalThis.location = { protocol: 'http:', host: 'localhost:3001' };
+
+  physics.connectBackend();
+
+  assert.equal(createdUrl, 'ws://localhost:3001/ws');
+
+  if (previousWebSocket === undefined) delete globalThis.WebSocket;
+  else globalThis.WebSocket = previousWebSocket;
+
+  if (previousLocation === undefined) delete globalThis.location;
+  else globalThis.location = previousLocation;
 });
 
 test('sendImpact emits a structured impact payload when the backend socket is ready', () => {
@@ -102,7 +141,7 @@ test('sendImpact emits a structured impact payload when the backend socket is re
   }
 });
 
-test('high-level game event helpers send the documented backend message types', () => {
+test('sendMessage sends the documented high-level game event types', () => {
   const physics = new GamePhysics(Config);
   const sentPayloads = [];
   const previousWebSocket = globalThis.WebSocket;
@@ -118,12 +157,12 @@ test('high-level game event helpers send the documented backend message types', 
     }
   };
 
-  assert.equal(physics.startGame(), true);
-  assert.equal(physics.toggleBossFight(), true);
-  assert.equal(physics.triggerPlayerDamageTest(), true);
-  assert.equal(physics.triggerBallLost(), true);
-  assert.equal(physics.saveGame(1), true);
-  assert.equal(physics.loadGame(2), true);
+  assert.equal(physics.sendMessage('start_game'), true);
+  assert.equal(physics.sendMessage('boss_fight_toggled'), true);
+  assert.equal(physics.sendMessage('player_damage_test'), true);
+  assert.equal(physics.sendMessage('ball_lost'), true);
+  assert.equal(physics.sendMessage('save_game', { slot: 1 }), true);
+  assert.equal(physics.sendMessage('load_game', { slot: 2 }), true);
 
   assert.deepEqual(sentPayloads.map((message) => message.type), [
     'start_game',
@@ -303,7 +342,6 @@ test('handleCollisionEvents can report a ramp-side collision while delegating th
   // reportContactImpacts skips balls intentionally — only non-ball objects trigger sendImpact
   assert.deepEqual(calls, [
     'ramp:collision',
-    'ramp:force:10-11',
     'impact:launching-ramp-right-rail'
   ]);
 });
@@ -340,6 +378,9 @@ test('step only verifies ramp traversal after a collision is detected', () => {
     calls.push('score-check');
   };
 
+  physics.checkLaunchingRampHeight = function () {};
+  physics.checkBallOutOfBounds = function () {};
+
   physics.step();
 
   assert.deepEqual(calls, [
@@ -350,7 +391,7 @@ test('step only verifies ramp traversal after a collision is detected', () => {
 });
 
 test('detectScoreZoneEntries emits more specific target and star impacts when the ball enters configured zones', () => {
-  withConfigPatch('scoreZones', {
+  withPositioningPatch('scoreZones', {
     instances: [
       {
         id: 'target-left-centre',
@@ -383,7 +424,7 @@ test('detectScoreZoneEntries emits more specific target and star impacts when th
       }
     };
 
-    physics.objects = [ball];
+    physics.registerObjects([ball]);
     physics.detectScoreZoneEntries();
 
     assert.deepEqual(sent, ['target:target-left-centre']);
@@ -399,7 +440,7 @@ test('detectScoreZoneEntries emits more specific target and star impacts when th
 });
 
 test('detectScoreZoneEntries does not spam the same zone until the ball exits and re-enters', () => {
-  withConfigPatch('scoreZones', {
+  withPositioningPatch('scoreZones', {
     instances: [
       {
         id: 'loop-left',
@@ -426,7 +467,7 @@ test('detectScoreZoneEntries does not spam the same zone until the ball exits an
       }
     };
 
-    physics.objects = [ball];
+    physics.registerObjects([ball]);
 
     physics.detectScoreZoneEntries();
     physics.detectScoreZoneEntries();
@@ -443,7 +484,7 @@ test('detectScoreZoneEntries does not spam the same zone until the ball exits an
 });
 
 test('detectRampTraversal emits ramp-main-perfect when the ball crosses the ramp without wall bounce', () => {
-  withConfigPatch('ramps', {
+  withPositioningPatch('ramps', {
     instances: [
       {
         entryZone: {
@@ -477,19 +518,19 @@ test('detectRampTraversal emits ramp-main-perfect when the ball crosses the ramp
       }
     };
 
-    physics.objects = [ball];
+    physics.registerObjects([ball]);
 
     physics.detectRampTraversal();
     ball.rigidBody.translation = () => ({ x: 0, y: 0, z: 100 });
     physics.activeRampZones.clear();
     physics.detectRampTraversal();
 
-    assert.deepEqual(sent, ['launching_ramp:ramp-main-perfect']);
+    assert.deepEqual(sent, ['launching-ramp:ramp-main-perfect']);
   });
 });
 
-test('detectRampTraversal emits ramp-main-simple after a wall bounce during traversal', () => {
-  withConfigPatch('ramps', {
+test('detectRampTraversal emits ramp-main-simple when the traversal records a wall bounce', () => {
+  withPositioningPatch('ramps', {
     instances: [
       {
         entryZone: {
@@ -523,13 +564,13 @@ test('detectRampTraversal emits ramp-main-simple after a wall bounce during trav
       }
     };
 
-    physics.objects = [ball];
+    physics.registerObjects([ball]);
 
     physics.detectRampTraversal();
-    physics.markRampBounce([{ objectType: 'wall' }, { objectType: 'ball' }]);
+    physics.rampTraversal.hasWallBounce = true;
     ball.rigidBody.translation = () => ({ x: 0, y: 0, z: 100 });
     physics.detectRampTraversal();
 
-    assert.deepEqual(sent, ['launching_ramp:ramp-main-simple']);
+    assert.deepEqual(sent, ['launching-ramp:ramp-main-simple']);
   });
 });

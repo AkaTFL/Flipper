@@ -39,7 +39,7 @@ jobs:
 
       - name: Build and push frontend
         run: |
-          docker build -t flipper-frontend:tmp ./frontend/flipper
+          docker build -t flipper-frontend:tmp ./frontend/playfield
           IMAGE=docker.io/${OWNER_LOWER}/flipper-frontend:${GITHUB_SHA}
           docker tag flipper-frontend:tmp $IMAGE
           docker push $IMAGE

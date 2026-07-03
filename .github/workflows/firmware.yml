@@ -1,0 +1,45 @@
+name: Build ESP32 firmware
+
+on:
+  push:
+    paths:
+      - "firmware/**"
+      - "!firmware/build/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PlatformIO and esptool
+        run: pip install platformio esptool
+
+      - name: Build
+        run: pio run --project-dir firmware
+
+      - name: Merge into a single image
+        run: |
+          BUILD=firmware/.pio/build/esp32dev
+          mkdir -p firmware/build
+          esptool --chip esp32 merge-bin -o firmware/build/firmware.bin \
+            0x1000  "$BUILD/bootloader.bin" \
+            0x8000  "$BUILD/partitions.bin" \
+            0x10000 "$BUILD/firmware.bin"
+
+      - name: Commit the binary
+        run: |
+          git config user.name "firmware-ci"
+          git config user.email "firmware-ci@users.noreply.github.com"
+          git add firmware/build/firmware.bin
+          git diff --staged --quiet && echo "no change" && exit 0
+          git commit -m "ci: rebuild ESP32 firmware [skip ci]"
+          git push

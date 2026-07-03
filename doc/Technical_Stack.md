@@ -106,8 +106,8 @@ C'est le cœur de la partie IoT du projet.
 #### 4.1 ESP32 : Le microcontrôleur
 **L'ESP32** est le "couteau suisse" de l'IoT pour ce projet :
 - **Wi-Fi intégré** : Connexion native au broker Mosquitto sans modules externes
-- **GPIO nombreux** : 34+ pins pour connecter bumpers, boutons, LEDs, solénoïdes
-- **Puissance** : Dual-core 240 MHz, suffisant pour lire des capteurs à 1 kHz et publier via MQTT
+- **GPIO nombreux** : assez de pins pour connecter boutons, capteurs, LEDs et relais
+- **Puissance** : Dual-core 240 MHz, suffisant pour lire les entrées et piloter la communication
 - **Coût** : ~3-5€ par module (vs 40€ pour un Arduino avec shield Wi-Fi)
 
 #### 4.2 Protocole MQTT via Mosquitto
@@ -122,19 +122,22 @@ MQTT est conçu pour les **réseaux instables**. Si un message est envoyé par u
 
 ##### b) Architecture Pub/Sub (Publish/Subscribe)
 Cela permet de **découpler totalement** le matériel (ESP32) du logiciel (Backend Go) :
-- L'ESP32 **publie** l'événement sur le topic `flipper/sensor/bumper1`
+- Les ESP32 solénoïdes **écoutent** les topics `flipper/solenoid/#`
+- L'ESP32 contrôleur peut **publier** le tilt sur `flipper/tilt/#`
 - Le backend Go **souscrit** à tous les topics `flipper/sensor/#`
 - Si on ajoute un nouveau capteur, aucun changement côté backend (juste un nouveau topic)
 
 **Architecture scalable :**
 ```
-ESP32_1 → flipper/sensor/bumper1 ┐
-ESP32_2 → flipper/sensor/bumper2 ├→ Mosquitto → Backend Go
-ESP32_3 → flipper/input/flipperL ┘
+Backend Go → Mosquitto → ESP32_1 / ESP32_2 (solénoïdes)
+ESP32_3 → Mosquitto → Backend Go (tilt)
+ESP32_3 → USB série → PC Playfield (boutons)
 ```
 
 ##### c) Faible overhead
-Les messages MQTT ont un **header de seulement 2 octets** (vs 200-800 octets pour HTTP). Sur un réseau Wi-Fi local, cela garantit une latence de **5-15ms** entre appui physique et réception côté serveur.
+Les messages MQTT ont un **header de seulement 2 octets** (vs 200-800 octets pour HTTP). Sur un réseau Wi-Fi local, c'est adapté aux solénoïdes, au tilt et aux événements non critiques.
+
+Les boutons de flipper restent en **USB série**, car ils doivent être plus réactifs qu'une entrée réseau.
 
 ---
 
