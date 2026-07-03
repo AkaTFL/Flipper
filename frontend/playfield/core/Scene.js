@@ -20,7 +20,7 @@ export class Scene {
      * @param {number} rotation
      */
 
-    constructor(world, height = 500, width = 500, position = {x: 0, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}) {
+    constructor(world, height = 500, width = 500, position = {x: 0, y: 500, z: 0}, rotation = {x: 0, y: 0, z: 0}, postProcessingEffects = {}) {
         this.world = world;
 
         this.WIDTH = window.innerWidth;
@@ -40,6 +40,13 @@ export class Scene {
         this.cameraHelper = null;
         this.frustumHeight = 0;
         this.effectManager = null;
+        this.postProcessingEffects = {
+            ssao: true,
+            bloom: true,
+            fxaa: true,
+            outline: true,
+            ...postProcessingEffects
+        };
 
         this.debugEnabled = false;
 
@@ -93,7 +100,8 @@ export class Scene {
                     color:      Config[Config.currentLevel].bloom,
                     tolerance:  0.4,
                 },
-                fxaa: true,
+                effects: this.postProcessingEffects,
+                fxaa: this.postProcessingEffects.fxaa,
 
                 outline: {
                     edgeStrength: 2,

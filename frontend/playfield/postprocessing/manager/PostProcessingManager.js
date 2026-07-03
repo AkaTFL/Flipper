@@ -16,7 +16,9 @@ import { createOutline } from '../OutlineEffect.js';
  *   RenderPass → Effets un à un
  *
  * @example
- * const pp = new PostProcessingManager(renderer, scene, camera);
+ * const pp = new PostProcessingManager(renderer, scene, camera, {
+ *   effects: { ssao: true, bloom: true, fxaa: true, outline: true }
+ * });
  * pp.setSize(width, height);
  * // dans la boucle de rendu :
  * pp.render(delta);
@@ -39,11 +41,18 @@ export class PostProcessingManager {
 
         const {
             bloom = {},
-            ssao  = {},
-            fxaa  = true,
-            outline = {}
-
+            ssao = {},
+            fxaa = true,
+            outline = {},
+            effects = {}
         } = options;
+
+        this.effects = {
+            ssao: effects.ssao ?? true,
+            bloom: effects.bloom ?? true,
+            fxaa: effects.fxaa ?? fxaa,
+            outline: effects.outline ?? true
+        };
 
         // -------------------------------------------------------
         // EffectComposer
@@ -56,14 +65,20 @@ export class PostProcessingManager {
         this._renderPass = new RenderPass(scene, camera);
         this.composer.addPass(this._renderPass);
 
-        this._ssaoPass = createSSAO(scene, camera, ssao);
-        this.composer.addPass(this._ssaoPass);
+        this._ssaoPass = null;
+        if (this.effects.ssao) {
+            this._ssaoPass = createSSAO(scene, camera, ssao);
+            this.composer.addPass(this._ssaoPass);
+        }
 
-        this._bloomPass = createBloom(scene, bloom);
-        this.composer.addPass(this._bloomPass);
+        this._bloomPass = null;
+        if (this.effects.bloom) {
+            this._bloomPass = createBloom(scene, bloom);
+            this.composer.addPass(this._bloomPass);
+        }
 
         this._fxaaPass = null;
-        if (fxaa) {
+        if (this.effects.fxaa) {
             this._fxaaPass = createFXAA();
             this.composer.addPass(this._fxaaPass);
         }
@@ -71,14 +86,17 @@ export class PostProcessingManager {
         // -------------------------------------------------------
         // Passe 4 – Effets spécifiques
         // -------------------------------------------------------
-        this._outlinePass = createOutline(
-            scene,
-            camera,
-            renderer,
-            outline
-        );
+        this._outlinePass = null;
+        if (this.effects.outline) {
+            this._outlinePass = createOutline(
+                scene,
+                camera,
+                renderer,
+                outline
+            );
 
-        this.composer.addPass(this._outlinePass);
+            this.composer.addPass(this._outlinePass);
+        }
 
         this.outlineEnabledTypes = [
             'palle',
@@ -95,11 +113,13 @@ export class PostProcessingManager {
 
     /** Active ou désactive le SSAO. */
     setSSAO(enabled) {
+        if (!this._ssaoPass) return;
         this._ssaoPass.enabled = enabled;
     }
 
     /** Active ou désactive le Bloom. */
     setBloom(enabled) {
+        if (!this._bloomPass) return;
         this._bloomPass.enabled = enabled;
     }
 
@@ -119,7 +139,7 @@ export class PostProcessingManager {
      * Safe à appeler à haute fréquence : aucun setTimeout, simple reset de timer.
      */
     triggerImpactPulse() {
-        this._outlinePass.triggerImpactPulse();
+        this._outlinePass?.triggerImpactPulse?.();
     }
 
     updateOutlineObjects() {
