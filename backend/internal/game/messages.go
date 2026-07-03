@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"encoding/json"
@@ -66,6 +66,14 @@ func NewPlayerStateUpdateMessage(playerUpdate any) []byte {
 	return mustMarshalMessage(Message{
 		Type:    "player_state_update",
 		Payload: mustMarshalJSON(playerUpdate),
+	})
+}
+
+// NewPlayerUpdateMessage crée le message avec les données des 4 joueurs sauvegardés
+func NewPlayerUpdateMessage(players any) []byte {
+	return mustMarshalMessage(Message{
+		Type:    "player_update",
+		Payload: mustMarshalJSON(players),
 	})
 }
 

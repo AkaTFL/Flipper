@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"encoding/json"
@@ -8,69 +8,103 @@ import (
 
 // GameService encapsule la logique métier des messages WebSocket
 type GameService struct {
-	hub *Hub
+	hub      *Hub
+	handlers map[string]messageHandler
+}
+
+type messageHandler interface {
+	Handle(gs *GameService, msg Message, messageBytes []byte) ([]byte, bool)
+}
+
+type messageHandlerFunc func(gs *GameService, msg Message, messageBytes []byte) ([]byte, bool)
+
+func (f messageHandlerFunc) Handle(gs *GameService, msg Message, messageBytes []byte) ([]byte, bool) {
+	return f(gs, msg, messageBytes)
 }
 
 // NewGameService crée une nouvelle instance du service de jeu
 func NewGameService(hub *Hub) *GameService {
-	return &GameService{hub: hub}
+	gs := &GameService{
+		hub:      hub,
+		handlers: make(map[string]messageHandler),
+	}
+	gs.registerHandlers()
+	return gs
 }
 
 // HandleMessage route et traite les messages WebSocket selon leur type
 // Retourne une réponse optionnelle à envoyer au client et un booléen indiquant si c'est une réponse directe
 func (gs *GameService) HandleMessage(msg Message, messageBytes []byte) ([]byte, bool) {
-	switch msg.Type {
-	case "ping":
-		return NewPongMessage(), true
-
-	case "flipper_action":
-		gs.handleFlipperAction(messageBytes)
-		return nil, false
-
-	case "button_event":
-		gs.handleButtonEvent(messageBytes)
-		return nil, false
-
-	case "impact":
-		gs.handleImpact(msg.Payload)
-		return nil, false
-
-	case "game_state":
-		gs.handleGameState(messageBytes)
-		return nil, false
-
-	case "start_game":
-		gs.handleStartGame()
-		return nil, false
-
-	case "save_game":
-		gs.handleSaveGame(msg.Payload)
-		return nil, false
-
-	case "load_game":
-		gs.handleLoadGame(msg.Payload)
-		return nil, false
-
-	case "boss_fight_started":
-		gs.handleBossFightStarted()
-		return nil, false
-
-	case "boss_fight_toggled":
-		gs.handleBossFightToggled()
-		return nil, false
-
-	case "boss_attack_test", "player_damage_test":
-		gs.handlePlayerDamageTest()
-		return nil, false
-
-	case "ball_lost":
-		gs.handleBallLost()
-		return nil, false
-
-	default:
+	handler, ok := gs.handlers[msg.Type]
+	if !ok {
 		log.Printf("Type de message inconnu: %s", msg.Type)
 		return nil, false
 	}
+
+	return handler.Handle(gs, msg, messageBytes)
+}
+
+func (gs *GameService) registerHandlers() {
+	gs.handlers["ping"] = messageHandlerFunc(func(gs *GameService, _ Message, _ []byte) ([]byte, bool) {
+		return NewPongMessage(), true
+	})
+
+	gs.handlers["flipper_action"] = messageHandlerFunc(func(gs *GameService, _ Message, messageBytes []byte) ([]byte, bool) {
+		gs.handleFlipperAction(messageBytes)
+		return nil, false
+	})
+
+	gs.handlers["button_event"] = messageHandlerFunc(func(gs *GameService, _ Message, messageBytes []byte) ([]byte, bool) {
+		gs.handleButtonEvent(messageBytes)
+		return nil, false
+	})
+
+	gs.handlers["impact"] = messageHandlerFunc(func(gs *GameService, msg Message, _ []byte) ([]byte, bool) {
+		gs.handleImpact(msg.Payload)
+		return nil, false
+	})
+
+	gs.handlers["game_state"] = messageHandlerFunc(func(gs *GameService, _ Message, messageBytes []byte) ([]byte, bool) {
+		gs.handleGameState(messageBytes)
+		return nil, false
+	})
+
+	gs.handlers["start_game"] = messageHandlerFunc(func(gs *GameService, _ Message, _ []byte) ([]byte, bool) {
+		gs.handleStartGame()
+		return nil, false
+	})
+
+	gs.handlers["save_game"] = messageHandlerFunc(func(gs *GameService, msg Message, _ []byte) ([]byte, bool) {
+		gs.handleSaveGame(msg.Payload)
+		return nil, false
+	})
+
+	gs.handlers["load_game"] = messageHandlerFunc(func(gs *GameService, msg Message, _ []byte) ([]byte, bool) {
+		gs.handleLoadGame(msg.Payload)
+		return nil, false
+	})
+
+	gs.handlers["boss_fight_started"] = messageHandlerFunc(func(gs *GameService, _ Message, _ []byte) ([]byte, bool) {
+		gs.handleBossFightStarted()
+		return nil, false
+	})
+
+	gs.handlers["boss_fight_toggled"] = messageHandlerFunc(func(gs *GameService, _ Message, _ []byte) ([]byte, bool) {
+		gs.handleBossFightToggled()
+		return nil, false
+	})
+
+	damageTestHandler := messageHandlerFunc(func(gs *GameService, _ Message, _ []byte) ([]byte, bool) {
+		gs.handlePlayerDamageTest()
+		return nil, false
+	})
+	gs.handlers["boss_attack_test"] = damageTestHandler
+	gs.handlers["player_damage_test"] = damageTestHandler
+
+	gs.handlers["ball_lost"] = messageHandlerFunc(func(gs *GameService, _ Message, _ []byte) ([]byte, bool) {
+		gs.handleBallLost()
+		return nil, false
+	})
 }
 
 // handleButtonEvent retransmet l'état des boutons aux écrans de diagnostic

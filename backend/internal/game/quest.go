@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"math/rand"
@@ -45,6 +45,59 @@ type QuestTracker struct {
 	bossFightTriggered bool
 	currentPhase       int
 	random             *rand.Rand
+}
+
+type questUpdateHandler func(q *QuestTracker, quest *Quest, score ScoreUpdatePayload, impact ImpactPayload)
+
+var questUpdateHandlers = map[string]questUpdateHandler{
+	"score_2000": func(_ *QuestTracker, quest *Quest, score ScoreUpdatePayload, _ ImpactPayload) {
+		quest.Progress = clampQuestProgress(score.Score, quest.Target)
+	},
+	"score_3500": func(_ *QuestTracker, quest *Quest, score ScoreUpdatePayload, _ ImpactPayload) {
+		quest.Progress = clampQuestProgress(score.Score, quest.Target)
+	},
+	"combo_x3": func(_ *QuestTracker, quest *Quest, score ScoreUpdatePayload, _ ImpactPayload) {
+		quest.Progress = clampQuestProgress(score.ComboCount, quest.Target)
+	},
+	"target_center_2": func(_ *QuestTracker, quest *Quest, _ ScoreUpdatePayload, impact ImpactPayload) {
+		if isTargetCenterImpact(impact) {
+			quest.Progress++
+		}
+	},
+	"ramp_perfect_1": func(_ *QuestTracker, quest *Quest, _ ScoreUpdatePayload, impact ImpactPayload) {
+		if impact.ObjectID == "ramp-main-perfect" {
+			quest.Progress++
+		}
+	},
+	"ramp_simple_2": func(_ *QuestTracker, quest *Quest, _ ScoreUpdatePayload, impact ImpactPayload) {
+		if impact.ObjectID == "ramp-main-simple" || impact.ObjectID == "ramp-main-perfect" {
+			quest.Progress++
+		}
+	},
+	"loop_left_right": func(q *QuestTracker, quest *Quest, _ ScoreUpdatePayload, impact ImpactPayload) {
+		if impact.ObjectID == "loop-left" {
+			q.loopLeftDone = true
+		}
+		if impact.ObjectID == "loop-right" {
+			q.loopRightDone = true
+		}
+
+		quest.Progress = 0
+		if q.loopLeftDone {
+			quest.Progress++
+		}
+		if q.loopRightDone {
+			quest.Progress++
+		}
+	},
+	"bumpers_5": func(_ *QuestTracker, quest *Quest, _ ScoreUpdatePayload, impact ImpactPayload) {
+		if impact.ObjectType == "bumper" {
+			quest.Progress++
+		}
+	},
+	"survive_20s": func(q *QuestTracker, quest *Quest, _ ScoreUpdatePayload, impact ImpactPayload) {
+		q.updateSurvivalQuestLocked(quest, impact.Timestamp)
+	},
 }
 
 func newQuestTracker() *QuestTracker {
@@ -261,51 +314,8 @@ func (q *QuestTracker) updateQuestLocked(quest *Quest, score ScoreUpdatePayload,
 		return
 	}
 
-	switch quest.ID {
-	case "score_2000", "score_3500":
-		quest.Progress = clampQuestProgress(score.Score, quest.Target)
-
-	case "combo_x3":
-		quest.Progress = clampQuestProgress(score.ComboCount, quest.Target)
-
-	case "target_center_2":
-		if isTargetCenterImpact(impact) {
-			quest.Progress++
-		}
-
-	case "ramp_perfect_1":
-		if impact.ObjectID == "ramp-main-perfect" {
-			quest.Progress++
-		}
-
-	case "ramp_simple_2":
-		if impact.ObjectID == "ramp-main-simple" || impact.ObjectID == "ramp-main-perfect" {
-			quest.Progress++
-		}
-
-	case "loop_left_right":
-		if impact.ObjectID == "loop-left" {
-			q.loopLeftDone = true
-		}
-		if impact.ObjectID == "loop-right" {
-			q.loopRightDone = true
-		}
-
-		quest.Progress = 0
-		if q.loopLeftDone {
-			quest.Progress++
-		}
-		if q.loopRightDone {
-			quest.Progress++
-		}
-
-	case "bumpers_5":
-		if impact.ObjectType == "bumper" {
-			quest.Progress++
-		}
-
-	case "survive_20s":
-		q.updateSurvivalQuestLocked(quest, impact.Timestamp)
+	if handler, ok := questUpdateHandlers[quest.ID]; ok {
+		handler(q, quest, score, impact)
 	}
 
 	quest.Progress = clampQuestProgress(quest.Progress, quest.Target)

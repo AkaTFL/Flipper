@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"strings"
@@ -51,6 +51,119 @@ type ScoreTracker struct {
 	recentImpactTypes []string
 	loopStreakByID    map[string]int
 	now               func() time.Time
+}
+
+type scoreImpactRule struct {
+	objectTypes []string
+	points      func(s *ScoreTracker, objectID string) int
+}
+
+type thresholdRule struct {
+	min   int
+	value int
+}
+
+var baseScoreRules = []scoreImpactRule{
+	{
+		objectTypes: []string{"bumper"},
+		points: func(s *ScoreTracker, _ string) int {
+			if s.comboCount >= 2 {
+				return 40
+			}
+			return 25
+		},
+	},
+	{
+		objectTypes: []string{"repulse"},
+		points: func(s *ScoreTracker, _ string) int {
+			if s.comboCount >= 2 {
+				return 60
+			}
+			return 40
+		},
+	},
+	{
+		objectTypes: []string{"target"},
+		points: func(_ *ScoreTracker, objectID string) int {
+			if containsAny(objectID, "center", "centre", "precise", "precision") {
+				return 75
+			}
+			return 50
+		},
+	},
+	{
+		objectTypes: []string{"launching_ramp", "ramp"},
+		points: func(_ *ScoreTracker, objectID string) int {
+			if containsAny(objectID, "perfect", "parfait", "clean", "sans-rebond") {
+				return 350
+			}
+			return 200
+		},
+	},
+	{
+		objectTypes: []string{"launching_ramp_rail", "rail", "loop", "lane"},
+		points: func(s *ScoreTracker, objectID string) int {
+			return s.loopPoints(objectID)
+		},
+	},
+	{
+		objectTypes: []string{"star", "star_zone", "etoile", "étoile"},
+		points: func(_ *ScoreTracker, objectID string) int {
+			if containsAny(objectID, "center", "centre", "exact") {
+				return 400
+			}
+			if containsAny(objectID, "outer", "edge", "ext") {
+				return 50
+			}
+			return 200
+		},
+	},
+	{
+		objectTypes: []string{"wall"},
+		points: func(_ *ScoreTracker, _ string) int {
+			return 0
+		},
+	},
+	{
+		objectTypes: []string{"portal"},
+		points: func(_ *ScoreTracker, _ string) int {
+			return 150
+		},
+	},
+	{
+		objectTypes: []string{"saucer"},
+		points: func(_ *ScoreTracker, _ string) int {
+			return 200
+		},
+	},
+	{
+		objectTypes: []string{"palle", "ball", ""},
+		points: func(_ *ScoreTracker, _ string) int {
+			return 0
+		},
+	},
+}
+
+var comboBonusRules = []thresholdRule{
+	{min: 5, value: 400},
+	{min: 4, value: 250},
+	{min: 3, value: 120},
+	{min: 2, value: 50},
+}
+
+var multiplierRules = []thresholdRule{
+	{min: 18, value: 4},
+	{min: 12, value: 3},
+	{min: 6, value: 2},
+}
+
+var rampFamilyTypes = map[string]struct{}{
+	"launching_ramp":      {},
+	"launching_ramp_rail": {},
+	"ramp":                {},
+	"rail":                {},
+	"loop":                {},
+	"lane":                {},
 }
 
 var defaultScoreConfig = ScoreConfig{
@@ -224,48 +337,13 @@ func (s *ScoreTracker) nextComboCount(delta time.Duration) int {
 }
 
 func (s *ScoreTracker) basePointsForImpact(objectType, objectID string) int {
-	switch objectType {
-	case "bumper":
-		if s.comboCount >= 2 {
-			return 40
+	for _, rule := range baseScoreRules {
+		if rule.matches(objectType) {
+			return rule.points(s, objectID)
 		}
-		return 25
-	case "repulse":
-		if s.comboCount >= 2 {
-			return 60
-		}
-		return 40
-	case "target":
-		if containsAny(objectID, "center", "centre", "precise", "precision") {
-			return 75
-		}
-		return 50
-	case "launching_ramp", "ramp":
-		if containsAny(objectID, "perfect", "parfait", "clean", "sans-rebond") {
-			return 350
-		}
-		return 200
-	case "launching_ramp_rail", "rail", "loop", "lane":
-		return s.loopPoints(objectID)
-	case "star", "star_zone", "etoile", "étoile":
-		if containsAny(objectID, "center", "centre", "exact") {
-			return 400
-		}
-		if containsAny(objectID, "outer", "edge", "ext") {
-			return 50
-		}
-		return 200
-	case "wall":
-		return 0
-	case "portal":
-		return 150
-	case "saucer":
-		return 200
-	case "palle", "ball", "":
-		return 0
-	default:
-		return 0
 	}
+
+	return 0
 }
 
 func (s *ScoreTracker) loopPoints(objectID string) int {
@@ -301,40 +379,28 @@ func (s *ScoreTracker) registerRecentType(objectType string) bool {
 }
 
 func comboBonusForCount(comboCount int) int {
-	switch {
-	case comboCount >= 5:
-		return 400
-	case comboCount == 4:
-		return 250
-	case comboCount == 3:
-		return 120
-	case comboCount == 2:
-		return 50
-	default:
-		return 0
+	for _, rule := range comboBonusRules {
+		if comboCount >= rule.min {
+			return rule.value
+		}
 	}
+
+	return 0
 }
 
 func multiplierForHitStreak(hitStreak int) int {
-	switch {
-	case hitStreak >= 18:
-		return 4
-	case hitStreak >= 12:
-		return 3
-	case hitStreak >= 6:
-		return 2
-	default:
-		return 1
+	for _, rule := range multiplierRules {
+		if hitStreak >= rule.min {
+			return rule.value
+		}
 	}
+
+	return 1
 }
 
 func isRampFamilyType(objectType string) bool {
-	switch objectType {
-	case "launching_ramp", "launching_ramp_rail", "ramp", "rail", "loop", "lane":
-		return true
-	default:
-		return false
-	}
+	_, ok := rampFamilyTypes[objectType]
+	return ok
 }
 
 func appendAndTrim(values []string, value string, maxLen int) []string {
@@ -356,4 +422,14 @@ func containsAny(value string, candidates ...string) bool {
 
 func normalizeScoreKey(value string) string {
 	return strings.ToLower(strings.TrimSpace(value))
+}
+
+func (rule scoreImpactRule) matches(objectType string) bool {
+	for _, candidate := range rule.objectTypes {
+		if candidate == objectType {
+			return true
+		}
+	}
+
+	return false
 }
