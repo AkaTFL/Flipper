@@ -35,60 +35,8 @@ func NewGameService(hub *Hub) *GameService {
 // HandleMessage route et traite les messages WebSocket selon leur type
 // Retourne une réponse optionnelle à envoyer au client et un booléen indiquant si c'est une réponse directe
 func (gs *GameService) HandleMessage(msg Message, messageBytes []byte) ([]byte, bool) {
-<<<<<<< HEAD:backend/internal/game/game_service.go
 	handler, ok := gs.handlers[msg.Type]
 	if !ok {
-=======
-	switch msg.Type {
-	case "ping":
-		return NewPongMessage(), true
-
-	case "flipper_action":
-		gs.handleFlipperAction(messageBytes)
-		return nil, false
-
-	case "button_event":
-		gs.handleButtonEvent(messageBytes)
-		return nil, false
-
-	case "impact":
-		gs.handleImpact(msg.Payload)
-		return nil, false
-
-	case "game_state":
-		gs.handleGameState(messageBytes)
-		return nil, false
-
-	case "start_game":
-		gs.handleStartGame()
-		return nil, false
-
-	case "save_game":
-		gs.handleSaveGame(msg.Payload)
-		return nil, false
-
-	case "load_game":
-		gs.handleLoadGame(msg.Payload)
-		return nil, false
-
-	case "boss_fight_started":
-		gs.handleBossFightStarted()
-		return nil, false
-
-	case "boss_fight_toggled":
-		gs.handleBossFightToggled()
-		return nil, false
-
-	case "boss_attack_test", "player_damage_test":
-		gs.handlePlayerDamageTest()
-		return nil, false
-
-	case "ball_lost":
-		gs.handleBallLost()
-		return nil, false
-
-	default:
->>>>>>> origin/main:backend/game_service.go
 		log.Printf("Type de message inconnu: %s", msg.Type)
 		return nil, false
 	}
@@ -103,6 +51,11 @@ func (gs *GameService) registerHandlers() {
 
 	gs.handlers["flipper_action"] = messageHandlerFunc(func(gs *GameService, _ Message, messageBytes []byte) ([]byte, bool) {
 		gs.handleFlipperAction(messageBytes)
+		return nil, false
+	})
+
+	gs.handlers["button_event"] = messageHandlerFunc(func(gs *GameService, _ Message, messageBytes []byte) ([]byte, bool) {
+		gs.handleButtonEvent(messageBytes)
 		return nil, false
 	})
 

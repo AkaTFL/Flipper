@@ -77,9 +77,9 @@ var baseScoreRules = []scoreImpactRule{
 		objectTypes: []string{"repulse"},
 		points: func(s *ScoreTracker, _ string) int {
 			if s.comboCount >= 2 {
-				return 40
+				return 60
 			}
-			return 25
+			return 40
 		},
 	},
 	{

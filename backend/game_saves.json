@@ -1,19 +1,6 @@
 {
   "slots": [
     {
-<<<<<<< HEAD
-      "savedAt": 1781791424247,
-      "snapshot": {
-        "score": {
-          "score": 4640,
-          "comboCount": 32,
-          "hitStreak": 32,
-          "lastImpactAt": 1781791422349,
-          "recentImpactTypes": [
-            "repulse",
-            "repulse",
-            "repulse"
-=======
       "savedAt": 1782849950879,
       "level": 1,
       "snapshot": {
@@ -26,7 +13,6 @@
             "bumper",
             "bumper",
             "bumper"
->>>>>>> origin/main
           ],
           "loopStreakById": {}
         },
@@ -35,30 +21,17 @@
           "hp": 1500
         },
         "player": {
-<<<<<<< HEAD
-          "hp": 100,
-          "balls": 3
-=======
           "hp": 0,
           "balls": 0
->>>>>>> origin/main
         },
         "quests": {
           "activeQuests": [
             {
-<<<<<<< HEAD
-              "id": "combo_x3",
-              "category": "score",
-              "label": "Atteindre un combo x3",
-              "target": 3,
-              "progress": 3,
-=======
               "id": "score_2000",
               "category": "score",
               "label": "Atteindre 2 000 points",
               "target": 2000,
               "progress": 2000,
->>>>>>> origin/main
               "completed": true
             },
             {
@@ -80,9 +53,6 @@
           ],
           "loopLeftDone": false,
           "loopRightDone": false,
-<<<<<<< HEAD
-          "phaseStartedAt": 1781791388717,
-=======
           "phaseStartedAt": 1782849950868,
           "bossFightTriggered": false,
           "currentPhase": 1
@@ -198,17 +168,11 @@
           "loopLeftDone": false,
           "loopRightDone": false,
           "phaseStartedAt": 1782849507274,
->>>>>>> origin/main
           "bossFightTriggered": false,
           "currentPhase": 1
         }
       }
     },
-<<<<<<< HEAD
-    null,
-    null,
-=======
->>>>>>> origin/main
     null
   ]
 }

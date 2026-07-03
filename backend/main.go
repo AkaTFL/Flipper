@@ -4,12 +4,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-<<<<<<< HEAD
+	"strconv"
 
 	game "flipper-backend/internal/game"
-=======
-	"strconv"
->>>>>>> origin/main
 )
 
 func main() {
@@ -48,7 +45,7 @@ func main() {
 // handleSavesHTTP expose la liste et la suppression des sauvegardes pour l'écran de sélection.
 // GET /saves              -> liste des 4 slots
 // DELETE /saves?slot=N    -> supprime le slot N puis renvoie la liste à jour
-func handleSavesHTTP(hub *Hub, w http.ResponseWriter, r *http.Request) {
+func handleSavesHTTP(hub *game.Hub, w http.ResponseWriter, r *http.Request) {
 	setCORSHeaders(w)
 
 	switch r.Method {
@@ -56,21 +53,21 @@ func handleSavesHTTP(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 
 	case http.MethodGet:
-		writeJSON(w, http.StatusOK, hub.saveStore.List())
+		writeJSON(w, http.StatusOK, hub.SaveStore().List())
 
 	case http.MethodDelete:
 		slot, err := strconv.Atoi(r.URL.Query().Get("slot"))
-		if err != nil || slot < 1 || slot > maxSaveSlots {
+		if err != nil || slot < 1 || slot > game.MaxSaveSlots {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "slot invalide"})
 			return
 		}
 
-		if err := hub.saveStore.Delete(slot); err != nil {
+		if err := hub.SaveStore().Delete(slot); err != nil {
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
 
-		writeJSON(w, http.StatusOK, hub.saveStore.List())
+		writeJSON(w, http.StatusOK, hub.SaveStore().List())
 
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)

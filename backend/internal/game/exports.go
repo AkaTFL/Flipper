@@ -35,3 +35,9 @@ func (h *Hub) SetMQTTBridge(mqttBridge *MQTTBridge) {
 func (h *Hub) Run() {
 	h.run()
 }
+
+func (h *Hub) SaveStore() *GameSaveStore {
+	return h.saveStore
+}
+
+const MaxSaveSlots = maxSaveSlots
