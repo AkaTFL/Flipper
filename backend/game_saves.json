@@ -1,17 +1,17 @@
 {
   "slots": [
     {
-      "savedAt": 1782849950879,
-      "level": 1,
+      "savedAt": 1783191947302,
+      "level": 2,
       "snapshot": {
         "score": {
-          "score": 10760,
-          "comboCount": 201,
-          "hitStreak": 201,
-          "lastImpactAt": 1782849950641,
+          "score": 44100,
+          "comboCount": 200,
+          "hitStreak": 329,
+          "lastImpactAt": 1783191946391,
           "recentImpactTypes": [
-            "bumper",
-            "bumper",
+            "repulse",
+            "repulse",
             "bumper"
           ],
           "loopStreakById": {}
@@ -35,27 +35,27 @@
               "completed": true
             },
             {
-              "id": "ramp_simple_2",
+              "id": "ramp_perfect_1",
               "category": "precision",
-              "label": "Réussir 2 passages de rampe",
-              "target": 2,
+              "label": "Réussir 1 rampe parfaite",
+              "target": 1,
               "progress": 0,
               "completed": false
             },
             {
-              "id": "loop_left_right",
+              "id": "survive_20s",
               "category": "exploration",
-              "label": "Passer une fois par chaque loop latéral",
-              "target": 2,
+              "label": "Survivre 20 secondes avec la même bille",
+              "target": 20,
               "progress": 0,
               "completed": false
             }
           ],
           "loopLeftDone": false,
           "loopRightDone": false,
-          "phaseStartedAt": 1782849950868,
+          "phaseStartedAt": 1783191947297,
           "bossFightTriggered": false,
-          "currentPhase": 1
+          "currentPhase": 2
         }
       }
     },
