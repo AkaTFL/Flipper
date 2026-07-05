@@ -35,9 +35,74 @@ export class LaunchingRamp extends Objects {
 
             if (!this.rigidBody) this.createFixedRigidBody(position, rotation);
 
-            const desc = this.buildTrimeshCollider(modelRoot);
+            // Chaque pièce reçoit un collider dans le repère local du rigid
+            // body. L'ancien buildTrimeshCollider appliquait la transformation
+            // mondiale puis la position de la rampe une seconde fois, ce qui
+            // pouvait décaler les parois physiques et laisser la bille sortir
+            // du rail au milieu du lancement.
+            modelRoot.traverse((child) => {
+                if (!child.isMesh || !child.geometry) return;
+                this.buildLocalTrimeshCollider(child);
+            });
+
+            this.createInvisibleLaunchGuides();
 
             this.mesh.position.copy(position);
+        });
+    }
+
+    createInvisibleLaunchGuides() {
+        if (!this.rigidBody || this.guideColliders?.length) return;
+
+        const ballConfig = Config.global.positioning.ball;
+        const rampConfig = Config.global.positioning.launchingRamp;
+        const guideThickness = 6;
+        const guideHalfWidth = ballConfig.radius * 3;
+        const guideStartZ = ballConfig.position.z - 30;
+        const guideEndZ = 70;
+        const guideHalfLength = (guideEndZ - guideStartZ) / 2;
+        const guideCenterZ = guideStartZ + guideHalfLength;
+        const guideHalfHeight = rampConfig.width / 2 + ballConfig.radius * 2;
+
+        const bodyRotation = this.toRotationQuaternion(rampConfig.rotation);
+        const inverseBodyRotation = new THREE.Quaternion(
+            bodyRotation.x,
+            bodyRotation.y,
+            bodyRotation.z,
+            bodyRotation.w
+        ).invert();
+
+        const toLocalPosition = (worldX) => new THREE.Vector3(
+            worldX,
+            rampConfig.position.y,
+            guideCenterZ
+        )
+            .sub(new THREE.Vector3(
+                rampConfig.position.x,
+                rampConfig.position.y,
+                rampConfig.position.z
+            ))
+            .applyQuaternion(inverseBodyRotation);
+
+        this.guideColliders = [-1, 1].map((side) => {
+            const worldX = ballConfig.position.x
+                + side * (guideHalfWidth + guideThickness);
+            const localPosition = toLocalPosition(worldX);
+            const guideDesc = RAPIER.ColliderDesc
+                .cuboid(guideThickness, guideHalfHeight, guideHalfLength)
+                .setTranslation(localPosition.x, localPosition.y, localPosition.z)
+                // Annule la rotation du body : les guides restent verticales
+                // et alignées sur le couloir visible dans le monde.
+                .setRotation({
+                    x: inverseBodyRotation.x,
+                    y: inverseBodyRotation.y,
+                    z: inverseBodyRotation.z,
+                    w: inverseBodyRotation.w
+                })
+                .setFriction(0)
+                .setRestitution(0);
+
+            return this.attachCollider(guideDesc, this.rigidBody);
         });
     }
 

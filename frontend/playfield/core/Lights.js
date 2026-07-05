@@ -28,7 +28,8 @@ export function createLights(scene) {
         intensity,
         angle,
         penumbra,
-        shadowSize = 1024
+        shadowSize = 1024,
+        castsShadow = true
     ) => {
 
         const light =
@@ -39,7 +40,7 @@ export function createLights(scene) {
 
         light.position.set(x, y, z);
 
-        light.castShadow = true;
+        light.castShadow = castsShadow;
         light.angle = angle;
         light.penumbra = penumbra;
         light.decay = 2;
@@ -106,7 +107,8 @@ export function createLights(scene) {
         1.0,
         0.99,
         1,
-        3200
+        1024,
+        true
     );
 
     createSpotLight(
@@ -118,7 +120,8 @@ export function createLights(scene) {
         1.0,
         0.99,
         1,
-        3200
+        1024,
+        false
     );
 
     createSpotLight(
@@ -130,7 +133,8 @@ export function createLights(scene) {
         1.0,
         0.99,
         1,
-        3200
+        1024,
+        false
     );
 
     createSpotLight(
@@ -142,7 +146,8 @@ export function createLights(scene) {
         1.0,
         0.99,
         1,
-        3200
+        1024,
+        true
     );
 
     return {

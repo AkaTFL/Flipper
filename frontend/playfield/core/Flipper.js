@@ -12,7 +12,6 @@ import { Repulse } from '../objects/Repulse.js';
 
 import Config, { setNiveauActuel } from '../physics/Config.js';
 
-import { CabinetButtons } from './CabinetButtons.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
 import { AudioManager } from '../physics/Audio.js';
 
@@ -55,9 +54,25 @@ export async function initFlipper(options = {}) {
     );
 
     const container = document.getElementById('three');
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.textContent = 'Chargement du flipper…';
+    loadingIndicator.setAttribute('role', 'status');
+    Object.assign(loadingIndicator.style, {
+        position: 'fixed',
+        inset: '0',
+        display: 'grid',
+        placeItems: 'center',
+        color: '#d6e8b5',
+        background: '#000',
+        font: '600 18px system-ui, sans-serif',
+        letterSpacing: '0.08em',
+        zIndex: '10'
+    });
+    container.appendChild(loadingIndicator);
+    sceneManager.renderer.domElement.style.visibility = 'hidden';
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+
     const controls = new Controls(['q', 'w'], ['d', 'c'], 'space', 'b');
-    const cabinetButtons = new CabinetButtons();
-    cabinetButtons.connect();
     physics.controls = controls;
     // Deux références distinctes :
     // - scene      → THREE.Scene (pour traverse, add, etc.)
@@ -184,7 +199,8 @@ export async function initFlipper(options = {}) {
         position:  Config.global.positioning.etage.position,
         rotation:  Config.global.positioning.etage.rotation,
         objectId:  Config.global.positioning.etage.objectId,
-        objectType: Config.global.positioning.etage.objectType
+        objectType: Config.global.positioning.etage.objectType,
+        collisionEvents: false
     });
     etage.gamePhysics = physics;
     meshes.push(etage);
@@ -200,7 +216,8 @@ export async function initFlipper(options = {}) {
         position:   Config.global.positioning.bodyFlipper.position,
         rotation:   Config.global.positioning.bodyFlipper.rotation,
         objectId:   Config.global.positioning.bodyFlipper.objectId,
-        objectType: Config.global.positioning.bodyFlipper.objectType
+        objectType: Config.global.positioning.bodyFlipper.objectType,
+        collisionEvents: false
     });
     bodyFlipper.gamePhysics = physics;
     meshes.push(bodyFlipper);
@@ -231,7 +248,8 @@ export async function initFlipper(options = {}) {
             position:   cfg.position,
             rotation:   cfg.rotation,
             objectId:   cfg.objectId,
-            objectType: cfg.objectType
+            objectType: cfg.objectType,
+            collisionEvents: false
         });
         rampPale.gamePhysics = physics;
         meshes.push(rampPale);
@@ -253,42 +271,60 @@ export async function initFlipper(options = {}) {
         ball.rigidBody.setEnabled(false);
     }
 
-    // Attendre que tout soit chargé
-    await Promise.all(loadingPromises);
-
-    if (ball.rigidBody) {
-        setTimeout(() => {
-            ball.rigidBody.setEnabled(true);
-        }, 3000);
-    }
-
     sceneManager.scene.add(...meshes.map(obj => obj.mesh));
+    sceneManager.postProcessing.refreshBloomSelection();
     sceneManager.postProcessing.updateOutlineObjects();
+
+    // Attend toutes les images puis les transfère à la GPU avant la partie.
+    // Les objets initialement cachés (notamment la seconde rampe) ne provoquent
+    // ainsi plus un gros upload lors de leur première apparition.
+    await Promise.all(meshes.flatMap((object) => object.textureLoadPromises ?? []));
+    const gpuTextures = new Set();
+    sceneManager.scene.traverse((node) => {
+        const materials = Array.isArray(node.material) ? node.material : [node.material];
+        for (const material of materials.filter(Boolean)) {
+            for (const value of Object.values(material)) {
+                if (value?.isTexture) gpuTextures.add(value);
+            }
+        }
+    });
+    const texturesToUpload = [...gpuTextures];
+    const uploadBatchSize = 12;
+    for (let index = 0; index < texturesToUpload.length; index += uploadBatchSize) {
+        for (const texture of texturesToUpload.slice(index, index + uploadBatchSize)) {
+            sceneManager.renderer.initTexture(texture);
+        }
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+    sceneManager.renderer.compile(sceneManager.scene, sceneManager.camera);
+    // Chauffe aussi les passes bloom/outline avant de montrer le canvas.
+    sceneManager.postProcessing.render(0);
     
     physics.setLaunchingRampVisible(true);
 
-    // Reprise d'une sauvegarde : on attend que la WS soit prête puis on demande le chargement du slot
-    await physics.whenBackendReady();
+    if (ball.rigidBody) ball.rigidBody.setEnabled(true);
+    sceneManager.renderer.domElement.style.visibility = 'visible';
+    loadingIndicator.remove();
+
+    // Le rendu ne doit jamais attendre les 5 secondes de timeout WebSocket.
+    // Seule une reprise de sauvegarde dépend de la disponibilité du backend.
     if (mode === 'resume') {
-        loadSlotHandler(slot);
+        physics.whenBackendReady().then((ready) => {
+            if (ready) loadSlotHandler(slot);
+        });
     }
 
-    sceneManager.startRender(physics, () => {
-        controls.setLaunchChargeCount(0);
+    const dynamicObjects = meshes.filter(
+        (object) => typeof object.syncPalle === 'function' || typeof object.syncBall === 'function'
+    );
 
-        for (let i = 0; i < meshes.length; i++) {
-            if (typeof meshes[i].syncPalle === 'function') {
-                meshes[i].syncPalle();
-            }
-            else if (typeof meshes[i].syncBall === 'function') {
-                meshes[i].syncBall();
-            }
-            if (typeof meshes[i].setActive === 'function') {
-                if (meshes[i].side === 'left') {
-                    meshes[i].setActive(controls.input.left);
-                } else if (meshes[i].side === 'right') {
-                    meshes[i].setActive(controls.input.right);
-                }
+    sceneManager.startRender(physics, () => {
+        for (const object of dynamicObjects) {
+            object.syncPalle?.();
+            object.syncBall?.();
+
+            if (typeof object.setActive === 'function') {
+                object.setActive(object.side === 'left' ? controls.input.left : controls.input.right);
             }
         }
     });

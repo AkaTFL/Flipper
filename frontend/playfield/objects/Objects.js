@@ -4,6 +4,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 import { AudioManager } from '../physics/Audio.js';
 
+THREE.Cache.enabled = true;
+
 export class Objects {
     constructor(
         world,
@@ -47,6 +49,7 @@ export class Objects {
         }
 
         this.audioManager = AudioManager.getShared();
+        this.textureLoadPromises = [];
         this.audio = null;
         this.loader = new GLTFLoader();
     }
@@ -129,12 +132,12 @@ export class Objects {
         return collider;
     }
 
-    buildTrimeshCollider(modelRoot) {
+    buildTrimeshCollider(modelRoot, { activeEvents = null } = {}) {
         if (!modelRoot || !modelRoot.isObject3D) return null;
 
         modelRoot.updateMatrixWorld(true);
 
-        let firstColliderDesc = null;
+        let firstCollider = null;
 
         modelRoot.traverse((child) => {
             if (!child.isMesh || !child.geometry) return;
@@ -171,19 +174,16 @@ export class Objects {
             }
 
             if (vertices.length > 0 && indices.length > 0) {
-                const desc = RAPIER.ColliderDesc.trimesh(vertices, indices);
-
-                this.attachCollider(desc);
-
-                if (!firstColliderDesc) {
-                    firstColliderDesc = desc;
-                }
+                let desc = RAPIER.ColliderDesc.trimesh(vertices, indices);
+                if (activeEvents !== null) desc = desc.setActiveEvents(activeEvents);
+                const collider = this.attachCollider(desc);
+                if (!firstCollider) firstCollider = collider;
             }
 
             geometry.dispose();
         });
 
-        return firstColliderDesc;
+        return firstCollider;
     }
 
     /**
@@ -301,7 +301,7 @@ export class Objects {
                 modelRoot.traverse((child) => {
                     if (child.isMesh) {
                         child.material.side = THREE.DoubleSide;
-                        child.castShadow = true;
+                        child.castShadow = ['palle', 'ball', 'bumper', 'repulse'].includes(this.objectType);
                         child.receiveShadow = true;
                     }
                 });
@@ -346,9 +346,21 @@ export class Objects {
                 !value
             ) return;
 
-            const texture = value.isTexture
-                ? value
-                : loader.load(new URL(value, import.meta.url).href);
+            let texture;
+            if (value.isTexture) {
+                texture = value;
+            } else {
+                const textureUrl = new URL(value, import.meta.url).href;
+                let settleTexture;
+                const loaded = new Promise((resolve) => { settleTexture = resolve; });
+                texture = loader.load(
+                    textureUrl,
+                    () => settleTexture(),
+                    undefined,
+                    () => settleTexture()
+                );
+                this.textureLoadPromises.push(loaded);
+            }
 
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
@@ -360,9 +372,6 @@ export class Objects {
 
             loadedMaps[key] = texture;
         });
-
-        console.log('OBJECT TYPE =', this.objectType);
-        console.log('maps =', maps);
 
         const applyMaps = (mesh) => {
             if (!mesh.isMesh || !mesh.material) return;

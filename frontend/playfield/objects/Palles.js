@@ -37,7 +37,10 @@ export class Palles extends Objects {
 
         this.side   = side;
         this.isLeft = side === 'left';
-        this.wasActive = false;
+        // `null` force la première mise à jour à configurer le moteur en
+        // position de repos. Avec `false`, l'optimisation ignorait ce premier
+        // état et laissait la palette libre jusqu'au premier appui.
+        this.wasActive = null;
 
         this.length   = length;
         this.width    = width;
@@ -140,6 +143,7 @@ export class Palles extends Objects {
 
     setActive(active) {
         if (!this.joint) return;
+        if (active === this.wasActive) return;
 
         const targetAngle = active
             ? (this.isLeft ? this.angle : -this.angle)
@@ -170,6 +174,5 @@ export class Palles extends Objects {
             this.objectType
         );
 
-        console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

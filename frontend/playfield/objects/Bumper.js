@@ -47,28 +47,13 @@ export class Bumper extends Objects {
 
             modelRoot.traverse((child) => {
 
-                 console.log(
-                    "name:",
-                    child.name,
-                    "isMesh:",
-                    child.isMesh
-                );
-
                 if (!child.isMesh) {
                     return;
                 }
-                
-                console.log(
-                    "material:",
-                    child.material?.type,
-                    "uv:",
-                    child.geometry?.attributes?.uv
-                );
 
-                const desc = this.buildTrimeshCollider(child)
-                    .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-
-                const collider = this.attachCollider(desc);
+                const collider = this.buildTrimeshCollider(child, {
+                    activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+                });
 
                 if (child.name && child.name.toLowerCase().includes('bump')) {
                     this.bumpCollider = collider;
@@ -144,6 +129,5 @@ export class Bumper extends Objects {
             this.objectType
         );
         
-        console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

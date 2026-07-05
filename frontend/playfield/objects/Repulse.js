@@ -47,10 +47,9 @@ export class Repulse extends Objects {
                 );
             });
 
-            const desc = this.buildTrimeshCollider(modelRoot)
-                .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-
-            this.attachCollider(desc);
+            this.buildTrimeshCollider(modelRoot, {
+                activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+            });
         });
     }
 
@@ -96,6 +95,5 @@ export class Repulse extends Objects {
             this.objectType
         );
         
-        console.log(`Collision detected with ${this.objectType} (ID: ${this.objectId})`);
     }
 }

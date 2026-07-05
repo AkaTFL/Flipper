@@ -55,5 +55,9 @@ test('le Playfield se lance automatiquement uniquement en mode cabinet', () => {
   const playfield = read('frontend/playfield/index.html');
 
   assert.match(playfield, /get\('cabinet'\) === '1'/);
+<<<<<<< HEAD
   assert.match(playfield, /initFlipper\(/);
+=======
+  assert.match(playfield, /launchGame\(1, 'new', 1, null\)/);
+>>>>>>> 9c2eeb98adf79f6cf0944a9465a6cca832f9216e
 });

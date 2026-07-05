@@ -38,6 +38,7 @@ export class PostProcessingManager {
         this.renderer = renderer;
         this.scene    = scene;
         this.camera   = camera;
+        this.performanceMode = false;
 
         const {
             bloom = {},
@@ -65,11 +66,17 @@ export class PostProcessingManager {
         this._renderPass = new RenderPass(scene, camera);
         this.composer.addPass(this._renderPass);
 
+<<<<<<< HEAD
         this._ssaoPass = null;
         if (this.effects.ssao) {
             this._ssaoPass = createSSAO(scene, camera, ssao);
             this.composer.addPass(this._ssaoPass);
         }
+=======
+        this._ssaoPass = createSSAO(scene, camera, ssao);
+        this._ssaoPass.enabled = false;
+        this.composer.addPass(this._ssaoPass);
+>>>>>>> 9c2eeb98adf79f6cf0944a9465a6cca832f9216e
 
         this._bloomPass = null;
         if (this.effects.bloom) {
@@ -123,9 +130,25 @@ export class PostProcessingManager {
         this._bloomPass.enabled = enabled;
     }
 
+    refreshBloomSelection() {
+        this._bloomPass?.refreshSelection?.();
+    }
+
     /** Active ou désactive le FXAA (sans effet si la passe n'a pas été créée). */
     setFXAA(enabled) {
         if (this._fxaaPass) this._fxaaPass.enabled = enabled;
+    }
+
+    setPerformanceMode(enabled) {
+        if (this.performanceMode === enabled) return;
+        this.performanceMode = enabled;
+
+        // SSAO est la passe la plus coûteuse. FXAA est redondant avec le MSAA
+        // du renderer pendant un ralentissement. Bloom et outline restent actifs
+        // afin de conserver l'identité visuelle et la lisibilité du jeu.
+        this.setSSAO(false);
+        this.setFXAA(false);
+        if (this._outlinePass) this._outlinePass.enabled = !enabled;
     }
 
     setOutlineObject(object) {

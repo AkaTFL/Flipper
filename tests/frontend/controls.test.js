@@ -40,7 +40,7 @@ test('Controls triggers start_game callback on first launch impulse', () => {
   });
   controls.setBallRef({
     rigidBody: {
-      applyImpulse() {
+      setLinvel() {
         impulses += 1;
       }
     }
