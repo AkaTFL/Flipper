@@ -1,14 +1,14 @@
 {
   "slots": [
     {
-      "savedAt": 1783191947302,
+      "savedAt": 1783253183437,
       "level": 2,
       "snapshot": {
         "score": {
           "score": 44100,
-          "comboCount": 200,
-          "hitStreak": 329,
-          "lastImpactAt": 1783191946391,
+          "comboCount": 14,
+          "hitStreak": 14,
+          "lastImpactAt": 1783253164432,
           "recentImpactTypes": [
             "repulse",
             "repulse",
@@ -47,8 +47,8 @@
               "category": "exploration",
               "label": "Survivre 20 secondes avec la même bille",
               "target": 20,
-              "progress": 0,
-              "completed": false
+              "progress": 20,
+              "completed": true
             }
           ],
           "loopLeftDone": false,

@@ -1,4 +1,12 @@
-export var NiveauActuel = 1;
+let _niveauActuel = 1;
+
+export function getNiveauActuel() {
+    return _niveauActuel;
+}
+
+export function setNiveauActuel(n) {
+    _niveauActuel = n;
+}
 
 const soundAsset = (path) => {
     const resolved = new URL(path, import.meta.url).href;
@@ -37,7 +45,7 @@ export default {
                 minimalSpeed: 1500,
                 maximalSpeed: 1750,
                 chargeDurationMs: 900,
-                model: `../assets/mesh/ramp_launch/ramp_launch_lvl_${NiveauActuel}.glb`,
+                get model() { return `../assets/mesh/ramp_launch/ramp_launch_lvl_${getNiveauActuel()}.glb`; },
                 objectId: 'launching-ramp'
             },
 
@@ -63,7 +71,7 @@ export default {
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
                         objectId: 'bumper-1',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
+                        get model() { return `../assets/mesh/bumpers/bumper_lvl_${getNiveauActuel()}.glb`; }
                     },
                     {
                         width: 40,
@@ -71,7 +79,7 @@ export default {
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
                         objectId: 'bumper-2',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
+                        get model() { return `../assets/mesh/bumpers/bumper_lvl_${getNiveauActuel()}.glb`; }
                     },
                     
                     {
@@ -80,7 +88,7 @@ export default {
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
                         objectId: 'bumper-3',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
+                        get model() { return `../assets/mesh/bumpers/bumper_lvl_${getNiveauActuel()}.glb`; }
                     },
                     {
                         width: 40,
@@ -88,7 +96,7 @@ export default {
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
                         objectId: 'bumper-4',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
+                        get model() { return `../assets/mesh/bumpers/bumper_lvl_${getNiveauActuel()}.glb`; }
                     },
 
                     {
@@ -97,7 +105,7 @@ export default {
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
                         objectId: 'bumper-5',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
+                        get model() { return `../assets/mesh/bumpers/bumper_lvl_${getNiveauActuel()}.glb`; }
                     },
 
 
@@ -108,7 +116,7 @@ export default {
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
                         objectId: 'bumper-6',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
+                        get model() { return `../assets/mesh/bumpers/bumper_lvl_${getNiveauActuel()}.glb`; }
                     },
                     {
                         width: 25,
@@ -116,7 +124,7 @@ export default {
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
                         objectId: 'bumper-7',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
+                        get model() { return `../assets/mesh/bumpers/bumper_lvl_${getNiveauActuel()}.glb`; }
                     },
                     {
                         width: 25,
@@ -124,7 +132,7 @@ export default {
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
                         objectId: 'bumper-8',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
+                        get model() { return `../assets/mesh/bumpers/bumper_lvl_${getNiveauActuel()}.glb`; }
                     },
                     {
                         width: 25,
@@ -132,7 +140,7 @@ export default {
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
                         objectId: 'bumper-9',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
+                        get model() { return `../assets/mesh/bumpers/bumper_lvl_${getNiveauActuel()}.glb`; }
                     },
                     {
                         width: 25,
@@ -140,7 +148,7 @@ export default {
                         rotation: { x: 0, y: 0, z: 0 },
                         objectType: 'bumper',
                         objectId: 'bumper-10',
-                        model: `../assets/mesh/bumpers/bumper_lvl_${NiveauActuel}.glb`
+                        get model() { return `../assets/mesh/bumpers/bumper_lvl_${getNiveauActuel()}.glb`; }
                     },
 
                     {
@@ -149,7 +157,7 @@ export default {
                         rotation: { x: 0, y: -(Math.PI / 3) - 0.1, z: 0 },
                         objectType: 'bumper',
                         objectId: 'bumper-triangle-left',
-                        model: `../assets/mesh/bumpers_triangle/bumpers_triangle_left_lvl_${NiveauActuel}.glb`
+                        get model() { return `../assets/mesh/bumpers_triangle/bumpers_triangle_left_lvl_${getNiveauActuel()}.glb`; }
                     },
                     {
                         width: 110,
@@ -157,7 +165,7 @@ export default {
                         rotation: { x: 0, y: (Math.PI / 3) + 0.1, z: 0 },
                         objectType: 'bumper',
                         objectId: 'bumper-triangle-right',
-                        model: `../assets/mesh/bumpers_triangle/bumpers_triangle_right_lvl_${NiveauActuel}.glb`
+                        get model() { return `../assets/mesh/bumpers_triangle/bumpers_triangle_right_lvl_${getNiveauActuel()}.glb`; }
                     },
                 ],
             },
@@ -277,8 +285,8 @@ export default {
                     { length: 60, width: 20, height: 30, position: { x: 55, y: 5, z: 15 }, rotation: { x: 0, y: 0, z: (Math.PI / 6) }, side: 'left' },
                     { length: 60, width: 20, height: 30, position: { x: -100, y: 5, z: 15 }, rotation: { x: 0, y: 0, z: -(Math.PI / 6) }, side: 'right' }
                 ],
-                modelRight: `../assets/mesh/palles/Right_flipper_lvl_${NiveauActuel}.glb`,
-                modelLeft: `../assets/mesh/palles/Left_flipper_lvl_${NiveauActuel}.glb`
+                get modelRight() { return `../assets/mesh/palles/Right_flipper_lvl_${getNiveauActuel()}.glb`; },
+                get modelLeft() { return `../assets/mesh/palles/Left_flipper_lvl_${getNiveauActuel()}.glb`; }
             },
 
             bodyFlipper: {
@@ -293,7 +301,7 @@ export default {
             },
 
             etage: {
-                model: `../assets/mesh/etage/etage_lvl_${NiveauActuel}.glb`,
+                get model() { return `../assets/mesh/etage/etage_lvl_${getNiveauActuel()}.glb`; },
                 objectId: 'etage',
                 objectType: 'etage',
                 // Élargit l'accès gauche sans modifier la hauteur de l'étage.
@@ -308,7 +316,7 @@ export default {
 
             StaticMesh: [
                 {
-                    model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${NiveauActuel}.glb`,
+                    get model() { return `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${getNiveauActuel()}.glb`; },
                     objectId: 'murs-cible-left',
                     objectType: 'wall',
                     length: 50,
@@ -319,7 +327,7 @@ export default {
 
                 },
                 {
-                    model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${NiveauActuel}.glb`,
+                    get model() { return `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${getNiveauActuel()}.glb`; },
                     objectId: 'murs-cible-left-2',
                     objectType: 'wall',
                     length: 50,
@@ -330,7 +338,7 @@ export default {
 
                 },
                 {
-                    model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${NiveauActuel}.glb`,
+                    get model() { return `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${getNiveauActuel()}.glb`; },
                     objectId: 'murs-cible-droit',
                     objectType: 'wall',
                     length: 50,
@@ -341,7 +349,7 @@ export default {
 
                 },
                 {
-                    model: `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${NiveauActuel}.glb`,
+                    get model() { return `../assets/mesh/murs_cible_left/murs_cible_left_lvl_${getNiveauActuel()}.glb`; },
                     objectId: 'murs-cible-droit-2',
                     objectType: 'wall',
                     length: 50,
@@ -352,7 +360,7 @@ export default {
 
                 },
                 {
-                    model: `../assets/mesh/quadri/quadri_left_cible_lvl_${NiveauActuel}.glb`,
+                    get model() { return `../assets/mesh/quadri/quadri_left_cible_lvl_${getNiveauActuel()}.glb`; },
                     objectId: 'quadri-left-cible',
                     objectType: 'wall',
                     length: 50,
@@ -362,7 +370,7 @@ export default {
                     rotation: { x: 0, y: 0, z: Math.PI }
                 },
                 {
-                    model: `../assets/mesh/quadri/quadri_right_cible_lvl_${NiveauActuel}.glb`,
+                    get model() { return `../assets/mesh/quadri/quadri_right_cible_lvl_${getNiveauActuel()}.glb`; },
                     objectId: 'quadri-right-cible',
                     objectType: 'wall',
                     length: 50,
@@ -372,7 +380,7 @@ export default {
                     rotation: { x: 0, y: 0, z: Math.PI }
                 },
                 {
-                    model: `../assets/mesh/raque_side/raque_side_lvl_${NiveauActuel}.glb`,
+                    get model() { return `../assets/mesh/raque_side/raque_side_lvl_${getNiveauActuel()}.glb`; },
                     objectId: 'raque-side-left',
                     objectType: 'wall',
                     length: 5,
@@ -382,7 +390,7 @@ export default {
                     rotation: { x: 0, y: -3.14, z: (Math.PI) }
                 },
                 {
-                    model: `../assets/mesh/raque_side/raque_side_lvl_${NiveauActuel}.glb`,
+                    get model() { return `../assets/mesh/raque_side/raque_side_lvl_${getNiveauActuel()}.glb`; },
                     objectId: 'raque-side-right',
                     objectType: 'wall',
                     length: 5,
@@ -394,7 +402,7 @@ export default {
 
 
                 {
-                    model: `../assets/mesh/wall_up_right/wall_up_right_lvl_${NiveauActuel}.glb`,
+                    get model() { return `../assets/mesh/wall_up_right/wall_up_right_lvl_${getNiveauActuel()}.glb`; },
                     objectId: 'wall-up-right',
                     objectType: 'wall',
                     length: 170,
@@ -407,7 +415,7 @@ export default {
 
             rampPales: {
                 right: {
-                    model: `../assets/mesh/ramp_pale_down_right/ramp_pale_down_right_lvl_${NiveauActuel}.glb`,
+                    get model() { return `../assets/mesh/ramp_pale_down_right/ramp_pale_down_right_lvl_${getNiveauActuel()}.glb`; },
                     objectId: 'ramp-pale-down-right',
                     objectType: 'wall',
                     length: 100,
@@ -417,7 +425,7 @@ export default {
                     rotation: { x: 0, y: 3.14, z: 0 }
                 },
                 left: {
-                    model: `../assets/mesh/ramp_pale_down_left/ramp_pale_down_left_lvl_${NiveauActuel}.glb`,
+                    get model() { return `../assets/mesh/ramp_pale_down_left/ramp_pale_down_left_lvl_${getNiveauActuel()}.glb`; },
                     objectId: 'ramp-pale-down-left',
                     objectType: 'wall',
                     length: 100,
@@ -427,7 +435,7 @@ export default {
                     rotation: { x: 0, y: 3.14, z: 0 }
                 },
                 rightDeath: {
-                    model: `../assets/mesh/ramp_pale_down_right_death/ramp_pale_down_right_death_lvl_${NiveauActuel}.glb`,
+                    get model() { return `../assets/mesh/ramp_pale_down_right_death/ramp_pale_down_right_death_lvl_${getNiveauActuel()}.glb`; },
                     objectId: 'ramp-pale-down-right-death',
                     objectType: 'wall',
                     length: 90,
@@ -437,7 +445,7 @@ export default {
                     rotation: { x: 0, y: 3.14, z: 0 }
                 },
                 leftDeath: {
-                    model: `../assets/mesh/ramp_pale_down_left_death/ramp_pale_down_left_death_lvl_${NiveauActuel}.glb`,
+                    get model() { return `../assets/mesh/ramp_pale_down_left_death/ramp_pale_down_left_death_lvl_${getNiveauActuel()}.glb`; },
                     objectId: 'ramp-pale-down-left-death',
                     objectType: 'wall',
                     length: 90,
@@ -606,7 +614,7 @@ export default {
                     aoMap: '../assets/textures/lvl2/body/table/sea_ao_map.png',
                     roughnessMap: '../assets/textures/lvl2/body/table/sea_roughness_map.png',
                     normalMap: '../assets/textures/lvl2/body/table/sea_normal_map.png',
-                    repeat: [1, 1]
+                    repeat: [2, 1]
                 },
                 walls: {
                     map: '../assets/textures/lvl2/body/walls/sea_wall_map.png',               
@@ -623,6 +631,27 @@ export default {
             etage: {
             },
 
+            ramps: {
+                entrance: {
+                    map: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_diff_1k.png',
+                    aoMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    roughnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    metalnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    normalMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_nor_gl_1k.png',
+                    repeat: [1, 1]
+                },
+
+                rail: {
+                    map: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Color.png',
+                    metalnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Metalness.png',
+                    normalMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_NormalGL.png',
+                    roughnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Roughness.png',
+                    displacementMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Displacement.png',
+                    displacementScale: 0.005,
+                    repeat: [1, 1]
+                },
+            },
+
             launching_ramp: {
                 entrance: {
 
@@ -634,10 +663,6 @@ export default {
 
             palles: {
 
-            },
-
-            ramp: {
-                map: '../assets/textures/lvl1/ramp_basecolor.png'
             },
 
             repulse: {
@@ -665,11 +690,6 @@ export default {
             },
             
             bumper: {
-                map: '../assets/textures/lvl3/bumper/mossy_rock_arm_1k.png',
-                aoMap: '../assets/textures/lvl3/bumper/mossy_rock_diff_1k.png',
-                roughnessMap: '../assets/textures/lvl3/bumper/mossy_rock_nor_gl_1k.png',
-                repeat: [4, 4]
-
             },
 
             body: {
@@ -705,12 +725,25 @@ export default {
             palles: {
             },
 
-            ramp: {
-                map: '../assets/textures/lvl1/ramp_basecolor.png',
-                aoMap: '../assets/textures/lvl3/ramp/stone_tiles_03_arm_1k.png',
-                roughnessMap: '../assets/textures/lvl3/ramp/stone_tiles_03_arm_1k.png',
-                normalMap: '../assets/textures/lvl3/ramp/stone_tiles_03_nor_gl_1k.png',
-                repeat: [4, 4]
+            ramps: {
+                entrance: {
+                    map: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_diff_1k.png',
+                    aoMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    roughnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    metalnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    normalMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_nor_gl_1k.png',
+                    repeat: [1, 1]
+                },
+
+                rail: {
+                    map: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Color.png',
+                    metalnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Metalness.png',
+                    normalMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_NormalGL.png',
+                    roughnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Roughness.png',
+                    displacementMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Displacement.png',
+                    displacementScale: 0.005,
+                    repeat: [1, 1]
+                },
             },
 
             repulse: {
@@ -747,14 +780,6 @@ export default {
             },
             
             bumper: {
-                map: '../assets/textures/lvl1/bumper/bush_photo_albedo_tileable.png',
-                aoMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
-                roughnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
-                metalnessMap: '../assets/textures/lvl1/bumper/bush_photo_ARM_tileable.png',
-                normalMap: '../assets/textures/lvl1/bumper/bush_photo_normal_tileable.png',
-                displacementMap: '../assets/textures/lvl1/bumper/bush_photo_displacement_tileable.png',
-                displacementScale: 0.05,
-                repeat: [4, 4]
             },
 
             body: {
@@ -778,46 +803,37 @@ export default {
             },
 
             etage: {
-                map: '../assets/textures/lvl3/etage/portal_diffuse_1k.png',
-                aoMap: '../assets/textures/lvl3/etage/portal_arm_1k.png',
-                roughnessMap: '../assets/textures/lvl3/etage/portal_arm_1k.png',
-                normalMap: '../assets/textures/lvl3/etage/portal_nor_gl_1k.png',
-                repeat: [4, 4]
-
             },
 
             launching_ramp: {
                 entrance: {
-                    map: '../assets/textures/lvl4/launching_ramp/entrance/mossy_sandstone_diff_1k.png',
-                    aoMap: '../assets/textures/lvl4/launching_ramp/entrance/mossy_sandstone_arm_1k.png',
-                    roughnessMap: '../assets/textures/lvl4/launching_ramp/entrance/mossy_sandstone_arm_1k.png',
-                    normalMap: '../assets/textures/lvl4/launching_ramp/entrance/mossy_sandstone_nor_gl_1k.png',
-                    repeat: [4, 4]
-
                 },
                 rail: {
-                map: '../assets/textures/lvl4/launching_ramp/rail/Metal008_1K-PNG_Color.png',
-                aoMap: '../assets/textures/lvl4/launching_ramp/rail/Metal008_1K-PNG_Displacement.png',
-                roughnessMap: '../assets/textures/lvl4/launching_ramp/rail/Metal008_1K-PNG_Roughness.png',
-                normalMap: '../assets/textures/lvl4/launching_ramp/rail/Metal008_1K-PNG_Normal.png',
-                repeat: [4, 4]
                 },
             },
 
             palles: {
-                map: '../assets/textures/lvl1/palles/bush_photo_albedo_tileable.png',
-                aoMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
-                roughnessMap: '../assets/textures/lvl1/palles/bush_photo_ARM_tileable.png',
-                normalMap: '../assets/textures/lvl1/palles/bush_photo_normal_tileable.png',
-                repeat: [4, 4]
             },
 
-            ramp: {
-                map: '../assets/textures/lvl1/ramp_basecolor.png',
-                aoMap: '../assets/textures/lvl4/ramp/stone_tiles_03_arm_1k.png',
-                roughnessMap: '../assets/textures/lvl4/ramp/stone_tiles_03_arm_1k.png',
-                normalMap: '../assets/textures/lvl4/ramp/stone_tiles_03_nor_gl_1k.png',
-                repeat: [4, 4]
+            ramps: {
+                entrance: {
+                    map: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_diff_1k.png',
+                    aoMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    roughnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    metalnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    normalMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_nor_gl_1k.png',
+                    repeat: [1, 1]
+                },
+
+                rail: {
+                    map: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Color.png',
+                    metalnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Metalness.png',
+                    normalMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_NormalGL.png',
+                    roughnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Roughness.png',
+                    displacementMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Displacement.png',
+                    displacementScale: 0.005,
+                    repeat: [1, 1]
+                },
             },
 
             repulse: {
@@ -876,8 +892,25 @@ export default {
 
             },
 
-            ramp: {
-                map: '../assets/textures/lvl1/ramp_basecolor.png'
+            ramps: {
+                entrance: {
+                    map: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_diff_1k.png',
+                    aoMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    roughnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    metalnessMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_arm_1k.png',
+                    normalMap: '../assets/textures/lvl1/ramps/entrance/mossy_sandstone_nor_gl_1k.png',
+                    repeat: [1, 1]
+                },
+
+                rail: {
+                    map: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Color.png',
+                    metalnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Metalness.png',
+                    normalMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_NormalGL.png',
+                    roughnessMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Roughness.png',
+                    displacementMap: '../assets/textures/lvl1/ramps/rail/Metal008_1K-PNG_Displacement.png',
+                    displacementScale: 0.005,
+                    repeat: [1, 1]
+                },
             },
 
             repulse: {

@@ -1,4 +1,4 @@
-import Config, { NiveauActuel } from '../../physics/Config.js';
+import Config, { setNiveauActuel } from '../../physics/Config.js';
 
 export class BackendConnection {
     constructor(engine) {
@@ -57,12 +57,15 @@ export class BackendConnection {
                     const previousLevel = Config.currentLevel;
                     const current = Number(Config.currentLevel.split('_')[1]);
 
-                    if (current < 4) {
-                        Config.currentLevel = `lvl_${current + 1}`;
-                        NiveauActuel += current + 1;
+                    if (Number.isFinite(current) && current < 4) {
+                        const nextLevel = current + 1;
+                        Config.currentLevel = `lvl_${nextLevel}`;
+                        // Nomenclature des modèles 3D (bumper_lvl_2.glb, etc.) : basée sur
+                        // le même numéro que le niveau qui vient d'être atteint.
+                        setNiveauActuel(nextLevel);
                     } else {
                         Config.currentLevel = 'post_lvl';
-                        NiveauActuel = NiveauActuel;
+                        // NiveauActuel reste sur le dernier niveau (4) pour la nomenclature des modèles
                     }
 
                     if (previousLevel !== Config.currentLevel) {

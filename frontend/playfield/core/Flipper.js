@@ -10,7 +10,7 @@ import { Ramp } from '../objects/Ramp.js';
 import { StaticMesh } from '../objects/StaticMesh.js';
 import { Repulse } from '../objects/Repulse.js';
 
-import Config from '../physics/Config.js';
+import Config, { setNiveauActuel } from '../physics/Config.js';
 
 import { CabinetButtons } from './CabinetButtons.js';
 import { GamePhysics } from '../physics/GamePhysics.js';
@@ -20,7 +20,11 @@ export async function initFlipper(options = {}) {
     const { slot = 1, mode = 'new', level = 1 } = options;
 
     // Positionne le niveau de départ avant l'init physique (gravité + musique du niveau)
-    Config.currentLevel = mode === 'resume' ? `lvl_${Math.min(4, Math.max(1, Number(level) || 1))}` : 'lvl_1';
+    const resolvedLevel = mode === 'resume' ? Math.min(4, Math.max(1, Number(level) || 1)) : 1;
+    Config.currentLevel = `lvl_${resolvedLevel}`;
+    // Nomenclature des modèles 3D (bumper_lvl_2.glb, etc.) — sans ça, NiveauActuel
+    // reste sur sa valeur par défaut (1) tant qu'aucun boss n'a été battu dans cette session.
+    setNiveauActuel(resolvedLevel);
 
     AudioManager.getShared().unlock();
 
