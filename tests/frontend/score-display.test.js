@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { ScoreDisplay } from '../../frontend/flipper/ui/ScoreDisplay.js';
+import { BackglassDisplay } from '../../frontend/backglass/js/BackglassDisplay.js';
 
 function createFakeElement(tagName) {
   return {
@@ -28,38 +28,33 @@ function createFakeDocument() {
     body,
     createElement(tagName) {
       return createFakeElement(tagName);
+    },
+    getElementById(id) {
+      return null;
+    },
+    querySelectorAll() {
+      return [];
     }
   };
 }
 
-test('ScoreDisplay mounts with default values', () => {
+test('BackglassDisplay mounts with the default empty state', () => {
   const documentRef = createFakeDocument();
-  const display = new ScoreDisplay({ documentRef, eventTarget: null });
+  const display = new BackglassDisplay({ documentRef, backendUrl: null });
 
-  const mounted = display.mount();
-
-  assert.equal(mounted, display.container);
-  assert.equal(documentRef.body.children.length, 3);
-  assert.equal(display.scoreValue.textContent, '0');
-  assert.equal(display.comboValue.textContent, 'Combo x1');
-  assert.equal(display.deltaValue.textContent, '+0');
-  assert.equal(display.detailValue.textContent, 'En attente des impacts');
-  assert.equal(display.bossValue.textContent, 'Boss: en attente');
-  assert.equal(display.bossDetailValue.textContent, 'Dégâts boss: --');
-  assert.equal(display.playerValue.textContent, 'Joueur: en attente');
-  assert.equal(display.playerBallsValue.textContent, 'Balles: --');
-  assert.equal(display.playerDetailValue.textContent, 'État joueur: --');
-  assert.equal(display.questValue.textContent, 'Quêtes: en attente');
-  assert.equal(display.controlsContainer.children[0].textContent, 'CONTRÔLES');
-  assert.equal(display.saveContainer.children[0].textContent, 'SAUVEGARDES');
+  assert.equal(display.container, null);
+  assert.equal(display.lastMessage, null);
+  assert.equal(display.players[1].score, 0);
+  assert.equal(display.comboState.multiplier, 1);
+  assert.equal(display.questState.activeQuests.length, 0);
+  assert.equal(display.bossState.active, false);
 });
 
-test('ScoreDisplay updates player state when receiving player_state_update', () => {
+test('BackglassDisplay updates player state when receiving player_state_update', () => {
   const documentRef = createFakeDocument();
-  const display = new ScoreDisplay({ documentRef, eventTarget: null });
-  display.mount();
+  const display = new BackglassDisplay({ documentRef, backendUrl: null });
 
-  const handled = display.handleBackendEvent({
+  const handled = display.handleBackendMessage(JSON.stringify({
     type: 'player_state_update',
     payload: {
       hp: 80,
@@ -70,20 +65,17 @@ test('ScoreDisplay updates player state when receiving player_state_update', () 
       lastBallLost: false,
       gameOver: false
     }
-  });
+  }));
 
-  assert.equal(handled, true);
-  assert.equal(display.playerValue.textContent, 'Joueur: 80/100 HP');
-  assert.equal(display.playerBallsValue.textContent, 'Balles: 3/3');
-  assert.equal(display.playerDetailValue.textContent, 'Derniers dégâts joueur: -20');
+  assert.equal(handled.type, 'player_state_update');
+  assert.equal(display.players[1].balls, 3);
 });
 
-test('ScoreDisplay updates its fields when receiving score_update', () => {
+test('BackglassDisplay updates its combo state when receiving score_update', () => {
   const documentRef = createFakeDocument();
-  const display = new ScoreDisplay({ documentRef, eventTarget: null });
-  display.mount();
+  const display = new BackglassDisplay({ documentRef, backendUrl: null });
 
-  const handled = display.handleBackendEvent({
+  const handled = display.handleBackendMessage(JSON.stringify({
     type: 'score_update',
     payload: {
       score: 1525,
@@ -92,21 +84,19 @@ test('ScoreDisplay updates its fields when receiving score_update', () => {
       comboCount: 3,
       objectType: 'launching_ramp_rail'
     }
-  });
+  }));
 
-  assert.equal(handled, true);
-  assert.equal(display.scoreValue.textContent, new Intl.NumberFormat('fr-FR').format(1525));
-  assert.equal(display.comboValue.textContent, 'Combo x3');
-  assert.equal(display.deltaValue.textContent, '+225');
-  assert.equal(display.detailValue.textContent, 'Dernier impact: launching_ramp_rail');
+  assert.equal(handled.type, 'score_update');
+  assert.equal(display.comboState.score, 1525);
+  assert.equal(display.comboState.multiplier, 3);
+  assert.equal(display.comboState.comboCount, 3);
 });
 
-test('ScoreDisplay updates quest state when receiving quest_update', () => {
+test('BackglassDisplay updates quest state when receiving quest_update', () => {
   const documentRef = createFakeDocument();
-  const display = new ScoreDisplay({ documentRef, eventTarget: null });
-  display.mount();
+  const display = new BackglassDisplay({ documentRef, backendUrl: null });
 
-  const handled = display.handleBackendEvent({
+  const handled = display.handleBackendMessage(JSON.stringify({
     type: 'quest_update',
     payload: {
       completedCount: 1,
@@ -122,19 +112,19 @@ test('ScoreDisplay updates quest state when receiving quest_update', () => {
         }
       ]
     }
-  });
+  }));
 
-  assert.equal(handled, true);
-  assert.equal(display.questValue.textContent.includes('Quêtes: 1/3'), true);
-  assert.equal(display.questValue.textContent.includes('✓ Atteindre 2 000 points: 2000/2000'), true);
+  assert.equal(handled.type, 'quest_update');
+  assert.equal(display.questState.completedCount, 1);
+  assert.equal(display.questState.requiredCount, 3);
+  assert.equal(display.questState.activeQuests.length, 1);
 });
 
-test('ScoreDisplay updates boss state when receiving boss_state_update', () => {
+test('BackglassDisplay updates boss state when receiving boss_state_update', () => {
   const documentRef = createFakeDocument();
-  const display = new ScoreDisplay({ documentRef, eventTarget: null });
-  display.mount();
+  const display = new BackglassDisplay({ documentRef, backendUrl: null });
 
-  const handled = display.handleBackendEvent({
+  const handled = display.handleBackendMessage(JSON.stringify({
     type: 'boss_state_update',
     payload: {
       active: true,
@@ -143,9 +133,10 @@ test('ScoreDisplay updates boss state when receiving boss_state_update', () => {
       damageTaken: 75,
       defeated: false
     }
-  });
+  }));
 
-  assert.equal(handled, true);
-  assert.equal(display.bossValue.textContent, 'Boss: 845/1000 (actif)');
-  assert.equal(display.bossDetailValue.textContent, 'Derniers dégâts boss: -75');
+  assert.equal(handled.type, 'boss_state_update');
+  assert.equal(display.bossState.hp, 845);
+  assert.equal(display.bossState.maxHp, 1000);
+  assert.equal(display.bossState.damageTaken, 75);
 });

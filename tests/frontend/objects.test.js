@@ -3,13 +3,12 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-import Config from '../../frontend/flipper/physics/Config.js';
-import { Bumper } from '../../frontend/flipper/objects/Bumper.js';
-import { LaunchingRamp } from '../../frontend/flipper/objects/LaunchingRamp.js';
-import { Palles } from '../../frontend/flipper/objects/Palles.js';
-import { Repulse } from '../../frontend/flipper/objects/Repulse.js';
-import { StaticMesh } from '../../frontend/flipper/objects/StaticMesh.js';
-import { Wall } from '../../frontend/flipper/objects/Wall.js';
+import Config from '../../frontend/playfield/physics/Config.js';
+import { Bumper } from '../../frontend/playfield/objects/Bumper.js';
+import { Palles } from '../../frontend/playfield/objects/Palles.js';
+import { Repulse } from '../../frontend/playfield/objects/Repulse.js';
+import { StaticMesh } from '../../frontend/playfield/objects/StaticMesh.js';
+import { Wall } from '../../frontend/playfield/objects/Wall.js';
 
 if (typeof globalThis.Audio !== 'function') {
   globalThis.Audio = class {
@@ -99,7 +98,7 @@ function createWorldStub() {
 
 test('Bumper registers a collider and uses the expected radius', async () => {
   const { world, state } = createWorldStub();
-  const bumper = new Bumper(world, 60, { x: 10, y: 20, z: 30 }, { x: 0, y: 0, z: 0 }, 'bumper-1');
+  const bumper = new Bumper({}, world, 60, { x: 10, y: 20, z: 30 }, { x: 0, y: 0, z: 0 }, 'bumper-1');
 
   await flushAsyncLoads();
 
@@ -128,6 +127,7 @@ test('Bumper triangle applies an impulse using ramp mesh orientation', async () 
   }));
 
   const bumper = new Bumper(
+    {},
     world,
     70,
     { x: 0, y: 0, z: 0 },
@@ -155,6 +155,7 @@ test('Bumper triangle applies an impulse using ramp mesh orientation', async () 
 test('Palles constructor creates physics body/collider and defers joint setup until model load', async () => {
   const { world, state } = createWorldStub();
   const palles = new Palles(
+    {},
     world,
     120,
     10,
@@ -180,6 +181,7 @@ test('Palles constructor creates physics body/collider and defers joint setup un
 test('Palles keeps rest-angle semantics when inactive', async () => {
   const { world, state } = createWorldStub();
   const palles = new Palles(
+    {},
     world,
     120,
     10,
@@ -199,7 +201,7 @@ test('Palles keeps rest-angle semantics when inactive', async () => {
 
 test('StaticMesh creates a fixed rigid body and a trimesh collider after model load', async () => {
   const { world, state } = createWorldStub();
-  const sm = new StaticMesh(world, '../assets/mesh/Mesh_final/murs_cible_left.glb', {
+  const sm = new StaticMesh({}, world, '../assets/mesh/Mesh_final/murs_cible_left.glb', {
     objectId: 'murs-cible-left',
     objectType: 'wall',
     position: { x: 0, y: 0, z: 0 },
@@ -218,7 +220,7 @@ test('StaticMesh creates a fixed rigid body and a trimesh collider after model l
 
 test('StaticMesh defaults objectType to "static" when not provided', async () => {
   const { world } = createWorldStub();
-  const sm = new StaticMesh(world, '../assets/mesh/Mesh_final/raque_side.glb', {
+  const sm = new StaticMesh({}, world, '../assets/mesh/Mesh_final/raque_side.glb', {
     objectId: 'raque-side'
   });
 
@@ -236,7 +238,7 @@ test('Repulse does not throw when a loaded model has no usable geometry', async 
     scene: emptyRoot
   }));
 
-  assert.doesNotThrow(() => new Repulse(world, 80, 40, 40, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, 'repulse-zone'));
+  assert.doesNotThrow(() => new Repulse({}, world, 80, 40, 40, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, 'repulse-zone'));
 
   await flushAsyncLoads();
 });
@@ -245,6 +247,7 @@ test('Wall creates a fixed rigid body and a collider', () => {
   const { world, state } = createWorldStub();
   const gamePhysics = { world };  // Wall expects gamePhysics.world, not world directly
   const wall = new Wall(
+    {},
     gamePhysics,
     950,
     100,

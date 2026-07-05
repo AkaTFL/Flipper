@@ -10,7 +10,7 @@ if (typeof globalThis.Audio !== 'function') {
   };
 }
 
-import { Controls } from '../../frontend/flipper/core/Controls.js';
+import { Controls } from '../../frontend/playfield/core/Controls.js';
 
 function createWindowStub() {
   const listeners = new Map();
