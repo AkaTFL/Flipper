@@ -39,7 +39,7 @@ export class ShaderEffects {
     }
 
     resizeCanvas() {
-        const dpr = Math.min(window.devicePixelRatio || 1, 2); // cap à 2x pour perf
+        const dpr = Math.min(window.devicePixelRatio || 1, 1.5); // cap réduit (perf) — 2x était trop coûteux avec ces shaders
         const w = Math.floor(window.innerWidth  * dpr);
         const h = Math.floor(window.innerHeight * dpr);
         if (this.canvas.width === w && this.canvas.height === h) return;
@@ -110,8 +110,8 @@ export class ShaderEffects {
             float reach = smoothstep(0.0, 1.0, age/1.2);
             vec2 origin = vec2(hash(vec2(seed,0.3))*0.9+0.05, 1.0);
             float minD = 9999.0;
-            for(float i=0.0; i<40.0; i++){
-                float tt = i/40.0;
+            for(float i=0.0; i<24.0; i++){
+                float tt = i/24.0;
                 if(tt > reach) break;
                 float angle = tt*16.0 + sin(tt*9.0+seed)*2.0 + seed*6.28;
                 float r = tt*0.08 + sin(tt*5.0+seed)*0.02;
@@ -201,8 +201,8 @@ export class ShaderEffects {
                 }
             }
 
-            // ── 10 vrilles végétales
-            for(float i=0.0; i<10.0; i++){
+            // ── 5 vrilles végétales (perf : 10 → 5)
+            for(float i=0.0; i<5.0; i++){
                 float t = tendril(uvF, i*1.73+0.3, uTime);
                 if(t>0.01){
                     vec3 lc = mix(vec3(0.1,0.8,0.18), vec3(0.4,1.0,0.25),
@@ -212,9 +212,9 @@ export class ShaderEffects {
                 }
             }
 
-            // ── Spores lumineuses (60)
+            // ── Spores lumineuses (perf : 60 → 28)
             float allSpores = 0.0;
-            for(float i=0.0; i<60.0; i++) allSpores += spore(uvF, i);
+            for(float i=0.0; i<28.0; i++) allSpores += spore(uvF, i);
             allSpores = clamp(allSpores, 0.0, 1.0);
             col += mix(vec3(0.2,1.0,0.3), vec3(0.8,1.0,0.2), sin(uTime*0.7)*0.5+0.5)*allSpores*0.7;
             alpha += allSpores * 0.3;
@@ -370,16 +370,16 @@ export class ShaderEffects {
             col+=vec3(0.5,0.9,1.0)*waveLine*0.6;
             alpha+=waveLine*0.2;
 
-            // ── Bulles (50)
+            // ── Bulles (perf : 50 → 24)
             float allBubbles=0.0;
-            for(float i=0.0;i<50.0;i++) allBubbles+=bubble(distUv,i);
+            for(float i=0.0;i<24.0;i++) allBubbles+=bubble(distUv,i);
             allBubbles=clamp(allBubbles,0.0,1.0);
             col+=vec3(0.6,0.95,1.0)*allBubbles*0.7;
             alpha+=allBubbles*0.28;
 
-            // ── Bioluminescence (80 particules)
+            // ── Bioluminescence (perf : 80 → 32 particules)
             float allBio=0.0;
-            for(float i=0.0;i<80.0;i++) allBio+=bio(uvF,i);
+            for(float i=0.0;i<32.0;i++) allBio+=bio(uvF,i);
             allBio=clamp(allBio,0.0,1.0);
             col+=mix(vec3(0.1,0.9,1.0),vec3(0.3,0.4,1.0),sin(uTime*0.5)*0.5+0.5)*allBio*0.8;
             alpha+=allBio*0.3;
@@ -506,8 +506,8 @@ export class ShaderEffects {
             col+=lavaColor(lv)*lv*0.85;
             alpha+=lv*0.55;
 
-            // ── Fissures lumineuses (4)
-            for(float i=0.0;i<4.0;i++){
+            // ── Fissures lumineuses (perf : 4 → 3)
+            for(float i=0.0;i<3.0;i++){
                 float cr=crack(wUv,i*1.9+0.3,uTime);
                 col+=mix(vec3(1.0,0.4,0.0),vec3(1.0,0.85,0.1),cr)*cr*0.8;
                 alpha+=cr*0.28;
@@ -520,12 +520,11 @@ export class ShaderEffects {
             col+=vec3(1.0,0.38,0.0)*volcGlow*0.9;
             alpha+=volcGlow*0.45;
 
-            // ── 7 colonnes de flammes
-            float positions[7];
-            positions[0]=0.08; positions[1]=0.22; positions[2]=0.38;
-            positions[3]=0.5;
-            positions[4]=0.62; positions[5]=0.78; positions[6]=0.92;
-            for(int i=0;i<7;i++){
+            // ── 5 colonnes de flammes (perf : 7 → 5)
+            float positions[5];
+            positions[0]=0.12; positions[1]=0.3; positions[2]=0.5;
+            positions[3]=0.7; positions[4]=0.88;
+            for(int i=0;i<5;i++){
                 float f=flame(wUv,positions[i],float(i)*1.57,uTime);
                 if(f>0.01){
                     vec3 fc=mix(
@@ -544,9 +543,9 @@ export class ShaderEffects {
             col+=vec3(0.7,0.12,0.0)*plume*plumeMask*0.8;
             alpha+=plume*plumeMask*0.35;
 
-            // ── Embers incandescents (70)
+            // ── Embers incandescents (perf : 70 → 28)
             float allEmbers=0.0;
-            for(float i=0.0;i<70.0;i++) allEmbers+=ember(wUv,i);
+            for(float i=0.0;i<28.0;i++) allEmbers+=ember(wUv,i);
             allEmbers=clamp(allEmbers,0.0,1.0);
             col+=mix(vec3(1.0,0.55,0.0),vec3(1.0,0.9,0.2),sin(uTime*2.5)*0.5+0.5)*allEmbers*0.9;
             alpha+=allEmbers*0.35;
@@ -596,6 +595,9 @@ export class ShaderEffects {
             return;
         }
         gl.useProgram(this.program);
+        // Cache les emplacements uniform une seule fois par programme (évite un aller-retour driver à chaque frame)
+        this.uResolutionLoc = gl.getUniformLocation(this.program, 'uResolution');
+        this.uTimeLoc = gl.getUniformLocation(this.program, 'uTime');
         console.log('[SHADER] ✅ Level', level, 'compilé');
     }
 
@@ -629,8 +631,8 @@ export class ShaderEffects {
         this.time += 0.016;
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.useProgram(this.program);
-        gl.uniform2f(gl.getUniformLocation(this.program, 'uResolution'), this.canvas.width, this.canvas.height);
-        gl.uniform1f(gl.getUniformLocation(this.program, 'uTime'), this.time);
+        gl.uniform2f(this.uResolutionLoc, this.canvas.width, this.canvas.height);
+        gl.uniform1f(this.uTimeLoc, this.time);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         this.animationFrameId = requestAnimationFrame(this.animate);
     }

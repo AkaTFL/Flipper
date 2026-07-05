@@ -324,7 +324,6 @@ export class GamePhysics {
         this.scoreTracker.reset();
     }
 
-    // --- Compat : anciens appels directs conservés (Controls.js, objets de scène, etc.)
     get objects() { return this.colliderRegistry.objects; }
     get colliderOwners() { return this.colliderRegistry.colliderOwners; }
     get colliderResponders() { return this.colliderRegistry.colliderResponders; }
@@ -335,4 +334,6 @@ export class GamePhysics {
     sendImpact(object, combo) { return this.backend.sendImpact(object, combo); }
     whenBackendReady(timeoutMs) { return this.backend.whenReady(timeoutMs); }
     applyLevelConfig() { return this.scoreTracker.applyLevelConfig(); }
+    autoSaveActiveSlot() { return this.backend.autoSaveActiveSlot(); }
+    currentLevelNumber() { return this.backend.currentLevelNumber(); }
 }
