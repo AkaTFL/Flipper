@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"encoding/json"
@@ -219,16 +219,19 @@ func (b *MQTTBridge) handleMessage(_ mqtt.Client, message mqtt.Message) {
 }
 
 func classifyMQTTMessage(topic string) string {
-	switch {
-	case topic == "flipper/sensor/tilt/warning":
+	if topic == "flipper/sensor/tilt/warning" {
 		return "tilt_warning"
-	case topic == "flipper/sensor/tilt/triggered":
-		return "tilt_triggered"
-	case strings.HasPrefix(topic, "flipper/debug/"):
-		return "mqtt_debug"
-	default:
-		return "mqtt_event"
 	}
+
+	if topic == "flipper/sensor/tilt/triggered" {
+		return "tilt_triggered"
+	}
+
+	if strings.HasPrefix(topic, "flipper/debug/") {
+		return "mqtt_debug"
+	}
+
+	return "mqtt_event"
 }
 
 func encodeMQTTEnvelope(topic string, payload []byte) []byte {

@@ -1,6 +1,6 @@
 # Backend Flipper - WebSocket + MQTT Bridge
 
-Serveur Go pour le jeu de flipper. Il garde le canal WebSocket pour le frontend et relaie aussi des événements vers MQTT pour le matériel IoT.
+Serveur Go pour le jeu de flipper. Le point d'entrée reste `main.go` à la racine du dossier backend, et toute la logique métier vit maintenant dans `internal/game`.
 
 ## Prérequis
 
@@ -97,24 +97,24 @@ Topics utilisés:
                              ▼
             ┌────────────────────────────────────┐
             │     WebSocket HTTP Server          │
-            │  (main.go + ws_handler.go)         │
+            │  (main.go + internal/game)         │
             └────────────────┬───────────────────┘
                              │
                     ┌────────┴────────┐
                     ▼                 ▼
-         ┌──────────────────┐  ┌──────────────────┐
-         │   Hub (ws_hub.go)│  │ GameService      │
-         │  (broadcast,     │  │(game_service.go) │
-         │   register,      │  │ Routing métier   │
-         │   unregister)    │  └─────┬────────────┘
-         └─────────────────┬┘        │
+         ┌──────────────────────────┐  ┌────────────────────────────┐
+         │   Hub (internal/game)    │  │ GameService                │
+         │  (broadcast, register,   │  │ (internal/game)            │
+         │   unregister)            │  │ Routing métier             │
+         └──────────────────────────┘  └──────────────┬─────────────┘
+                                                      │
                            │    ┌────┴──────┬──────────┐
                            │    ▼           ▼          ▼
-         ┌─────────────────┴────┐  ┌───────────────────┬──┐
-         │   Client WriteLoop   │  │ ScoreTracker      │  │
-         │   (ws_client.go)     │  │ (score.go)        │  │
-         │   Broadcast deliver  │  └───────────────────┘  │
-         └──────────────────────┘  ┌──────────────────────┘
+         ┌────────────────────────┐  ┌──────────────────────────┐
+         │ Client WriteLoop       │  │ ScoreTracker             │
+         │ (internal/game)        │  │ (internal/game)          │
+         │ Broadcast deliver      │  └──────────────────────────┘
+         └────────────────────────┘  ┌──────────────────────────┘
                                    │
                     ┌──────────────┴──────────────┐
                     ▼                             ▼
@@ -137,64 +137,52 @@ Topics utilisés:
 | Module | Responsabilité |
 |--------|-----------------|
 | `main.go` | Bootstrap serveur HTTP, initialisation du hub et pont MQTT |
-| `ws_handler.go` | Upgrade WebSocket, envoi du message de bienvenue |
-| `ws_hub.go` | Gestion des clients connectés, broadcasting |
-| `ws_client.go` | I/O WebSocket pur: readPump/writePump |
-| `game_service.go` | Routing des messages métier (impact, score, boss, etc.) |
-| `messages.go` | Helpers de sérialisation JSON et constructeurs de messages typés |
-| `types.go` | Types DTO (Message, GameState, ImpactPayload, etc.) |
-| `score.go` | Calcul de score, combo, multiplicateurs |
-| `boss.go` | Gestion de l'état du boss (HP, phases, dégâts) |
-| `player.go` | Gestion de l'état du joueur (HP, balles, game over) |
-| `quest.go` | Gestion des quêtes actives, progression et déclenchement boss |
-| `mqtt_bridge.go` | Pont vers Mosquitto, publication solénoïdes, souscription capteurs |
-| `mqtt_publisher.go` | Utilitaires de publication MQTT |
+| `internal/game/*` | Toute la logique métier, les helpers et les tests backend |
 
 ## Structure du projet
 
 ```
 backend/
 ├── main.go                  # Bootstrap + serveur HTTP
-├── main_test.go             # Tests d'intégration WebSocket
-│
-├── ws_handler.go            # Upgrade WebSocket
-├── ws_hub.go                # Gestion des clients
-├── ws_client.go             # I/O WebSocket
-│
-├── game_service.go          # Routing métier des messages
-├── game_service_test.go     # Tests unitaires du service
-│
-├── messages.go              # Helpers sérialisation + constructeurs
-├── messages_test.go         # Tests des messages
-├── types.go                 # Types DTO
-│
-├── score.go                 # Logique de scoring
-├── score_test.go            # Tests unitaires du scoring
-│
-├── boss.go                  # Gestion boss
-├── player.go                # Gestion joueur
-├── quest.go                 # Gestion quêtes
-│
-├── mqtt_bridge.go           # Pont MQTT + config
-├── mqtt_bridge_test.go      # Tests du pont MQTT
-├── mqtt_publisher.go        # Utilitaires publication
-│
 ├── go.mod                   # Dépendances Go
 ├── go.sum                   # Checksums
 ├── README.md                # Cette documentation
-└── Dockerfile               # Image Docker
+├── Dockerfile               # Image Docker
+└── internal/
+  └── game/
+    ├── boss.go
+    ├── game_service.go
+    ├── game_service_test.go
+    ├── main_test.go
+    ├── messages.go
+    ├── messages_test.go
+    ├── mqtt_bridge.go
+    ├── mqtt_bridge_test.go
+    ├── mqtt_publisher.go
+    ├── player.go
+    ├── player_test.go
+    ├── quest.go
+    ├── quest_test.go
+    ├── save_state.go
+    ├── save_state_test.go
+    ├── score.go
+    ├── score_test.go
+    ├── types.go
+    ├── ws_client.go
+    ├── ws_handler.go
+    └── ws_hub.go
 ```
 
 ## Tests
 
 Tous les tests passent via `go test ./...`:
 
-- **Tests d'intégration WebSocket** (`main_test.go`): inscription/désinscription clients, broadcast
-- **Tests unitaires GameService** (`game_service_test.go`): routing des messages, impacts, scoring
-- **Tests unitaires Messages** (`messages_test.go`): sérialisation, constructeurs typés
-- **Tests unitaires Score** (`score_test.go`): combo, multiplicateurs, resets
-- **Tests unitaires Player** (`player_test.go`): HP joueur, perte de balle, game over
-- **Tests unitaires MQTT** (`mqtt_bridge_test.go`): classification topics, enveloppe MQTT
+- **Tests d'intégration WebSocket** (`internal/game/main_test.go`): inscription/désinscription clients, broadcast
+- **Tests unitaires GameService** (`internal/game/game_service_test.go`): routing des messages, impacts, scoring
+- **Tests unitaires Messages** (`internal/game/messages_test.go`): sérialisation, constructeurs typés
+- **Tests unitaires Score** (`internal/game/score_test.go`): combo, multiplicateurs, resets
+- **Tests unitaires Player** (`internal/game/player_test.go`): HP joueur, perte de balle, game over
+- **Tests unitaires MQTT** (`internal/game/mqtt_bridge_test.go`): classification topics, enveloppe MQTT
 
 ## Flux type d'une interaction
 
