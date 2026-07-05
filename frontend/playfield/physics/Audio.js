@@ -23,6 +23,9 @@ export class AudioManager {
         this.activeLoops = new Map();
         this._lastPlayed = new Map();
         this._dedupeMs = 80;
+        this._audioTemplates = new Map();
+        this._activeOneShots = new Set();
+        this._maxOneShots = 8;
     }
 
     normalizeSoundConfig(sound) {
@@ -65,7 +68,18 @@ export class AudioManager {
         }
 
         const { cfg, source } = resolved;
-        const audio = new Audio(source);
+        let template = this._audioTemplates.get(source);
+        if (!template) {
+            template = new Audio(source);
+            template.preload = 'auto';
+            this._audioTemplates.set(source, template);
+        }
+
+        // cloneNode réutilise la ressource déjà chargée/décodée par le
+        // navigateur tout en permettant plusieurs impacts simultanés.
+        const audio = typeof template.cloneNode === 'function'
+            ? template.cloneNode(true)
+            : new Audio(source);
 
         audio.preload = 'auto';
         audio.volume = cfg.volume;
@@ -99,6 +113,13 @@ export class AudioManager {
         }
     }
 
+    preloadSounds(sounds = []) {
+        for (const sound of sounds) {
+            const created = this.createAudio(sound);
+            created?.audio?.load?.();
+        }
+    }
+
     playSound(sound, volumeOverride) {
         const cfg = this.normalizeSoundConfig(sound);
         if (!cfg?.file) return null;
@@ -108,6 +129,9 @@ export class AudioManager {
                 return this.activeLoops.get(cfg.file);
             }
         } else {
+            if (this._activeOneShots.size >= this._maxOneShots) {
+                return null;
+            }
             const now = performance.now();
             const last = this._lastPlayed.get(cfg.file) ?? -Infinity;
             if (now - last < this._dedupeMs) {
@@ -131,6 +155,11 @@ export class AudioManager {
 
         if (cfg.loop) {
             this.activeLoops.set(cfg.file, audio);
+        } else if (typeof audio.addEventListener === 'function') {
+            this._activeOneShots.add(audio);
+            const release = () => this._activeOneShots.delete(audio);
+            audio.addEventListener('ended', release, { once: true });
+            audio.addEventListener('error', release, { once: true });
         }
 
         audio.play().catch((error) => {

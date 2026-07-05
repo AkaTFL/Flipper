@@ -10,7 +10,7 @@ if (typeof globalThis.Audio !== 'function') {
   };
 }
 
-import { Controls } from '../../frontend/flipper/core/Controls.js';
+import { Controls } from '../../frontend/playfield/core/Controls.js';
 
 function createWindowStub() {
   const listeners = new Map();
@@ -40,7 +40,7 @@ test('Controls triggers start_game callback on first launch impulse', () => {
   });
   controls.setBallRef({
     rigidBody: {
-      applyImpulse() {
+      setLinvel() {
         impulses += 1;
       }
     }

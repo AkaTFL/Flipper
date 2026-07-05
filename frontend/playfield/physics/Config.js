@@ -2,7 +2,6 @@ export var NiveauActuel = 1;
 
 const soundAsset = (path) => {
     const resolved = new URL(path, import.meta.url).href;
-    console.info(`[sound-import] ${path} -> ${resolved}`);
     return resolved;
 };
 
@@ -37,6 +36,13 @@ export default {
                 minimalSpeed: 1500,
                 maximalSpeed: 1750,
                 chargeDurationMs: 900,
+                // La sortie est validée après la montée et la courbe latérale,
+                // puis les deux rampes sont échangées aussitôt.
+                curveStartZ: 70,
+                exitZ: 140,
+                exitX: -20,
+                curveTurnRate: 0.04,
+                exitRadius: 45,
                 model: `../assets/mesh/ramp_launch/ramp_launch_lvl_${NiveauActuel}.glb`,
                 objectId: 'launching-ramp'
             },

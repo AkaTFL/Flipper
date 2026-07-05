@@ -20,7 +20,9 @@ export class EffectManager {
         this._trembling     = new Trembling(camera)
 
         this.effectTable = {
-            ball:    ['shockwave'],
+            // Les impacts ordinaires de la bille sont trop fréquents pour
+            // justifier une onde de choc à chaque contact.
+            ball:    [],
             bumper:  ['shockwave', 'shake'],
             repulse: ['shockwave', 'shake'],
         };

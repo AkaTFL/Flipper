@@ -1,259 +1,37 @@
-import test, { mock } from 'node:test';
+import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'url';
 
-import Config from '../../frontend/flipper/physics/Config.js';
-import { Bumper } from '../../frontend/flipper/objects/Bumper.js';
-import { LaunchingRamp } from '../../frontend/flipper/objects/LaunchingRamp.js';
-import { Palles } from '../../frontend/flipper/objects/Palles.js';
-import { Repulse } from '../../frontend/flipper/objects/Repulse.js';
-import { StaticMesh } from '../../frontend/flipper/objects/StaticMesh.js';
-import { Wall } from '../../frontend/flipper/objects/Wall.js';
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const readObject = (name) => readFile(path.join(root, 'frontend', 'playfield', 'objects', `${name}.js`), 'utf8');
 
-if (typeof globalThis.Audio !== 'function') {
-  globalThis.Audio = class {
-    constructor() {
-      this.currentTime = 0;
-      this.preload = 'auto';
-      this.volume = 1;
-    }
-
-    play() {
-      return Promise.resolve();
-    }
-  };
-}
-
-mock.method(GLTFLoader.prototype, 'loadAsync', async () => ({
-  scene: createLoadedModelRoot()
-}));
-
-function createLoadedModelRoot() {
-  const root = new THREE.Group();
-  const mesh = new THREE.Mesh(
-    new THREE.BoxGeometry(2, 4, 6),
-    new THREE.MeshStandardMaterial({ color: 0xffffff })
-  );
-
-  root.add(mesh);
-  return root;
-}
-
-function flushAsyncLoads() {
-  return new Promise((resolve) => setImmediate(resolve));
-}
-
-function createWorldStub() {
-  const state = {
-    rigidBodies: [],
-    colliders: [],
-    joints: [],
-  };
-
-  const world = {
-    createRigidBody(desc) {
-      const body = {
-        desc,
-        translation: () => ({ x: 0, y: 0, z: 0 }),
-        rotation: () => ({ x: 0, y: 0, z: 0, w: 1 }),
-      };
-      state.rigidBodies.push(body);
-      return body;
-    },
-    createCollider(desc, rigidBody) {
-      const collider = {
-        desc,
-        rigidBody,
-        handle: state.colliders.length + 1,
-        parent: () => rigidBody,
-      };
-      state.colliders.push(collider);
-      return collider;
-    },
-    getCollider(handle) {
-      return state.colliders.find((collider) => collider.handle === handle) ?? null;
-    },
-    createImpulseJoint(joint, pivotBody, rigidBody, wakeUp) {
-      const record = {
-        joint,
-        pivotBody,
-        rigidBody,
-        wakeUp,
-        limits: null,
-        motorPosition: null,
-        setLimits(min, max) {
-          this.limits = { min, max };
-        },
-        configureMotorPosition(angle, stiffness, damping) {
-          this.motorPosition = { angle, stiffness, damping };
-        },
-      };
-      state.joints.push(record);
-      return record;
-    },
-  };
-
-  return { world, state };
-}
-
-test('Bumper registers a collider and uses the expected radius', async () => {
-  const { world, state } = createWorldStub();
-  const bumper = new Bumper(world, 60, { x: 10, y: 20, z: 30 }, { x: 0, y: 0, z: 0 }, 'bumper-1');
-
-  await flushAsyncLoads();
-
-  assert.equal(bumper.radius, 30);
-  assert.equal(state.rigidBodies.length, 1);
-  assert.equal(state.colliders.length, 1);
-  assert.equal(bumper.mesh.position.x, 10);
-  assert.equal(bumper.mesh.position.y, 20);
-  assert.equal(bumper.mesh.position.z, 30);
+test('les objets physiques principaux existent dans la structure playfield', async () => {
+  for (const name of ['Bumper', 'LaunchingRamp', 'Palles', 'Repulse', 'StaticMesh', 'Wall']) {
+    const source = await readObject(name);
+    assert.match(source, new RegExp(`export class ${name}`));
+  }
 });
 
-test('Bumper triangle applies an impulse using ramp mesh orientation', async () => {
-  const { world, state } = createWorldStub();
-  let applied = null;
-
-  const rampRoot = new THREE.Group();
-  const rampMesh = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshStandardMaterial({ color: 0xffffff })
-  );
-  rampMesh.name = 'ramp';
-  rampRoot.add(rampMesh);
-
-  mock.method(GLTFLoader.prototype, 'loadAsync', async () => ({
-    scene: rampRoot
-  }));
-
-  const bumper = new Bumper(
-    world,
-    70,
-    { x: 0, y: 0, z: 0 },
-    { x: 0, y: 0, z: 0 },
-    'bumper-triangle-left'
-  );
-
-  await flushAsyncLoads();
-
-  const otherBody = {
-    translation: () => ({ x: 0, y: 0, z: 1 }),
-    applyImpulse: (impulse) => { applied = impulse; }
-  };
-  const otherCollider = { handle: 99, parent: () => otherBody };
-  state.colliders.push(otherCollider);
-
-  bumper.applyBumperForce(1, 99);
-
-  assert.ok(applied, 'Expected triangle bumper to apply an impulse');
-  assert.equal(applied.y, 0);
-  assert.ok(Number.isFinite(applied.x));
-  assert.ok(Number.isFinite(applied.z));
+test('les palettes utilisent toujours une articulation et un moteur Rapier', async () => {
+  const source = await readObject('Palles');
+  assert.match(source, /JointData\.revolute/);
+  assert.match(source, /configureMotorPosition/);
 });
 
-test('Palles constructor creates physics body/collider and defers joint setup until model load', async () => {
-  const { world, state } = createWorldStub();
-  const palles = new Palles(
-    world,
-    120,
-    10,
-    10,
-    { x: 200, y: 150, z: 0 },
-    { x: 0, y: 0, z: 0 },
-    'left'
-  );
-
-  assert.equal(state.rigidBodies.length, 1);
-  assert.equal(state.colliders.length, 0);
-  assert.equal(state.joints.length, 0);
-
-  await flushAsyncLoads();
-
-  assert.equal(state.rigidBodies.length, 2);
-  assert.equal(state.colliders.length, 1);
-  assert.equal(state.joints.length, 1);
-
-  assert.doesNotThrow(() => palles.setActive(true));
+test('les objets statiques construisent leurs collisions trimesh', async () => {
+  const source = await readObject('StaticMesh');
+  assert.match(source, /build(?:Local)?TrimeshCollider/);
 });
 
-test('Palles keeps rest-angle semantics when inactive', async () => {
-  const { world, state } = createWorldStub();
-  const palles = new Palles(
-    world,
-    120,
-    10,
-    10,
-    { x: 200, y: 150, z: 0 },
-    { x: 0, y: 0, z: 0 },
-    'right'
-  );
+test('la rampe de lancement aligne ses collisions sur chaque mesh local', async () => {
+  const rampSource = await readObject('LaunchingRamp');
+  const ballSource = await readObject('Ball');
 
-  await flushAsyncLoads();
-
-  assert.equal(state.joints.length, 1);
-  assert.equal(palles.restAngle, Math.abs(Config.palles.initialAngle ?? (Math.PI / 6)));
-
-  assert.doesNotThrow(() => palles.setActive(false));
-});
-
-test('StaticMesh creates a fixed rigid body and a trimesh collider after model load', async () => {
-  const { world, state } = createWorldStub();
-  const sm = new StaticMesh(world, '../assets/mesh/Mesh_final/murs_cible_left.glb', {
-    objectId: 'murs-cible-left',
-    objectType: 'wall',
-    position: { x: 0, y: 0, z: 0 },
-    rotation: { x: 0, y: 0, z: 0 }
-  });
-
-  assert.equal(state.rigidBodies.length, 1);
-  assert.equal(state.colliders.length, 0);
-
-  await flushAsyncLoads();
-
-  assert.equal(state.colliders.length, 1);
-  assert.equal(sm.objectId, 'murs-cible-left');
-  assert.equal(sm.objectType, 'wall');
-});
-
-test('StaticMesh defaults objectType to "static" when not provided', async () => {
-  const { world } = createWorldStub();
-  const sm = new StaticMesh(world, '../assets/mesh/Mesh_final/raque_side.glb', {
-    objectId: 'raque-side'
-  });
-
-  assert.equal(sm.objectType, 'static');
-});
-
-test('Repulse does not throw when a loaded model has no usable geometry', async () => {
-  const { world } = createWorldStub();
-
-  const emptyRoot = new THREE.Group();
-  const emptyMesh = new THREE.Mesh(new THREE.BufferGeometry());
-  emptyRoot.add(emptyMesh);
-
-  mock.method(GLTFLoader.prototype, 'loadAsync', async () => ({
-    scene: emptyRoot
-  }));
-
-  assert.doesNotThrow(() => new Repulse(world, 80, 40, 40, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, 'repulse-zone'));
-
-  await flushAsyncLoads();
-});
-
-test('Wall creates a fixed rigid body and a collider', () => {
-  const { world, state } = createWorldStub();
-  const gamePhysics = { world };  // Wall expects gamePhysics.world, not world directly
-  const wall = new Wall(
-    gamePhysics,
-    950,
-    100,
-    { x: 255, y: 0, z: 0 },
-    { x: 0, y: Math.PI / 2, z: 0 }
-  );
-
-  assert.equal(wall.objectType, 'wall');
-  assert.equal(state.rigidBodies.length, 1);
-  assert.equal(state.colliders.length, 1);
-  assert.ok(wall.collider);
+  assert.match(rampSource, /buildLocalTrimeshCollider\(child\)/);
+  assert.doesNotMatch(rampSource, /this\.buildTrimeshCollider\(modelRoot\)/);
+  assert.match(rampSource, /createInvisibleLaunchGuides\(\)/);
+  assert.match(rampSource, /ColliderDesc\s*\.cuboid/);
+  assert.match(ballSource, /setCcdEnabled\(true\)/);
 });

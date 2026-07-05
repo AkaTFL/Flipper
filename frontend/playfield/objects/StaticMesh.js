@@ -13,7 +13,8 @@ export class StaticMesh extends Objects {
             position = { x: 0, y: 0, z: 0 },
             rotation = { x: 0, y: 0, z: 0 },
             objectId   = 'static-mesh',
-            objectType = 'static'
+            objectType = 'static',
+            collisionEvents = true
         } = options;
 
         super(world, null, null, null, position, rotation, side);
@@ -30,21 +31,14 @@ export class StaticMesh extends Objects {
         this.addMesh(modelPath, (modelRoot) => {
             modelRoot.traverse((child) => {
                 if (child.isMesh) {
-                    console.log(child.name, child.geometry.uuid);
-                    console.log(child.name, child.material, child.material?.uuid);
-
                     if (this.objectType === 'etage') {
                         this.buildLocalTrimeshCollider(child, {
-                            activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+                            activeEvents: collisionEvents ? RAPIER.ActiveEvents.COLLISION_EVENTS : null
                         });
                     } else {
-                        const trimesh = this.buildTrimeshCollider(child);
-
-                        if (trimesh) {
-                            this.attachCollider(
-                                trimesh.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)
-                            );
-                        }
+                        this.buildTrimeshCollider(child, {
+                            activeEvents: collisionEvents ? RAPIER.ActiveEvents.COLLISION_EVENTS : null
+                        });
                     }
 
                     switch (child.name) {
@@ -74,8 +68,6 @@ export class StaticMesh extends Objects {
     }
 
     handleCollision() {
-        console.log(`Collision with ${this.objectType} (ID: ${this.objectId})`);
-
         this.scene.effectManager.impact(
             this.mesh.position,
             1,

@@ -30,6 +30,7 @@ export class GamePhysics {
         this.ballPassedAboveTriggerAfterRespawn = false;
         this.launchingRampHideTimeout = null;
         this.activeSaveSlot = null;
+        this.lastImpactByObject = new WeakMap();
     }
 
     async init() {
@@ -205,8 +206,6 @@ export class GamePhysics {
 
     sendMessage(type, payload = {}) {
         const message = { type, payload };
-
-        console.log('[backend] envoi', message);
 
         if (!this.backendSocket || this.backendSocket.readyState !== globalThis.WebSocket?.OPEN) {
             console.warn('[backend] socket indisponible, envoi ignoré', message);
@@ -443,10 +442,15 @@ export class GamePhysics {
     }
 
     reportContactImpacts(collidingObjects, combo = null) {
+        const now = performance.now();
         for (const obj of collidingObjects) {
             if (obj?.objectType === 'ball' || obj?.objectType === 'drain') {
                 continue;
             }
+
+            const lastImpact = this.lastImpactByObject.get(obj) ?? -Infinity;
+            if (now - lastImpact < 80) continue;
+            this.lastImpactByObject.set(obj, now);
 
             this.sendImpact(obj, combo);
         }
@@ -461,8 +465,6 @@ export class GamePhysics {
             const combo = comboS || null;
             const collidingObjects = this.findCollidingObjects(handle1, handle2);
             const collisionResponders = this.findCollisionResponders(handle1, handle2);
-
-            console.log({ handle1, handle2, started });
 
             // Détection drain : balle + mesh nommé 'drain'
             const hasBall = collidingObjects.some((obj) => obj?.objectType === 'ball');
@@ -513,93 +515,109 @@ export class GamePhysics {
             return;
         }
 
-        if (visible && this.launchingRampHideTimeout) {
+        if (this.launchingRampHideTimeout) {
             clearTimeout(this.launchingRampHideTimeout);
             this.launchingRampHideTimeout = null;
         }
 
+        // Les deux rampes sont déjà chargées et préparées par Flipper.js.
+        // Ici on ne charge aucun modèle et on ne déplace aucun rigid body : on
+        // inverse simplement leur visibilité et leur activation physique.
         this.launchingRampVisible = visible;
-
-        const rampBPosition = Config.global.positioning.ramps.B.position;
-        const launchingPosition = Config.global.positioning.launchingRamp.position;
+        this.setPhysicsObjectEnabled(this.launchingRamp, visible);
+        this.setPhysicsObjectEnabled(this.rampB, !visible);
 
         if (visible) {
-            if (this.launchingRamp?.rigidBody?.setTranslation) {
-                this.launchingRamp.rigidBody.setTranslation(launchingPosition, true);
-            }
-            if (this.launchingRamp?.mesh?.position) {
-                this.launchingRamp.mesh.position.set(launchingPosition.x, launchingPosition.y, launchingPosition.z);
-            }
+            this.ballPassedAboveTriggerAfterRespawn = false;
+        }
 
-            if (this.rampB?.rigidBody?.setTranslation) {
-                this.rampB.rigidBody.setTranslation({ x: rampBPosition.x, y: -800, z: rampBPosition.z }, true);
-            }
-            if (this.rampB?.mesh?.position) {
-                this.rampB.mesh.position.set(rampBPosition.x, -800, rampBPosition.z);
-            }
-        } else {
-            if (this.launchingRamp?.rigidBody?.setTranslation) {
-                this.launchingRamp.rigidBody.setTranslation({ x: launchingPosition.x, y: -800, z: launchingPosition.z }, true);
-            }
-            if (this.launchingRamp?.mesh?.position) {
-                this.launchingRamp.mesh.position.set(launchingPosition.x, -800, launchingPosition.z);
-            }
+        if (globalThis.document?.body) {
+            globalThis.document.body.dataset.launchingRamp = visible ? 'visible' : 'hidden';
+            globalThis.document.body.dataset.rightRamp = visible ? 'hidden' : 'visible';
+        }
+    }
 
-            if (this.rampB?.rigidBody?.setTranslation) {
-                this.rampB.rigidBody.setTranslation(rampBPosition, true);
+    setPhysicsObjectEnabled(object, enabled) {
+        if (!object) return;
+        if (object.mesh) object.mesh.visible = enabled;
+        if (object._physicsEnabled === enabled) return;
+        object._physicsEnabled = enabled;
+
+        const colliders = new Set([
+            object.collider,
+            ...(Array.isArray(object.colliders) ? object.colliders : []),
+            ...(Array.isArray(object.collisionEntries)
+                ? object.collisionEntries.map((entry) => entry?.collider)
+                : [])
+        ].filter(Boolean));
+
+        // Retirer puis réinsérer un rigid body trimesh dans Rapier provoquait
+        // un pic de plusieurs centaines de millisecondes. Les bodies restent
+        // donc chargés ; seul leur filtre de collision est basculé.
+        object._collisionGroupsByCollider ??= new WeakMap();
+        for (const collider of colliders) {
+            if (!object._collisionGroupsByCollider.has(collider)) {
+                object._collisionGroupsByCollider.set(
+                    collider,
+                    typeof collider.collisionGroups === 'function'
+                        ? collider.collisionGroups()
+                        : 0xffffffff
+                );
             }
-            if (this.rampB?.mesh?.position) {
-                this.rampB.mesh.position.set(rampBPosition.x, rampBPosition.y, rampBPosition.z);
-            }
+            collider.setCollisionGroups?.(
+                enabled ? object._collisionGroupsByCollider.get(collider) : 0
+            );
         }
     }
 
     checkLaunchingRampHeight() {
-        if (!this.ball?.rigidBody) {
+        if (!this.launchingRampVisible || !this.controls?.impulseUsed || !this.ball?.rigidBody) {
             return;
         }
 
         const position = this.ball.rigidBody.translation();
-        const triggerY = 15;
+        const launchConfig = Config.global.positioning.launchingRamp;
 
-        if (this.holdLaunchingRampVisibleAfterBallLost) {
-            if (!this.ballRespawnedAfterBallLost || !this.controls?.impulseUsed) {
-                return;
-            }
+        if (position.z >= launchConfig.curveStartZ) {
+            const velocity = this.ball.rigidBody.linvel();
+            const horizontalSpeed = Math.hypot(velocity.x ?? 0, velocity.z ?? 0);
+            const currentAngle = Math.atan2(velocity.x ?? 0, velocity.z ?? 0);
+            const targetAngle = Math.atan2(
+                launchConfig.exitX - position.x,
+                launchConfig.exitZ - position.z
+            );
+            const rawDelta = Math.atan2(
+                Math.sin(targetAngle - currentAngle),
+                Math.cos(targetAngle - currentAngle)
+            );
+            const turn = Math.max(
+                -launchConfig.curveTurnRate,
+                Math.min(launchConfig.curveTurnRate, rawDelta)
+            );
+            const steeredAngle = currentAngle + turn;
 
-            if (!this.ballPassedAboveTriggerAfterRespawn && position.y > triggerY) {
-                this.ballPassedAboveTriggerAfterRespawn = true;
-                return;
-            }
+            // Le vecteur tourne progressivement vers la sortie, mais sa norme
+            // reste identique : l'appui bref/long garde donc toute son influence.
+            this.ball.rigidBody.setLinvel({
+                x: Math.sin(steeredAngle) * horizontalSpeed,
+                y: velocity.y ?? 0,
+                z: Math.cos(steeredAngle) * horizontalSpeed
+            }, true);
+        }
 
-            if (this.ballPassedAboveTriggerAfterRespawn && position.y <= triggerY) {
-                this.holdLaunchingRampVisibleAfterBallLost = false;
-                this.ballPassedAboveTriggerAfterRespawn = false;
-                this.setLaunchingRampVisible(false);
-            }
+        const distanceToExit = Math.hypot(
+            launchConfig.exitX - position.x,
+            launchConfig.exitZ - position.z
+        );
+        if (distanceToExit > launchConfig.exitRadius) {
             return;
         }
 
-        if (this.controls?.impulseUsed && this.launchingRampVisible) {
-            if (!this.launchingRampHideTimeout) {
-                this.launchingRampHideTimeout = setTimeout(() => {
-                    this.setLaunchingRampVisible(false);
-                    this.launchingRampHideTimeout = null;
-                }, 3000);
-            }
-            return;
-        }
-
-        if (this.controls?.impulseUsed && position.y <= triggerY) {
-            if (this.launchingRampHideTimeout) {
-                clearTimeout(this.launchingRampHideTimeout);
-            }
-
-            this.launchingRampHideTimeout = setTimeout(() => {
-                this.setLaunchingRampVisible(false);
-                this.launchingRampHideTimeout = null;
-            }, 500);
-        }
+        // La vraie sortie est franchie : la rampe initiale disparaît et la
+        // rampe droite, déjà préchargée, devient visible dans le même frame.
+        this.holdLaunchingRampVisibleAfterBallLost = false;
+        this.ballPassedAboveTriggerAfterRespawn = true;
+        this.setLaunchingRampVisible(false);
     }
 
     checkBallOutOfBounds() {
