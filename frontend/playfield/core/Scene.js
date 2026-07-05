@@ -42,6 +42,13 @@ export class Scene {
         this.effectManager = null;
 
         this.debugEnabled = false;
+        this.performanceMode = 'quality';
+        this.performanceSampleStart = performance.now();
+        this.performanceFrameCount = 0;
+        this.performanceRecoverySamples = 0;
+        this.performanceFrameCostTotal = 0;
+        this.performanceFrameCostMax = 0;
+        this.performancePhysicsCostTotal = 0;
 
         this.init(height, width, position, rotation);
     }
@@ -49,7 +56,12 @@ export class Scene {
     init(height, width, position, rotation) {
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.shadowMap.enabled = true;
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        // Un canvas Retina plein écran à 2x dépasse 8 millions de pixels.
+        // 1,5x conserve une image nette tout en réduisant de 44 % le nombre de
+        // pixels traités par chaque passe GPU.
+        const isLargeViewport = this.WIDTH * this.HEIGHT >= 1_500_000;
+        this.pixelRatio = Math.min(window.devicePixelRatio, isLargeViewport ? 1.5 : 2);
+        this.renderer.setPixelRatio(this.pixelRatio);
         this.renderer.setSize(this.WIDTH, this.HEIGHT);
         this.renderer.outputEncoding = THREE.sRGBEncoding;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -93,7 +105,9 @@ export class Scene {
                     color:      Config[Config.currentLevel].bloom,
                     tolerance:  0.4,
                 },
-                fxaa: true,
+                // Le renderer utilise déjà MSAA. Une seconde passe FXAA est
+                // redondante et coûteuse sur les écrans Retina.
+                fxaa: false,
 
                 outline: {
                     edgeStrength: 2,
@@ -160,22 +174,59 @@ export class Scene {
     }
 
     startRender(physics, onUpdate) {
+        this.targetFrameInterval = 1000 / 60;
+        // La bille et les palettes ont besoin d'une simulation plus fine que
+        // l'affichage. Le rendu reste limité à 60 FPS, mais Rapier conserve les
+        // 120 Hz utilisés avant l'optimisation afin d'éviter les mouvements
+        // irréguliers et les collisions manquées.
         this.fixedTimeStep = 1 / 120;
+        this.maxPhysicsStepsPerFrame = 4;
         this.accumulator = 0;
         this.lastTime = performance.now();
+        this.lastRenderTime = this.lastTime - this.targetFrameInterval;
+        this.performanceSampleStart = this.lastTime;
+        this.performanceFrameCount = 0;
 
         requestAnimationFrame(() => this.render(physics, onUpdate));
     }
 
     render(physics, onUpdate) {
         const now = performance.now();
+        const sinceLastRender = now - this.lastRenderTime;
+        // Safari ne livre pas toujours requestAnimationFrame à exactement
+        // 16,67 ms. Une tolérance de 2 ms évite qu'un frame à 15–16 ms soit
+        // rejeté puis affiché seulement au raf suivant (saccades à ~30 FPS).
+        if (sinceLastRender < this.targetFrameInterval - 2) {
+            requestAnimationFrame(() => this.render(physics, onUpdate));
+            return;
+        }
+        // Avance sur une horloge régulière au lieu de repartir de `now`, tout
+        // en abandonnant le retard après une vraie pause. Cela conserve 60 FPS
+        // aussi bien sur un écran 60 Hz que sur un écran ProMotion 120 Hz.
+        this.lastRenderTime = sinceLastRender >= this.targetFrameInterval * 2
+            ? now
+            : this.lastRenderTime + this.targetFrameInterval;
+        const frameStartedAt = performance.now();
+
         let delta = Math.min((now - this.lastTime) / 1000, 0.1);
         this.lastTime = now;
 
         this.accumulator += delta;
-        while (this.accumulator >= this.fixedTimeStep) {
+        let physicsSteps = 0;
+        while (
+            this.accumulator >= this.fixedTimeStep &&
+            physicsSteps < this.maxPhysicsStepsPerFrame
+        ) {
+            const physicsStartedAt = performance.now();
             physics.step();
+            this.performancePhysicsCostTotal += performance.now() - physicsStartedAt;
             this.accumulator -= this.fixedTimeStep;
+            physicsSteps += 1;
+        }
+        if (physicsSteps === this.maxPhysicsStepsPerFrame) {
+            // Evita a espiral de recuperação: um frame lento não deve gerar
+            // uma longa rajada de passos físicos no frame seguinte.
+            this.accumulator %= this.fixedTimeStep;
         }
 
         if (this.controls) this.controls.update();
@@ -191,6 +242,61 @@ export class Scene {
         // Pipeline postprocessing principal — delta transmis pour la décroissance du flash outline
         this.postProcessing.render(delta);
 
+        const frameCost = performance.now() - frameStartedAt;
+        this.performanceFrameCostTotal += frameCost;
+        this.performanceFrameCostMax = Math.max(this.performanceFrameCostMax, frameCost);
+
+        this.updateAdaptiveQuality(performance.now());
+
         requestAnimationFrame(() => this.render(physics, onUpdate));
+    }
+
+    updateAdaptiveQuality(now) {
+        this.performanceFrameCount += 1;
+        const elapsed = now - this.performanceSampleStart;
+        if (elapsed < 2000) return;
+
+        const fps = this.performanceFrameCount * 1000 / elapsed;
+        const renderedFrames = Math.max(1, this.performanceFrameCount);
+        globalThis.__flipperPerformance = {
+            fps: Number(fps.toFixed(1)),
+            averageFrameMs: Number((this.performanceFrameCostTotal / renderedFrames).toFixed(2)),
+            maxFrameMs: Number(this.performanceFrameCostMax.toFixed(2)),
+            averagePhysicsMs: Number((this.performancePhysicsCostTotal / renderedFrames).toFixed(3)),
+            pixelRatio: this.renderer.getPixelRatio(),
+            drawCalls: this.renderer.info.render.calls,
+            triangles: this.renderer.info.render.triangles,
+            textures: this.renderer.info.memory.textures,
+            performanceMode: this.performanceMode,
+        };
+        // Expose la dernière mesure dans le DOM pour pouvoir diagnostiquer les
+        // performances sans ouvrir les outils de développement du navigateur.
+        document.body.dataset.flipperPerformance = JSON.stringify(globalThis.__flipperPerformance);
+        this.performanceFrameCount = 0;
+        this.performanceSampleStart = now;
+        this.performanceFrameCostTotal = 0;
+        this.performanceFrameCostMax = 0;
+        this.performancePhysicsCostTotal = 0;
+
+        if (this.performanceMode === 'quality' && fps < 48) {
+            this.performanceMode = 'performance';
+            this.performanceRecoverySamples = 0;
+            this.postProcessing?.setPerformanceMode?.(true);
+            return;
+        }
+
+        if (this.performanceMode === 'performance') {
+            this.performanceRecoverySamples = fps > 56
+                ? this.performanceRecoverySamples + 1
+                : 0;
+
+            // Attend plusieurs mesures stables pour éviter les changements
+            // incessants de qualité autour du seuil.
+            if (this.performanceRecoverySamples >= 3) {
+                this.performanceMode = 'quality';
+                this.performanceRecoverySamples = 0;
+                this.postProcessing?.setPerformanceMode?.(false);
+            }
+        }
     }
 }

@@ -23,22 +23,28 @@ export function createBloom(scene, {
     };
 
     // Layer 1 = éléments scène (bloom fort), Layer 2 = plateau (bloom faible)
-    scene.traverse((obj) => {
-        if (!obj.isMesh || !obj.material) return;
+    let allMeshes = [];
+    const refreshSelection = () => {
+        allMeshes = [];
+        scene.traverse((obj) => {
+            if (!obj.isMesh || !obj.material) return;
+            allMeshes.push(obj);
 
-        if (obj.name === 'table') {
-            obj.layers.enable(2);
-            return;
-        }
-
-        const materials = Array.isArray(obj.material) ? obj.material : [obj.material];
-        for (const mat of materials) {
-            if (mat.color && isColorInRange(mat.color)) {
-                obj.layers.enable(1);
-                break;
+            if (obj.name === 'table') {
+                obj.layers.enable(2);
+                return;
             }
-        }
-    });
+
+            const materials = Array.isArray(obj.material) ? obj.material : [obj.material];
+            for (const mat of materials) {
+                if (mat.color && isColorInRange(mat.color)) {
+                    obj.layers.enable(1);
+                    break;
+                }
+            }
+        });
+    };
+    refreshSelection();
 
     // Boost shader : multiplie x3 les pixels dans la fourchette de couleur
     const boostPass = new ShaderPass({
@@ -83,7 +89,8 @@ export function createBloom(scene, {
     );
 
     // Masquage temporaire par layer
-    const darkMats = {};
+    const darkMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    const originalMaterials = new Map();
 
     // Three.js r132 : Layers.test() prend un autre objet Layers
     const layer1 = new THREE.Layers(); layer1.set(1);
@@ -92,22 +99,17 @@ export function createBloom(scene, {
 
     const maskExcept = (enabledLayer) => {
     const mask = layerMasks[enabledLayer];
-    scene.traverse((obj) => {
-        if (!obj.isMesh || !obj.material) return;
+    for (const obj of allMeshes) {
         if (!obj.layers.test(mask)) {
-            darkMats[obj.uuid] = obj.material;
-            obj.material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            originalMaterials.set(obj, obj.material);
+            obj.material = darkMaterial;
         }
-    });
+    }
 };
 
     const restoreMats = () => {
-        scene.traverse((obj) => {
-            if (darkMats[obj.uuid]) {
-                obj.material = darkMats[obj.uuid];
-                delete darkMats[obj.uuid];
-            }
-        });
+        for (const [obj, material] of originalMaterials) obj.material = material;
+        originalMaterials.clear();
     };
 
     // Proxy qui se comporte comme un Pass unique pour EffectComposer
@@ -120,9 +122,12 @@ export function createBloom(scene, {
 
         // EffectComposer appelle setSize sur chaque pass
         setSize(width, height) {
-            boostPass.setSize(width, height);
-            strongBloom.setSize(width, height);
-            weakBloom.setSize(width, height);
+            const bloomScale = 0.65;
+            const bloomWidth = Math.max(1, Math.floor(width * bloomScale));
+            const bloomHeight = Math.max(1, Math.floor(height * bloomScale));
+            boostPass.setSize(bloomWidth, bloomHeight);
+            strongBloom.setSize(bloomWidth, bloomHeight);
+            weakBloom.setSize(bloomWidth, bloomHeight);
         },
 
         render(renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
@@ -135,10 +140,13 @@ export function createBloom(scene, {
             restoreMats();
 
             // 3. Bloom faible sur le plateau (layer 2)
-            maskExcept(2);
-            weakBloom.render(renderer, writeBuffer, readBuffer, deltaTime, maskActive);
-            restoreMats();
+            if (tableStrength > 0) {
+                maskExcept(2);
+                weakBloom.render(renderer, writeBuffer, readBuffer, deltaTime, maskActive);
+                restoreMats();
+            }
         },
+        refreshSelection,
     };
 
     return pass;

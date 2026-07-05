@@ -11,19 +11,27 @@ test('les palles appliquent immédiatement leur force maximale et un relâchemen
   palle.rotationSpeed = Config.global.positioning.palles.rotationSpeed;
   palle.motorStiffness = Config.global.positioning.palles.motorStiffness;
   palle.motorDamping = Config.global.positioning.palles.motorDamping;
-  palle.wasActive = false;
+  palle.wasActive = null;
   palle.playSound = () => {};
 
   let motor = null;
+  let motorUpdates = 0;
   palle.joint = {
     configureMotorPosition(angle, stiffness, damping) {
+      motorUpdates += 1;
       motor = { angle, stiffness, damping };
     }
   };
 
+  palle.setActive(false);
+  assert.equal(motor.angle, 0);
+  assert.equal(motorUpdates, 1);
+
+  palle.setActive(true);
   palle.setActive(true);
   assert.equal(motor.angle, palle.angle);
   assert.equal(motor.stiffness, Config.global.positioning.palles.motorStiffness);
+  assert.equal(motorUpdates, 2);
 
   palle.setActive(false);
 
@@ -31,6 +39,7 @@ test('les palles appliquent immédiatement leur force maximale et un relâchemen
   assert.equal(motor.stiffness, Config.global.positioning.palles.motorStiffness);
   assert.equal(motor.damping, Config.global.positioning.palles.motorDamping);
   assert.ok(motor.damping > 5);
+  assert.equal(motorUpdates, 3);
 });
 
 test('le lanceur garantit une vitesse minimale utile et plafonne les appuis longs', () => {

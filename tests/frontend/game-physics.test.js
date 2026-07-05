@@ -56,6 +56,93 @@ test('registerObjects appends every provided object and indexes their colliders'
   assert.equal(physics.colliderResponders.get(22), responder);
 });
 
+test('setLaunchingRampVisible alterne la rampe de lancement et la rampe droite déjà chargées', () => {
+  const physics = new GamePhysics(Config);
+  const launchStates = [];
+  const rightRampStates = [];
+  const launchCollider = {
+    collisionGroups() { return 0xffffffff; },
+    setCollisionGroups(value) { launchStates.push(value); }
+  };
+  const rightRampCollider = {
+    collisionGroups() { return 0xffffffff; },
+    setCollisionGroups(value) { rightRampStates.push(value); }
+  };
+
+  physics.launchingRamp = {
+    mesh: { visible: false },
+    collider: launchCollider
+  };
+  physics.rampB = {
+    mesh: { visible: true },
+    collider: rightRampCollider
+  };
+
+  physics.setLaunchingRampVisible(true);
+  assert.equal(physics.launchingRamp.mesh.visible, true);
+  assert.equal(physics.rampB.mesh.visible, false);
+
+  physics.setLaunchingRampVisible(false);
+  assert.equal(physics.launchingRamp.mesh.visible, false);
+  assert.equal(physics.rampB.mesh.visible, true);
+  assert.deepEqual(launchStates, [0xffffffff, 0]);
+  assert.deepEqual(rightRampStates, [0, 0xffffffff]);
+});
+
+test('checkLaunchingRampHeight attend la courbe puis échange les rampes à la sortie supérieure', () => {
+  const physics = new GamePhysics(Config);
+  let position = { x: -260, y: 10, z: 0 };
+  const visibilityChanges = [];
+  const velocityChanges = [];
+
+  physics.controls = { impulseUsed: true };
+  physics.launchingRampVisible = true;
+  physics.ball = {
+    rigidBody: {
+      translation() { return position; },
+      linvel() { return { x: 0, y: 2, z: 1234 }; },
+      setLinvel(velocity) { velocityChanges.push(velocity); }
+    }
+  };
+  physics.setLaunchingRampVisible = (visible) => {
+    visibilityChanges.push(visible);
+    physics.launchingRampVisible = visible;
+  };
+
+  physics.checkLaunchingRampHeight();
+  assert.deepEqual(visibilityChanges, []);
+
+  position = {
+    x: Config.global.positioning.ball.position.x,
+    y: 10,
+    z: Config.global.positioning.launchingRamp.curveStartZ
+  };
+  physics.checkLaunchingRampHeight();
+  assert.ok(velocityChanges[0].x > 0);
+  assert.ok(Math.abs(
+    Math.hypot(velocityChanges[0].x, velocityChanges[0].z) - 1234
+  ) < 0.001);
+  assert.deepEqual(visibilityChanges, []);
+
+  position = {
+    x: Config.global.positioning.launchingRamp.exitX
+      - Config.global.positioning.launchingRamp.exitRadius - 1,
+    y: 10,
+    z: Config.global.positioning.launchingRamp.exitZ
+  };
+  physics.checkLaunchingRampHeight();
+  assert.deepEqual(visibilityChanges, []);
+
+  position = {
+    x: Config.global.positioning.launchingRamp.exitX,
+    y: 10,
+    z: Config.global.positioning.launchingRamp.exitZ
+  };
+  physics.checkLaunchingRampHeight();
+  assert.equal(physics.ballPassedAboveTriggerAfterRespawn, true);
+  assert.deepEqual(visibilityChanges, [false]);
+});
+
 test('connectBackend uses the local backend endpoint when no browser config is provided', () => {
   const physics = new GamePhysics(Config);
   const previousWebSocket = globalThis.WebSocket;

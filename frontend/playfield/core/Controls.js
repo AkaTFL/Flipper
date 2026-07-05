@@ -32,6 +32,11 @@ export class Controls{
         this.playerDamageCallback = null;
         this.ballLostCallback = null;
         this.audioManager = AudioManager.getShared();
+        this.audioManager.preloadSounds([
+            Config.global.sounds.launchingRamp.charging,
+            Config.global.sounds.launchingRamp.launch,
+            Config.global.sounds.palles.movement
+        ]);
 
         this.initControls();
     }
