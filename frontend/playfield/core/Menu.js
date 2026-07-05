@@ -303,6 +303,7 @@ const MENU_STYLES = `
 #flipper-menu .menu-modal {
     position: absolute;
     inset: 0;
+    z-index: 10;
     display: flex;
     align-items: center;
     justify-content: center;
