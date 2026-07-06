@@ -32,7 +32,12 @@
 <!-- ═══════════════════════════════════════════════ -->
 <div id="boss-video-overlay">
   <div id="boss-video-frame">
-    <video id="boss-video" autoplay loop muted playsinline></video>
+    <video id="boss-video" autoplay muted playsinline preload="metadata"></video>
+  </div>
+  <div id="boss-static-view" aria-hidden="true">
+    <div id="boss-image-frame">
+      <img id="boss-image" alt="Boss actuel" src=""/>
+    </div>
   </div>
   <div id="boss-hp-container">
     <div class="boss-hp-label">Points de vie du Boss</div>
@@ -65,14 +70,6 @@
   <!-- CENTER PANEL : Widgets bas -->
   <div class="center-panel">
     <div class="bottom-bar">
-
-      <!-- Score à battre -->
-      <div class="widget stb-widget">
-        <div class="widget-inset"></div>
-        <div class="stb-label">Score à Battre</div>
-        <div class="stb-value" id="score-to-beat">2.500.000</div>
-      </div>
-
       <!-- Bonus -->
       <div class="widget bonus-widget">
         <div class="widget-inset"></div>
@@ -119,7 +116,15 @@
   </div>
 
   <!-- RIGHT PANEL -->
-  <div class="right-panel"></div>
+  <div class="right-panel">
+    <div class="quests-widget">
+      <div class="quests-title">Quêtes</div>
+      <div class="quests-progress" id="quests-progress">0 / 0 terminées</div>
+      <ul class="quests-list" id="quests-list">
+        <li class="quest-item empty">Aucune quête active</li>
+      </ul>
+    </div>
+  </div>
 
 </div>
 

@@ -58,6 +58,9 @@ export class BackglassDisplay {
             arrivalMessageUntil: 0
         };
 
+        this.isBossIntroPlaying = false;
+        this.bossIntroFallbackTimer = null;
+
         // Référence vers ShaderEffects (injectée après construction)
         this.shaderEffects = null;
 
@@ -128,18 +131,28 @@ export class BackglassDisplay {
             this.savedPlayerBallsEls[i] = this.documentRef.getElementById(`saved-balls-${i}`);
         }
 
-        this.scoreToBeatEl    = this.documentRef.getElementById('score-to-beat');
         this.comboScoreEl     = this.documentRef.getElementById('combo-score');
         this.comboBallEls     = this.documentRef.querySelectorAll('.cball');
         this.bonusPillsRow    = this.documentRef.getElementById('bonus-pills-row');
         this.bonusSlotEls     = this.documentRef.querySelectorAll('.bonus-slot');
+        this.questsProgressEl = this.documentRef.getElementById('quests-progress');
+        this.questsListEl     = this.documentRef.getElementById('quests-list');
 
         // Boss video elements
         this.bossVideoOverlayEl = this.documentRef.getElementById('boss-video-overlay');
         this.bossVideoEl        = this.documentRef.getElementById('boss-video');
+        this.bossStaticViewEl   = this.documentRef.getElementById('boss-static-view');
+        this.bossImageEl        = this.documentRef.getElementById('boss-image');
         this.bossHpBarEl        = this.documentRef.getElementById('boss-hp-bar');
         this.bossHpTextEl       = this.documentRef.getElementById('boss-hp-text');
         this.bossHpContainerEl  = this.documentRef.getElementById('boss-hp-container');
+
+        if (this.bossVideoEl) {
+            this.bossVideoEl.loop = false;
+            this.bossVideoEl.preload = 'metadata';
+            this.bossVideoEl.addEventListener('ended', () => this.onBossVideoEnded());
+            this.bossVideoEl.addEventListener('error', () => this.onBossVideoEnded());
+        }
 
         this.render();
         console.log('[BACKGLASS] ✅ Rendu initial complété');
@@ -288,6 +301,9 @@ export class BackglassDisplay {
         if (bossJustArrived) {
             this.triggerBossVideoArrival();
         }
+        if (isActive && !bossJustArrived && !this.isBossIntroPlaying) {
+            this.showBossCard();
+        }
         if (!isActive && wasActive) {
             this.hideBossVideo();
         }
@@ -304,35 +320,89 @@ export class BackglassDisplay {
         return './assets/video_bossfinal.mkv';
     }
 
+    getBossImagePath(level) {
+        if (level === 1) return './assets/Boss1.png';
+        if (level === 2) return './assets/Boss2.png';
+        if (level === 3) return './assets/Boss3.png';
+        return './assets/Boss_Final.png';
+    }
+
     triggerBossVideoArrival() {
         if (!this.bossVideoEl || !this.bossVideoOverlayEl) return;
+
+        this.clearBossIntroFallbackTimer();
+        this.isBossIntroPlaying = true;
 
         const videoPath = this.getBossVideoPath(this.currentLevel);
         console.log(`[BACKGLASS] 🎬 Boss arrive! Vidéo level ${this.currentLevel}: ${videoPath}`);
 
+        this.bossVideoEl.pause();
         this.bossVideoEl.src = videoPath;
         this.bossVideoEl.load();
-        this.bossVideoEl.play().catch(e => console.warn('[BACKGLASS] Autoplay bloqué:', e));
+        this.bossVideoEl.play().catch(e => {
+            console.warn('[BACKGLASS] Autoplay bloqué:', e);
+            this.onBossVideoEnded();
+        });
 
-        // Affiche l'overlay boss
         this.bossVideoOverlayEl.classList.add('active');
+        this.bossVideoOverlayEl.classList.add('intro-playing');
+        this.bossVideoOverlayEl.classList.remove('show-boss-card');
 
-        // Affiche la barre de HP
-        if (this.bossHpContainerEl) {
-            this.bossHpContainerEl.classList.add('active');
+        this.bossIntroFallbackTimer = globalThis.setTimeout(() => {
+            if (this.isBossIntroPlaying) {
+                this.onBossVideoEnded();
+            }
+        }, 10000);
+    }
+
+    onBossVideoEnded() {
+        if (!this.bossState.active) {
+            this.hideBossVideo();
+            return;
         }
+
+        this.clearBossIntroFallbackTimer();
+        this.isBossIntroPlaying = false;
+        if (this.bossVideoEl) {
+            this.bossVideoEl.pause();
+        }
+        this.showBossCard();
+    }
+
+    showBossCard() {
+        if (!this.bossVideoOverlayEl) return;
+
+        if (this.bossImageEl) {
+            this.bossImageEl.src = this.getBossImagePath(this.currentLevel);
+        }
+
+        this.bossVideoOverlayEl.classList.add('active');
+        this.bossVideoOverlayEl.classList.remove('intro-playing');
+        this.bossVideoOverlayEl.classList.add('show-boss-card');
     }
 
     hideBossVideo() {
+        this.clearBossIntroFallbackTimer();
+        this.isBossIntroPlaying = false;
+
         if (!this.bossVideoOverlayEl) return;
         this.bossVideoOverlayEl.classList.remove('active');
+        this.bossVideoOverlayEl.classList.remove('intro-playing');
+        this.bossVideoOverlayEl.classList.remove('show-boss-card');
+
         if (this.bossVideoEl) {
             this.bossVideoEl.pause();
             this.bossVideoEl.src = '';
         }
-        if (this.bossHpContainerEl) {
-            this.bossHpContainerEl.classList.remove('active');
+        if (this.bossImageEl) {
+            this.bossImageEl.src = '';
         }
+    }
+
+    clearBossIntroFallbackTimer() {
+        if (!this.bossIntroFallbackTimer) return;
+        globalThis.clearTimeout(this.bossIntroFallbackTimer);
+        this.bossIntroFallbackTimer = null;
     }
 
     updateBossVideoDisplay() {
@@ -371,7 +441,7 @@ export class BackglassDisplay {
             this.updateCurrentPlayerScore();
             this.updateSavedPlayers();
             this.updateComboDisplay();
-            this.updateScoreToBeat();
+            this.updateQuestDisplay();
             this.updateBossVideoDisplay();
         } catch (err) {
             console.error('[BACKGLASS] Erreur rendu:', err);
@@ -417,6 +487,47 @@ export class BackglassDisplay {
         this.triggerBonusGlow();
     }
 
+    updateQuestDisplay() {
+        const { activeQuests, completedCount, requiredCount } = this.questState;
+
+        if (this.questsProgressEl) {
+            const required = requiredCount > 0 ? requiredCount : activeQuests.length;
+            this.questsProgressEl.textContent = `${completedCount} / ${required} terminées`;
+        }
+
+        if (!this.questsListEl) return;
+        this.questsListEl.innerHTML = '';
+
+        if (!Array.isArray(activeQuests) || activeQuests.length === 0) {
+            const emptyEl = this.documentRef.createElement('li');
+            emptyEl.className = 'quest-item empty';
+            emptyEl.textContent = 'Aucune quête active';
+            this.questsListEl.appendChild(emptyEl);
+            return;
+        }
+
+        activeQuests.forEach((quest) => {
+            const item = this.documentRef.createElement('li');
+            const isCompleted = Boolean(quest?.completed);
+            item.className = `quest-item${isCompleted ? ' completed' : ''}`;
+
+            const labelEl = this.documentRef.createElement('span');
+            labelEl.className = 'quest-label';
+            const statusPrefix = isCompleted ? '✓ ' : '';
+            labelEl.textContent = `${statusPrefix}${String(quest?.label ?? quest?.id ?? 'Quête')}`;
+
+            const progressEl = this.documentRef.createElement('span');
+            progressEl.className = 'quest-progress';
+            const current = Number(quest?.progress ?? 0);
+            const target = Number(quest?.target ?? 0);
+            progressEl.textContent = target > 0 ? `${current}/${target}` : `${current}`;
+
+            item.appendChild(labelEl);
+            item.appendChild(progressEl);
+            this.questsListEl.appendChild(item);
+        });
+    }
+
     triggerBonusGlow() {
         if (!this.bonusSlotEls || this.bonusSlotEls.length === 0) return;
         const count = Math.min(this.comboState.comboCount, 5);
@@ -441,16 +552,11 @@ export class BackglassDisplay {
         }
     }
 
-    updateScoreToBeat() {
-        if (this.scoreToBeatEl) {
-            this.scoreToBeatEl.textContent = this.formatScore(2500000);
-        }
-    }
-
     // ─────────────────────────────────────────────
     // DESTROY
     // ─────────────────────────────────────────────
     destroy() {
+        this.clearBossIntroFallbackTimer();
         if (this.socket) this.socket.close();
     }
 }
