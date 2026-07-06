@@ -1,14 +1,14 @@
 {
   "slots": [
     {
-      "savedAt": 1782849950879,
+      "savedAt": 1783348437289,
       "level": 1,
       "snapshot": {
         "score": {
-          "score": 10760,
-          "comboCount": 201,
-          "hitStreak": 201,
-          "lastImpactAt": 1782849950641,
+          "score": 18435,
+          "comboCount": 3,
+          "hitStreak": 3,
+          "lastImpactAt": 1783348433803,
           "recentImpactTypes": [
             "bumper",
             "bumper",
@@ -17,8 +17,8 @@
           "loopStreakById": {}
         },
         "boss": {
-          "active": false,
-          "hp": 1500
+          "active": true,
+          "hp": 657
         },
         "player": {
           "hp": 0,
@@ -27,40 +27,40 @@
         "quests": {
           "activeQuests": [
             {
-              "id": "score_2000",
+              "id": "combo_x3",
               "category": "score",
-              "label": "Atteindre 2 000 points",
-              "target": 2000,
-              "progress": 2000,
+              "label": "Atteindre un combo x3",
+              "target": 3,
+              "progress": 3,
               "completed": true
             },
             {
-              "id": "ramp_simple_2",
+              "id": "target_center_2",
               "category": "precision",
-              "label": "Réussir 2 passages de rampe",
+              "label": "Toucher 2 fois la zone centrale d'une cible basse",
               "target": 2,
               "progress": 0,
               "completed": false
             },
             {
-              "id": "loop_left_right",
+              "id": "bumpers_5",
               "category": "exploration",
-              "label": "Passer une fois par chaque loop latéral",
-              "target": 2,
-              "progress": 0,
-              "completed": false
+              "label": "Toucher 5 bumpers au total",
+              "target": 5,
+              "progress": 5,
+              "completed": true
             }
           ],
           "loopLeftDone": false,
           "loopRightDone": false,
-          "phaseStartedAt": 1782849950868,
+          "phaseStartedAt": 1783348437285,
           "bossFightTriggered": false,
           "currentPhase": 1
         }
       }
     },
     {
-      "savedAt": 1782846603625,
+      "savedAt": 1783368506619,
       "level": 1,
       "snapshot": {
         "score": {
@@ -82,33 +82,33 @@
         "quests": {
           "activeQuests": [
             {
-              "id": "score_2000",
+              "id": "score_3500",
               "category": "score",
-              "label": "Atteindre 2 000 points",
-              "target": 2000,
+              "label": "Atteindre 3 500 points",
+              "target": 3500,
               "progress": 0,
               "completed": false
             },
             {
-              "id": "ramp_perfect_1",
+              "id": "ramp_simple_2",
               "category": "precision",
-              "label": "Réussir 1 rampe parfaite",
-              "target": 1,
+              "label": "Réussir 2 passages de rampe",
+              "target": 2,
               "progress": 0,
               "completed": false
             },
             {
-              "id": "loop_left_right",
+              "id": "survive_20s",
               "category": "exploration",
-              "label": "Passer une fois par chaque loop latéral",
-              "target": 2,
+              "label": "Survivre 20 secondes avec la même bille",
+              "target": 20,
               "progress": 0,
               "completed": false
             }
           ],
           "loopLeftDone": false,
           "loopRightDone": false,
-          "phaseStartedAt": 1782846603625,
+          "phaseStartedAt": 1783368506619,
           "bossFightTriggered": false,
           "currentPhase": 1
         }
