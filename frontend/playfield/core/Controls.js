@@ -89,6 +89,7 @@ export class Controls{
             if (key === this.bossDebug) {
                 if (e.repeat) return;
                 if (typeof this.bossFightStartCallback === 'function') {
+                    console.log('Boss fight debug triggered');
                     this.bossFightStartCallback();
                 }
                 return;

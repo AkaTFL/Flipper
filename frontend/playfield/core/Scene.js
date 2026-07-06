@@ -10,7 +10,7 @@ import { EffectManager } from '../effects/manager/EffectManager.js';
 import { createCamera, createCameraHelper, createCameraOrbitControls, setupCameraResize } from '../helpers/CameraHelper.js';
 import { createRapierDebug, setupLightHelperToggle } from '../helpers/DebugHelper.js';
 import { createLightGUI } from '../helpers/GuiHelper.js';
-import { createLights, startLightIntro } from '../core/Lights.js';
+import { createLights, startLightIntro, cutLightsForReload } from '../core/Lights.js';
 
 export class Scene {
     /**
@@ -171,6 +171,16 @@ export class Scene {
 
     getCamera() {
         return this.camera;
+    }
+
+    // Coupe les lumières une à une (effet caméras qu'on éteint en rafale)
+    // puis force un reload complet de la page. Utilisé quand un boss est
+    // vaincu : le prochain chargement doit repartir avec les modèles du
+    // nouveau niveau (cf. GamePhysics.persistSessionForReload()).
+    triggerBossDefeatReload() {
+        cutLightsForReload(this.introLights, () => {
+            window.location.reload();
+        });
     }
 
     startRender(physics, onUpdate) {

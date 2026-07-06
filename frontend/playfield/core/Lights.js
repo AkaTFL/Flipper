@@ -206,3 +206,21 @@ export function startLightIntro(
 
     }, 3000);
 }
+
+// Effet "coupure caméra" : chaque lumière est coupée brutalement (pas de
+// fade), l'une après l'autre, pour simuler des caméras qu'on éteint en
+// rafale avant un reload complet du jeu (ex: victoire sur un boss).
+export function cutLightsForReload(introLights, onComplete) {
+    const cutDelayMs = 70;
+
+    introLights.forEach((entry, index) => {
+        setTimeout(() => {
+            entry.light.intensity = 0;
+        }, index * cutDelayMs);
+    });
+
+    const totalDuration = introLights.length * cutDelayMs + 50;
+    setTimeout(() => {
+        onComplete?.();
+    }, totalDuration);
+}
