@@ -191,39 +191,39 @@ export class ShaderEffects {
             col += vec3(0.06, 0.65, 0.15) * rootGlow * 0.7;
             alpha += rootGlow * 0.3;
 
-            // ── 3 grosses racines lumineuses
-            for(float i=0.0; i<3.0; i++){
+            // ── 5 grosses racines lumineuses
+            for(float i=0.0; i<5.0; i++){
                 float r = root(uvF, i*2.7+0.5, uTime);
                 if(r>0.01){
                     vec3 rc = mix(vec3(0.08,0.5,0.1), vec3(0.3,1.0,0.2), sin(uTime*0.6+i)*0.5+0.5);
-                    col += rc * r * 0.7;
-                    alpha += r * 0.35;
+                    col += rc * r * 0.95;
+                    alpha += r * 0.45;
                 }
             }
 
-            // ── 10 vrilles végétales
-            for(float i=0.0; i<10.0; i++){
+            // ── 14 vrilles végétales
+            for(float i=0.0; i<14.0; i++){
                 float t = tendril(uvF, i*1.73+0.3, uTime);
                 if(t>0.01){
                     vec3 lc = mix(vec3(0.1,0.8,0.18), vec3(0.4,1.0,0.25),
                                   sin(uTime*0.9+i*0.7)*0.5+0.5);
-                    col += lc * t * 0.55;
-                    alpha += t * 0.28;
+                    col += lc * t * 0.72;
+                    alpha += t * 0.36;
                 }
             }
 
-            // ── Spores lumineuses (60)
+            // ── Spores lumineuses (24) — réduit pour laisser les racines dominer
             float allSpores = 0.0;
-            for(float i=0.0; i<60.0; i++) allSpores += spore(uvF, i);
+            for(float i=0.0; i<24.0; i++) allSpores += spore(uvF, i);
             allSpores = clamp(allSpores, 0.0, 1.0);
-            col += mix(vec3(0.2,1.0,0.3), vec3(0.8,1.0,0.2), sin(uTime*0.7)*0.5+0.5)*allSpores*0.7;
-            alpha += allSpores * 0.3;
+            col += mix(vec3(0.2,1.0,0.3), vec3(0.8,1.0,0.2), sin(uTime*0.7)*0.5+0.5)*allSpores*0.35;
+            alpha += allSpores * 0.12;
 
-            // ── Veines de rosée diagonales
-            float vein = abs(sin((uvF.x+uvF.y*0.6+uTime*0.025)*11.0));
-            vein = pow(max(0.0,1.0-vein*6.0), 3.5)*fbm(uvF*5.0+uTime*0.015)*0.6;
-            col += vec3(0.1, 0.9, 0.3)*vein*0.4;
-            alpha += vein * 0.15;
+            // ── Veines de racines diagonales
+            float vein = abs(sin((uvF.x+uvF.y*0.6+uTime*0.02)*9.0));
+            vein = pow(max(0.0,1.0-vein*4.2), 2.8)*fbm(uvF*4.2+uTime*0.012)*0.75;
+            col += vec3(0.08, 0.72, 0.2)*vein*0.7;
+            alpha += vein * 0.24;
 
             // ── Pulsation basse UI
             if(uvF.y < 0.32){
