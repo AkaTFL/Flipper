@@ -54,18 +54,8 @@ export class Objects {
         this.loader = new GLTFLoader();
     }
 
-    initSound(sound) {
-        const created = this.audioManager.createAudio(sound);
-        this.audio = created?.audio ?? null;
-        return this.audio;
-    }
-
     playSound(sound, volume) {
         return this.audioManager.playSound(sound, volume);
-    }
-
-    stopSound(sound) {
-        return this.audioManager.stopSound(sound);
     }
 
     toRotationQuaternion(rotation = this.rotation) {
@@ -411,16 +401,6 @@ export class Objects {
             : target?.traverse(applyMaps);
 
         return loadedMaps;
-    }
-
-    getMeshMetrics(modelRoot) {
-        modelRoot.updateMatrixWorld(true);
-        
-        const box = new THREE.Box3().setFromObject(modelRoot);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-
-        return { box, size, center, halfLengthX: size.x / 2 };
     }
 
     syncObjects() {

@@ -1,6 +1,7 @@
 export class CollisionHandler {
     constructor(physics) {
         this.physics = physics;
+        this.lastImpactByObject = new WeakMap();
     }
 
     reportContactImpacts(collidingObjects, combo = null) {
@@ -10,9 +11,9 @@ export class CollisionHandler {
                 continue;
             }
 
-            const lastImpact = this.physics.lastImpactByObject.get(obj) ?? -Infinity;
+            const lastImpact = this.lastImpactByObject.get(obj) ?? -Infinity;
             if (now - lastImpact < 80) continue;
-            this.physics.lastImpactByObject.set(obj, now);
+            this.lastImpactByObject.set(obj, now);
 
             this.physics.sendImpact(obj, combo);
         }

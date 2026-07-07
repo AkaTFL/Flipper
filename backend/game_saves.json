@@ -1,38 +1,34 @@
 {
   "slots": [
     {
-      "savedAt": 1783348437289,
+      "savedAt": 1783430917339,
       "level": 1,
       "snapshot": {
         "score": {
-          "score": 18435,
-          "comboCount": 3,
-          "hitStreak": 3,
-          "lastImpactAt": 1783348433803,
-          "recentImpactTypes": [
-            "bumper",
-            "bumper",
-            "bumper"
-          ],
+          "score": 0,
+          "comboCount": 0,
+          "hitStreak": 0,
+          "lastImpactAt": -62135596800000,
+          "recentImpactTypes": null,
           "loopStreakById": {}
         },
         "boss": {
-          "active": true,
-          "hp": 657
+          "active": false,
+          "hp": 1500
         },
         "player": {
-          "hp": 0,
-          "balls": 0
+          "hp": 100,
+          "balls": 3
         },
         "quests": {
           "activeQuests": [
             {
-              "id": "combo_x3",
+              "id": "score_2000",
               "category": "score",
-              "label": "Atteindre un combo x3",
-              "target": 3,
-              "progress": 3,
-              "completed": true
+              "label": "Atteindre 2 000 points",
+              "target": 2000,
+              "progress": 0,
+              "completed": false
             },
             {
               "id": "target_center_2",
@@ -43,17 +39,17 @@
               "completed": false
             },
             {
-              "id": "bumpers_5",
+              "id": "survive_20s",
               "category": "exploration",
-              "label": "Toucher 5 bumpers au total",
-              "target": 5,
-              "progress": 5,
-              "completed": true
+              "label": "Survivre 20 secondes avec la même bille",
+              "target": 20,
+              "progress": 0,
+              "completed": false
             }
           ],
           "loopLeftDone": false,
           "loopRightDone": false,
-          "phaseStartedAt": 1783348437285,
+          "phaseStartedAt": 1783430917339,
           "bossFightTriggered": false,
           "currentPhase": 1
         }

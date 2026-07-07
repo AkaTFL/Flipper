@@ -11,42 +11,77 @@ import { LaunchRampManager } from './LaunchRampManager.js';
 
 export class GamePhysics {
     constructor() {
-        // --- États Internes Conservés ---
         this.world = null;
-        this.bumpers = [];
-        this.launchingRamp = null;
-        this.rampB = null;
-        this.backendSocket = null;
-        this.objects = [];
-        this.ball = null;
-        this.colliderOwners = new Map();
-        this.colliderResponders = new Map();
-        this.lastBackendMessage = null;
-        this.lastScoreUpdate = null;
-        this.activeScoreZones = new Set();
-        this.activeRampZones = new Set();
-        this.rampTraversal = null;
         this.audioManager = AudioManager.getShared();
         this.controls = null;
-        this.scene = null;         
-        this.sceneManager = null;  
+        this.scene = null;
+        this.sceneManager = null;
         this.gameOver = false;
         this._ballLostReported = false;
-        this.launchingRampVisible = true;
-        this.holdLaunchingRampVisibleAfterBallLost = false;
-        this.ballRespawnedAfterBallLost = false;
-        this.ballPassedAboveTriggerAfterRespawn = false;
-        this.launchingRampHideTimeout = null;
-        this.activeSaveSlot = null;
-        this.lastImpactByObject = new WeakMap();
 
-        // --- Instanciation des Modules Spécialisés (Inversion de contrôle) ---
         this.backendManager = new BackendManager(this);
         this.registry = new ObjectRegistry(this);
         this.triggerDetector = new TriggerDetector(this);
         this.collisionHandler = new CollisionHandler(this);
         this.rampManager = new LaunchRampManager(this);
     }
+
+    get objects() { return this.registry.objects; }
+    set objects(value) { this.registry.objects = value; }
+
+    get ball() { return this.registry.ball; }
+    set ball(value) { this.registry.ball = value; }
+
+    get launchingRamp() { return this.registry.launchingRamp; }
+    set launchingRamp(value) { this.registry.launchingRamp = value; }
+
+    get rampB() { return this.registry.rampB; }
+    set rampB(value) { this.registry.rampB = value; }
+
+    get colliderOwners() { return this.registry.colliderOwners; }
+    set colliderOwners(value) { this.registry.colliderOwners = value; }
+
+    get colliderResponders() { return this.registry.colliderResponders; }
+    set colliderResponders(value) { this.registry.colliderResponders = value; }
+
+    get backendSocket() { return this.backendManager.backendSocket; }
+    set backendSocket(value) { this.backendManager.backendSocket = value; }
+
+    get lastBackendMessage() { return this.backendManager.lastBackendMessage; }
+    set lastBackendMessage(value) { this.backendManager.lastBackendMessage = value; }
+
+    get lastScoreUpdate() { return this.backendManager.lastScoreUpdate; }
+    set lastScoreUpdate(value) { this.backendManager.lastScoreUpdate = value; }
+
+    get activeSaveSlot() { return this.backendManager.activeSaveSlot; }
+    set activeSaveSlot(value) { this.backendManager.activeSaveSlot = value; }
+
+    get activeScoreZones() { return this.triggerDetector.activeScoreZones; }
+    set activeScoreZones(value) { this.triggerDetector.activeScoreZones = value; }
+
+    get activeRampZones() { return this.triggerDetector.activeRampZones; }
+    set activeRampZones(value) { this.triggerDetector.activeRampZones = value; }
+
+    get rampTraversal() { return this.triggerDetector.rampTraversal; }
+    set rampTraversal(value) { this.triggerDetector.rampTraversal = value; }
+
+    get launchingRampVisible() { return this.rampManager.launchingRampVisible; }
+    set launchingRampVisible(value) { this.rampManager.launchingRampVisible = value; }
+
+    get holdLaunchingRampVisibleAfterBallLost() { return this.rampManager.holdLaunchingRampVisibleAfterBallLost; }
+    set holdLaunchingRampVisibleAfterBallLost(value) { this.rampManager.holdLaunchingRampVisibleAfterBallLost = value; }
+
+    get ballRespawnedAfterBallLost() { return this.rampManager.ballRespawnedAfterBallLost; }
+    set ballRespawnedAfterBallLost(value) { this.rampManager.ballRespawnedAfterBallLost = value; }
+
+    get ballPassedAboveTriggerAfterRespawn() { return this.rampManager.ballPassedAboveTriggerAfterRespawn; }
+    set ballPassedAboveTriggerAfterRespawn(value) { this.rampManager.ballPassedAboveTriggerAfterRespawn = value; }
+
+    get launchingRampHideTimeout() { return this.rampManager.launchingRampHideTimeout; }
+    set launchingRampHideTimeout(value) { this.rampManager.launchingRampHideTimeout = value; }
+
+    get lastImpactByObject() { return this.collisionHandler.lastImpactByObject; }
+    set lastImpactByObject(value) { this.collisionHandler.lastImpactByObject = value; }
 
     async init() {
         await RAPIER.init();

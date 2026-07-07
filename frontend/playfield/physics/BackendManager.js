@@ -3,6 +3,10 @@ import Config, { NiveauActuel } from '../physics/Config.js';
 export class BackendManager {
     constructor(physics) {
         this.physics = physics;
+        this.backendSocket = null;
+        this.lastBackendMessage = null;
+        this.lastScoreUpdate = null;
+        this.activeSaveSlot = null;
     }
 
     connectBackend() {
@@ -12,25 +16,25 @@ export class BackendManager {
             : 'ws://localhost:8080/ws';
 
         try {
-            this.physics.backendSocket = new globalThis.WebSocket(socketUrl);
+            this.backendSocket = new globalThis.WebSocket(socketUrl);
 
-            this.physics.backendSocket.addEventListener('open', () => {
+            this.backendSocket.addEventListener('open', () => {
                 console.info(`Backend connecté sur ${socketUrl}`);
             });
 
-            this.physics.backendSocket.addEventListener('message', (event) => {
+            this.backendSocket.addEventListener('message', (event) => {
                 this.handleBackendMessage(event.data);
             });
 
-            this.physics.backendSocket.addEventListener('close', () => {
+            this.backendSocket.addEventListener('close', () => {
                 console.warn('Connexion backend fermée');
             });
 
-            this.physics.backendSocket.addEventListener('error', (error) => {
+            this.backendSocket.addEventListener('error', (error) => {
                 console.warn('Erreur WebSocket backend:', error);
             });
         } catch (error) {
-            this.physics.backendSocket = null;
+            this.backendSocket = null;
             console.warn('Backend non connecté:', error);
         }
     }
@@ -38,10 +42,10 @@ export class BackendManager {
     handleBackendMessage(rawData) {
         try {
             const message = JSON.parse(rawData);
-            this.physics.lastBackendMessage = message;
+            this.lastBackendMessage = message;
             
             if (message?.type === 'score_update') {
-                this.physics.lastScoreUpdate = message.payload ?? null;
+                this.lastScoreUpdate = message.payload ?? null;
             } else if (message?.type === 'player_state_update') {
                 const wasGameOver = this.physics.gameOver;
                 this.physics.gameOver = Boolean(message.payload?.gameOver);
@@ -113,12 +117,12 @@ export class BackendManager {
     sendMessage(type, payload = {}) {
         const message = { type, payload };
 
-        if (!this.physics.backendSocket || this.physics.backendSocket.readyState !== globalThis.WebSocket?.OPEN) {
+        if (!this.backendSocket || this.backendSocket.readyState !== globalThis.WebSocket?.OPEN) {
             console.warn('[backend] socket indisponible, envoi ignoré', message);
             return false;
         }
 
-        this.physics.backendSocket.send(JSON.stringify(message));
+        this.backendSocket.send(JSON.stringify(message));
         return true;
     }
 
@@ -142,7 +146,7 @@ export class BackendManager {
 
     whenBackendReady(timeoutMs = 5000) {
         return new Promise((resolve) => {
-            const socket = this.physics.backendSocket;
+            const socket = this.backendSocket;
             const OPEN = globalThis.WebSocket?.OPEN ?? 1;
 
             if (!socket) {

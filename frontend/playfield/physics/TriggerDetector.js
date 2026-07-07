@@ -3,6 +3,9 @@ import Config from '../physics/Config.js';
 export class TriggerDetector {
     constructor(physics) {
         this.physics = physics;
+        this.activeScoreZones = new Set();
+        this.activeRampZones = new Set();
+        this.rampTraversal = null;
     }
 
     detectScoreZoneEntries() {
@@ -24,7 +27,7 @@ export class TriggerDetector {
             }
 
             nextActiveZones.add(zone.id);
-            if (this.physics.activeScoreZones.has(zone.id)) {
+            if (this.activeScoreZones.has(zone.id)) {
                 continue;
             }
 
@@ -34,7 +37,7 @@ export class TriggerDetector {
             });
         }
 
-        this.physics.activeScoreZones = nextActiveZones;
+        this.activeScoreZones = nextActiveZones;
     }
 
     detectRampTraversal() {
@@ -43,8 +46,8 @@ export class TriggerDetector {
         const nextActiveRampZones = new Set();
         const now = Date.now();
 
-        if (this.physics.rampTraversal?.startedAt && (now - this.physics.rampTraversal.startedAt) > (rampScoring.timeoutMs)) {
-            this.physics.rampTraversal = null;
+        if (this.rampTraversal?.startedAt && (now - this.rampTraversal.startedAt) > (rampScoring.timeoutMs)) {
+            this.rampTraversal = null;
         }
 
         rampScoring.instances.forEach((ramp) => {
@@ -52,8 +55,8 @@ export class TriggerDetector {
             if (this.isPositionInsideZone(position, entryZone)) {
                 nextActiveRampZones.add(entryZone.id);
             }
-            if (!this.physics.activeRampZones.has(entryZone.id)) {
-                this.physics.rampTraversal = {
+            if (!this.activeRampZones.has(entryZone.id)) {
+                this.rampTraversal = {
                     startedAt: now,
                     hasWallBounce: false
                 };
@@ -63,8 +66,8 @@ export class TriggerDetector {
 
             if (this.isPositionInsideZone(position, exitZone)) {
                 nextActiveRampZones.add(exitZone.id);
-                if (!this.physics.activeRampZones.has(exitZone.id) && this.physics.rampTraversal) {
-                    const objectId = this.physics.rampTraversal.hasWallBounce
+                if (!this.activeRampZones.has(exitZone.id) && this.rampTraversal) {
+                    const objectId = this.rampTraversal.hasWallBounce
                         ? 'ramp-main-simple'
                         : 'ramp-main-perfect';
 
@@ -72,12 +75,12 @@ export class TriggerDetector {
                         objectId,
                         objectType: 'launching-ramp'
                     });
-                    this.physics.rampTraversal = null;
+                    this.rampTraversal = null;
                 }
             }
         });
 
-        this.physics.activeRampZones = nextActiveRampZones;
+        this.activeRampZones = nextActiveRampZones;
     }
 
     isPositionInsideZone(position, zone) {

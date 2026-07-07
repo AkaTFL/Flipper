@@ -3,6 +3,11 @@ import Config from './Config.js';
 export class LaunchRampManager {
     constructor(physics) {
         this.physics = physics;
+        this.launchingRampVisible = true;
+        this.holdLaunchingRampVisibleAfterBallLost = false;
+        this.ballRespawnedAfterBallLost = false;
+        this.ballPassedAboveTriggerAfterRespawn = false;
+        this.launchingRampHideTimeout = null;
     }
 
     setLaunchingRampVisible(visible) {
@@ -10,17 +15,17 @@ export class LaunchRampManager {
             return;
         }
 
-        if (this.physics.launchingRampHideTimeout) {
-            clearTimeout(this.physics.launchingRampHideTimeout);
-            this.physics.launchingRampHideTimeout = null;
+        if (this.launchingRampHideTimeout) {
+            clearTimeout(this.launchingRampHideTimeout);
+            this.launchingRampHideTimeout = null;
         }
 
-        this.physics.launchingRampVisible = visible;
+        this.launchingRampVisible = visible;
         this.setPhysicsObjectEnabled(this.physics.launchingRamp, visible);
         this.setPhysicsObjectEnabled(this.physics.rampB, !visible);
 
         if (visible) {
-            this.physics.ballPassedAboveTriggerAfterRespawn = false;
+            this.ballPassedAboveTriggerAfterRespawn = false;
         }
 
         if (globalThis.document?.body) {
@@ -60,7 +65,7 @@ export class LaunchRampManager {
     }
 
     checkLaunchingRampHeight() {
-        if (!this.physics.launchingRampVisible || !this.physics.controls?.impulseUsed || !this.physics.ball?.rigidBody) {
+        if (!this.launchingRampVisible || !this.physics.controls?.impulseUsed || !this.physics.ball?.rigidBody) {
             return;
         }
 
@@ -100,8 +105,8 @@ export class LaunchRampManager {
             return;
         }
 
-        this.physics.holdLaunchingRampVisibleAfterBallLost = false;
-        this.physics.ballPassedAboveTriggerAfterRespawn = true;
+        this.holdLaunchingRampVisibleAfterBallLost = false;
+        this.ballPassedAboveTriggerAfterRespawn = true;
         this.setLaunchingRampVisible(false);
     }
 }

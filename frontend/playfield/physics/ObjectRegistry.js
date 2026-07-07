@@ -1,19 +1,25 @@
 export class ObjectRegistry {
     constructor(physics) {
         this.physics = physics;
+        this.objects = [];
+        this.ball = null;
+        this.launchingRamp = null;
+        this.rampB = null;
+        this.colliderOwners = new Map();
+        this.colliderResponders = new Map();
     }
 
     registerObjects(objects) {
         for (const obj of objects) {
             if (!obj) continue;
 
-            this.physics.objects.push(obj);
+            this.objects.push(obj);
             if (obj.objectType === 'ball') {
-                this.physics.ball = obj;
+                this.ball = obj;
             } else if (obj.objectType === 'launching-ramp') {
-                this.physics.launchingRamp = obj;
+                this.launchingRamp = obj;
             } else if (obj.objectType === 'ramp' && obj.objectId === 'ramp-b') {
-                this.physics.rampB = obj;
+                this.rampB = obj;
             }
             this.registerObjectColliders(obj);
         }
@@ -32,24 +38,24 @@ export class ObjectRegistry {
         for (const entry of entries) {
             if (!entry?.collider) continue;
 
-            this.physics.colliderOwners.set(entry.collider.handle, entry.owner || obj);
-            this.physics.colliderResponders.set(entry.collider.handle, entry.responder || entry.owner || obj);
+            this.colliderOwners.set(entry.collider.handle, entry.owner || obj);
+            this.colliderResponders.set(entry.collider.handle, entry.responder || entry.owner || obj);
         }
     }
 
     findCollidingObjects(handle1, handle2) {
         return [...new Set([
-            this.physics.colliderOwners.get(handle1),
-            this.physics.colliderOwners.get(handle2)
+            this.colliderOwners.get(handle1),
+            this.colliderOwners.get(handle2)
         ].filter(Boolean))];
     }
 
     findCollisionResponders(handle1, handle2) {
         return [...new Set([
-            this.physics.colliderResponders.get(handle1),
-            this.physics.colliderResponders.get(handle2),
-            this.physics.colliderOwners.get(handle1),
-            this.physics.colliderOwners.get(handle2)
+            this.colliderResponders.get(handle1),
+            this.colliderResponders.get(handle2),
+            this.colliderOwners.get(handle1),
+            this.colliderOwners.get(handle2)
         ].filter(Boolean))];
     }
 }
