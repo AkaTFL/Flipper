@@ -33,6 +33,7 @@ export class Bumper extends Objects {
         const bumperConfig = Config.global.positioning.bumper.instances.find((entry) => entry.objectId === this.objectId) || null;
 
         const modelPath = new URL(bumperConfig.model, import.meta.url).href;
+
         const textureSet = this.objectId?.includes('bumper-triangle')
             ? Config[Config.currentLevel].textures.bumper_triangle
             : Config[Config.currentLevel].textures.bumper;
@@ -50,10 +51,6 @@ export class Bumper extends Objects {
                 const collider = this.buildTrimeshCollider(child, {
                     activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
                 });
-
-                if (collider && child.name?.toLowerCase().includes('bump')) {
-                    this.bumpCollider = collider;
-                }
             });
 
         });
