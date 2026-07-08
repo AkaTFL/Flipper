@@ -167,7 +167,8 @@ export class Objects {
                 let desc = RAPIER.ColliderDesc.trimesh(vertices, indices);
                 if (activeEvents !== null) desc = desc.setActiveEvents(activeEvents);
                 const collider = this.attachCollider(desc);
-                if (!firstCollider) firstCollider = collider;
+                
+                firstCollider = collider;
             }
 
             geometry.dispose();

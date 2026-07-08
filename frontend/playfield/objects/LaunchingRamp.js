@@ -31,8 +31,6 @@ export class LaunchingRamp extends Objects {
         const modelPath = new URL(Config.global.positioning.launchingRamp.model, import.meta.url).href;
 
         this.addMesh(modelPath, (modelRoot) => {
-            this.addTexture(Config[Config.currentLevel].textures.launching_ramp, modelRoot);
-
             if (!this.rigidBody) this.createFixedRigidBody(position, rotation);
 
             // Chaque pièce reçoit un collider dans le repère local du rigid
@@ -42,6 +40,8 @@ export class LaunchingRamp extends Objects {
             // du rail au milieu du lancement.
             modelRoot.traverse((child) => {
                 if (!child.isMesh || !child.geometry) return;
+
+                this.addTexture(Config[Config.currentLevel].textures.launching_ramp, child);
                 this.buildLocalTrimeshCollider(child);
             });
 

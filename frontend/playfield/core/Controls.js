@@ -155,7 +155,6 @@ export class Controls{
     calculateLaunchSpeed(chargeDurationMs) {
         const config = Config.global.positioning.launchingRamp;
         const charge = Math.min(1, Math.max(0, chargeDurationMs) / config.chargeDurationMs);
-        // Courbe douce : précise au début, puis ralentit près de la puissance maximale.
         const easedCharge = 1 - Math.pow(1 - charge, 2);
         return config.minimalSpeed
             + (config.maximalSpeed - config.minimalSpeed) * easedCharge;
@@ -184,10 +183,6 @@ export class Controls{
 
     setBallLostCallback(callback) {
         this.ballLostCallback = callback;
-    }
-
-    setLaunchChargeCount(value) {
-        this.launchChargeCount = value;
     }
 
     setImpulseUsed(value) {

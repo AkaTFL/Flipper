@@ -1,7 +1,7 @@
 {
   "slots": [
     {
-      "savedAt": 1783430917339,
+      "savedAt": 1783454996277,
       "level": 1,
       "snapshot": {
         "score": {
@@ -23,33 +23,33 @@
         "quests": {
           "activeQuests": [
             {
-              "id": "score_2000",
+              "id": "score_3500",
               "category": "score",
-              "label": "Atteindre 2 000 points",
-              "target": 2000,
+              "label": "Atteindre 3 500 points",
+              "target": 3500,
               "progress": 0,
               "completed": false
             },
             {
-              "id": "target_center_2",
+              "id": "ramp_perfect_1",
               "category": "precision",
-              "label": "Toucher 2 fois la zone centrale d'une cible basse",
-              "target": 2,
+              "label": "Réussir 1 rampe parfaite",
+              "target": 1,
               "progress": 0,
               "completed": false
             },
             {
-              "id": "survive_20s",
+              "id": "bumpers_5",
               "category": "exploration",
-              "label": "Survivre 20 secondes avec la même bille",
-              "target": 20,
+              "label": "Toucher 5 bumpers au total",
+              "target": 5,
               "progress": 0,
               "completed": false
             }
           ],
           "loopLeftDone": false,
           "loopRightDone": false,
-          "phaseStartedAt": 1783430917339,
+          "phaseStartedAt": 1783454996276,
           "bossFightTriggered": false,
           "currentPhase": 1
         }

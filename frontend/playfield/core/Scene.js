@@ -185,10 +185,6 @@ export class Scene {
 
     startRender(physics, onUpdate) {
         this.targetFrameInterval = 1000 / 60;
-        // La bille et les palettes ont besoin d'une simulation plus fine que
-        // l'affichage. Le rendu reste limité à 60 FPS, mais Rapier conserve les
-        // 120 Hz utilisés avant l'optimisation afin d'éviter les mouvements
-        // irréguliers et les collisions manquées.
         this.fixedTimeStep = 1 / 120;
         this.maxPhysicsStepsPerFrame = 4;
         this.accumulator = 0;
@@ -210,9 +206,6 @@ export class Scene {
             requestAnimationFrame(() => this.render(physics, onUpdate));
             return;
         }
-        // Avance sur une horloge régulière au lieu de repartir de `now`, tout
-        // en abandonnant le retard après une vraie pause. Cela conserve 60 FPS
-        // aussi bien sur un écran 60 Hz que sur un écran ProMotion 120 Hz.
         this.lastRenderTime = sinceLastRender >= this.targetFrameInterval * 2
             ? now
             : this.lastRenderTime + this.targetFrameInterval;
