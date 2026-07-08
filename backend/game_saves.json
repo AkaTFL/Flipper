@@ -1,7 +1,7 @@
 {
   "slots": [
     {
-      "savedAt": 1783454996277,
+      "savedAt": 1783520955765,
       "level": 1,
       "snapshot": {
         "score": {
@@ -23,10 +23,10 @@
         "quests": {
           "activeQuests": [
             {
-              "id": "score_3500",
+              "id": "score_2000",
               "category": "score",
-              "label": "Atteindre 3 500 points",
-              "target": 3500,
+              "label": "Atteindre 2 000 points",
+              "target": 2000,
               "progress": 0,
               "completed": false
             },
@@ -49,7 +49,7 @@
           ],
           "loopLeftDone": false,
           "loopRightDone": false,
-          "phaseStartedAt": 1783454996276,
+          "phaseStartedAt": 1783520955763,
           "bossFightTriggered": false,
           "currentPhase": 1
         }

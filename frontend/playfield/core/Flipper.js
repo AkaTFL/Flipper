@@ -274,24 +274,7 @@ export async function initFlipper(options = {}) {
     // Attend toutes les images puis les transfère à la GPU avant la partie.
     // Les objets initialement cachés (notamment la seconde rampe) ne provoquent
     // ainsi plus un gros upload lors de leur première apparition.
-    await Promise.all(meshes.flatMap((object) => object.textureLoadPromises ?? []));
-    const gpuTextures = new Set();
-    sceneManager.scene.traverse((node) => {
-        const materials = Array.isArray(node.material) ? node.material : [node.material];
-        for (const material of materials.filter(Boolean)) {
-            for (const value of Object.values(material)) {
-                if (value?.isTexture) gpuTextures.add(value);
-            }
-        }
-    });
-    const texturesToUpload = [...gpuTextures];
-    const uploadBatchSize = 12;
-    for (let index = 0; index < texturesToUpload.length; index += uploadBatchSize) {
-        for (const texture of texturesToUpload.slice(index, index + uploadBatchSize)) {
-            sceneManager.renderer.initTexture(texture);
-        }
-        await new Promise((resolve) => requestAnimationFrame(resolve));
-    }
+    await warmUpGpuTextures(meshes, sceneManager);
     sceneManager.renderer.compile(sceneManager.scene, sceneManager.camera);
     // Chauffe aussi les passes bloom/outline avant de montrer le canvas.
     sceneManager.postProcessing.render(0);
@@ -325,4 +308,29 @@ export async function initFlipper(options = {}) {
         }
     });
     
+}
+
+// Attend le chargement des textures de tous les objets, puis les transfère
+// à la GPU par petits lots (pour éviter un gros pic d'upload d'un coup).
+async function warmUpGpuTextures(meshes, sceneManager) {
+    await Promise.all(meshes.flatMap((object) => object.textureLoadPromises ?? []));
+
+    const gpuTextures = new Set();
+    sceneManager.scene.traverse((node) => {
+        const materials = Array.isArray(node.material) ? node.material : [node.material];
+        for (const material of materials.filter(Boolean)) {
+            for (const value of Object.values(material)) {
+                if (value?.isTexture) gpuTextures.add(value);
+            }
+        }
+    });
+
+    const texturesToUpload = [...gpuTextures];
+    const uploadBatchSize = 12;
+    for (let index = 0; index < texturesToUpload.length; index += uploadBatchSize) {
+        for (const texture of texturesToUpload.slice(index, index + uploadBatchSize)) {
+            sceneManager.renderer.initTexture(texture);
+        }
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
 }

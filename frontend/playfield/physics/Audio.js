@@ -232,6 +232,21 @@ export class AudioManager {
         this.rollingAudio.playbackRate = Math.min(maxPitch, Math.max(minPitch, speed / maxSpeed));
     }
 
+    updateRollingBallSound(physics) {
+        const ball = physics.ball;
+        if (!ball?.rigidBody || typeof ball.rigidBody.linvel !== 'function') {
+            return;
+        }
+
+        const velocity = ball.rigidBody.linvel();
+        const speed = Math.hypot(
+            velocity.x ?? 0,
+            velocity.y ?? 0,
+            velocity.z ?? 0
+        );
+        this.updateRollingBall(speed, Config.global.sounds.ball.metal);
+    }
+
     playMusic(soundtrackOrFolder, volume = 0.2) {
         let files;
 

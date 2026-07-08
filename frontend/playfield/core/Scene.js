@@ -84,48 +84,7 @@ export class Scene {
 
         this.cameraHelper = createCameraHelper(this.scene, this.camera, this.controls);
 
-        // ==========================================
-        // POST-PROCESSING
-        // Toute la logique est déléguée à PostProcessingManager
-        // ==========================================
-        this.postProcessing = new PostProcessingManager(
-            this.renderer,
-            this.scene,
-            this.camera,
-            {
-                ssao: {
-                    kernelRadius: 16,
-                    minDistance: 0.005,
-                    maxDistance: 0.1,
-                },
-                bloom: {
-                    strength:   2,
-                    radius:     2,
-                    threshold:  0.2,
-                    color:      Config[Config.currentLevel].bloom,
-                    tolerance:  0.4,
-                },
-                // Le renderer utilise déjà MSAA. Une seconde passe FXAA est
-                // redondante et coûteuse sur les écrans Retina.
-                fxaa: false,
-
-                outline: {
-                    edgeStrength: 2,
-                    edgeGlow: 1,
-                    edgeThickness: 2,
-                    visibleEdgeColor: Config[Config.currentLevel].outline,
-                    hiddenEdgeColor: 0x22090a,
-                }
-            }
-        );
-
-        // setupCameraResize reçoit le composer interne du manager
-        setupCameraResize(
-            this.camera,
-            this.renderer,
-            this.postProcessing.composer,
-            this.frustumHeight
-        );
+        this.initPostProcessing();
 
         // ==========================================
         // LUMIÈRES
@@ -169,6 +128,51 @@ export class Scene {
         return { renderer: this.renderer, scene: this.scene, camera: this.camera };
     }
 
+    // ==========================================
+    // POST-PROCESSING
+    // Toute la logique est déléguée à PostProcessingManager
+    // ==========================================
+    initPostProcessing() {
+        this.postProcessing = new PostProcessingManager(
+            this.renderer,
+            this.scene,
+            this.camera,
+            {
+                ssao: {
+                    kernelRadius: 16,
+                    minDistance: 0.005,
+                    maxDistance: 0.1,
+                },
+                bloom: {
+                    strength:   2,
+                    radius:     2,
+                    threshold:  0.2,
+                    color:      Config[Config.currentLevel].bloom,
+                    tolerance:  0.4,
+                },
+                // Le renderer utilise déjà MSAA. Une seconde passe FXAA est
+                // redondante et coûteuse sur les écrans Retina.
+                fxaa: false,
+
+                outline: {
+                    edgeStrength: 2,
+                    edgeGlow: 1,
+                    edgeThickness: 2,
+                    visibleEdgeColor: Config[Config.currentLevel].outline,
+                    hiddenEdgeColor: 0x22090a,
+                }
+            }
+        );
+
+        // setupCameraResize reçoit le composer interne du manager
+        setupCameraResize(
+            this.camera,
+            this.renderer,
+            this.postProcessing.composer,
+            this.frustumHeight
+        );
+    }
+
     getCamera() {
         return this.camera;
     }
@@ -183,7 +187,15 @@ export class Scene {
         });
     }
 
+    // ==========================================
+    // FRÉQUENCE / TIMING
+    // ==========================================
     startRender(physics, onUpdate) {
+        this.initFrameTiming();
+        requestAnimationFrame(() => this.render(physics, onUpdate));
+    }
+
+    initFrameTiming() {
         this.targetFrameInterval = 1000 / 60;
         this.fixedTimeStep = 1 / 120;
         this.maxPhysicsStepsPerFrame = 4;
@@ -192,45 +204,18 @@ export class Scene {
         this.lastRenderTime = this.lastTime - this.targetFrameInterval;
         this.performanceSampleStart = this.lastTime;
         this.performanceFrameCount = 0;
-
-        requestAnimationFrame(() => this.render(physics, onUpdate));
     }
 
     render(physics, onUpdate) {
         const now = performance.now();
-        const sinceLastRender = now - this.lastRenderTime;
-        // Safari ne livre pas toujours requestAnimationFrame à exactement
-        // 16,67 ms. Une tolérance de 2 ms évite qu'un frame à 15–16 ms soit
-        // rejeté puis affiché seulement au raf suivant (saccades à ~30 FPS).
-        if (sinceLastRender < this.targetFrameInterval - 2) {
+        if (!this.shouldRenderFrame(now)) {
             requestAnimationFrame(() => this.render(physics, onUpdate));
             return;
         }
-        this.lastRenderTime = sinceLastRender >= this.targetFrameInterval * 2
-            ? now
-            : this.lastRenderTime + this.targetFrameInterval;
         const frameStartedAt = performance.now();
 
-        let delta = Math.min((now - this.lastTime) / 1000, 0.1);
-        this.lastTime = now;
-
-        this.accumulator += delta;
-        let physicsSteps = 0;
-        while (
-            this.accumulator >= this.fixedTimeStep &&
-            physicsSteps < this.maxPhysicsStepsPerFrame
-        ) {
-            const physicsStartedAt = performance.now();
-            physics.step();
-            this.performancePhysicsCostTotal += performance.now() - physicsStartedAt;
-            this.accumulator -= this.fixedTimeStep;
-            physicsSteps += 1;
-        }
-        if (physicsSteps === this.maxPhysicsStepsPerFrame) {
-            // Evita a espiral de recuperação: um frame lento não deve gerar
-            // uma longa rajada de passos físicos no frame seguinte.
-            this.accumulator %= this.fixedTimeStep;
-        }
+        const delta = this.advanceTime(now);
+        this.stepPhysics(physics, delta);
 
         if (this.controls) this.controls.update();
         if (onUpdate) onUpdate();
@@ -252,6 +237,44 @@ export class Scene {
         this.updateAdaptiveQuality(performance.now());
 
         requestAnimationFrame(() => this.render(physics, onUpdate));
+    }
+
+    // Safari ne livre pas toujours requestAnimationFrame à exactement
+    // 16,67 ms. Une tolérance de 2 ms évite qu'un frame à 15–16 ms soit
+    // rejeté puis affiché seulement au raf suivant (saccades à ~30 FPS).
+    shouldRenderFrame(now) {
+        const sinceLastRender = now - this.lastRenderTime;
+        if (sinceLastRender < this.targetFrameInterval - 2) {
+            return false;
+        }
+        this.lastRenderTime = sinceLastRender >= this.targetFrameInterval * 2
+            ? now
+            : this.lastRenderTime + this.targetFrameInterval;
+        return true;
+    }
+
+    advanceTime(now) {
+        const delta = Math.min((now - this.lastTime) / 1000, 0.1);
+        this.lastTime = now;
+        this.accumulator += delta;
+        return delta;
+    }
+
+    stepPhysics(physics, delta) {
+        let physicsSteps = 0;
+        while (
+            this.accumulator >= this.fixedTimeStep &&
+            physicsSteps < this.maxPhysicsStepsPerFrame
+        ) {
+            const physicsStartedAt = performance.now();
+            physics.step();
+            this.performancePhysicsCostTotal += performance.now() - physicsStartedAt;
+            this.accumulator -= this.fixedTimeStep;
+            physicsSteps += 1;
+        }
+        if (physicsSteps === this.maxPhysicsStepsPerFrame) {
+            this.accumulator %= this.fixedTimeStep;
+        }
     }
 
     updateAdaptiveQuality(now) {

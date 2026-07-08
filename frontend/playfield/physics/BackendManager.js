@@ -1,4 +1,5 @@
 import Config, { NiveauActuel } from '../physics/Config.js';
+import { AudioManager } from './Audio.js'
 
 export class BackendManager {
     constructor(physics) {
@@ -7,6 +8,7 @@ export class BackendManager {
         this.lastBackendMessage = null;
         this.lastScoreUpdate = null;
         this.activeSaveSlot = null;
+        this.AudioManager = AudioManager.getShared();
     }
 
     connectBackend() {
@@ -88,6 +90,23 @@ export class BackendManager {
         this.freezeBallForReload();
         this.persistSessionForReload();
         this.physics.sceneManager?.triggerBossDefeatReload();
+    }
+
+    
+    applyLevelConfig() {
+        const levelConfig = Config[Config.currentLevel];
+        if (!levelConfig) return;
+    
+        const multiplier = Config.forceMultiplier;
+        this.physics.world.gravity = {
+            x: levelConfig.gravity.x * multiplier,
+            y: levelConfig.gravity.y * multiplier,
+            z: levelConfig.gravity.z * multiplier
+        };
+    
+        this.AudioManager.stopMusic?.();
+        this.AudioManager.playMusic(levelConfig.soundtrack, 0.2);
+        console.info(`Niveau actif : ${Config.currentLevel}`);
     }
 
     freezeBallForReload() {

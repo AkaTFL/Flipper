@@ -95,13 +95,13 @@ export class GamePhysics {
         };
 
         this.world = new RAPIER.World(gravity);
-        this.connectBackend();
+        this.connectBackend(this);
 
         this.ball = this.objects.find(
             (obj) => obj.objectType === 'ball' && obj.rigidBody
         );
 
-        this.applyLevelConfig();
+        this.backendManager.applyLevelConfig();
     }
 
     step() {
@@ -114,18 +114,7 @@ export class GamePhysics {
     }
 
     updateRollingBallSound() {
-        const ball = this.ball;
-        if (!ball?.rigidBody || typeof ball.rigidBody.linvel !== 'function') {
-            return;
-        }
-
-        const velocity = ball.rigidBody.linvel();
-        const speed = Math.hypot(
-            velocity.x ?? 0,
-            velocity.y ?? 0,
-            velocity.z ?? 0
-        );
-        this.audioManager.updateRollingBall(speed, Config.global.sounds.ball.metal);
+        this.audioManager.updateRollingBallSound(this);
     }
 
     // --- Délégation des responsabilités ---
@@ -264,18 +253,6 @@ export class GamePhysics {
     }
 
     applyLevelConfig() {
-        const levelConfig = Config[Config.currentLevel];
-        if (!levelConfig) return;
-
-        const multiplier = Config.forceMultiplier;
-        this.world.gravity = {
-            x: levelConfig.gravity.x * multiplier,
-            y: levelConfig.gravity.y * multiplier,
-            z: levelConfig.gravity.z * multiplier
-        };
-
-        this.audioManager.stopMusic?.();
-        this.audioManager.playMusic(levelConfig.soundtrack, 0.2);
-        console.info(`Niveau actif : ${Config.currentLevel}`);
+        this.audioManager.applyLevelConfig(this);
     }
 }
