@@ -31,8 +31,6 @@ export class LaunchingRamp extends Objects {
         const modelPath = new URL(Config.global.positioning.launchingRamp.model, import.meta.url).href;
 
         this.addMesh(modelPath, (modelRoot) => {
-            this.addTexture(Config[Config.currentLevel].textures.launching_ramp, modelRoot);
-
             if (!this.rigidBody) this.createFixedRigidBody(position, rotation);
 
             // Chaque pièce reçoit un collider dans le repère local du rigid
@@ -42,69 +40,71 @@ export class LaunchingRamp extends Objects {
             // du rail au milieu du lancement.
             modelRoot.traverse((child) => {
                 if (!child.isMesh || !child.geometry) return;
+
+                this.addTexture(Config[Config.currentLevel].textures.launching_ramp, child);
                 this.buildLocalTrimeshCollider(child);
             });
 
-            this.createInvisibleLaunchGuides();
+            // this.createInvisibleLaunchGuides();
 
             this.mesh.position.copy(position);
         });
     }
 
-    createInvisibleLaunchGuides() {
-        if (!this.rigidBody || this.guideColliders?.length) return;
+    // createInvisibleLaunchGuides() {
+    //     if (!this.rigidBody || this.guideColliders?.length) return;
 
-        const ballConfig = Config.global.positioning.ball;
-        const rampConfig = Config.global.positioning.launchingRamp;
-        const guideThickness = 6;
-        const guideHalfWidth = ballConfig.radius * 3;
-        const guideStartZ = ballConfig.position.z - 30;
-        const guideEndZ = 70;
-        const guideHalfLength = (guideEndZ - guideStartZ) / 2;
-        const guideCenterZ = guideStartZ + guideHalfLength;
-        const guideHalfHeight = rampConfig.width / 2 + ballConfig.radius * 2;
+    //     const ballConfig = Config.global.positioning.ball;
+    //     const rampConfig = Config.global.positioning.launchingRamp;
+    //     const guideThickness = 6;
+    //     const guideHalfWidth = ballConfig.radius * 3;
+    //     const guideStartZ = ballConfig.position.z - 30;
+    //     const guideEndZ = 70;
+    //     const guideHalfLength = (guideEndZ - guideStartZ) / 2;
+    //     const guideCenterZ = guideStartZ + guideHalfLength;
+    //     const guideHalfHeight = rampConfig.width / 2 + ballConfig.radius * 2;
 
-        const bodyRotation = this.toRotationQuaternion(rampConfig.rotation);
-        const inverseBodyRotation = new THREE.Quaternion(
-            bodyRotation.x,
-            bodyRotation.y,
-            bodyRotation.z,
-            bodyRotation.w
-        ).invert();
+    //     const bodyRotation = this.toRotationQuaternion(rampConfig.rotation);
+    //     const inverseBodyRotation = new THREE.Quaternion(
+    //         bodyRotation.x,
+    //         bodyRotation.y,
+    //         bodyRotation.z,
+    //         bodyRotation.w
+    //     ).invert();
 
-        const toLocalPosition = (worldX) => new THREE.Vector3(
-            worldX,
-            rampConfig.position.y,
-            guideCenterZ
-        )
-            .sub(new THREE.Vector3(
-                rampConfig.position.x,
-                rampConfig.position.y,
-                rampConfig.position.z
-            ))
-            .applyQuaternion(inverseBodyRotation);
+    //     const toLocalPosition = (worldX) => new THREE.Vector3(
+    //         worldX,
+    //         rampConfig.position.y,
+    //         guideCenterZ
+    //     )
+    //         .sub(new THREE.Vector3(
+    //             rampConfig.position.x,
+    //             rampConfig.position.y,
+    //             rampConfig.position.z
+    //         ))
+    //         .applyQuaternion(inverseBodyRotation);
 
-        this.guideColliders = [-1, 1].map((side) => {
-            const worldX = ballConfig.position.x
-                + side * (guideHalfWidth + guideThickness);
-            const localPosition = toLocalPosition(worldX);
-            const guideDesc = RAPIER.ColliderDesc
-                .cuboid(guideThickness, guideHalfHeight, guideHalfLength)
-                .setTranslation(localPosition.x, localPosition.y, localPosition.z)
-                // Annule la rotation du body : les guides restent verticales
-                // et alignées sur le couloir visible dans le monde.
-                .setRotation({
-                    x: inverseBodyRotation.x,
-                    y: inverseBodyRotation.y,
-                    z: inverseBodyRotation.z,
-                    w: inverseBodyRotation.w
-                })
-                .setFriction(0)
-                .setRestitution(0);
+    //     this.guideColliders = [-1, 1].map((side) => {
+    //         const worldX = ballConfig.position.x
+    //             + side * (guideHalfWidth + guideThickness);
+    //         const localPosition = toLocalPosition(worldX);
+    //         const guideDesc = RAPIER.ColliderDesc
+    //             .cuboid(guideThickness, guideHalfHeight, guideHalfLength)
+    //             .setTranslation(localPosition.x, localPosition.y, localPosition.z)
+    //             // Annule la rotation du body : les guides restent verticales
+    //             // et alignées sur le couloir visible dans le monde.
+    //             .setRotation({
+    //                 x: inverseBodyRotation.x,
+    //                 y: inverseBodyRotation.y,
+    //                 z: inverseBodyRotation.z,
+    //                 w: inverseBodyRotation.w
+    //             })
+    //             .setFriction(0)
+    //             .setRestitution(0);
 
-            return this.attachCollider(guideDesc, this.rigidBody);
-        });
-    }
+    //         return this.attachCollider(guideDesc, this.rigidBody);
+    //     });
+    // }
 
     computeRampDirection() {
         const rx = this.rotation.x || 0;

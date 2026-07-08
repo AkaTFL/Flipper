@@ -45,10 +45,10 @@ export class Repulse extends Objects {
                     Config[Config.currentLevel].textures.repulse,
                     child
                 );
-            });
 
-            this.buildTrimeshCollider(modelRoot, {
-                activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+                this.buildTrimeshCollider(child, {
+                    activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
+                });
             });
         });
     }

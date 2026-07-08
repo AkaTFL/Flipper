@@ -67,15 +67,35 @@
         await initFlipper({ slot, mode, level });
       };
 
-      const menu = new Menu({
-        onPlay: (slot, mode, level) => launchGame(slot, mode, level, menu)
-      });
+      const readReloadSession = () => {
+        try {
+          const raw = sessionStorage.getItem('flipperReloadSession');
+          if (!raw) return null;
+          sessionStorage.removeItem('flipperReloadSession');
+          return JSON.parse(raw);
+        } catch (error) {
+          console.warn('Session de reload invalide, ignorée:', error);
+          return null;
+        }
+      };
 
-      // Mode borne : démarre directement une nouvelle partie sur le slot 1
-      if (new URLSearchParams(window.location.search).get('cabinet') === '1') {
-        launchGame(1, 'new', 1, null);
+      const reloadSession = readReloadSession();
+
+      if (reloadSession) {
+        // Reload juste après une victoire de boss : on saute le menu et on
+        // reprend directement sur le slot/niveau persistés avant le reload.
+        launchGame(reloadSession.slot, 'resume', reloadSession.level, null);
       } else {
-        menu.mount();
+        const menu = new Menu({
+          onPlay: (slot, mode, level) => launchGame(slot, mode, level, menu)
+        });
+
+        // Mode borne : démarre directement une nouvelle partie sur le slot 1
+        if (new URLSearchParams(window.location.search).get('cabinet') === '1') {
+          launchGame(1, 'new', 1, null);
+        } else {
+          menu.mount();
+        }
       }
     </script>
   </body>

@@ -23,27 +23,22 @@ export class Bumper extends Objects {
         this.height = width;
         this.position = position;
 
-        this.bumpCollider = null;
-
         // Physics properties - Fixed (Static)
         this.createFixedRigidBody(position, rotation);
 
         // Keep group from Objects; add either GLB model or procedural sphere
         this.mesh.position.copy(position);
-        this.mesh.rotation.x = rotation.x;
-        this.mesh.rotation.y = rotation.y;
-        this.mesh.rotation.z = rotation.z;
+        this.mesh.rotation.copy(rotation);
 
         const bumperConfig = Config.global.positioning.bumper.instances.find((entry) => entry.objectId === this.objectId) || null;
 
         const modelPath = new URL(bumperConfig.model, import.meta.url).href;
+
         const textureSet = this.objectId?.includes('bumper-triangle')
             ? Config[Config.currentLevel].textures.bumper_triangle
             : Config[Config.currentLevel].textures.bumper;
 
         this.addMesh(modelPath, (modelRoot) => {
-
-            this.addTexture(textureSet, modelRoot);
 
             modelRoot.traverse((child) => {
 
@@ -51,13 +46,11 @@ export class Bumper extends Objects {
                     return;
                 }
 
+                this.addTexture(textureSet, child);
+
                 const collider = this.buildTrimeshCollider(child, {
                     activeEvents: RAPIER.ActiveEvents.COLLISION_EVENTS
                 });
-
-                if (child.name && child.name.toLowerCase().includes('bump')) {
-                    this.bumpCollider = collider;
-                }
             });
 
         });
