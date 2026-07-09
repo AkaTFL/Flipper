@@ -6,10 +6,10 @@ description = "Flipper virtuel avec Playfield, Backglass, DMD et contrôleur ESP
 
 [deploy]
 strategy = "branch"
-ref      = "develop"
+ref      = "codex/test-boss-damage-local"
 
 [screens]
-playfield = { service = "app", port = 80, path = "/playfield/?cabinet=1" }
+playfield = { service = "app", port = 80, path = "/playfield/?cabinet=1&safe-render=1" }
 backglass = { service = "app", port = 80, path = "/backglass/" }
 dmd       = { service = "app", port = 80, path = "/dmd/" }
 

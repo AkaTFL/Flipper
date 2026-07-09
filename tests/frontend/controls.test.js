@@ -101,6 +101,26 @@ test('Controls triggers player damage and ball lost callbacks on debug keys', ()
   globalThis.window = previousWindow;
 });
 
+test('Controls triggers boss damage callback once per debug key press', () => {
+  const previousWindow = globalThis.window;
+  const windowStub = createWindowStub();
+  globalThis.window = windowStub;
+
+  const controls = new Controls('q', 'd', 'space', 'b');
+  let bossDamageCalls = 0;
+
+  controls.setBossDamageCallback(() => {
+    bossDamageCalls += 1;
+  });
+
+  windowStub.listeners.get('keydown')({ key: 'k', preventDefault() {}, repeat: false });
+  windowStub.listeners.get('keydown')({ key: 'k', preventDefault() {}, repeat: true });
+
+  assert.equal(bossDamageCalls, 1);
+
+  globalThis.window = previousWindow;
+});
+
 test('Controls accepts two keys for each flipper and preserves simultaneous presses', () => {
   const previousWindow = globalThis.window;
   const windowStub = createWindowStub();

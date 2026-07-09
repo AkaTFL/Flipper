@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+const bossDamageTestAmount = 500
+
 // GameService encapsule la logique métier des messages WebSocket
 type GameService struct {
 	hub      *Hub
@@ -91,6 +93,11 @@ func (gs *GameService) registerHandlers() {
 
 	gs.handlers["boss_fight_toggled"] = messageHandlerFunc(func(gs *GameService, _ Message, _ []byte) ([]byte, bool) {
 		gs.handleBossFightToggled()
+		return nil, false
+	})
+
+	gs.handlers["boss_damage_test"] = messageHandlerFunc(func(gs *GameService, _ Message, _ []byte) ([]byte, bool) {
+		gs.handleBossDamageTest()
 		return nil, false
 	})
 
@@ -270,6 +277,27 @@ func (gs *GameService) handleBossFightStarted() {
 func (gs *GameService) handleBossFightToggled() {
 	log.Println("Boss fight toggle")
 	gs.hub.broadcast <- NewBossStateUpdateMessage(gs.hub.boss.ToggleBossFight())
+}
+
+// handleBossDamageTest retire rapidement des PV au boss pour valider
+// localement sa défaite et la transition vers la phase suivante.
+func (gs *GameService) handleBossDamageTest() {
+	log.Printf("Dégâts boss test: %d", bossDamageTestAmount)
+	bossUpdate, ok := gs.hub.boss.ApplyDirectDamage(bossDamageTestAmount, "debug_damage")
+	if !ok {
+		log.Println("Dégâts boss test ignorés: aucun boss actif")
+		return
+	}
+
+	gs.hub.broadcast <- NewBossStateUpdateMessage(bossUpdate)
+	if !bossUpdate.Defeated {
+		return
+	}
+
+	if questUpdate, advanced := gs.hub.quests.AdvanceToNextPhase(time.Now().UnixMilli()); advanced {
+		gs.hub.broadcast <- NewQuestUpdateMessage(questUpdate)
+	}
+	gs.hub.broadcast <- NewBossStateUpdateMessage(gs.hub.boss.ResetForGameStart())
 }
 
 // handlePlayerDamageTest simule une attaque du boss tant que les vraies attaques ne sont pas branchées

@@ -149,11 +149,19 @@ export class Palles extends Objects {
             ? (this.isLeft ? this.angle : -this.angle)
             : 0;
 
-        this.joint.configureMotorPosition(
-            targetAngle,
-            this.motorStiffness,
-            this.motorDamping
-        );
+        try {
+            this.joint.configureMotorPosition(
+                targetAngle,
+                this.motorStiffness,
+                this.motorDamping
+            );
+        } catch (error) {
+            console.error('[Palles] Impossible de configurer le moteur de palette:', this.objectId, error);
+            if (globalThis.document?.body) {
+                globalThis.document.body.dataset.flipperPalleError = `${this.objectId}: ${error?.message || error}`;
+            }
+            return;
+        }
 
         if (active && !this.wasActive) {
             this.playSound(Config.global.sounds.palles.movement);
@@ -162,7 +170,14 @@ export class Palles extends Objects {
     }
 
     syncPalle() {
-        this.syncObjects();
+        try {
+            this.syncObjects();
+        } catch (error) {
+            console.error('[Palles] Impossible de synchroniser la palette:', this.objectId, error);
+            if (globalThis.document?.body) {
+                globalThis.document.body.dataset.flipperPalleError = `${this.objectId}: ${error?.message || error}`;
+            }
+        }
     }
 
     handleCollision() {

@@ -104,6 +104,9 @@ export async function initFlipper(options = {}) {
     controls.setBossFightStartCallback(() => {
         physics.sendMessage('boss_fight_toggled');
     });
+    controls.setBossDamageCallback(() => {
+        physics.sendMessage('boss_damage_test');
+    });
     controls.setPlayerDamageCallback(() => {
         physics.sendMessage('boss_attack_test');
     });
@@ -299,11 +302,18 @@ export async function initFlipper(options = {}) {
 
     sceneManager.startRender(physics, () => {
         for (const object of dynamicObjects) {
-            object.syncPalle?.();
-            object.syncBall?.();
+            try {
+                object.syncPalle?.();
+                object.syncBall?.();
 
-            if (typeof object.setActive === 'function') {
-                object.setActive(object.side === 'left' ? controls.input.left : controls.input.right);
+                if (typeof object.setActive === 'function') {
+                    object.setActive(object.side === 'left' ? controls.input.left : controls.input.right);
+                }
+            } catch (error) {
+                console.error('[Flipper] Erreur objet dynamique, rendu maintenu:', object.objectId || object.objectType, error);
+                if (globalThis.document?.body) {
+                    globalThis.document.body.dataset.flipperDynamicError = `${object.objectId || object.objectType || 'object'}: ${error?.message || error}`;
+                }
             }
         }
     });

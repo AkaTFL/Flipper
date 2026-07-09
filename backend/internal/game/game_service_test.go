@@ -298,6 +298,71 @@ func TestGameServiceHandlePlayerDamageTest(t *testing.T) {
 	}
 }
 
+func TestGameServiceBossDamageTestDefeatsBossAndAdvancesPhase(t *testing.T) {
+	hub := newHub()
+	hub.boss = newBossTracker(BossConfig{MaxHP: bossDamageTestAmount, DamageCoefficient: defaultBossDamageFactor})
+	hub.quests.ResetForGameStart(1000)
+	hub.boss.StartBossFight()
+	go hub.run()
+
+	client := &Client{send: make(chan []byte, 256)}
+	hub.register <- client
+	service := NewGameService(hub)
+
+	response, isDirectResponse := service.HandleMessage(
+		Message{Type: "boss_damage_test"},
+		[]byte(`{"type":"boss_damage_test"}`),
+	)
+
+	if isDirectResponse || response != nil {
+		t.Fatal("expected boss_damage_test to broadcast without a direct response")
+	}
+
+	messages := make([]Message, 0, 3)
+	timeout := time.Now().Add(500 * time.Millisecond)
+	for time.Now().Before(timeout) && len(messages) < 3 {
+		select {
+		case broadcast := <-client.send:
+			var msg Message
+			if err := json.Unmarshal(broadcast, &msg); err != nil {
+				t.Fatalf("failed to unmarshal broadcast: %v", err)
+			}
+			messages = append(messages, msg)
+		case <-time.After(10 * time.Millisecond):
+		}
+	}
+
+	if len(messages) != 3 {
+		t.Fatalf("expected defeated boss, phase transition and boss reset messages, got %d", len(messages))
+	}
+
+	if messages[0].Type != "boss_state_update" {
+		t.Fatalf("expected first message boss_state_update, got %s", messages[0].Type)
+	}
+	var defeated BossStateUpdatePayload
+	if err := json.Unmarshal(messages[0].Payload, &defeated); err != nil {
+		t.Fatalf("failed to unmarshal defeated boss: %v", err)
+	}
+	if !defeated.Defeated || defeated.HP != 0 || defeated.DamageTaken != bossDamageTestAmount {
+		t.Fatalf("unexpected defeated boss payload: %+v", defeated)
+	}
+
+	if messages[1].Type != "quest_update" {
+		t.Fatalf("expected second message quest_update, got %s", messages[1].Type)
+	}
+	var phase QuestUpdatePayload
+	if err := json.Unmarshal(messages[1].Payload, &phase); err != nil {
+		t.Fatalf("failed to unmarshal phase transition: %v", err)
+	}
+	if phase.Phase != 2 || phase.Mode != "phase_transition" {
+		t.Fatalf("expected transition to phase 2, got %+v", phase)
+	}
+
+	if messages[2].Type != "boss_state_update" {
+		t.Fatalf("expected third message boss_state_update reset, got %s", messages[2].Type)
+	}
+}
+
 func TestGameServiceResetsSurvivalQuestWhenBossDamageLosesBall(t *testing.T) {
 	hub := newHub()
 	hub.player = newPlayerTracker(PlayerConfig{MaxHP: 20, MaxBalls: 3})

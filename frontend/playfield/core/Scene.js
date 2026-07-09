@@ -49,18 +49,31 @@ export class Scene {
         this.performanceFrameCostTotal = 0;
         this.performanceFrameCostMax = 0;
         this.performancePhysicsCostTotal = 0;
+        this.lastRenderErrorAt = 0;
+        this.renderErrorCount = 0;
+        this.urlParams = new URLSearchParams(globalThis.location?.search ?? '');
+        this.forceSimpleRender = this.urlParams.get('safe-render') === '1'
+            || this.urlParams.get('low-gpu') === '1';
+        this.isCabinetMode = this.urlParams.get('cabinet') === '1';
+        this.postProcessingFallback = this.forceSimpleRender;
+        this.webglContextLost = false;
 
         this.init(height, width, position, rotation);
     }
 
     init(height, width, position, rotation) {
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.enabled = !this.forceSimpleRender;
         // Un canvas Retina plein écran à 2x dépasse 8 millions de pixels.
         // 1,5x conserve une image nette tout en réduisant de 44 % le nombre de
         // pixels traités par chaque passe GPU.
         const isLargeViewport = this.WIDTH * this.HEIGHT >= 1_500_000;
-        this.pixelRatio = Math.min(window.devicePixelRatio, isLargeViewport ? 1.5 : 2);
+        const maxPixelRatio = this.forceSimpleRender
+            ? 1
+            : this.isCabinetMode
+                ? 1.25
+                : (isLargeViewport ? 1.5 : 2);
+        this.pixelRatio = Math.min(window.devicePixelRatio, maxPixelRatio);
         this.renderer.setPixelRatio(this.pixelRatio);
         this.renderer.setSize(this.WIDTH, this.HEIGHT);
         this.renderer.outputEncoding = THREE.sRGBEncoding;
@@ -124,6 +137,28 @@ export class Scene {
 
         const container = document.getElementById('three');
         container.appendChild(this.renderer.domElement);
+        if (globalThis.document?.body) {
+            globalThis.document.body.dataset.flipperRenderMode = this.forceSimpleRender
+                ? 'safe'
+                : this.isCabinetMode
+                    ? 'cabinet'
+                    : 'quality';
+        }
+
+        this.renderer.domElement.addEventListener('webglcontextlost', (event) => {
+            event.preventDefault();
+            this.webglContextLost = true;
+            console.error('[Flipper] Contexte WebGL perdu: rendu temporairement suspendu');
+            if (globalThis.document?.body) {
+                globalThis.document.body.dataset.flipperRenderError = 'webglcontextlost';
+            }
+        });
+
+        this.renderer.domElement.addEventListener('webglcontextrestored', () => {
+            this.webglContextLost = false;
+            this.postProcessingFallback = true;
+            console.warn('[Flipper] Contexte WebGL restauré: rendu simple utilisé par sécurité');
+        });
 
         return { renderer: this.renderer, scene: this.scene, camera: this.camera };
     }
@@ -207,36 +242,80 @@ export class Scene {
     }
 
     render(physics, onUpdate) {
-        const now = performance.now();
-        if (!this.shouldRenderFrame(now)) {
-            requestAnimationFrame(() => this.render(physics, onUpdate));
-            return;
+        try {
+            const now = performance.now();
+            if (!this.shouldRenderFrame(now)) {
+                requestAnimationFrame(() => this.render(physics, onUpdate));
+                return;
+            }
+            if (this.webglContextLost) {
+                requestAnimationFrame(() => this.render(physics, onUpdate));
+                return;
+            }
+
+            const frameStartedAt = performance.now();
+
+            const delta = this.advanceTime(now);
+            this.stepPhysics(physics, delta);
+
+            if (this.controls) this.controls.update();
+            if (onUpdate) onUpdate();
+            if (this.cameraHelper?.visible) this.cameraHelper.update();
+
+            this.lightHelpers?.forEach(h => { if (h.visible) h.update(); });
+
+            if (this.debugEnabled) this.debugRenderer.update();
+
+            this.effectManager?.update(delta);
+
+            this.renderFrame(delta);
+
+            const frameCost = performance.now() - frameStartedAt;
+            this.performanceFrameCostTotal += frameCost;
+            this.performanceFrameCostMax = Math.max(this.performanceFrameCostMax, frameCost);
+
+            this.updateAdaptiveQuality(performance.now());
+        } catch (error) {
+            this.reportRenderError(error);
         }
-        const frameStartedAt = performance.now();
-
-        const delta = this.advanceTime(now);
-        this.stepPhysics(physics, delta);
-
-        if (this.controls) this.controls.update();
-        if (onUpdate) onUpdate();
-        if (this.cameraHelper?.visible) this.cameraHelper.update();
-
-        this.lightHelpers?.forEach(h => { if (h.visible) h.update(); });
-
-        if (this.debugEnabled) this.debugRenderer.update();
-
-        this.effectManager?.update(delta);
-
-        // Pipeline postprocessing principal — delta transmis pour la décroissance du flash outline
-        this.postProcessing.render(delta);
-
-        const frameCost = performance.now() - frameStartedAt;
-        this.performanceFrameCostTotal += frameCost;
-        this.performanceFrameCostMax = Math.max(this.performanceFrameCostMax, frameCost);
-
-        this.updateAdaptiveQuality(performance.now());
 
         requestAnimationFrame(() => this.render(physics, onUpdate));
+    }
+
+    renderFrame(delta) {
+        if (this.postProcessingFallback || !this.postProcessing) {
+            this.renderer.render(this.scene, this.camera);
+            return;
+        }
+
+        try {
+            // Pipeline postprocessing principal — delta transmis pour la décroissance du flash outline
+            this.postProcessing.render(delta);
+        } catch (error) {
+            this.postProcessingFallback = true;
+            this.reportRenderError(error, 'post-processing');
+            this.renderer.render(this.scene, this.camera);
+        }
+    }
+
+    reportRenderError(error, source = 'render-loop') {
+        this.renderErrorCount += 1;
+        const now = performance.now();
+        const message = error?.message || String(error);
+
+        if (now - this.lastRenderErrorAt > 1000) {
+            console.error(`[Flipper] Erreur ${source}, la boucle continue:`, error);
+            this.lastRenderErrorAt = now;
+        }
+
+        if (globalThis.document?.body) {
+            globalThis.document.body.dataset.flipperRenderError = message.slice(0, 180);
+            globalThis.document.body.dataset.flipperRenderErrorCount = String(this.renderErrorCount);
+        }
+
+        if (this.renderErrorCount >= 3) {
+            this.postProcessing?.setPerformanceMode?.(true);
+        }
     }
 
     // Safari ne livre pas toujours requestAnimationFrame à exactement

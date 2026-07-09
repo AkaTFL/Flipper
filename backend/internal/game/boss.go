@@ -148,6 +148,34 @@ func (b *BossTracker) ApplyScoreDamage(scoreDelta int) (BossStateUpdatePayload, 
 	return b.currentStateLocked(damage, "score_damage"), true
 }
 
+// ApplyDirectDamage applique un montant de dégâts explicite.
+// Cette entrée est utilisée par les outils de test locaux, sans fabriquer
+// artificiellement un impact ou un score.
+func (b *BossTracker) ApplyDirectDamage(damage int, mode string) (BossStateUpdatePayload, bool) {
+	if damage <= 0 {
+		return BossStateUpdatePayload{}, false
+	}
+
+	b.mutex.Lock()
+	defer b.mutex.Unlock()
+
+	if !b.active || b.hp <= 0 {
+		return BossStateUpdatePayload{}, false
+	}
+
+	b.hp -= damage
+	if b.hp <= 0 {
+		b.hp = 0
+		b.active = false
+	}
+
+	if mode == "" {
+		mode = "direct_damage"
+	}
+
+	return b.currentStateLocked(damage, mode), true
+}
+
 func (b *BossTracker) IsActive() bool {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()

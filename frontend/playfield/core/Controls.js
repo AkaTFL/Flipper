@@ -15,6 +15,7 @@ export class Controls{
         this.right = [...this.rightKeys][0];
         this.launch = this.normalizeKey(launch);
         this.bossDebug = this.normalizeKey(bossDebug);
+        this.bossDamageDebug = 'k';
         this.playerDamageDebug = 'h';
         this.ballLostDebug = 'l';
         this.pressedLeftKeys = new Set();
@@ -29,6 +30,7 @@ export class Controls{
         this.impulseUsed = false;
         this.startGameCallback = null;
         this.bossFightStartCallback = null;
+        this.bossDamageCallback = null;
         this.playerDamageCallback = null;
         this.ballLostCallback = null;
         this.audioManager = AudioManager.getShared();
@@ -91,6 +93,14 @@ export class Controls{
                 if (typeof this.bossFightStartCallback === 'function') {
                     console.log('Boss fight debug triggered');
                     this.bossFightStartCallback();
+                }
+                return;
+            }
+            if (key === this.bossDamageDebug) {
+                if (e.repeat) return;
+                if (typeof this.bossDamageCallback === 'function') {
+                    console.log('Boss damage debug triggered');
+                    this.bossDamageCallback();
                 }
                 return;
             }
@@ -175,6 +185,10 @@ export class Controls{
 
     setBossFightStartCallback(callback) {
         this.bossFightStartCallback = callback;
+    }
+
+    setBossDamageCallback(callback) {
+        this.bossDamageCallback = callback;
     }
 
     setPlayerDamageCallback(callback) {
